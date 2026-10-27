@@ -1,0 +1,1049 @@
+{
+  "schema_version": 1,
+  "scope": "DC1/DC2/DC3 and related fandiscs only",
+  "source": "https://github.com/cokkeijigen/MesTextTool/blob/master/MesTextTool/src/mes/script_info.cpp",
+  "source_sha256": "d598d241fb2575426109e45d7c2b229c14587f2aaa89d2c88f8e0862316f8bf7",
+  "profiles": [
+    {
+      "id": "dcxx-005d",
+      "alias": "dcxx",
+      "layout": "offset1",
+      "version": 93,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          43
+        ],
+        [
+          "string",
+          44,
+          69
+        ],
+        [
+          "encoded_string",
+          70,
+          73
+        ],
+        [
+          "u16x4",
+          74,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        66
+      ],
+      "title": "D.C.〜ダ・カーポ〜　温泉編、MEMORIES DISC",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dcmems-0062",
+      "alias": "dcmems",
+      "layout": "offset1",
+      "version": 98,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          46
+        ],
+        [
+          "string",
+          47,
+          73
+        ],
+        [
+          "encoded_string",
+          74,
+          77
+        ],
+        [
+          "u16x4",
+          78,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        69
+      ],
+      "title": "D.C. ～ダ・カーポ～ 感謝ぱっく D.C. MEMORIES DISC",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "ktlep-6e69",
+      "alias": "ktlep",
+      "layout": "offset1",
+      "version": 28265,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          40
+        ],
+        [
+          "u8str",
+          41,
+          46
+        ],
+        [
+          "string",
+          47,
+          73
+        ],
+        [
+          "encoded_string",
+          74,
+          77
+        ],
+        [
+          "u16x4",
+          78,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        69
+      ],
+      "title": "ことり Love Ex P",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dcws0-005c",
+      "alias": "dcws0",
+      "layout": "offset1",
+      "version": 92,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          43
+        ],
+        [
+          "string",
+          44,
+          69
+        ],
+        [
+          "encoded_string",
+          70,
+          73
+        ],
+        [
+          "u16x4",
+          74,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        66,
+        68
+      ],
+      "title": "D.C. White Season ~ダ・カーポ ホワイトシーズン~ クリスマス限定版",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dcws-656c",
+      "alias": "dcws",
+      "layout": "offset1",
+      "version": 25964,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          43
+        ],
+        [
+          "u8str",
+          44,
+          49
+        ],
+        [
+          "string",
+          50,
+          76
+        ],
+        [
+          "encoded_string",
+          77,
+          80
+        ],
+        [
+          "u16x4",
+          81,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        70,
+        72
+      ],
+      "title": "D.C. White Season（D.C.～ダ・カーポ～アーカイブス　SAKURA Edition）",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dcsv-636c",
+      "alias": "dcsv",
+      "layout": "offset1",
+      "version": 25452,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          43
+        ],
+        [
+          "u8str",
+          44,
+          49
+        ],
+        [
+          "string",
+          50,
+          76
+        ],
+        [
+          "encoded_string",
+          77,
+          80
+        ],
+        [
+          "u16x4",
+          81,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        70
+      ],
+      "title": "D.C. Summer Vacation～ダ・カーポ サマーバケーション～",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dcpc-3d63",
+      "alias": "dcpc",
+      "layout": "offset1",
+      "version": 15715,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          44
+        ],
+        [
+          "string",
+          45,
+          73
+        ],
+        [
+          "encoded_string",
+          74,
+          77
+        ],
+        [
+          "u16x4",
+          78,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        68
+      ],
+      "title": "Ｄ．Ｃ．Ｐ．Ｃ．(Vista)",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dcdx-7769",
+      "alias": "dcdx",
+      "layout": "offset1",
+      "version": 30569,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          40
+        ],
+        [
+          "u8str",
+          41,
+          46
+        ],
+        [
+          "string",
+          47,
+          73
+        ],
+        [
+          "encoded_string",
+          74,
+          77
+        ],
+        [
+          "u16x4",
+          78,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        53,
+        69
+      ],
+      "title": "D.C.Dream X’mas～ダ・カーポ～ドリームクリスマス",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dcas-4e69",
+      "alias": "dcas",
+      "layout": "offset1",
+      "version": 20073,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          40
+        ],
+        [
+          "u8str",
+          41,
+          46
+        ],
+        [
+          "string",
+          47,
+          73
+        ],
+        [
+          "encoded_string",
+          74,
+          77
+        ],
+        [
+          "u16x4",
+          78,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        67
+      ],
+      "title": "D.C.A.S. 〜ダ・カーポ〜アフターシーズンズ",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dcbs-3166",
+      "alias": "dcbs",
+      "layout": "offset1",
+      "version": 12646,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          46
+        ],
+        [
+          "string",
+          47,
+          75
+        ],
+        [
+          "encoded_string",
+          76,
+          79
+        ],
+        [
+          "u16x4",
+          80,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        72
+      ],
+      "title": "D.C.II ～ダ・カーポII～ 春風のアルティメットバトル!",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc2fl-9c69",
+      "alias": "dc2fl",
+      "layout": "offset1",
+      "version": 40041,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          40
+        ],
+        [
+          "u8str",
+          41,
+          46
+        ],
+        [
+          "string",
+          47,
+          73
+        ],
+        [
+          "encoded_string",
+          74,
+          77
+        ],
+        [
+          "u16x4",
+          78,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        53,
+        69
+      ],
+      "title": "D.C.II Fall in Love ～ダ・カーポII～フォーリンラブ",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc2bs-316c",
+      "alias": "dc2bs",
+      "layout": "offset1",
+      "version": 12652,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          43
+        ],
+        [
+          "u8str",
+          44,
+          49
+        ],
+        [
+          "string",
+          50,
+          76
+        ],
+        [
+          "encoded_string",
+          77,
+          80
+        ],
+        [
+          "u16x4",
+          81,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        72
+      ],
+      "title": "D.C.II ～ダ・カーポII～ 春風のアルティメットバトル! （D.C.～ダ・カーポ～アーカイブス　SAKURA Edition）",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc2dm-9d72",
+      "alias": "dc2dm",
+      "layout": "offset2",
+      "version": 40306,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          41
+        ],
+        [
+          "u8str",
+          42,
+          49
+        ],
+        [
+          "string",
+          50,
+          76
+        ],
+        [
+          "encoded_string",
+          77,
+          80
+        ],
+        [
+          "u16x4",
+          81,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        68
+      ],
+      "title": "D.C.II Dearest Marriage ～ダ・カーポII～ ディアレストマリッジ",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc2fy-3866",
+      "alias": "dc2fy",
+      "layout": "offset1",
+      "version": 14438,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          46
+        ],
+        [
+          "string",
+          47,
+          75
+        ],
+        [
+          "encoded_string",
+          76,
+          79
+        ],
+        [
+          "u16x4",
+          80,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        72
+      ],
+      "title": "D.C. II ~Featuring Yun2!~",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc2cckko-026c",
+      "alias": "dc2cckko",
+      "layout": "offset1",
+      "version": 620,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          43
+        ],
+        [
+          "u8str",
+          44,
+          49
+        ],
+        [
+          "string",
+          50,
+          76
+        ],
+        [
+          "encoded_string",
+          77,
+          80
+        ],
+        [
+          "u16x4",
+          81,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [],
+      "title": "D.C.II Character Collection ～ダ・カーポII～ キャラクターコレクション 月島小恋のらぶらぶバスルーム",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc2cckko-a96c",
+      "alias": "dc2cckko",
+      "layout": "offset1",
+      "version": 43372,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          43
+        ],
+        [
+          "u8str",
+          44,
+          49
+        ],
+        [
+          "string",
+          50,
+          76
+        ],
+        [
+          "encoded_string",
+          77,
+          80
+        ],
+        [
+          "u16x4",
+          81,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [],
+      "title": "D.C.II Character Collection ～ダ・カーポII～ キャラクターコレクション 月島小恋のらぶらぶバスルーム（D.C.～ダ・カーポ～アーカイブス　SAKURA Edition）",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc2ccotm-016c",
+      "alias": "dc2ccotm",
+      "layout": "offset1",
+      "version": 364,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          43
+        ],
+        [
+          "u8str",
+          44,
+          49
+        ],
+        [
+          "string",
+          50,
+          76
+        ],
+        [
+          "encoded_string",
+          77,
+          80
+        ],
+        [
+          "u16x4",
+          81,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [],
+      "title": "D.C.II Character Collection ～ダ・カーポII～ キャラクターコレクション 音姫先生のどきどき特別授業",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc2ccotm-a86c",
+      "alias": "dc2ccotm",
+      "layout": "offset1",
+      "version": 43116,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          43
+        ],
+        [
+          "u8str",
+          44,
+          49
+        ],
+        [
+          "string",
+          50,
+          76
+        ],
+        [
+          "encoded_string",
+          77,
+          80
+        ],
+        [
+          "u16x4",
+          81,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [],
+      "title": "D.C.II Character Collection ～ダ・カーポII～ キャラクターコレクション 音姫先生のどきどき特別授業（D.C.～ダ・カーポ～アーカイブス　SAKURA Edition）",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc2sc-3b69",
+      "alias": "dc2sc",
+      "layout": "offset1",
+      "version": 15209,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          40
+        ],
+        [
+          "u8str",
+          41,
+          46
+        ],
+        [
+          "string",
+          47,
+          73
+        ],
+        [
+          "encoded_string",
+          74,
+          77
+        ],
+        [
+          "u16x4",
+          78,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        69
+      ],
+      "title": "D.C.II Spring Celebration ～ダ・カーポII～ スプリング セレブレイション",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc2ty-5f69",
+      "alias": "dc2ty",
+      "layout": "offset1",
+      "version": 24425,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          40
+        ],
+        [
+          "u8str",
+          41,
+          46
+        ],
+        [
+          "string",
+          47,
+          73
+        ],
+        [
+          "encoded_string",
+          74,
+          77
+        ],
+        [
+          "u16x4",
+          78,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        69
+      ],
+      "title": "D.C.II To You ～ダ・カーポII～トゥーユー サイドエピソード",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc2pc-5769",
+      "alias": "dc2pc",
+      "layout": "offset1",
+      "version": 22377,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          40
+        ],
+        [
+          "u8str",
+          41,
+          46
+        ],
+        [
+          "string",
+          47,
+          73
+        ],
+        [
+          "encoded_string",
+          74,
+          77
+        ],
+        [
+          "u16x4",
+          78,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        69
+      ],
+      "title": "D.C.II P.C.～ダ・カーポII～",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc2pc-9969",
+      "alias": "dc2pc",
+      "layout": "offset1",
+      "version": 39273,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          40
+        ],
+        [
+          "u8str",
+          41,
+          46
+        ],
+        [
+          "string",
+          47,
+          73
+        ],
+        [
+          "encoded_string",
+          74,
+          77
+        ],
+        [
+          "u16x4",
+          78,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        69
+      ],
+      "title": "D.C.II P.C.～ダ・カーポII～",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc3rx-9772",
+      "alias": "dc3rx",
+      "layout": "offset2",
+      "version": 38770,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          43
+        ],
+        [
+          "u8str",
+          44,
+          51
+        ],
+        [
+          "string",
+          52,
+          78
+        ],
+        [
+          "encoded_string",
+          79,
+          82
+        ],
+        [
+          "u16x4",
+          83,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        69
+      ],
+      "title": "D.C.III R ～ダ・カーポIIIアール～X-rated",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc3pp-9872",
+      "alias": "dc3pp",
+      "layout": "offset2",
+      "version": 39026,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          42
+        ],
+        [
+          "u8str",
+          43,
+          50
+        ],
+        [
+          "string",
+          51,
+          78
+        ],
+        [
+          "encoded_string",
+          79,
+          81
+        ],
+        [
+          "u16x4",
+          82,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        69
+      ],
+      "title": "D.C.III P.P. ～ダ・カーポIII プラチナパートナー～",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc3wy-a09f",
+      "alias": "dc3wy",
+      "layout": "offset2",
+      "version": 41119,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          56
+        ],
+        [
+          "u8str",
+          57,
+          65
+        ],
+        [
+          "string",
+          66,
+          95
+        ],
+        [
+          "encoded_string",
+          96,
+          99
+        ],
+        [
+          "u16x4",
+          100,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        85
+      ],
+      "title": "D.C.III With You ～ダ・カーポIII～ ウィズユー",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dc3dd-a5a8",
+      "alias": "dc3dd",
+      "layout": "offset2",
+      "version": 42408,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          56
+        ],
+        [
+          "u8str",
+          57,
+          67
+        ],
+        [
+          "string",
+          68,
+          98
+        ],
+        [
+          "encoded_string",
+          99,
+          103
+        ],
+        [
+          "u16x4",
+          104,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        88
+      ],
+      "title": "D.C.Ⅲ DreamDays～ダ・カーポⅢ～ドリームデイズ",
+      "evidence": "reference_format_only",
+      "execution_supported": false
+    },
+    {
+      "id": "dcpc-2063",
+      "alias": "dcpc",
+      "layout": "offset1",
+      "version": 8291,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          44
+        ],
+        [
+          "string",
+          45,
+          73
+        ],
+        [
+          "encoded_string",
+          74,
+          77
+        ],
+        [
+          "u16x4",
+          78,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        68
+      ],
+      "title": "D.C.P.C. DVD (local 63 20)",
+      "evidence": "DCPCDVD.EXE 41172D..411751; 960 local scripts",
+      "execution_supported": false
+    }
+  ]
+}

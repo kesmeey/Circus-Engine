@@ -1,0 +1,1238 @@
+{
+  "schema_version": 1,
+  "scope": "D.C.1/2/3 only; static annotations, never execution",
+  "provenance": "Native x86 PE static disassembly and local MES corpora, 2026-10-26",
+  "operations": {
+    "stream.stop": {
+      "description": "Decoder leaves PC at opcode 00; dispatcher sets a stop/yield flag. Not a one-byte NOP.",
+      "operands": []
+    },
+    "control.marker": {
+      "description": "Context-dependent 3-byte record: IF companion uses signed first byte as block ID; sum list terminator.",
+      "operands": [
+        "u8",
+        "u8"
+      ]
+    },
+    "checkpoint": {
+      "description": "Combine bytes little-endian into checkpoint index; updates state and reads header u16 metadata. Not itself a jump.",
+      "operands": [
+        "u8_low",
+        "u8_high"
+      ]
+    },
+    "block.marker": {
+      "description": "p0!=0: fall through. p0==0: forward-scan to next marker whose signed second byte equals p1, resume after it.",
+      "operands": [
+        "u8_mode",
+        "u8_block_id"
+      ]
+    },
+    "label.named": {
+      "description": "Named-label search uses exact NUL-terminated bytes and returns the label opcode PC.",
+      "operands": [
+        "bytes_z"
+      ]
+    },
+    "jump.named": {
+      "description": "Resolve label from start PC 3; if missing or empty, leave PC unchanged. Dispatch has mode gates.",
+      "operands": [
+        "bytes_z"
+      ]
+    },
+    "script.transfer": {
+      "description": "Load named script with mode 0, clear several UI/state fields; full transition effects unresolved.",
+      "operands": [
+        "bytes_z"
+      ],
+      "status": "partial"
+    },
+    "script.transfer_alt": {
+      "description": "Load named script with mode 1; has different reset effects from mode 0.",
+      "operands": [
+        "bytes_z"
+      ],
+      "status": "partial"
+    },
+    "script.entry_label": {
+      "description": "Store pending named entry label. Application/reset rules are profile-specific; DC3DD modes 0 and 1 share the apply-then-clear tail.",
+      "operands": [
+        "bytes_z"
+      ],
+      "status": "partial"
+    },
+    "arguments.extend": {
+      "description": "Decoder absorbs one immediately following extension record into four extra signed words; not an independently dispatched command in that position.",
+      "operands": [
+        "i16",
+        "i16",
+        "i16",
+        "i16"
+      ]
+    },
+    "variable.update": {
+      "description": "p3=0 set(bank,index,p2); p3=1 add; p3=2 subtract; other modes do nothing in this handler.",
+      "operands": [
+        "i16_bank",
+        "i16_index",
+        "i16_value",
+        "i16_mode"
+      ]
+    },
+    "variable.copy": {
+      "description": "set(p0,p1,get(p2,p3))",
+      "operands": [
+        "i16_dst_bank",
+        "i16_dst_index",
+        "i16_src_bank",
+        "i16_src_index"
+      ]
+    },
+    "variable.sum_list": {
+      "description": "Following nine-byte records supply source bank/index pairs until opcode 02. Sum into destination p0,p1. Term opcode and last two words are ignored by the native loop; 02 is left for the decoder.",
+      "operands": [
+        "i16_dst_bank",
+        "i16_dst_index",
+        "i16_unused",
+        "i16_unused"
+      ]
+    },
+    "variable.add_variable": {
+      "description": "set(p0,p1,get(p0,p1)+get(p2,p3)); native-verified, absent from DC3DD corpus.",
+      "operands": [
+        "i16_dst_bank",
+        "i16_dst_index",
+        "i16_src_bank",
+        "i16_src_index"
+      ]
+    },
+    "branch.compare": {
+      "description": "Compare get(p0,p1) with p2; if p3 low-byte bit7 set, RHS=get(p2>>8,p2&255), compare mode=p3&127. Modes 0..5: == != > < >= <= (signed comparison). Consume next 3 bytes; signed first operand is block ID. True falls through; false uses block scan.",
+      "operands": [
+        "i16_bank",
+        "i16_index",
+        "i16_rhs",
+        "i16_compare_mode"
+      ]
+    },
+    "host.command_with_string": {
+      "description": "Consumes the next opcode-plus-NUL-string record as a payload and advances PC past it; passes four words and the string to a UI helper. Payload is not dispatched as a named jump. UI effects unresolved.",
+      "operands": [
+        "i16",
+        "i16",
+        "i16",
+        "i16"
+      ],
+      "status": "partial"
+    },
+    "wait.message": {
+      "description": "DD 06: state+444F4 nonzero suppresses wait; otherwise consume state+196FC once or yield native reason 6. Operands are unused in this handler. Requires a flow-aware host.",
+      "operands": [
+        "u8_unused",
+        "u8_unused"
+      ],
+      "status": "partial"
+    },
+    "text.speaker": {
+      "description": "DD 64: decode text, apply the input-length sakura alias rule and 420CE0 preprocessing, store the speaker buffer. Does not itself wait.",
+      "operands": [
+        "encoded_bytes_z"
+      ],
+      "status": "partial"
+    },
+    "text.body": {
+      "description": "DD 65: prepare body buffer; next non-06 instruction in normal mode causes reason 8 before consuming that instruction. Full audio/prefix/inline effects require host implementations.",
+      "operands": [
+        "encoded_bytes_z"
+      ],
+      "status": "partial"
+    },
+    "history.range": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x430A8C",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "audio.restore_volume": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x42FEF1",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "scene.transition": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x42C1C7",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "audio.music_stop": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x42D065",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "wait.duration": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x42B20A",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "system.persist": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x42DB26",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "scene.checkpoint": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x430AD1",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "system.command": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x42AECB",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "scene.effect": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x42CC61",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "image.load": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x42E193",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "scene.character": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x42E9F0",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "scene.background": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x42D254",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "audio.voice": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x43011F",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "native.no_effect": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "native_verified",
+      "handler_va": "0x431CC2",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "audio.music": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x42FD56",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "audio.sound": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x42AF68",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "scene.character_transform": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x42F2A1",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "scene.camera": {
+      "description": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+      "status": "partial",
+      "handler_va": "0x42F0B9",
+      "evidence": "analysis/native/dc3dd/text.asm"
+    },
+    "wait.audio": {
+      "description": "Native asynchronous completion event; wait.audio absorbs successive opcode 15 masks.",
+      "status": "partial",
+      "handler_va": "0x43017F"
+    },
+    "media.movie": {
+      "description": "Native asynchronous completion event; wait.audio absorbs successive opcode 15 masks.",
+      "status": "partial",
+      "handler_va": "0x430226"
+    },
+    "ui.origin": {
+      "description": "UI origin / texture subrectangle at relative destination; 74 requires 71 extension (width,height,slot flags,unused).",
+      "status": "partial",
+      "handler_va": "0x42D90B"
+    },
+    "ui.image_quad": {
+      "description": "UI origin / texture subrectangle at relative destination; 74 requires 71 extension (width,height,slot flags,unused).",
+      "status": "partial",
+      "handler_va": "0x42D7AB"
+    },
+    "scene.character_overlay": {
+      "description": "Clear queued overlay / face with literal minus; other strings are native no-effect except overlay double-minus restore.",
+      "status": "partial",
+      "handler_va": "0x42E85B"
+    },
+    "scene.face": {
+      "description": "Clear queued overlay / face with literal minus; other strings are native no-effect except overlay double-minus restore.",
+      "status": "partial",
+      "handler_va": "0x42E97A"
+    },
+    "choice.begin": {
+      "description": "Clear registered choices; native 42BB87.",
+      "status": "partial"
+    },
+    "choice.item": {
+      "description": "Register label and consume following encoded caption; native 42B82B / 4159C0.",
+      "status": "partial"
+    },
+    "choice.show": {
+      "description": "Normal mode 0 presents registered choices and waits; replay modes unsupported. Native 42BBC5.",
+      "status": "partial"
+    },
+    "scene.center_background": {
+      "description": "Center the pending background at publication (4318CA, 431FAE..432066); renderer uses image dimensions.",
+      "status": "partial"
+    },
+    "scene.image_tone": {
+      "description": "98 stores the pending actor color variant (0 unchanged, 1 *, 2 @); 431767, 41FCC0 and 44A1A0/44A2D0.",
+      "status": "partial"
+    },
+    "state.random": {
+      "description": "24 stores MSVCRT rand() modulo p0 in special bank 99 index 2 (4302FA). Seed is portable and saved, not synchronized to native wall time."
+    },
+    "scene.record_motion": {
+      "description": "A1 0 records object animation tracks; nonzero ends recording. 431B9C / 442810. Current implementation supports the corpus's recorded shake tracks.",
+      "status": "partial"
+    },
+    "scene.replay_motion": {
+      "description": "A2 repeats recorded animation tracks, 255 loops. 431BEA / 444C80.",
+      "status": "partial"
+    },
+    "scene.character_move": {
+      "description": "88 linearly moves character p2 to p0,p1 over p3*6 ticks, or 60 when p3=0. p2 bit16 is native ignored path. 42FA90 / 443FF0.",
+      "status": "partial"
+    },
+    "scene.stop_motion": {
+      "description": "Stop all render-object motion tracks (4318A9). Current host tracks reviewed shake animations only.",
+      "status": "partial"
+    },
+    "system.version": {
+      "description": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+      "status": "partial",
+      "native_handler_va": "0x0042AE56",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.template": {
+      "description": "23 saves the current UI panel to a selector-dependent template and clears construction state. 0 and unused selector cases are native fallbacks.",
+      "status": "partial",
+      "native_handler_va": "0x0042D63B",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.panel": {
+      "description": "19/0 clears current UI and action bindings; other reviewed selectors save current UI in a template slot.",
+      "status": "partial",
+      "native_handler_va": "0x0042B3C6",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.resource": {
+      "description": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+      "status": "partial",
+      "native_handler_va": "0x0042B331",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.button_sound": {
+      "description": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+      "status": "partial",
+      "native_handler_va": "0x0042B738",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.button_sprite": {
+      "description": "6D + 71 register cropped atlas quads for the pending button: reviewed states 99 normal, 1 hover, 2 pressed. Other native modes are partial.",
+      "status": "partial",
+      "native_handler_va": "0x0042B56E",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.palette": {
+      "description": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+      "status": "partial",
+      "native_handler_va": "0x0042E152",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.action": {
+      "description": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+      "status": "partial",
+      "native_handler_va": "0x0043033F",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.wait": {
+      "description": "0B flushes button construction and yields for an input action. A button label resumes the original MES, without falling through.",
+      "status": "partial",
+      "native_handler_va": "0x0042BB1C",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.flush": {
+      "description": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+      "status": "partial",
+      "native_handler_va": "0x0042BE49",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.focus": {
+      "description": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+      "status": "partial",
+      "native_handler_va": "0x0043177F",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.navigation": {
+      "description": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+      "status": "partial",
+      "native_handler_va": "0x004317B3",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.navigation_extra": {
+      "description": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+      "status": "partial",
+      "native_handler_va": "0x00431899",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.text": {
+      "description": "p2=0 leaves the following record for dispatch; otherwise consumes the following encoded-string record and registers UI text. Active text rendering remains unimplemented.",
+      "status": "partial",
+      "native_handler_va": "0x0042D929",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.button_text": {
+      "description": "Consumes the next string record and registers state-specific button text metadata. Active text rendering remains unimplemented.",
+      "status": "partial",
+      "native_handler_va": "0x0042B786",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.text_style": {
+      "description": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+      "status": "partial",
+      "native_handler_va": "0x0042D828",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.pointer": {
+      "description": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+      "status": "partial",
+      "native_handler_va": "0x00431C1E",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "audio.voice_register": {
+      "description": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+      "status": "partial",
+      "native_handler_va": "0x00431701",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "audio.system_voice": {
+      "description": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+      "status": "partial",
+      "native_handler_va": "0x004300BA",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.message_position": {
+      "description": "Set original message surface origin, 42F27F / 401000.",
+      "status": "partial",
+      "native_handler_va": "0x0042F27F",
+      "evidence": "tools/capture_system_ui_evidence.py; docs/DC3DD_ORIGINAL_UI.md"
+    },
+    "ui.confirm_position": {
+      "description": "Set confirmation origin and caption/remember ID; third operand is ignored by native dispatch.",
+      "status": "partial",
+      "native_handler_va": "0x430678",
+      "evidence": "tools/capture_system_ui_evidence.py"
+    },
+    "ui.confirm": {
+      "description": "Instantiate original template 12 with indexed caption; yes/no use action slots 0/1, checkbox updates bank93; an enabled remember flag jumps directly to action0.",
+      "status": "partial",
+      "native_handler_va": "0x430571",
+      "evidence": "tools/capture_system_ui_evidence.py"
+    },
+    "system.exit": {
+      "description": "Sends WM_DESTROY to the game window and yields; portable host ends the game Activity.",
+      "status": "static_verified",
+      "native_handler_va": "0x42AF48",
+      "evidence": "tools/capture_system_ui_evidence.py"
+    },
+    "choice.caption": {
+      "description": "Encoded caption consumed by choice.item; independent dispatch uses the native fallback."
+    },
+    "variable.update_indirect": {
+      "description": "Modes 0/1/2 assign/add/subtract. Mode 3 reads (p2, read(p0,p1)) into native result register 99:255; other modes have no effect."
+    },
+    "jump.named_required": {
+      "description": "DM signed-opcode label scan, first exact label before opcode 00; empty or missing target enters native error state, never silently ignored."
+    },
+    "block.marker_unsigned": {
+      "description": "DM p0==0 scans using unsigned p1 against a signed marker byte. Conditional companion IDs are signed separately; high-bit unconditional IDs must not be coerced."
+    },
+    "dm.audio.completion_action": {
+      "description": "DC2DM 4305CA copies a music-event label to C22490 and resets C29250 after synchronizing the music event counter. Runtime currently implements the empty cancellation used by MUSIC exit; nonempty labels remain explicit failures.",
+      "operands": [
+        "string"
+      ]
+    },
+    "ui.music_end_action": {
+      "description": "Menu-wait BGM-end callback: PC2 423571 consumes binding; DD 4340D7 retains binding and polls at >500ms until script clears it.",
+      "operands": []
+    },
+    "grid.item_action": {
+      "description": "Attach original byte-exact action label to current data entry (PC2 41D66D; DD 434530).",
+      "operands": []
+    },
+    "pc.grid.item": {
+      "description": "Append native list data entry: ID, reserved, source rectangle, resource selector, reserved (41D5A5).",
+      "operands": []
+    },
+    "dd.grid.item": {
+      "description": "Begin list data entry with ID and source rectangle (436070).",
+      "operands": []
+    },
+    "dd.grid.common_sprite": {
+      "description": "Common relative list sprite; state -1 configures scrollbar thumb, positioned from viewport bounds and offset (4346E0,435447).",
+      "operands": []
+    },
+    "dd.grid.item_sprite": {
+      "description": "Current entry overlay, relative destination, source XYWH and state (434550).",
+      "operands": []
+    },
+    "dd.grid.text": {
+      "description": "State 99 sets text color; other states consume next string as entry caption (4345F0).",
+      "operands": []
+    },
+    "dd.grid.columns": {
+      "description": "Set list scroll stride/column count (434520).",
+      "operands": []
+    },
+    "dd.audio.seek": {
+      "description": "43B9A0/42FC2C: set playback cursor by percentage; mode 0 music, 1 sound, otherwise movie audio.",
+      "operands": []
+    },
+    "ui.option_flag": {
+      "description": "43178F calls 412DB0/412DC0: set UI object fields +348/+34C to 1, selected by operand 0; platform pointer constraints still under review.",
+      "status": "partial"
+    }
+  },
+  "profiles": {
+    "dc3dd-a5a8": {
+      "native_sha256": "ff119f4396cc1382e349fb1ed2c2eb77191db8ec699cb1352ca021cc73407e8d",
+      "image_base": "0x00400000",
+      "evidence_status": "static_native_verified_subset",
+      "execution_supported": false,
+      "addresses": {
+        "loader": "0x00438530",
+        "decoder": "0x00438AB0",
+        "signed_word": "0x00438730",
+        "dispatch_site": "0x0042AE42",
+        "dispatch_table": "0x004326A8",
+        "read_variable": "0x0040D7D0",
+        "write_variable": "0x0040DD70",
+        "find_named_label": "0x00438750",
+        "find_block_end": "0x004388D0",
+        "jump_named": "0x00420C00",
+        "fallback": "0x00431CC2"
+      },
+      "dispatch_count": 168,
+      "decoder": {
+        "pc_origin": "version_record (file offset 4+6*header_count)",
+        "first_pc": 3,
+        "word": "signed_i16_le",
+        "extension_opcode": 113,
+        "encoded_string_key": 32,
+        "encoded_string_postmap": {
+          "36": 32
+        },
+        "stop_advances": false
+      },
+      "control": {
+        "block_marker_opcode": 31,
+        "block_scan_signed_opcode": false,
+        "label_opcode": 71,
+        "companion_opcode": 2,
+        "checkpoint_opcode": 3,
+        "header_low31_offset": "corpus_validated_candidate; native sign bit consumed by checkpoint bookkeeping; never assume all entries are labels"
+      },
+      "variables": {
+        "ordinary": {
+          "banks": [
+            0,
+            10
+          ],
+          "indices": [
+            0,
+            99
+          ],
+          "width": 8,
+          "read": "zero_extend",
+          "write": "low_8_bits",
+          "native_base_offset": "0x90c4",
+          "native_bounds_note": "Native only checks upper bounds for ordinary bank/index; negative values are unsafe, not permission to access host memory."
+        },
+        "special_banks": "version-specific host state; do not model as ordinary arrays"
+      },
+      "opcodes": {
+        "0x00": "stream.stop",
+        "0x02": "control.marker",
+        "0x03": "checkpoint",
+        "0x1F": "block.marker",
+        "0x47": "label.named",
+        "0x50": "jump.named",
+        "0x4B": "script.transfer",
+        "0x4C": "script.transfer_alt",
+        "0x4D": "script.entry_label",
+        "0x71": "arguments.extend",
+        "0x7C": "variable.update",
+        "0x7D": "variable.copy",
+        "0x7E": "variable.sum_list",
+        "0x7F": "variable.add_variable",
+        "0x80": "branch.compare",
+        "0x6C": "host.command_with_string",
+        "0x06": "wait.message",
+        "0x64": "text.speaker",
+        "0x65": "text.body",
+        "0x04": "history.range",
+        "0x05": "audio.restore_volume",
+        "0x0F": "scene.transition",
+        "0x13": "audio.music_stop",
+        "0x14": "wait.duration",
+        "0x17": "system.persist",
+        "0x1B": "scene.checkpoint",
+        "0x1D": "system.command",
+        "0x27": "scene.effect",
+        "0x3A": "image.load",
+        "0x3D": "scene.character",
+        "0x45": "scene.background",
+        "0x49": "audio.voice",
+        "0x4A": "native.no_effect",
+        "0x6A": "audio.music",
+        "0x6B": "audio.sound",
+        "0x85": "scene.character_transform",
+        "0x97": "scene.camera",
+        "0x15": "wait.audio",
+        "0x4E": "media.movie",
+        "0x82": "ui.origin",
+        "0x74": "ui.image_quad",
+        "0x3F": "scene.character_overlay",
+        "0x5F": "scene.face",
+        "0x09": "choice.begin",
+        "0x57": "choice.item",
+        "0x0A": "choice.show",
+        "0x36": "scene.center_background",
+        "0x35": "scene.stop_motion",
+        "0x98": "scene.image_tone",
+        "0x24": "state.random",
+        "0xA1": "scene.record_motion",
+        "0xA2": "scene.replay_motion",
+        "0x88": "scene.character_move",
+        "0x93": "scene.camera_speed",
+        "0x83": "scene.background_move",
+        "0x11": "state.reset_scenario",
+        "0x5E": "system.version",
+        "0x23": "ui.template",
+        "0x19": "ui.panel",
+        "0x3B": "ui.resource",
+        "0x16": "ui.button_sound",
+        "0x6D": "ui.button_sprite",
+        "0x8A": "ui.palette",
+        "0x41": "ui.action",
+        "0x0B": "ui.wait",
+        "0x21": "ui.flush",
+        "0x31": "ui.focus",
+        "0x33": "ui.navigation",
+        "0x34": "ui.navigation_extra",
+        "0x81": "ui.text",
+        "0x70": "ui.button_text",
+        "0x75": "ui.text_style",
+        "0xA4": "ui.pointer",
+        "0x60": "audio.voice_register",
+        "0x48": "audio.system_voice",
+        "0x8B": "native.no_effect",
+        "0x26": "native.no_effect",
+        "0x66": "choice.caption",
+        "0x87": "ui.message_position",
+        "0x73": "ui.confirm_position",
+        "0x55": "ui.confirm",
+        "0x10": "system.exit",
+        "0x1C": "dd.system.return",
+        "0x77": "dd.grid.configure",
+        "0x78": "dd.grid.rect",
+        "0x7B": "dd.grid.sound",
+        "0x0C": "dd.grid.wait",
+        "0x54": "grid.item_action",
+        "0x58": "control.marker",
+        "0x5C": "ui.music_end_action",
+        "0x6E": "dd.grid.common_sprite",
+        "0x6F": "dd.grid.item_sprite",
+        "0x79": "dd.grid.item",
+        "0x7A": "dd.grid.text",
+        "0xA7": "dd.grid.columns",
+        "0xA3": "dd.audio.seek",
+        "0x32": "ui.option_flag"
+      },
+      "evidence_ranges": {
+        "loader_decoder": [
+          4424944,
+          4427138
+        ],
+        "dispatcher": [
+          4369312,
+          4400808
+        ],
+        "variables": [
+          4249552,
+          4255370
+        ],
+        "named_numeric_jumps": [
+          4328448,
+          4328575
+        ],
+        "encoded_string": [
+          4225872,
+          4225909
+        ],
+        "checkpoint_sign": [
+          4210651,
+          4210684
+        ],
+        "ordinary_history": [
+          4207120,
+          4207415
+        ],
+        "ordinary_reset": [
+          4250944,
+          4250992
+        ],
+        "ui_register": [
+          4289840,
+          4290032
+        ],
+        "ui_poll": [
+          4283488,
+          4288832
+        ],
+        "ui_main_route": [
+          4405248,
+          4405888
+        ],
+        "script_reset": [
+          4355616,
+          4355763
+        ],
+        "script_load": [
+          4356032,
+          4356265
+        ],
+        "script_transition": [
+          4393004,
+          4393399
+        ],
+        "camera_speed": [
+          4386536,
+          4386576
+        ],
+        "background_move": [
+          4381132,
+          4381463
+        ],
+        "credits": [
+          4420272,
+          4424937
+        ],
+        "reset_scenario": [
+          4370603,
+          4370859
+        ]
+      },
+      "state_contract": "dc3dd-state.json"
+    },
+    "dc3wy-a09f": {
+      "native_sha256": "88bfebae5e99adcf4d520775c6a1d9f035c17f070401aeb680ef53a298521da0",
+      "image_base": "0x00400000",
+      "evidence_status": "static_native_verified_subset",
+      "execution_supported": false,
+      "addresses": {
+        "loader": "0x0042F440",
+        "decoder": "0x0042F910",
+        "signed_word": "0x0042F640",
+        "dispatch_site": "0x00423525",
+        "dispatch_table": "0x00429C14",
+        "dispatch_index": "0x00429DE0",
+        "read_variable": "0x0040BF90",
+        "write_variable": "0x0040C4B0",
+        "find_named_label": "0x0042F660",
+        "find_block_end": "0x0042F730",
+        "fallback": "0x00429434",
+        "jump_named": "0x0041B350"
+      },
+      "dispatch_count": 159,
+      "decoder": {
+        "pc_origin": "version_record (file offset 4+6*header_count)",
+        "first_pc": 3,
+        "word": "signed_i16_le",
+        "extension_opcode": 109,
+        "encoded_string_key": 32,
+        "encoded_string_postmap": null,
+        "stop_advances": false
+      },
+      "control": {
+        "block_marker_opcode": 30,
+        "block_scan_signed_opcode": true,
+        "label_opcode": 68,
+        "companion_opcode": 2,
+        "checkpoint_opcode": 3,
+        "header_low31_offset": "corpus_validated_candidate; native sign bit consumed by checkpoint bookkeeping; never assume all entries are labels"
+      },
+      "variables": {
+        "ordinary": {
+          "banks": [
+            0,
+            10
+          ],
+          "indices": [
+            0,
+            99
+          ],
+          "width": 8,
+          "read": "zero_extend",
+          "write": "low_8_bits",
+          "native_base_offset": "0x88a0",
+          "native_bounds_note": "Native only checks upper bounds for ordinary bank/index; negative values are unsafe, not permission to access host memory."
+        },
+        "special_banks": "version-specific host state; do not model as ordinary arrays"
+      },
+      "opcodes": {
+        "0x00": "stream.stop",
+        "0x02": "control.marker",
+        "0x03": "checkpoint",
+        "0x1E": "block.marker",
+        "0x44": "label.named",
+        "0x4D": "jump.named",
+        "0x48": "script.transfer",
+        "0x49": "script.transfer_alt",
+        "0x4A": "script.entry_label",
+        "0x6D": "arguments.extend",
+        "0x78": "variable.update",
+        "0x79": "variable.copy",
+        "0x7A": "variable.sum_list",
+        "0x7B": "variable.add_variable",
+        "0x7C": "branch.compare",
+        "0x69": "host.command_with_string"
+      },
+      "evidence_ranges": {
+        "loader_decoder": [
+          4387840,
+          4389856
+        ],
+        "dispatcher": [
+          4338908,
+          4365332
+        ],
+        "variables": [
+          4243344,
+          4248346
+        ],
+        "named_jump": [
+          4305744,
+          4305807
+        ]
+      }
+    },
+    "dc2dm-9d72": {
+      "native_sha256": "7414de26db3e9ce4fec331df7cb517947af7957fbc85abe96c51d6968a9ee0ee",
+      "image_base": "0x00400000",
+      "evidence_status": "static_native_verified_subset",
+      "execution_supported": false,
+      "addresses": {
+        "loader": "0x00428EB0",
+        "decoder": "0x0042CAC0",
+        "signed_word": "0x00424850",
+        "dispatch_site": "0x0042CD1B",
+        "dispatch_table": "0x00430EF8",
+        "read_variable": "0x00429240",
+        "write_variable": "0x004248D0",
+        "find_named_label": "0x00424280",
+        "find_block_end": "0x004244A0",
+        "fallback": "0x00430EBC",
+        "jump_named": "0x00424470"
+      },
+      "dispatch_count": 113,
+      "decoder": {
+        "pc_origin": "version_record (file offset 4+6*header_count)",
+        "first_pc": 3,
+        "word": "signed_i16_le",
+        "extension_opcode": 87,
+        "encoded_string_key": 32,
+        "encoded_string_postmap": {},
+        "stop_advances": false
+      },
+      "control": {
+        "block_marker_opcode": 29,
+        "block_scan_signed_opcode": true,
+        "label_opcode": 52,
+        "companion_opcode": 2,
+        "checkpoint_opcode": 3
+      },
+      "runtime_variable_model": "DC2_PACKED",
+      "variables": {
+        "ordinary": {
+          "banks": [
+            0,
+            9
+          ],
+          "indices": [
+            0,
+            99
+          ],
+          "width": 8,
+          "read": "zero_extend",
+          "write": "clamp_0_255",
+          "native_base": "0x00BE65B8"
+        },
+        "persistent": {
+          "bank": 100,
+          "write_indices": [
+            0,
+            99
+          ],
+          "write": "low_8_bits",
+          "mirror": "indices 0..20 mirror ordinary bank 10, bidirectionally; ordinary 10 writes clamp"
+        },
+        "views": {
+          "200..210": "BE32 over ordinary bytes; index <97",
+          "300..310": "signed BE16 over ordinary bytes; writes clamp; index <99",
+          "400": "signed BE16 over persistent bytes; writes clamp; index 99 updates only the high byte"
+        },
+        "special_banks": "version-specific; unknown host effects must stop"
+      },
+      "opcodes": {
+        "0x00": "stream.stop",
+        "0x02": "control.marker",
+        "0x1D": "block.marker_unsigned",
+        "0x34": "label.named",
+        "0x3D": "jump.named_required",
+        "0x57": "arguments.extend",
+        "0x62": "variable.update_indirect",
+        "0x63": "variable.copy",
+        "0x64": "variable.sum_list",
+        "0x65": "variable.add_variable",
+        "0x66": "branch.compare",
+        "0x54": "host.command_with_string",
+        "0x4E": "text.speaker",
+        "0x4F": "text.body",
+        "0x50": "choice.caption",
+        "0x03": "checkpoint",
+        "0x04": "dm.history.mark",
+        "0x08": "dm.wait.mode",
+        "0x09": "dm.ui.wait",
+        "0x0D": "dm.scene.transition",
+        "0x0F": "dm.state.reset",
+        "0x11": "dm.audio.fade_music",
+        "0x12": "dm.wait.duration",
+        "0x13": "wait.audio",
+        "0x14": "dm.ui.button_sound",
+        "0x15": "dm.system.persist",
+        "0x17": "dm.ui.button_template",
+        "0x1B": "dm.system.command",
+        "0x1F": "dm.ui.commit",
+        "0x21": "dm.ui.quad_template",
+        "0x25": "dm.ui.binding",
+        "0x2B": "dm.scene.preload",
+        "0x2C": "dm.ui.resource",
+        "0x31": "dm.ui.action",
+        "0x33": "dm.scene.background",
+        "0x35": "dm.audio.voice",
+        "0x38": "dm.script.transfer",
+        "0x39": "dm.script.transfer_alt",
+        "0x3A": "script.entry_label",
+        "0x4B": "system.version",
+        "0x52": "dm.audio.music",
+        "0x53": "dm.audio.sound",
+        "0x55": "dm.ui.button_sprite",
+        "0x56": "ui.button_text",
+        "0x5A": "dm.ui.image_quad",
+        "0x5B": "dm.ui.animate",
+        "0x67": "dm.ui.text",
+        "0x68": "dm.ui.origin",
+        "0x6B": "dm.scene.character_transform",
+        "0x6C": "dm.scene.background_origin",
+        "0x6E": "dm.ui.palette",
+        "0x6F": "dm.ui.navigation",
+        "0x69": "dm.scene.scroll",
+        "0x06": "dm.wait.message",
+        "0x19": "dm.save.checkpoint",
+        "0x2E": "dm.scene.character",
+        "0x2F": "dm.scene.character_overlay",
+        "0x36": "dm.audio.voice_wait",
+        "0x37": "dm.audio.voice_prepare",
+        "0x3B": "dm.movie",
+        "0x4C": "dm.scene.portrait",
+        "0x07": "dm.choice.begin",
+        "0x43": "choice.item",
+        "0x0A": "dm.ui.grid_wait",
+        "0x0E": "system.exit",
+        "0x1A": "dm.system.return",
+        "0x26": "dm.scene.effect",
+        "0x42": "dm.ui.confirm",
+        "0x59": "dm.ui.confirm_position",
+        "0x5D": "dm.ui.grid_begin",
+        "0x5E": "dm.ui.grid_rect",
+        "0x61": "dm.ui.grid_sound",
+        "0x6D": "dm.scene.character_move",
+        "0x05": "dm.audio.music_attenuation",
+        "0x3E": "dm.ui.button_voice",
+        "0x49": "dm.audio.completion_action"
+      },
+      "evidence_ranges": {
+        "decoder": [
+          4377280,
+          4377905
+        ],
+        "dispatch": [
+          4377905,
+          4394744
+        ],
+        "word_decode": [
+          4343888,
+          4343909
+        ],
+        "labels_and_blocks": [
+          4342400,
+          4343712
+        ],
+        "variable_write": [
+          4344016,
+          4345626
+        ],
+        "variable_read": [
+          4362816,
+          4364153
+        ],
+        "bit_access": [
+          4343920,
+          4344016
+        ],
+        "text_copy": [
+          4347040,
+          4347086
+        ],
+        "script_load": [
+          4361904,
+          4362802
+        ]
+      },
+      "host_status": "partial: native UI and startup bindings; unsupported submodes stop"
+    },
+    "dc2pc-5769": {
+      "runtime_variable_model": "PC_WIDE",
+      "host_status": "original startup/title and reviewed primitives; unknown effects stop",
+      "decoder": {
+        "version_bytes": 2,
+        "extension_opcode": 82,
+        "encoded_string_postmap": {}
+      },
+      "control": {
+        "label_opcode": 53,
+        "block_marker_opcode": 30,
+        "companion_opcode": 2,
+        "block_scan_signed_opcode": true
+      },
+      "opcodes": {
+        "0x00": "stream.stop",
+        "0x01": "native.no_effect",
+        "0x02": "control.marker",
+        "0x03": "pc.history",
+        "0x04": "pc.checkpoint",
+        "0x05": "dm.audio.music",
+        "0x06": "dm.audio.music_attenuation",
+        "0x07": "dm.wait.message",
+        "0x08": "pc.choice.begin",
+        "0x09": "pc.choice.wait",
+        "0x0A": "pc.ui.wait",
+        "0x0B": "pc.grid.wait",
+        "0x0C": "pc.grid.begin",
+        "0x0D": "pc.transition",
+        "0x0E": "system.exit",
+        "0x0F": "pc.reset",
+        "0x11": "dm.audio.fade_music",
+        "0x12": "pc.wait",
+        "0x14": "dm.ui.button_sound",
+        "0x15": "pc.grid.sound",
+        "0x16": "pc.persist",
+        "0x17": "pc.button_template",
+        "0x18": "pc.fullscreen",
+        "0x19": "pc.sprite_opaque",
+        "0x1A": "pc.save_context",
+        "0x1B": "dm.system.return",
+        "0x1C": "pc.command",
+        "0x1E": "block.marker",
+        "0x20": "dm.ui.commit",
+        "0x21": "pc.quad_template",
+        "0x22": "pc.random",
+        "0x23": "pc.voice_group.play",
+        "0x25": "dm.ui.binding",
+        "0x26": "pc.effect",
+        "0x2A": "pc.resource",
+        "0x2B": "pc.character",
+        "0x2C": "pc.character_overlay",
+        "0x2D": "pc.save_caption",
+        "0x2E": "pc.script.transfer",
+        "0x30": "pc.background",
+        "0x31": "pc.image6",
+        "0x32": "pc.image7",
+        "0x33": "pc.image8",
+        "0x35": "label.named",
+        "0x36": "dm.audio.voice",
+        "0x37": "script.entry_label",
+        "0x38": "pc.movie",
+        "0x39": "pc.external",
+        "0x3A": "jump.named_required",
+        "0x3B": "pc.action0",
+        "0x3C": "pc.action1",
+        "0x3D": "dm.ui.button_voice",
+        "0x3E": "pc.button_hover_voice",
+        "0x3F": "pc.action2",
+        "0x40": "pc.action3",
+        "0x42": "grid.item_action",
+        "0x43": "pc.confirm",
+        "0x44": "choice.item",
+        "0x45": "choice.caption",
+        "0x49": "system.version",
+        "0x4B": "text.speaker",
+        "0x4C": "text.body",
+        "0x4D": "choice.caption",
+        "0x4E": "native.no_effect",
+        "0x4F": "host.command_with_string",
+        "0x50": "pc.button_sprite",
+        "0x51": "ui.button_text",
+        "0x52": "arguments.extend",
+        "0x53": "pc.quad",
+        "0x54": "pc.confirm_position",
+        "0x56": "dm.ui.grid_rect",
+        "0x59": "dm.ui.navigation",
+        "0x5B": "dm.audio.sound",
+        "0x5C": "variable.update",
+        "0x5D": "variable.copy",
+        "0x5E": "variable.add_variable",
+        "0x5F": "branch.compare",
+        "0x60": "dm.ui.text",
+        "0x61": "pc.origin",
+        "0x62": "pc.scroll",
+        "0x64": "pc.actor_position",
+        "0x65": "pc.actor_transform",
+        "0x66": "dm.ui.palette",
+        "0x55": "pc.grid.configure",
+        "0x13": "pc.wait.media_mask",
+        "0x46": "pc.voice_group.add",
+        "0x47": "ui.music_end_action",
+        "0x57": "pc.grid.item"
+      }
+    },
+    "dcpc-2063": {
+      "runtime_variable_model": "PC_BYTE",
+      "host_status": "original startup/title and reviewed primitives; unknown effects stop",
+      "decoder": {
+        "version_bytes": 2,
+        "extension_opcode": 82,
+        "encoded_string_postmap": {}
+      },
+      "control": {
+        "label_opcode": 50,
+        "block_marker_opcode": 31,
+        "companion_opcode": 2,
+        "block_scan_signed_opcode": true
+      },
+      "opcodes": {
+        "0x00": "stream.stop",
+        "0x01": "native.no_effect",
+        "0x02": "control.marker",
+        "0x03": "pc.history",
+        "0x04": "pc.checkpoint",
+        "0x05": "pc.sound8",
+        "0x06": "dm.audio.music",
+        "0x07": "dm.wait.message",
+        "0x08": "pc.choice.begin",
+        "0x09": "pc.choice.wait",
+        "0x0A": "pc.ui.wait",
+        "0x0B": "pc.grid.wait",
+        "0x0C": "pc.grid.begin",
+        "0x0D": "pc.transition",
+        "0x0E": "system.exit",
+        "0x0F": "pc.reset",
+        "0x11": "dm.audio.fade_music",
+        "0x12": "pc.wait",
+        "0x13": "dm.ui.button_sound",
+        "0x14": "pc.grid.sound",
+        "0x15": "pc.persist",
+        "0x17": "pc.button_template",
+        "0x18": "pc.fullscreen",
+        "0x19": "pc.sprite_opaque",
+        "0x1B": "pc.save_context",
+        "0x1C": "dm.system.return",
+        "0x1D": "pc.command",
+        "0x1F": "block.marker",
+        "0x21": "dm.ui.commit",
+        "0x22": "pc.quad_template",
+        "0x23": "pc.random",
+        "0x24": "pc.voice_group.play",
+        "0x25": "pc.resource_payload",
+        "0x2A": "pc.rapid_binding",
+        "0x2B": "pc.effect",
+        "0x2E": "pc.background",
+        "0x2F": "pc.image6",
+        "0x30": "pc.image7",
+        "0x31": "pc.image8",
+        "0x32": "label.named",
+        "0x33": "pc.character_pair",
+        "0x34": "pc.portrait_pair",
+        "0x35": "dm.audio.voice",
+        "0x36": "dm.script.transfer",
+        "0x37": "dm.script.transfer_alt",
+        "0x38": "script.entry_label",
+        "0x39": "pc.movie",
+        "0x3A": "pc.external",
+        "0x3B": "jump.named_required",
+        "0x3C": "pc.action0",
+        "0x3D": "pc.action1",
+        "0x3E": "dm.ui.button_voice",
+        "0x3F": "pc.button_hover_voice",
+        "0x40": "pc.action2",
+        "0x41": "pc.action3",
+        "0x43": "pc.grid.voice",
+        "0x44": "pc.confirm",
+        "0x45": "choice.item",
+        "0x46": "choice.caption",
+        "0x4B": "text.speaker",
+        "0x4C": "text.body",
+        "0x4D": "choice.caption",
+        "0x4E": "native.no_effect",
+        "0x4F": "host.command_with_string",
+        "0x50": "pc.button_sprite",
+        "0x51": "ui.button_text",
+        "0x52": "arguments.extend",
+        "0x53": "pc.quad",
+        "0x55": "dm.ui.grid_rect",
+        "0x58": "variable.update",
+        "0x59": "variable.copy",
+        "0x5A": "variable.sum_list",
+        "0x5B": "branch.compare",
+        "0x5C": "dm.ui.text",
+        "0x5D": "pc.origin",
+        "0x5E": "pc.scroll",
+        "0x60": "pc.actor_position",
+        "0x61": "pc.actor_transform",
+        "0x62": "dm.ui.palette",
+        "0x54": "pc.grid.configure",
+        "0x47": "pc.voice_group.add",
+        "0x1A": "pc.prompt_position"
+      }
+    }
+  }
+}

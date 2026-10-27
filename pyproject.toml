@@ -1,0 +1,10 @@
+[project]
+name = "circus-static-tools"
+version = "0.1.0"
+description = "Read-only static analysis tools for D.C.1/2/3 game data"
+requires-python = ">=3.10"
+license = {text = "GPL-3.0-only"}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+

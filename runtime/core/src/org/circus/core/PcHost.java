@@ -1,0 +1,230 @@
+package org.circus.core;
+
+import java.io.*;
+import java.util.*;
+
+/** Earlier 800x600 CIRCUS host. Numeric opcodes stay in independently reviewed profiles.
+ * It shares rendering primitives with DM, not DM's variable layout or system commands. */
+public final class PcHost extends Dc2Host {
+    public final PcNameInput nameInput=new PcNameInput();public String familyName,givenName;public final boolean second;public final Pc2Map map=new Pc2Map();public final PcCredits pcCredits=new PcCredits();
+    private final List<String> voiceGroup=new ArrayList<>();
+    private final byte[] globals=new byte[100],cg=new byte[1600],seen=new byte[1600],voiceEnabled=new byte[128],scratch=new byte[100];
+    public final ScriptList list=new ScriptList();private boolean gridTarget;private String musicEndAction="";
+    private int spriteFlags;private int randomState=0x63c25769;private boolean timedInput;
+    public final int[] gridBounds=new int[8];
+    public int gridSlot(int index)throws IOException{return read(99,0)*(second?8:5)+index;}
+    @Override public byte[] menuActionForGrid(int index)throws IOException{
+        if(list.active()){ScriptList.Item item=list.at(read(99,246),index,grid.size());if(item==null||item.action.isEmpty())return null;registers.put(253,index);registers.put(254,item.id);gridWaiting=ui.waiting=false;musicEndAction="";if(gridClickSound!=255)play(1,resources.named("sound",gridClickSound),false);return item.action.getBytes(Binary.SJIS);}
+        if(!gridWaiting||index<0||index>=grid.size())throw new IOException("PC grid selection outside page");int slot=gridSlot(index);
+        if(saveGrid&&slot<2||!saveGrid&&!availableSaves.contains(slot))return null;
+        registers.put(253,index);registers.put(254,slot);registers.put(246,0);gridWaiting=ui.waiting=false;
+        if(gridClickSound!=255)play(1,resources.named("sound",gridClickSound),false);
+        return (second&&!saveGrid?"selsave2":"selsave").getBytes(Binary.SJIS);
+    }
+    @Override public byte[] pollMenuAction(){if(ui.waiting&&!audioActive[0]&&!musicEndAction.isEmpty()){byte[] a=musicEndAction.getBytes(Binary.SJIS);musicEndAction="";ui.waiting=gridWaiting=false;ui.actions[0]=ui.actions[1]="";return a;}return null;}
+    public boolean hasTimedInput(){return timedInput&&remaining!=0;}
+    /** 4189D0 / 422DA0: older engines browse one message in the original message window. */
+    public void openHistory()throws IOException{history.active=true;history.selected=Math.max(0,history.entries.size()-2);ui.waiting=true;ui.buttons.clear();ui.buttons.addAll(Dc2Ui.copyButtons(ui.buttonTemplates.get(messageMode==0?1:4)));showHistory();nextTicket();}
+    private void showHistory(){if(history.entries.isEmpty())return;Dc2History.Entry e=history.entries.get(history.selected);speaker=e.speaker;body=e.body;}
+    public static boolean supports(Profile p){return p.id.equals("dc2pc-5769")||p.id.equals("dcpc-2063");}
+    public PcHost(CircusResources r,TextCodec c){super(r,c);second=r.profile.id.equals("dc2pc-5769");boolean cn=c.charset.name().equalsIgnoreCase("GBK");familyName=second?(cn?"樱内":"桜内"):(cn?"朝仓":"朝倉");givenName=second?(cn?"义之":"義之"):(cn?"纯一":"純一");gridHoverSound=gridClickSound=255;Arrays.fill(voiceEnabled,(byte)1);registers.put(13,0);registers.put(19,0);registers.put(25,0);registers.put(26,8);registers.put(27,8);}
+    @Override public void elapse(long ms){super.elapse(ms);pcCredits.elapse(ms);if(map.active)map.elapsed+=Math.max(0,ms);}
+    @Override public boolean waiting(){return pcCredits.active||super.waiting();}
+    @Override public boolean internalMenuAction(long expected,int button)throws IOException{
+        if(nameInput.active&&expected==ticket){String a=button<0?"@name:cancel":ui.buttons.get(button).action;nameAction(a);return true;}
+        if(history.active&&expected==ticket){String a=button<0?"@log:exit":button<ui.buttons.size()?ui.buttons.get(button).action:"";
+            if(a.equals(":up")){history.selected=Math.max(0,history.selected-1);showHistory();}
+            else if(a.equals(":down")){if(history.selected>=history.entries.size()-2){history.active=ui.waiting=false;returnRequested=true;}else{history.selected++;showHistory();}}
+            else if(a.equals("@log:exit")){history.active=ui.waiting=false;returnRequested=true;}
+            else if(a.equals(":close")||a.equals(":change"))return false;
+            else return true;return true;
+        }
+        if(!map.active)return super.internalMenuAction(expected,button);if(expected!=ticket)return false;
+        if(button<0){if(map.selected>=0){map.selected=-1;map.buttons(ui);}return true;}
+        if(button>=ui.buttons.size())throw new IOException("Map button index");String action=ui.buttons.get(button).action;
+        if(action.equals("@map:yes")){variables.write(5,40,map.selected);map.active=false;ui.buttons.clear();ui.waiting=false;}
+        else if(action.equals("@map:no")){map.selected=-1;map.buttons(ui);}
+        else if(action.startsWith("@map:")){map.selected=Integer.parseInt(action.substring(5));map.buttons(ui);}
+        else throw new IOException("Unknown native map action");play(1,resources.named("sound",223),false);return true;
+    }
+    public void nameAction(String action)throws IOException{int result=nameInput.action(action);if(result==1){familyName=nameInput.family.trim();givenName=nameInput.given.trim();}nameInput.build(ui);nextTicket();}
+    @Override public boolean beforeInstruction(Profile p,int op)throws IOException{if(!p.id.equals(resources.profile.id))throw new IOException("PC host profile mismatch");return waiting();}
+    @Override public byte[] menuAction(long expected,int button)throws IOException{
+        if(confirming&&ui.waiting&&expected==ticket){String a=button<0?":n":button<ui.buttons.size()?ui.buttons.get(button).action:"";if(a.equals(":y"))a=ui.actions[2];else if(a.equals(":n"))a=ui.actions[3];return a.isEmpty()?null:a.getBytes(Binary.SJIS);}
+        if(button<0&&!ui.waiting&&hasTimedInput()&&expected==ticket){String action=ui.actions[button==-2?0:1];return action.isEmpty()?null:action.getBytes(Binary.SJIS);}return super.menuAction(expected,button);
+    }
+    @Override public void acceptMenuAction(int button)throws IOException{timedInput=false;musicEndAction="";super.acceptMenuAction(button);}
+    @Override public int read(int b,int i)throws IOException{
+        if(i<0)throw new IOException("Negative PC variable index");
+        if(b==100)return at(globals,i);if(b==97)return at(cg,i);if(b==98)return at(seen,i);if(b==95)return second?at(voiceEnabled,i):1;if(b==90)return at(scratch,i);
+        if(b!=99)return 0;
+        switch(i){case 3:return 1;case 4:return fullscreen?1:0;case 242:return 0;case 243:return catalogIndex("images",scene.slots[1]);case 244:return music;
+        case 245:return ui.hovered;case 246:return list.active()?registers.getOrDefault(246,0):gridWaiting?2:0;case 247:return 0;case 248:return audioActive[1]?0:1;case 249:return audioActive[5]?0:1;case 250:return audioActive[0]?0:1;
+        case 251:return script==null?-1:catalogIndex("scenario_scripts",script.name);case 255:return registers.containsKey(255)?registers.get(255):0;
+        default:return registers.containsKey(i)?registers.get(i):0;}
+    }
+    private static int at(byte[] b,int i){return i<b.length?b[i]&255:0;}
+    @Override public void write(int b,int i,int v)throws IOException{
+        if(i<0)throw new IOException("Negative PC variable index");
+        byte[] target=b==100?globals:b==97?cg:b==98?seen:b==95&&second?voiceEnabled:b==90?scratch:null;
+        if(target!=null){if(i<target.length)target[i]=(byte)v;return;}
+        if(b==99&&i<256)registers.put(i,v); // Native setters for unknown banks have no effect.
+    }
+    @Override protected void unlock(String table,String name,int bank)throws IOException{int n=catalogIndex(table,name);if(n>=0)write(bank,n,1);}
+    @Override public boolean beforeTransfer(int mode,String name)throws IOException{
+        if(mode<1||mode>3)throw new IOException("PC transfer mode "+mode);
+        ui.clearCurrent();grid.clear();list.clear();gridTarget=false;musicEndAction="";gridWaiting=confirming=false;remaining=0;body=speaker="";textWaiting=presentationWaiting=false;
+        if(mode!=2){ui.actions[0]=ui.actions[1]="";}
+        if(mode==1){scene.reset();ui.quads.clear();}unlock("scenario_scripts",name,98);return true;
+    }
+    /** Resource selector codes are not texture slots; both generations use distinct maps. */
+    private int slot(int value)throws IOException{
+        if(second){if(value==0)return 1;if(value>=1&&value<=4)return value+1;if(value>=6&&value<=8)return value+4;if(value>=11&&value<=14)return value+10;}
+        else {if(value==0)return 1;if(value>=1&&value<=3)return value+9;if(value==4)return 21;if(value==5)return 23;if(value==6)return 24;}
+        throw new IOException("Unimplemented PC texture selector "+value);
+    }
+    private void quad(int[] a,boolean sprite)throws IOException{
+        if(a.length!=8)throw new IOException("PC quad extension missing");
+        int[] q=a.clone();
+        // PC1 5/7 and PC2 20/21 describe a slider's variables/detents, not texture coordinates.
+        if(sprite&&((!second&&(a[7]==5||a[7]==7))||(second&&(a[7]==20||a[7]==21)))){q[7]=a[7]==20?5:a[7]==21?7:a[7];ui.quad(q,true);return;}
+        if(sprite&&second){if(q[7]==22)q[7]=12;else if(q[7]==23)q[7]=6;}
+        boolean fill=!sprite&&(q[6]&64)!=0;
+        if(!fill){q[2]=sprite?a[0]-a[2]:a[2];q[3]=sprite?a[1]-a[3]:a[3];if(!sprite){q[4]=a[4]-a[2];q[5]=a[5]-a[3];}q[6]=(q[6]&~63)|slot(q[6]&63);}
+        if(sprite){q[6]|=spriteFlags;spriteFlags=0;if(q[7]==9)q[7]=99;}
+        if(sprite&&gridTarget&&!grid.isEmpty()){Dc2Ui.Quad quad=ScriptList.sprite(q);quad.x+=ui.x;quad.y+=ui.y;grid.get(grid.size()-1).sprites.add(quad);}else ui.quad(q,sprite);
+    }
+    private void templates(int selector,boolean buttons)throws IOException{
+        if(buttons){gridTarget=false;if(selector<0||selector>4)throw new IOException("PC button template "+selector);int[] cap={0,8,4,10,8};if(selector!=0){List<Dc2Ui.Button> t=ui.buttonTemplates.get(selector);t.clear();t.addAll(Dc2Ui.copyButtons(ui.buttons.subList(0,Math.min(cap[selector],ui.buttons.size()))));}ui.buttons.clear();ui.hovered=ui.pressed=-1;return;}
+        if(selector==255&&second){ui.quads.clear();return;}int[] cap={0,10,5,second?30:20,10,5,second?30:20,second?30:20};
+        if(selector<0||selector>255)throw new IOException("PC draw template "+selector);if(selector>0&&selector<cap.length){List<Dc2Ui.Quad> t=ui.quadTemplates.get(selector);t.clear();t.addAll(Dc2Ui.copyQuads(ui.quads.subList(0,Math.min(cap[selector],ui.quads.size()))));}ui.quads.clear();
+    }
+    @Override public void addChoice(byte[] label,byte[] caption)throws IOException{
+        List<Dc2Ui.Button> templates=ui.buttonTemplates.get(3);int n=++choiceCount;if(n>=templates.size())throw new IOException("PC choice template missing");Dc2Ui.Button b=Dc2Ui.copyButtons(Collections.singletonList(templates.get(n))).get(0);b.action=TextCodec.cp932(label);
+        for(Dc2Ui.Quad q:b.sprites)if(q.type==2){q.text=codec.decode(caption);q.width=caption.length*14+1;}ui.buttons.add(b);
+    }
+    @Override public boolean command(String op,int[] a,byte[] bytes)throws IOException{
+        timedInput=false;
+        String text=new String(bytes,Binary.SJIS);
+        switch(op){
+        case "dm.audio.voice":lineVoice=text;playVoice(text);return true;
+        case "ui.music_end_action":musicEndAction=text;return true;
+        case "host.command_with_string":gridTarget=false;return super.command(op,a,bytes);
+        case "dm.ui.grid_rect":gridTarget=true;return super.command(op,a,bytes);
+        case "pc.grid.item":gridTarget=false;list.add(a,slot(a[6]));return true;
+        case "grid.item_action":list.last().action=text;return true;
+        case "text.speaker":speaker=prose(bytes);speakerPending=true;return true;
+        case "text.body":scene.publish(ui,0,0);if(!speakerPending||messageMode!=0)speaker="";speakerPending=false;body=prose(bytes);unlock("scenario_scripts",script.name,98);if(!body.isEmpty())history.append(speaker,body,lineVoice,script.name,pc);lineVoice="";presentationWaiting=true;textRendered=false;nextTicket();return true;
+        case "ui.button_text":case "dm.ui.text":{ui.text(a,new byte[0],op.equals("ui.button_text"));Dc2Ui.Quad q=op.equals("ui.button_text")?ui.last().sprites.get(ui.last().sprites.size()-1):ui.quads.get(ui.quads.size()-1);q.text=codec.decode(bytes);q.width=op.equals("ui.button_text")?bytes.length*14+1:q.width;return true;}
+        case "pc.movie":movie=Binary.safePath(text);if(!movie.toLowerCase(Locale.ROOT).startsWith("advdata/"))movie="AdvData/"+movie;movieGeneration++;play(0,"",false);nextTicket();return true;
+        case "pc.history":case "pc.checkpoint":checkpoint=a[0]|a[1]<<8;if(op.equals("pc.history"))readCheckpoints.add(script.name+":"+checkpoint);return true;
+        case "pc.reset":variables.clearOrdinary();variables.clearHistory();return true;
+        case "pc.save_context":return true; // The session owns a complete caller snapshot, including the current sentence.
+        case "pc.fullscreen":windowRequest=a[0];fullscreen=a[0]!=0;return true; // Android owns the full-screen surface.
+        case "pc.sprite_opaque":spriteFlags=128;return true;
+        case "pc.button_hover_voice":return true; // Hover sounds have no corresponding hover event on a touchscreen.
+        case "pc.rapid_binding":return true; // Native rapid-only decoration; ordinary drawing remains enabled.
+        case "pc.button_template":templates(a[0],true);return true;
+        case "pc.quad_template":templates(a[0],false);return true;
+        case "pc.resource":case "pc.resource_payload":if(a[0]<0||a[0]>3)throw new IOException("PC message resource slot");scene.slots[21+a[0]]=text;return true;
+        case "pc.image6":case "pc.image7":case "pc.image8":scene.slots[10+op.charAt(op.length()-1)-'6']=text.equals("-")?"":text;return true;
+        case "pc.background":super.command("dm.scene.background",a,bytes);return super.command("dm.scene.preload",new int[]{1},bytes);
+        case "pc.character_pair":return super.command("dm.scene.character",a,bytes);
+        case "pc.portrait_pair":scene.slots[18+a[0]]=text.equals("-")?"":text;return true;
+        case "pc.character":case "pc.character_overlay":return super.command(op.equals("pc.character")?"dm.scene.character":"dm.scene.character_overlay",a,bytes);
+        case "pc.quad":quad(a,false);return true;
+        case "pc.button_sprite":quad(a,true);return true;
+        case "pc.origin":ui.x=a[2]==0?a[0]:ui.x+a[0];ui.y=a[2]==0?a[1]:ui.y+a[1];return true;
+        case "pc.action0":case "pc.action1":case "pc.action2":case "pc.action3":ui.actions[op.charAt(op.length()-1)-'0']=text;return true;
+        case "pc.ui.wait":if(a[1]==1){delay(200L*a[0]);return true;}ui.waiting=true;scene.publish(ui,0,0);nextTicket();return true;
+        case "pc.choice.begin":choiceMode=a[0];choiceCount=0;ui.buttons.clear();return true;
+        case "pc.choice.wait":ui.waiting=true;scene.publish(ui,0,0);nextTicket();return true;
+        case "pc.wait":timedInput=true;scene.publish(ui,0,0);delay(a[0]==0?-1:200L*a[0]);return true;
+        case "pc.effect":
+            if(!second&&(a[0]==1||a[0]==3||a[0]==4)){scene.slots[16]="system/"+(a[0]==3?"YUKI01":a[0]==1?"SACRA01":"SACRA02");scene.effect(1,a[1]);return true;}
+            if(second&&(a[0]==1||a[0]==3||a[0]==4||a[0]==11||a[0]==12)){scene.slots[16]="system/"+(a[0]==12?"SAKU_YUKI02":a[0]==11?"SAKU_YUKI01":a[0]==3?"YUKI01":a[0]==1?"SACRA01":"SACRA02");scene.effect(1,a[1]);return true;}
+            return super.command("dm.scene.effect",a,bytes);
+        case "pc.transition":if(a[0]==13){if(a[1]!=0&&a[1]!=1&&a[1]!=2)throw new IOException("PC2 mask variant "+a[1]);int minimum=a[1]==0?0:a[1]==1?(second?-191:-199):(second?-340:-348);int gain=0,ticks=1;while(minimum+gain<16){ticks++;gain+=Math.min(16,ticks);}scene.publish(ui,130+a[1],ticks*40L);delay(scene.transitionDuration);return true;}if(a[0]==7){return true;} // Native creates/releases a temporary transition bitmap, not a timed transition.
+            if(second&&(a[0]==21||a[0]==22)){int[] rates={64,64,32,16,8,4,2,1};int duration=a[1]<8?40*(256+rates[a[1]]-1)/rates[a[1]]:(a[1]*5-35)*8*256;scene.publish(ui,200+a[0],duration);delay(duration);return true;}
+            if(a[0]==9){captureUi();return true;} // Captured caller is a logical frame instead of a native render target.
+            if(a[0]==10||a[0]==12||a[0]==14){scene.publish(ui,0,200L*Math.max(1,a[1]));delay(scene.transitionDuration);return true;}return super.command("dm.scene.transition",a,bytes);
+        case "pc.scroll":if(a[2]==2){scene.portraitX=a[0];scene.portraitY=a[1];return true;}return super.command("dm.scene.scroll",a,bytes);
+        case "pc.actor_position":if(second){int n=a[2];if(n>=0&&n<4){scene.characters[n][0]=a[0];scene.characters[n][1]=a[1];scene.characters[n][2]=100;return true;}}else{scene.characters[0][0]=a[0];scene.characters[0][1]=a[1];scene.characters[1][0]=a[2];scene.characters[1][1]=a[3];return true;}throw new IOException("PC actor position "+Arrays.toString(a));
+        case "pc.actor_transform":if(second&&(a[3]&16)!=0)return super.command("dm.scene.character_transform",a,bytes);if(second&&a[3]<4){int n=a[3];scene.characters[n][0]=a[0];scene.characters[n][1]=a[1];scene.characters[n][2]=a[2];scene.publish(ui,0,200);delay(200);return true;}throw new IOException("PC actor transform "+Arrays.toString(a));
+        case "pc.sound8":return super.command("dm.audio.sound",new int[]{a[0]==255?-1:a[0],a[1]},bytes);
+        case "pc.save_caption":checkpointLabel=text;return true;
+        case "pc.persist":switch(a[0]){
+            case 0:loadRequest=read(99,254);nextTicket();return true;
+            case 8:windowRequest=a[1];fullscreen=a[1]!=0;return true;
+            case 2:case 3:case 5:case 10:case 12:case 17:return true;
+            case 4:if(a[1]==1)autosaveGeneration++;else{saveRequest=read(99,254);nextTicket();}return true;
+            case 6:variables.clearHistory();return true;case 7:skipAllowed=a[1]!=0;return true;case 11:messageMode=a[1];return true;case 13:inputMode=a[1];return true;
+            default:throw new IOException("Unimplemented PC persistence "+Arrays.toString(a));}
+        case "pc.wait.media_mask":if((a[0]&~7)!=0)throw new IOException("PC native media timer mask "+a[0]);return super.command("wait.audio",a,bytes); // 41ED22 / 4230E0: music=1, voice=2, SE=4.
+        case "pc.voice_group.add":if(voiceGroup.size()<10)voiceGroup.add(text);return true;
+        case "pc.voice_group.play":
+            if(a[0]==2){voiceGroup.clear();return true;}if(voiceGroup.isEmpty())return true;
+            if(a[0]==0){randomState=randomState*214013+2531011;lineVoice=voiceGroup.get(((randomState>>>16)&32767)%voiceGroup.size());playVoice(lineVoice);}
+            // 41CC10 uses device channels 3..9; 427680 uses 4..9. Group
+            // playback checks the global voice switch, not individual mutes.
+            else if(a[0]==1){lineVoice=MixedVoice.reference(voiceGroup.subList(0,Math.min(voiceGroup.size(),second?6:7)));voicePan=0;play(5,lineVoice,false);}return true;
+        case "pc.random":randomState^=randomState<<13;randomState^=randomState>>>17;randomState^=randomState<<5;registers.put(255,a[0]==0?randomState&255:Math.floorMod(randomState,a[0]));return true;
+        case "pc.grid.begin":grid.clear();return true;
+        case "pc.grid.configure":if(a.length!=8)throw new IOException("PC grid extension missing");System.arraycopy(a,0,gridBounds,0,8);grid.clear();list.clear();gridTarget=false;gridWaiting=false;registers.put(253,-1);registers.put(254,-1);return true;
+        case "pc.grid.wait":if(list.active()){list.columns=grid.size()>1&&grid.get(0).top==grid.get(1).top?2:1;registers.put(246,list.clamp(read(99,246),grid.size()));}gridWaiting=ui.waiting=true;scene.publish(ui,0,0);nextTicket();return true;
+        case "pc.grid.sound":gridHoverSound=a[0];gridClickSound=a[1];return true;
+        case "pc.grid.voice":if(!grid.isEmpty())grid.get(grid.size()-1).voice=text;return true;
+        case "pc.confirm_position":confirmX=a[0];confirmY=a[1];confirmKind=a[3];return true;
+        case "pc.prompt_position":confirmX=a[0]*8;confirmY=a[1]*8;return true;
+        case "pc.confirm":{
+            List<Dc2Ui.Button> list=Dc2Ui.copyButtons(ui.buttonTemplates.get(2));if(list.size()<3)throw new IOException("PC original confirmation template missing");Dc2Ui.Button panel=list.get(0);int dx=confirmX-panel.left,dy=confirmY-panel.top;boolean caption=false;
+            for(Dc2Ui.Button b:list){b.left+=dx;b.right+=dx;b.top+=dy;b.bottom+=dy;for(Dc2Ui.Quad q:b.sprites){q.x+=dx;q.y+=dy;if(b==panel&&q.type==2){q.text=codec.decode(bytes);q.width=Math.max(1,bytes.length*11);caption=true;}}}
+            if(!caption)throw new IOException("PC confirmation text anchor missing");ui.buttons.clear();ui.buttons.addAll(list);confirming=ui.waiting=true;gridWaiting=false;nextTicket();return true;
+        }
+        case "pc.command":
+            if(!second&&a[0]==8){nameInput.prepare(resources,codec);nameInput.open(familyName,givenName);nameInput.build(ui);scene.publish(ui,0,0);nextTicket();return true;}if(second&&a[0]==9)return true; /* 407350 selects the generic music list renderer. */
+            if(second&&a[0]==20){map.open(variables);map.buttons(ui);scene.publish(ui,0,0);nextTicket();return true;}if(a[0]==6){saveGrid=a[1]==0;return true;}
+            if(second&&a[0]==10){endingClock=0;return true;} // 408960: records timeGetTime for the ending service.
+            if(second&&a[0]==11){if(a[1]==0)pcCredits.active=false;else{pcCredits.start(a[1],endingClock);scene.publish(ui,0,0);nextTicket();}return true;}
+            if(!second&&a[0]==10){pcCredits.preparePc1();return true;} // 405180 prepares twelve original 800x1200 strips.
+            if(!second&&a[0]==11){pcCredits.active=true;scene.publish(ui,0,0);nextTicket();return true;}
+            if(a[0]==1){calendar(a[1]);return true;}
+            if(a[0]==2&&(a[1]==0||a[1]==1)){rank(a[1]);return true;}
+            if(a[0]!=7&&a[0]!=8&&a[0]!=9&&a[0]!=10&&a[0]!=11&&a[0]!=100&&a[0]!=101)return true; // Explicit default return in 404EE0 / 408560.
+            throw new IOException("Unimplemented PC native system command "+Arrays.toString(a));
+        default:return super.command(op,a,bytes);
+        }
+    }
+    /** Native 404EE0 / 408560; calendar fields are script-visible route state. */
+    private void calendar(int mode)throws IOException{
+        if(mode!=0&&mode!=1)return;
+        if(mode==0){String n=script.name.replace('\\','/');n=n.substring(n.lastIndexOf('/')+1).toUpperCase(Locale.ROOT);
+            if(second){
+                if(n.length()<9||!Character.isDigit(n.charAt(4))){variables.write(9,0,0);variables.write(9,1,0);variables.write(9,3,0);variables.write(9,20,5);}
+                else{int month=Integer.parseInt(n.substring(4,6)),day=Integer.parseInt(n.substring(6,8));variables.write(9,0,month);variables.write(9,1,day);variables.write(9,3,n.charAt(8)-'A');
+                    int season=month==7&&day<22?(n.startsWith("S_GM0721E")||n.startsWith("S_GM0721F")?1:0):n.startsWith("S_AS")||n.startsWith("S_HS")?0:n.startsWith("S_GM")?1:2;
+                    variables.write(9,80,season);variables.write(9,20,n.startsWith("S_AS")?3:n.startsWith("S_GM")?4:n.startsWith("S_TM")||n.startsWith("S_TT")?0:n.startsWith("S_MM")?2:n.startsWith("S_KN")||n.startsWith("S_KH")?1:5);
+                }
+            }else{if(n.length()<5)throw new IOException("PC calendar filename too short: "+n);variables.write(9,0,(n.charAt(0)-'0')*10+n.charAt(1)-'0');variables.write(9,1,(n.charAt(2)-'0')*10+n.charAt(3)-'0');char period=n.charAt(4);variables.write(9,3,period=='B'?1:period=='C'||period=='D'?2:0);}
+            if(!second)return;
+        }
+        int days=variables.read(9,1),month=variables.read(9,0);if(second&&month>12){month%=10;days+=365;}
+        int[] lengths={31,28,31,30,31,30,31,31,30,31,30};for(int n=0;n<lengths.length&&n+1<month;n++)days+=lengths[n];variables.write(9,2,(days+(second?5:1))%7);
+    }
+    private void rank(int mode)throws IOException{
+        // PC2's native loop reads thirteen words, including the adjacent constant bytes.
+        // Preserve the observed binary's comparison exactly; do not invent new route priorities.
+        int[] priorities=second?new int[]{6,5,4,3,2,1,1654170256,-1417526131,1351985282,27799,0,0,0}:new int[]{12,13,11,10,7,8,0,5,4,3,6,9,0};
+        int score=mode==0?0:2099,index=mode==0?0:15;for(int n=0;n<priorities.length;n++){int value=variables.read(0,n)*100+priorities[n];if(value>score){score=value;index=n;}}variables.write(9,10,index);
+    }
+    @Override protected void playVoice(String source)throws IOException{String name=source;voicePan=name.startsWith("<")?-1000:name.startsWith(">")?1000:0;if(name.startsWith("<")||name.startsWith(">")||name.startsWith("="))name=name.substring(1);voiceCharacter=PcVoice.character(name,second);play(5,PcVoice.forced(name,second)||read(100,60+voiceCharacter)==0?name:"",false);}
+    @Override public float voiceGain()throws IOException{return audio[5].startsWith("mix:")||PcVoice.forced(audio[5],second)||read(100,60+PcVoice.character(audio[5],second))==0?1:0;}
+    private String prose(byte[] raw)throws IOException{return codec.decode(raw).replace("$n",givenName).replace("$s",familyName);}
+    @Override public void copyPersistentFrom(Dc2Host other)throws IOException{super.copyPersistentFrom(other);PcHost p=(PcHost)other;familyName=p.familyName;givenName=p.givenName;System.arraycopy(p.globals,0,globals,0,globals.length);System.arraycopy(p.cg,0,cg,0,cg.length);System.arraycopy(p.seen,0,seen,0,seen.length);System.arraycopy(p.voiceEnabled,0,voiceEnabled,0,voiceEnabled.length);}
+    private void savePc(DataOutput o)throws IOException{o.writeInt(0x50435032);o.write(globals);o.write(cg);o.write(seen);o.write(voiceEnabled);o.write(scratch);o.writeInt(spriteFlags);o.writeInt(randomState);o.writeUTF(familyName);o.writeUTF(givenName);}
+    private void loadPc(DataInput i)throws IOException{int format=i.readInt();if(format!=0x50435031&&format!=0x50435032)throw new IOException("PC state format");i.readFully(globals);i.readFully(cg);i.readFully(seen);i.readFully(voiceEnabled);i.readFully(scratch);spriteFlags=i.readInt();randomState=i.readInt();if(format>=0x50435032){familyName=i.readUTF();givenName=i.readUTF();if(familyName.length()>4||givenName.length()>4)throw new IOException("Saved player name too long");}}
+    @Override public void save(DataOutput o)throws IOException{super.save(o);o.writeInt(0x50434835);savePc(o);o.writeBoolean(timedInput);for(int n:gridBounds)o.writeInt(n);map.save(o);pcCredits.save(o);o.writeInt(voiceGroup.size());for(String voice:voiceGroup)o.writeUTF(voice);list.save(o);o.writeBoolean(gridTarget);o.writeUTF(musicEndAction);nameInput.save(o);}
+    @Override public void load(DataInput i)throws IOException{super.load(i);int format=i.readInt();if(format!=0x50434832&&format!=0x50434833&&format!=0x50434834&&format!=0x50434835)throw new IOException("PC host state version");loadPc(i);timedInput=i.readBoolean();for(int n=0;n<8;n++)gridBounds[n]=i.readInt();map.load(i);voiceGroup.clear();if(format>=0x50434833){pcCredits.load(i);int count=i.readInt();if(count<0||count>10)throw new IOException("PC voice group count");while(count-->0)voiceGroup.add(i.readUTF());}if(format>=0x50434834){list.load(i);gridTarget=i.readBoolean();musicEndAction=i.readUTF();}if(format>=0x50434835){nameInput.load(i);if(nameInput.active)nameInput.prepare(resources,codec);}}
+    @Override public void savePersistent(DataOutput o)throws IOException{super.savePersistent(o);savePc(o);}
+    @Override public void loadPersistent(DataInput i)throws IOException{super.loadPersistent(i);loadPc(i);}
+}

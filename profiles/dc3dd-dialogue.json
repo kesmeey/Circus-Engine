@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "profile": "dc3dd-a5a8",
+  "native_sha256": "ff119f4396cc1382e349fb1ed2c2eb77191db8ec699cb1352ca021cc73407e8d",
+  "bindings": {
+    "0x06": "wait.message",
+    "0x64": "text.speaker",
+    "0x65": "text.body"
+  },
+  "mode": "normal plain dialogue subset only; not a full game initializer",
+  "wait": {
+    "suppress_field": "state+0x444F4",
+    "one_shot_field": "state+0x196FC",
+    "implicit_boundary": {
+      "previous_opcode": 101,
+      "next_opcode_not": 6,
+      "engine_5990": 0,
+      "replay_argument": 0,
+      "reason": 8,
+      "consume_next_record": false
+    },
+    "reason6": "text presentation plus manual advancement in current host; native Auto/UI actions unimplemented",
+    "reason8": "presentation completion; no additional user click required"
+  },
+  "text": {
+    "charset": "windows-31j",
+    "font_map": "external character_substitution source/target Unicode pairs, applied only to display text",
+    "name_macros": {
+      "&f": "state+0x193F8",
+      "&n": "state+0x193E4"
+    },
+    "speaker_alias": "input-byte-length strncmp against sakura2/sakura3; including empty input; canonical sakura",
+    "inline_controls": "unimplemented controls fail with decoded-byte offset",
+    "bounds": "portable runtime intentionally rejects native buffer overruns and recursive substitution"
+  },
+  "unsupported": [
+    "replay mode",
+    "engine+5990 alternate dispatch mode",
+    "voice-stop and voice-name prefix effects",
+    "native Auto timings",
+    "inline animation/audio/ruby/render controls",
+    "checkpoint/backlog metadata effects",
+    "special-variable initialization",
+    "native UI callbacks",
+    "script transition cleanup"
+  ],
+  "evidence": "analysis/evidence/dc3dd/dialogue/manifest.json"
+}

@@ -1,0 +1,67 @@
+package org.circus.core;
+
+import java.awt.image.*;
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+import javax.sound.sampled.*;
+
+/** Java Sound output and bounded FFmpeg pipes. No Windows game binaries are loaded. */
+public final class DesktopMedia implements AutoCloseable {
+    private final DesktopEngine engine;
+    private final int[] sought=new int[6];
+    private final int[] heard={-1,-1,-1,-1,-1,-1};
+    private final Clip[] clips=new Clip[6];private Movie movie;
+    private int movieGeneration=-1;private long movieTicket;
+    public final Set<String> decodedMovies=new TreeSet<>();
+    public DesktopMedia(DesktopEngine e){engine=e;}
+    public static String ffmpeg()throws IOException{String executable=System.getProperty("dc.ffmpeg",System.getenv("DC_FFMPEG"));if(executable==null||executable.isEmpty())throw new IOException("FFmpeg is required for Ogg/movie playback. Set DC_FFMPEG to its executable.");return executable;}
+    private static Process process(String... args)throws IOException{List<String> command=new ArrayList<>();command.add(ffmpeg());Collections.addAll(command,"-nostdin","-hide_banner","-loglevel","error");Collections.addAll(command,args);Process p=new ProcessBuilder(command).start();Thread errors=new Thread(()->{try(InputStream in=p.getErrorStream()){byte[] b=new byte[4096];int n,total=0;while((n=in.read(b))!=-1){if(total<16384)System.err.write(b,0,Math.min(n,16384-total));total+=n;}}catch(IOException ignored){}},"dc-media-diagnostics");errors.setDaemon(true);errors.start();return p;}
+    public static byte[] decodeOgg(byte[] ogg)throws Exception{
+        Process p=process("-i","pipe:0","-vn","-f","s16le","-ac","2","-ar","44100","pipe:1");
+        final IOException[] error={null};Thread input=new Thread(()->{try(OutputStream out=p.getOutputStream()){out.write(ogg);}catch(IOException e){error[0]=e;}},"dc-ogg-input");input.setDaemon(true);input.start();
+        try{byte[] pcm=Binary.read(p.getInputStream(),128*1024*1024);int exit=p.waitFor();input.join();if(exit!=0||error[0]!=null)throw new IOException("Ogg decoder failed ("+exit+")",error[0]);return pcm;}finally{p.destroy();}
+    }
+    public void sync()throws Exception{
+        for(int ch=0;ch<6;ch++){
+            if(heard[ch]!=engine.audioGeneration(ch)){
+                stop(ch);heard[ch]=engine.audioGeneration(ch);if(engine.audio(ch).isEmpty()||!engine.audioActive(ch))continue;
+                Xpcm audio=engine.resources.audio(engine.audio(ch));engine.loadedAudio.add(engine.audio(ch));byte[] pcm=audio.codec.equals("ogg")?decodeOgg(audio.payload):audio.payload;
+                if(engine.audit){engine.audioCompleted(ch,heard[ch]);continue;}
+                AudioFormat format=audio.codec.equals("ogg")?new AudioFormat(44100,16,2,true,false):new AudioFormat(audio.sampleRate,audio.bits,audio.channels,audio.bits==16,false);
+                Clip clip=AudioSystem.getClip();try{clip.open(format,pcm,0,pcm.length);}catch(Exception e){clip.close();throw e;}clips[ch]=clip;long resume=engine.takeAudioResume(ch);if(resume>0)clip.setMicrosecondPosition(Math.min(resume,Math.max(0,clip.getMicrosecondLength()-1)));sought[ch]=engine.audioSeekGeneration(ch);if(engine.audioLoop(ch))clip.loop(Clip.LOOP_CONTINUOUSLY);else clip.start();
+            }
+            Clip clip=clips[ch];if(clip!=null){if(sought[ch]!=engine.audioSeekGeneration(ch)){sought[ch]=engine.audioSeekGeneration(ch);clip.setMicrosecondPosition(clip.getMicrosecondLength()*Math.max(0,Math.min(100,engine.audioSeekPercent(ch)))/100);}engine.audioPosition(ch,clip.getMicrosecondPosition(),clip.getMicrosecondLength());gain(clip,engine.volume(ch));balance(clip,engine.pan(ch));if(!engine.audioActive(ch)){stop(ch);continue;}if(!engine.audioLoop(ch)&&!clip.isRunning()&&clip.getFramePosition()>=clip.getFrameLength()){engine.audioCompleted(ch,heard[ch]);stop(ch);}}
+        }
+        if(!engine.movie().isEmpty()&&movieGeneration!=engine.movieGeneration()){
+            movieGeneration=engine.movieGeneration();movieTicket=engine.ticket();for(int ch=0;ch<6;ch++)stop(ch);
+            if(engine.audit){decodedMovies.add(engine.movie());engine.vm().signalHost(movieTicket,MesVm.HostSignal.MEDIA_COMPLETE);return;}
+            movie=new Movie(engine.resources.files,engine.movie(),engine.width,engine.height);decodedMovies.add(engine.movie());
+        }
+        if(movie!=null){if(movie.error!=null)throw new IOException("Movie playback failed",movie.error);if(movie.videoDone&&movie.audioDone)finishMovie();}
+    }
+    private static void balance(Line line,int pan){FloatControl.Type type=line.isControlSupported(FloatControl.Type.BALANCE)?FloatControl.Type.BALANCE:FloatControl.Type.PAN;if(line.isControlSupported(type)){FloatControl c=(FloatControl)line.getControl(type);float value=pan==0?0:Math.copySign((float)(1-Math.pow(10,-Math.abs(pan)/2000.0)),pan);c.setValue(Math.max(c.getMinimum(),Math.min(c.getMaximum(),value)));}}
+    private static void gain(Line line,float value){if(line.isControlSupported(FloatControl.Type.MASTER_GAIN)){FloatControl gain=(FloatControl)line.getControl(FloatControl.Type.MASTER_GAIN);float db=value<=0?gain.getMinimum():(float)(20*Math.log10(value));gain.setValue(Math.max(gain.getMinimum(),Math.min(gain.getMaximum(),db)));}}
+    public BufferedImage movieFrame(){return movie==null?null:movie.frame;}
+    public long audioFrames(int ch){return clips[ch]==null?0:clips[ch].getLongFramePosition();}
+    public long movieAudioFrames(){return movie==null||movie.line==null?0:movie.line.getLongFramePosition();}
+    public boolean playingMovie(){return movie!=null;}
+    public void finishMovie()throws IOException{if(movie!=null){movie.close();movie=null;}engine.vm().signalHost(movieTicket,MesVm.HostSignal.MEDIA_COMPLETE);}
+    private void stop(int n){if(clips[n]!=null){clips[n].stop();clips[n].close();clips[n]=null;}}
+    public void reset(){for(int n=0;n<6;n++)stop(n);Arrays.fill(heard,-1);movieGeneration=-1;if(movie!=null){movie.close();movie=null;}}
+    public void close(){reset();}
+    /** Two decoder pipes, at most one published video frame; neither pipe accumulates the movie. */
+    private static final class Movie implements AutoCloseable {
+        final Path file;final Process video,audio;volatile SourceDataLine line;
+        volatile BufferedImage frame;volatile Exception error;volatile boolean closed,videoDone,audioDone;
+        Movie(GameResources resources,String name,int width,int height)throws Exception{
+            Path dir=Paths.get(System.getProperty("dc.cacheRoot","build/desktop/media-cache"));Files.createDirectories(dir);file=Files.createTempFile(dir,"movie-",".mpg");
+            try(OutputStream out=Files.newOutputStream(file)){resources.copy(name,out,1024L*1024*1024);}
+            Process v=null,a=null;try{v=process("-i",file.toAbsolutePath().toString(),"-an","-vf","scale="+width+":"+height+":force_original_aspect_ratio=decrease,pad="+width+":"+height+":(ow-iw)/2:(oh-ih)/2,fps=30","-pix_fmt","bgr24","-f","rawvideo","pipe:1");a=process("-i",file.toAbsolutePath().toString(),"-vn","-ac","2","-ar","44100","-f","s16le","pipe:1");}catch(Exception e){if(v!=null)v.destroy();if(a!=null)a.destroy();Files.deleteIfExists(file);throw e;}video=v;audio=a;
+            Thread at=new Thread(()->{try{AudioFormat format=new AudioFormat(44100,16,2,true,false);SourceDataLine sink=AudioSystem.getSourceDataLine(format);line=sink;sink.open(format,32768);sink.start();try(InputStream in=new AudioInputStream(audio.getInputStream(),format,AudioSystem.NOT_SPECIFIED)){byte[] b=new byte[8192];int n;while(!closed&&(n=in.read(b))>=0)for(int off=0;off<n&&!closed;)off+=sink.write(b,off,n-off);}if(!closed){sink.drain();if(audio.waitFor()!=0)throw new IOException("Movie audio decoder failed");}}catch(Exception e){if(!closed)error=e;}finally{if(line!=null)line.close();audioDone=true;}},"dc-movie-audio");
+            Thread vt=new Thread(()->{try(InputStream in=video.getInputStream()){long start=System.nanoTime();int count=0;while(!closed){BufferedImage img=new BufferedImage(width,height,BufferedImage.TYPE_3BYTE_BGR);byte[] bytes=((DataBufferByte)img.getRaster().getDataBuffer()).getData();int off=0,n;while(off<bytes.length&&(n=in.read(bytes,off,bytes.length-off))>=0)off+=n;if(off==0)break;if(off!=bytes.length)throw new EOFException("Truncated movie frame");long target=start+(count++*1000000000L/30);while(!closed&&System.nanoTime()<target)Thread.sleep(Math.min(10,Math.max(1,(target-System.nanoTime())/1000000)));if(!closed)frame=img;}if(!closed&&video.waitFor()!=0)throw new IOException("Movie video decoder failed");}catch(Exception e){if(!closed)error=e;}finally{videoDone=true;}},"dc-movie-video");
+            at.setDaemon(true);vt.setDaemon(true);at.start();vt.start();
+        }
+        public void close(){closed=true;video.destroy();audio.destroy();if(line!=null){line.stop();line.flush();line.close();}try{Files.deleteIfExists(file);}catch(IOException e){file.toFile().deleteOnExit();}}
+    }
+}

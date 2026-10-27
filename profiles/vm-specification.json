@@ -1,0 +1,5407 @@
+{
+  "schema": 1,
+  "title": "D.C. Engine VM Specification",
+  "scope": "DC1/2/3; version-specific native evidence, not one universal opcode numbering",
+  "profiles": {
+    "dc3dd-a5a8": {
+      "exe_name": "DC3DD.EXE",
+      "exe_sha256": "ff119f4396cc1382e349fb1ed2c2eb77191db8ec699cb1352ca021cc73407e8d",
+      "image_base": "0x400000",
+      "dispatch_table": "0x4326a8",
+      "dispatch_table_sha256": "fb49cc48c6af2b1b4176ad95c206bbc71f758b77ea47e493fc7e75ee888aaf85",
+      "dispatch_count": 168,
+      "framing": {
+        "id": "dc3dd-a5a8",
+        "alias": "dc3dd",
+        "layout": "offset2",
+        "version": 42408,
+        "ranges": [
+          [
+            "u8x2",
+            0,
+            56
+          ],
+          [
+            "u8str",
+            57,
+            67
+          ],
+          [
+            "string",
+            68,
+            98
+          ],
+          [
+            "encoded_string",
+            99,
+            103
+          ],
+          [
+            "u16x4",
+            104,
+            255
+          ]
+        ],
+        "string_key": 32,
+        "plain_text_opcodes": [
+          88
+        ],
+        "title": "D.C.Ⅲ DreamDays～ダ・カーポⅢ～ドリームデイズ",
+        "evidence": "reference_format_only",
+        "execution_supported": false
+      },
+      "evidence": {
+        "provider": "pefile + Capstone, previous static evidence",
+        "addresses": {
+          "loader": "0x00438530",
+          "decoder": "0x00438AB0",
+          "signed_word": "0x00438730",
+          "dispatch_site": "0x0042AE42",
+          "dispatch_table": "0x004326A8",
+          "read_variable": "0x0040D7D0",
+          "write_variable": "0x0040DD70",
+          "find_named_label": "0x00438750",
+          "find_block_end": "0x004388D0",
+          "jump_named": "0x00420C00",
+          "fallback": "0x00431CC2"
+        }
+      },
+      "opcodes": [
+        {
+          "opcode": "0x00",
+          "handler_va": "0x0042AE49",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "stream.stop",
+          "behavior": "终止/归还宿主；不能简单视为 pc++ 的 NOP。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x01",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x02",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "control.marker",
+          "behavior": "Context-dependent 3-byte record: IF companion uses signed first byte as block ID; sum list terminator.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x03",
+          "handler_va": "0x004309B7",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "checkpoint",
+          "behavior": "Combine bytes little-endian into checkpoint index; updates state and reads header u16 metadata. Not itself a jump.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x04",
+          "handler_va": "0x00430A8C",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "history.range",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x05",
+          "handler_va": "0x0042FEF1",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "audio.restore_volume",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x06",
+          "handler_va": "0x0042B1CC",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "wait.message",
+          "behavior": "DD 06: state+444F4 nonzero suppresses wait; otherwise consume state+196FC once or yield native reason 6. Operands are unused in this handler. Requires a flow-aware host.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x07",
+          "handler_va": "0x0042B1AB",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x08",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x09",
+          "handler_va": "0x0042BB87",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "choice.begin",
+          "behavior": "Clear registered choices; native 42BB87.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0A",
+          "handler_va": "0x0042BBC5",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "choice.show",
+          "behavior": "Normal mode 0 presents registered choices and waits; replay modes unsupported. Native 42BBC5.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0B",
+          "handler_va": "0x0042BB1C",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "ui.wait",
+          "behavior": "0B flushes button construction and yields for an input action. A button label resumes the original MES, without falling through.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0C",
+          "handler_va": "0x0042C189",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dd.grid.wait",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0D",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x0E",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x0F",
+          "handler_va": "0x0042C1C7",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "scene.transition",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x10",
+          "handler_va": "0x0042AF48",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "system.exit",
+          "behavior": "Sends WM_DESTROY to the game window and yields; portable host ends the game Activity.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x11",
+          "handler_va": "0x0042B0AB",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "state.reset_scenario",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x12",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x13",
+          "handler_va": "0x0042D065",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "audio.music_stop",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x14",
+          "handler_va": "0x0042B20A",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "wait.duration",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x15",
+          "handler_va": "0x0043017F",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "wait.audio",
+          "behavior": "Native asynchronous completion event; wait.audio absorbs successive opcode 15 masks.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x16",
+          "handler_va": "0x0042B738",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "ui.button_sound",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x17",
+          "handler_va": "0x0042DB26",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "system.persist",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x18",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x19",
+          "handler_va": "0x0042B3C6",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "ui.panel",
+          "behavior": "19/0 clears current UI and action bindings; other reviewed selectors save current UI in a template slot.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1A",
+          "handler_va": "0x0042B80B",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1B",
+          "handler_va": "0x00430AD1",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "scene.checkpoint",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1C",
+          "handler_va": "0x004306E0",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dd.system.return",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1D",
+          "handler_va": "0x0042AECB",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "system.command",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1E",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x1F",
+          "handler_va": "0x0042D228",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "block.marker",
+          "behavior": "a0=0 向前扫描相同有符号块编号；非零直接继续。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x20",
+          "handler_va": "0x0042B4B1",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x21",
+          "handler_va": "0x0042BE49",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "ui.flush",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x22",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x23",
+          "handler_va": "0x0042D63B",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "ui.template",
+          "behavior": "23 saves the current UI panel to a selector-dependent template and clears construction state. 0 and unused selector cases are native fallbacks.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x24",
+          "handler_va": "0x004302FA",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "state.random",
+          "behavior": "24 stores MSVCRT rand() modulo p0 in special bank 99 index 2 (4302FA). Seed is portable and saved, not synchronized to native wall time.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x25",
+          "handler_va": "0x00431B48",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x26",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "native.no_effect",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x27",
+          "handler_va": "0x0042CC61",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "scene.effect",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x28",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x29",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x2A",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x2B",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x2C",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x2D",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x2E",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x2F",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x30",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x31",
+          "handler_va": "0x0043177F",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "ui.focus",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x32",
+          "handler_va": "0x0043178F",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "ui.option_flag",
+          "behavior": "43178F calls 412DB0/412DC0: set UI object fields +348/+34C to 1, selected by operand 0; platform pointer constraints still under review.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x33",
+          "handler_va": "0x004317B3",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "ui.navigation",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x34",
+          "handler_va": "0x00431899",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "ui.navigation_extra",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x35",
+          "handler_va": "0x004318A9",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "scene.stop_motion",
+          "behavior": "Stop all render-object motion tracks (4318A9). Current host tracks reviewed shake animations only.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x36",
+          "handler_va": "0x004318CA",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "scene.center_background",
+          "behavior": "Center the pending background at publication (4318CA, 431FAE..432066); renderer uses image dimensions.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x37",
+          "handler_va": "0x00430FA8",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x38",
+          "handler_va": "0x00431CC2",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x39",
+          "handler_va": "0x00431CC2",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x3A",
+          "handler_va": "0x0042E193",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "image.load",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3B",
+          "handler_va": "0x0042B331",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "ui.resource",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3C",
+          "handler_va": "0x004306CA",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3D",
+          "handler_va": "0x0042E9F0",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "scene.character",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3E",
+          "handler_va": "0x0042EDE6",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3F",
+          "handler_va": "0x0042E85B",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "scene.character_overlay",
+          "behavior": "Clear queued overlay / face with literal minus; other strings are native no-effect except overlay double-minus restore.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x40",
+          "handler_va": "0x00431CC2",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x41",
+          "handler_va": "0x0043033F",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "ui.action",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x42",
+          "handler_va": "0x0043172D",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x43",
+          "handler_va": "0x00431853",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x44",
+          "handler_va": "0x00431CC2",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x45",
+          "handler_va": "0x0042D254",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "scene.background",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x46",
+          "handler_va": "0x0042D3D0",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x47",
+          "handler_va": "0x00431CC2",
+          "args": "string",
+          "logical_operands": [
+            "name:bytes_z"
+          ],
+          "operation": "label.named",
+          "behavior": "NUL 结尾的原始字节标签；跳转匹配不使用汉化显示字符串。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x48",
+          "handler_va": "0x004300BA",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "audio.system_voice",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x49",
+          "handler_va": "0x0043011F",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "audio.voice",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4A",
+          "handler_va": "0x00431CC2",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "native.no_effect",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x4B",
+          "handler_va": "0x0043084F",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "script.transfer",
+          "behavior": "Load named script with mode 0, clear several UI/state fields; full transition effects unresolved.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4C",
+          "handler_va": "0x00430961",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "script.transfer_alt",
+          "behavior": "Load named script with mode 1; has different reset effects from mode 0.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4D",
+          "handler_va": "0x0043082C",
+          "args": "string",
+          "logical_operands": [
+            "name:bytes_z"
+          ],
+          "operation": "script.entry_label",
+          "behavior": "保存下次跨脚本入口的字节标签，应用后清空。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4E",
+          "handler_va": "0x00430226",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "media.movie",
+          "behavior": "Native asynchronous completion event; wait.audio absorbs successive opcode 15 masks.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4F",
+          "handler_va": "0x00431CC2",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x50",
+          "handler_va": "0x004306A4",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "jump.named",
+          "behavior": "Resolve label from start PC 3; if missing or empty, leave PC unchanged. Dispatch has mode gates.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x51",
+          "handler_va": "0x0042B756",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x52",
+          "handler_va": "0x0042B76E",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x53",
+          "handler_va": "0x00431CC2",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x54",
+          "handler_va": "0x0042BFB7",
+          "args": "string",
+          "logical_operands": [
+            "label:bytes_z"
+          ],
+          "operation": "grid.item_action",
+          "behavior": "Attach original byte-exact action label to current data entry (PC2 41D66D; DD 434530).",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x55",
+          "handler_va": "0x00430571",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "ui.confirm",
+          "behavior": "Instantiate original template 12 with indexed caption; yes/no use action slots 0/1, checkbox updates bank93; an enabled remember flag jumps directly to action0.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x56",
+          "handler_va": "0x00430606",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x57",
+          "handler_va": "0x0042B82B",
+          "args": "string",
+          "logical_operands": [
+            "label:bytes_z",
+            "following_caption:encoded_bytes_z"
+          ],
+          "operation": "choice.item",
+          "behavior": "跳转标签字符串，消费紧随其后的 caption 记录，建立原版按钮。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x58",
+          "handler_va": "0x00431CC2",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "control.marker",
+          "behavior": "Context-dependent 3-byte record: IF companion uses signed first byte as block ID; sum list terminator.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x59",
+          "handler_va": "0x00430B11",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5A",
+          "handler_va": "0x0042BAED",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5B",
+          "handler_va": "0x00431CC2",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x5C",
+          "handler_va": "0x0043031C",
+          "args": "string",
+          "logical_operands": [
+            "label:bytes_z"
+          ],
+          "operation": "ui.music_end_action",
+          "behavior": "Menu-wait BGM-end callback: PC2 423571 consumes binding; DD 4340D7 retains binding and polls at >500ms until script clears it.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5D",
+          "handler_va": "0x00431CC2",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x5E",
+          "handler_va": "0x0042AE56",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "system.version",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5F",
+          "handler_va": "0x0042E97A",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "scene.face",
+          "behavior": "Clear queued overlay / face with literal minus; other strings are native no-effect except overlay double-minus restore.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x60",
+          "handler_va": "0x00431701",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "audio.voice_register",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x61",
+          "handler_va": "0x00431CC2",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x62",
+          "handler_va": "0x00431C80",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x63",
+          "handler_va": "0x00431CC2",
+          "args": "encoded_string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x64",
+          "handler_va": "0x00430B11",
+          "args": "encoded_string",
+          "logical_operands": [
+            "speaker:encoded_bytes_z"
+          ],
+          "operation": "text.speaker",
+          "behavior": "原始解码字符串设置说话人；不加载资源、不推进下一句。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x65",
+          "handler_va": "0x00430BCB",
+          "args": "encoded_string",
+          "logical_operands": [
+            "text:encoded_bytes_z"
+          ],
+          "operation": "text.body",
+          "behavior": "发布场景并呈现正文；文本完成与点击推进是不同等待状态。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x66",
+          "handler_va": "0x00431CC2",
+          "args": "encoded_string",
+          "logical_operands": null,
+          "operation": "choice.caption",
+          "behavior": "Encoded caption consumed by choice.item; independent dispatch uses the native fallback.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x67",
+          "handler_va": "0x00431CC2",
+          "args": "encoded_string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x68",
+          "handler_va": "0x00431CC2",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x69",
+          "handler_va": "0x0042FCA5",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x6A",
+          "handler_va": "0x0042FD56",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "audio.music",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x6B",
+          "handler_va": "0x0042AF68",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "audio.sound",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x6C",
+          "handler_va": "0x0042B4DD",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "host.command_with_string",
+          "behavior": "Consumes the next opcode-plus-NUL-string record as a payload and advances PC past it; passes four words and the string to a UI helper. Payload is not dispatched as a named jump. UI effects unresolved.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x6D",
+          "handler_va": "0x0042B56E",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "ui.button_sprite",
+          "behavior": "6D + 71 register cropped atlas quads for the pending button: reviewed states 99 normal, 1 hover, 2 pressed. Other native modes are partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x6E",
+          "handler_va": "0x0042C07B",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dd.grid.common_sprite",
+          "behavior": "Common relative list sprite; state -1 configures scrollbar thumb, positioned from viewport bounds and offset (4346E0,435447).",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x6F",
+          "handler_va": "0x0042C12E",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dd.grid.item_sprite",
+          "behavior": "Current entry overlay, relative destination, source XYWH and state (434550).",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x70",
+          "handler_va": "0x0042B786",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "ui.button_text",
+          "behavior": "Consumes the next string record and registers state-specific button text metadata. Active text rendering remains unimplemented.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x71",
+          "handler_va": "0x00431CC2",
+          "args": "u16x4",
+          "logical_operands": [
+            "a4:i16",
+            "a5:i16",
+            "a6:i16",
+            "a7:i16"
+          ],
+          "operation": "arguments.extend",
+          "behavior": "0x52 在相邻主记录后追加四个有符号 i16，不能当成独立业务指令。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x72",
+          "handler_va": "0x0042B706",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x73",
+          "handler_va": "0x00430678",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "ui.confirm_position",
+          "behavior": "Set confirmation origin and caption/remember ID; third operand is ignored by native dispatch.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x74",
+          "handler_va": "0x0042D7AB",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "ui.image_quad",
+          "behavior": "UI origin / texture subrectangle at relative destination; 74 requires 71 extension (width,height,slot flags,unused).",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x75",
+          "handler_va": "0x0042D828",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "ui.text_style",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x76",
+          "handler_va": "0x0042B6D2",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x77",
+          "handler_va": "0x0042BECE",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dd.grid.configure",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x78",
+          "handler_va": "0x0042BF3E",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dd.grid.rect",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x79",
+          "handler_va": "0x0042BF6E",
+          "args": "u16x4",
+          "logical_operands": [
+            "id:i16",
+            "reserved:i16",
+            "source_x:i16",
+            "source_y:i16",
+            "source_right:i16",
+            "source_bottom:i16",
+            "slot:i16",
+            "reserved:i16"
+          ],
+          "operation": "dd.grid.item",
+          "behavior": "Begin list data entry with ID and source rectangle (436070).",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x7A",
+          "handler_va": "0x0042BFCF",
+          "args": "u16x4",
+          "logical_operands": [
+            "x_or_style:i16",
+            "y:i16",
+            "reserved:i16",
+            "state:i16",
+            "caption:following_string_unless_state_99"
+          ],
+          "operation": "dd.grid.text",
+          "behavior": "State 99 sets text color; other states consume next string as entry caption (4345F0).",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x7B",
+          "handler_va": "0x0042BF1E",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dd.grid.sound",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x7C",
+          "handler_va": "0x0042CE53",
+          "args": "u16x4",
+          "logical_operands": [
+            "bank:i16",
+            "index:i16",
+            "value:i16",
+            "mode:i16"
+          ],
+          "operation": "variable.update",
+          "behavior": "四个 i16: bank,index,value,mode；mode 0=set,1=add,2=sub。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x7D",
+          "handler_va": "0x0042CEE4",
+          "args": "u16x4",
+          "logical_operands": [
+            "dst_bank:i16",
+            "dst_index:i16",
+            "src_bank:i16",
+            "src_index:i16"
+          ],
+          "operation": "variable.copy",
+          "behavior": "四个 i16: dstBank,dstIndex,srcBank,srcIndex。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x7E",
+          "handler_va": "0x0042CF14",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "variable.sum_list",
+          "behavior": "PC1 后续九字节记录组成求和表，到 companion 0x02 为止。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x7F",
+          "handler_va": "0x0042D028",
+          "args": "u16x4",
+          "logical_operands": [
+            "dst_bank:i16",
+            "dst_index:i16",
+            "src_bank:i16",
+            "src_index:i16"
+          ],
+          "operation": "variable.add_variable",
+          "behavior": "PC2 将源变量值加到目标变量。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x80",
+          "handler_va": "0x0042D0DB",
+          "args": "u16x4",
+          "logical_operands": [
+            "bank:i16",
+            "index:i16",
+            "rhs:i16",
+            "mode:i16",
+            "companion:block_id_i8"
+          ],
+          "operation": "branch.compare",
+          "behavior": "四个 i16: bank,index,rhs,mode；0..5 为 == != > < >= <=；mode&0x80 时 rhs 是变量引用。紧邻 0x02 提供块编号，失败时扫描块尾。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x81",
+          "handler_va": "0x0042D929",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "ui.text",
+          "behavior": "p2=0 leaves the following record for dispatch; otherwise consumes the following encoded-string record and registers UI text. Active text rendering remains unimplemented.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x82",
+          "handler_va": "0x0042D90B",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "ui.origin",
+          "behavior": "UI origin / texture subrectangle at relative destination; 74 requires 71 extension (width,height,slot flags,unused).",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x83",
+          "handler_va": "0x0042D9CC",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "scene.background_move",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x84",
+          "handler_va": "0x00431CC2",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x85",
+          "handler_va": "0x0042F2A1",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "scene.character_transform",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x86",
+          "handler_va": "0x0042F749",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x87",
+          "handler_va": "0x0042F27F",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "ui.message_position",
+          "behavior": "Set original message surface origin, 42F27F / 401000.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x88",
+          "handler_va": "0x0042FA90",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "scene.character_move",
+          "behavior": "88 linearly moves character p2 to p0,p1 over p3*6 ticks, or 60 when p3=0. p2 bit16 is native ignored path. 42FA90 / 443FF0.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x89",
+          "handler_va": "0x0042FB6E",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x8A",
+          "handler_va": "0x0042E152",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "ui.palette",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x8B",
+          "handler_va": "0x00431CC2",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "native.no_effect",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x8C",
+          "handler_va": "0x00431CC2",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x8D",
+          "handler_va": "0x00431CC2",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x8E",
+          "handler_va": "0x00430DAA",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x8F",
+          "handler_va": "0x00430DFE",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x90",
+          "handler_va": "0x004316DF",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x91",
+          "handler_va": "0x00431CC2",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x92",
+          "handler_va": "0x00431CC2",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x93",
+          "handler_va": "0x0042EEE8",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "scene.camera_speed",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x94",
+          "handler_va": "0x0042EEFA",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x95",
+          "handler_va": "0x0042EF40",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x96",
+          "handler_va": "0x0042EFFB",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x97",
+          "handler_va": "0x0042F0B9",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "scene.camera",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x98",
+          "handler_va": "0x00431767",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "scene.image_tone",
+          "behavior": "98 stores the pending actor color variant (0 unchanged, 1 *, 2 @); 431767, 41FCC0 and 44A1A0/44A2D0.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x99",
+          "handler_va": "0x004318DA",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x9A",
+          "handler_va": "0x004319CA",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x9B",
+          "handler_va": "0x00431AA5",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x9C",
+          "handler_va": "0x00431ACF",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x9D",
+          "handler_va": "0x00431CC2",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x9E",
+          "handler_va": "0x0042CB85",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x9F",
+          "handler_va": "0x0042CB21",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0xA0",
+          "handler_va": "0x0042B8AE",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0xA1",
+          "handler_va": "0x00431B9C",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "scene.record_motion",
+          "behavior": "A1 0 records object animation tracks; nonzero ends recording. 431B9C / 442810. Current implementation supports the corpus's recorded shake tracks.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0xA2",
+          "handler_va": "0x00431BEA",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "scene.replay_motion",
+          "behavior": "A2 repeats recorded animation tracks, 255 loops. 431BEA / 444C80.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0xA3",
+          "handler_va": "0x0042FC2C",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dd.audio.seek",
+          "behavior": "43B9A0/42FC2C: set playback cursor by percentage; mode 0 music, 1 sound, otherwise movie audio.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0xA4",
+          "handler_va": "0x00431C1E",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "ui.pointer",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0xA5",
+          "handler_va": "0x00431C40",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0xA6",
+          "handler_va": "0x0042D520",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0xA7",
+          "handler_va": "0x00431CAF",
+          "args": "u16x4",
+          "logical_operands": [
+            "columns:i16",
+            "reserved:i16",
+            "reserved:i16",
+            "reserved:i16"
+          ],
+          "operation": "dd.grid.columns",
+          "behavior": "Set list scroll stride/column count (434520).",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        }
+      ]
+    },
+    "dc2dm-9d72": {
+      "exe_name": "DC2DM.EXE",
+      "exe_sha256": "7414de26db3e9ce4fec331df7cb517947af7957fbc85abe96c51d6968a9ee0ee",
+      "image_base": "0x400000",
+      "dispatch_table": "0x430ef8",
+      "dispatch_table_sha256": "f645b69665e601e896e5df0c0b37e72742c6f295c3aeada77391413d04e984b3",
+      "dispatch_count": 113,
+      "framing": {
+        "id": "dc2dm-9d72",
+        "alias": "dc2dm",
+        "layout": "offset2",
+        "version": 40306,
+        "ranges": [
+          [
+            "u8x2",
+            0,
+            41
+          ],
+          [
+            "u8str",
+            42,
+            49
+          ],
+          [
+            "string",
+            50,
+            76
+          ],
+          [
+            "encoded_string",
+            77,
+            80
+          ],
+          [
+            "u16x4",
+            81,
+            255
+          ]
+        ],
+        "string_key": 32,
+        "plain_text_opcodes": [
+          68
+        ],
+        "title": "D.C.II Dearest Marriage ～ダ・カーポII～ ディアレストマリッジ",
+        "evidence": "reference_format_only",
+        "execution_supported": false
+      },
+      "evidence": {
+        "provider": "pefile + Capstone, previous static evidence",
+        "addresses": {
+          "loader": "0x00428EB0",
+          "decoder": "0x0042CAC0",
+          "signed_word": "0x00424850",
+          "dispatch_site": "0x0042CD1B",
+          "dispatch_table": "0x00430EF8",
+          "read_variable": "0x00429240",
+          "write_variable": "0x004248D0",
+          "find_named_label": "0x00424280",
+          "find_block_end": "0x004244A0",
+          "fallback": "0x00430EBC",
+          "jump_named": "0x00424470"
+        }
+      },
+      "opcodes": [
+        {
+          "opcode": "0x00",
+          "handler_va": "0x0042CD31",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "stream.stop",
+          "behavior": "终止/归还宿主；不能简单视为 pc++ 的 NOP。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x01",
+          "handler_va": "0x00430EBC",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x02",
+          "handler_va": "0x00430EBC",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "control.marker",
+          "behavior": "Context-dependent 3-byte record: IF companion uses signed first byte as block ID; sum list terminator.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x03",
+          "handler_va": "0x00430CFF",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "checkpoint",
+          "behavior": "Combine bytes little-endian into checkpoint index; updates state and reads header u16 metadata. Not itself a jump.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x04",
+          "handler_va": "0x00430D7F",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.history.mark",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x05",
+          "handler_va": "0x004301CA",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.audio.music_attenuation",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x06",
+          "handler_va": "0x0042CF01",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.wait.message",
+          "behavior": "等待文本显示/用户推进；主循环必须归还控制权给平台。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x07",
+          "handler_va": "0x0042DC6C",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.choice.begin",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x08",
+          "handler_va": "0x0042DCE9",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.wait.mode",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x09",
+          "handler_va": "0x0042DB8A",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.ui.wait",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0A",
+          "handler_va": "0x0042E0CC",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.ui.grid_wait",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0B",
+          "handler_va": "0x00430EBC",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x0C",
+          "handler_va": "0x0042DD32",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0D",
+          "handler_va": "0x0042E136",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.scene.transition",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0E",
+          "handler_va": "0x0042CDC9",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "system.exit",
+          "behavior": "Sends WM_DESTROY to the game window and yields; portable host ends the game Activity.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0F",
+          "handler_va": "0x0042CE60",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.state.reset",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x10",
+          "handler_va": "0x0042E945",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x11",
+          "handler_va": "0x0042E91C",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.audio.fade_music",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x12",
+          "handler_va": "0x0042D013",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.wait.duration",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x13",
+          "handler_va": "0x00430428",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "wait.audio",
+          "behavior": "Native asynchronous completion event; wait.audio absorbs successive opcode 15 masks.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x14",
+          "handler_va": "0x0042D803",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.ui.button_sound",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x15",
+          "handler_va": "0x0042F68F",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.system.persist",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x16",
+          "handler_va": "0x00430EBC",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x17",
+          "handler_va": "0x0042D314",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.ui.button_template",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x18",
+          "handler_va": "0x0042D8E8",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x19",
+          "handler_va": "0x00430DB4",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.save.checkpoint",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1A",
+          "handler_va": "0x004308C1",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.system.return",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1B",
+          "handler_va": "0x0042CDAC",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.system.command",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1C",
+          "handler_va": "0x00430511",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1D",
+          "handler_va": "0x0042EA88",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "block.marker_unsigned",
+          "behavior": "DM p0==0 scans using unsigned p1 against a signed marker byte. Conditional companion IDs are signed separately; high-bit unconditional IDs must not be coerced.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1E",
+          "handler_va": "0x0042D613",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1F",
+          "handler_va": "0x0042DD46",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.ui.commit",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x20",
+          "handler_va": "0x0042DC06",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x21",
+          "handler_va": "0x0042EBA1",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.ui.quad_template",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x22",
+          "handler_va": "0x004304B4",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x23",
+          "handler_va": "0x00430365",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x24",
+          "handler_va": "0x00430EBC",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x25",
+          "handler_va": "0x0042D62C",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.ui.binding",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x26",
+          "handler_va": "0x0042E708",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.scene.effect",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x27",
+          "handler_va": "0x00430EBC",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x28",
+          "handler_va": "0x0042F479",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x29",
+          "handler_va": "0x00430EBC",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x2A",
+          "handler_va": "0x00430EBC",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x2B",
+          "handler_va": "0x0042FA01",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "dm.scene.preload",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x2C",
+          "handler_va": "0x0042D148",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "dm.ui.resource",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x2D",
+          "handler_va": "0x004308A1",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x2E",
+          "handler_va": "0x0042FBF6",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "dm.scene.character",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x2F",
+          "handler_va": "0x0042FAEE",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "dm.scene.character_overlay",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x30",
+          "handler_va": "0x0042FACE",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x31",
+          "handler_va": "0x004305EB",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "dm.ui.action",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x32",
+          "handler_va": "0x00430EBC",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x33",
+          "handler_va": "0x0042EAAE",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "dm.scene.background",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x34",
+          "handler_va": "0x00430EBC",
+          "args": "string",
+          "logical_operands": [
+            "name:bytes_z"
+          ],
+          "operation": "label.named",
+          "behavior": "NUL 结尾的原始字节标签；跳转匹配不使用汉化显示字符串。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x35",
+          "handler_va": "0x004301E2",
+          "args": "string",
+          "logical_operands": [
+            "voice_path:bytes_z"
+          ],
+          "operation": "dm.audio.voice",
+          "behavior": "版本独立的角色开关：DM 使用 94/95，PC1/2 使用 100:60+角色号；保留位置前缀的声像及回看重播参数。PC1/2 是 64 字节旧索引，PC2 可跨 VOICE2.DAT。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x36",
+          "handler_va": "0x004302A8",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "dm.audio.voice_wait",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x37",
+          "handler_va": "0x004302F0",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "dm.audio.voice_prepare",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x38",
+          "handler_va": "0x00430C84",
+          "args": "string",
+          "logical_operands": [
+            "script:bytes_z"
+          ],
+          "operation": "dm.script.transfer",
+          "behavior": "PC1 跨脚本转移模式 1；不是通用 CPU CALL；系统返回由独立上下文保存实现。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x39",
+          "handler_va": "0x00430CEE",
+          "args": "string",
+          "logical_operands": [
+            "script:bytes_z"
+          ],
+          "operation": "dm.script.transfer_alt",
+          "behavior": "PC1 跨脚本转移模式 2；重置语义与模式 1 有别。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3A",
+          "handler_va": "0x00430C64",
+          "args": "string",
+          "logical_operands": [
+            "name:bytes_z"
+          ],
+          "operation": "script.entry_label",
+          "behavior": "保存下次跨脚本入口的字节标签，应用后清空。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3B",
+          "handler_va": "0x0043046F",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "dm.movie",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3C",
+          "handler_va": "0x004304DE",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3D",
+          "handler_va": "0x0043088F",
+          "args": "string",
+          "logical_operands": [
+            "name:bytes_z"
+          ],
+          "operation": "jump.named_required",
+          "behavior": "从代码起点按原生规则扫描标签；兼容层对缺失标签报错。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3E",
+          "handler_va": "0x0042D834",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "dm.ui.button_voice",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3F",
+          "handler_va": "0x0042D85D",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x40",
+          "handler_va": "0x00430EBC",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x41",
+          "handler_va": "0x0042DF5D",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x42",
+          "handler_va": "0x00430754",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "dm.ui.confirm",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x43",
+          "handler_va": "0x0042D918",
+          "args": "string",
+          "logical_operands": [
+            "label:bytes_z",
+            "following_caption:encoded_bytes_z"
+          ],
+          "operation": "choice.item",
+          "behavior": "跳转标签字符串，消费紧随其后的 caption 记录，建立原版按钮。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x44",
+          "handler_va": "0x00430EBC",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x45",
+          "handler_va": "0x00430324",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x46",
+          "handler_va": "0x00430EBC",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x47",
+          "handler_va": "0x0042DB22",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x48",
+          "handler_va": "0x0043055E",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x49",
+          "handler_va": "0x004305CA",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "dm.audio.completion_action",
+          "behavior": "DC2DM 4305CA copies a music-event label to C22490 and resets C29250 after synchronizing the music event counter. Runtime currently implements the empty cancellation used by MUSIC exit; nonempty labels remain explicit failures.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4A",
+          "handler_va": "0x0042F456",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4B",
+          "handler_va": "0x0042CD41",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "system.version",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4C",
+          "handler_va": "0x0042FB6B",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "dm.scene.portrait",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4D",
+          "handler_va": "0x00430EBC",
+          "args": "encoded_string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x4E",
+          "handler_va": "0x00430E18",
+          "args": "encoded_string",
+          "logical_operands": [
+            "speaker:encoded_bytes_z"
+          ],
+          "operation": "text.speaker",
+          "behavior": "原始解码字符串设置说话人；不加载资源、不推进下一句。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4F",
+          "handler_va": "0x00430E4A",
+          "args": "encoded_string",
+          "logical_operands": [
+            "text:encoded_bytes_z"
+          ],
+          "operation": "text.body",
+          "behavior": "发布场景并呈现正文；文本完成与点击推进是不同等待状态。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x50",
+          "handler_va": "0x00430EBC",
+          "args": "encoded_string",
+          "logical_operands": null,
+          "operation": "choice.caption",
+          "behavior": "Encoded caption consumed by choice.item; independent dispatch uses the native fallback.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x51",
+          "handler_va": "0x00430EBC",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x52",
+          "handler_va": "0x00430059",
+          "args": "u16x4",
+          "logical_operands": [
+            "music_index:u8",
+            "mode:u8"
+          ],
+          "operation": "dm.audio.music",
+          "behavior": "NAMES music 索引；停止值及播放状态由版本宿主处理。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x53",
+          "handler_va": "0x0042CDD8",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.audio.sound",
+          "behavior": "音效索引/参数；不是文本指令。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x54",
+          "handler_va": "0x0042D640",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "host.command_with_string",
+          "behavior": "Consumes the next opcode-plus-NUL-string record as a payload and advances PC past it; passes four words and the string to a UI helper. Payload is not dispatched as a named jump. UI effects unresolved.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x55",
+          "handler_va": "0x0042D6D9",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.button_sprite",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x56",
+          "handler_va": "0x0042D886",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "ui.button_text",
+          "behavior": "Consumes the next string record and registers state-specific button text metadata. Active text rendering remains unimplemented.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x57",
+          "handler_va": "0x00430EBC",
+          "args": "u16x4",
+          "logical_operands": [
+            "a4:i16",
+            "a5:i16",
+            "a6:i16",
+            "a7:i16"
+          ],
+          "operation": "arguments.extend",
+          "behavior": "0x52 在相邻主记录后追加四个有符号 i16，不能当成独立业务指令。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x58",
+          "handler_va": "0x0042D7AE",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x59",
+          "handler_va": "0x004307AF",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.confirm_position",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5A",
+          "handler_va": "0x0042EFB9",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.image_quad",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5B",
+          "handler_va": "0x0042F197",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.animate",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5C",
+          "handler_va": "0x0042D78F",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5D",
+          "handler_va": "0x0042DD98",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.grid_begin",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5E",
+          "handler_va": "0x0042DE83",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.grid_rect",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5F",
+          "handler_va": "0x0042DEC8",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x60",
+          "handler_va": "0x0042DF8E",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x61",
+          "handler_va": "0x0042DE64",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.grid_sound",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x62",
+          "handler_va": "0x0042E7B8",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "variable.update_indirect",
+          "behavior": "Modes 0/1/2 assign/add/subtract. Mode 3 reads (p2, read(p0,p1)) into native result register 99:255; other modes have no effect.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x63",
+          "handler_va": "0x0042E850",
+          "args": "u16x4",
+          "logical_operands": [
+            "dst_bank:i16",
+            "dst_index:i16",
+            "src_bank:i16",
+            "src_index:i16"
+          ],
+          "operation": "variable.copy",
+          "behavior": "四个 i16: dstBank,dstIndex,srcBank,srcIndex。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x64",
+          "handler_va": "0x0042E861",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "variable.sum_list",
+          "behavior": "PC1 后续九字节记录组成求和表，到 companion 0x02 为止。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x65",
+          "handler_va": "0x0042E8E0",
+          "args": "u16x4",
+          "logical_operands": [
+            "dst_bank:i16",
+            "dst_index:i16",
+            "src_bank:i16",
+            "src_index:i16"
+          ],
+          "operation": "variable.add_variable",
+          "behavior": "PC2 将源变量值加到目标变量。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x66",
+          "handler_va": "0x0042E9AD",
+          "args": "u16x4",
+          "logical_operands": [
+            "bank:i16",
+            "index:i16",
+            "rhs:i16",
+            "mode:i16",
+            "companion:block_id_i8"
+          ],
+          "operation": "branch.compare",
+          "behavior": "四个 i16: bank,index,rhs,mode；0..5 为 == != > < >= <=；mode&0x80 时 rhs 是变量引用。紧邻 0x02 提供块编号，失败时扫描块尾。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x67",
+          "handler_va": "0x0042F33E",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.text",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x68",
+          "handler_va": "0x0042F2A2",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.origin",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x69",
+          "handler_va": "0x0042F520",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.scene.scroll",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x6A",
+          "handler_va": "0x0042E06F",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x6B",
+          "handler_va": "0x0042FDE4",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.scene.character_transform",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x6C",
+          "handler_va": "0x0042FDC5",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.scene.background_origin",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x6D",
+          "handler_va": "0x0042FE95",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.scene.character_move",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x6E",
+          "handler_va": "0x0042F9E2",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.palette",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x6F",
+          "handler_va": "0x0042D815",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.navigation",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x70",
+          "handler_va": "0x0042D0B1",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        }
+      ]
+    },
+    "dc2pc-5769": {
+      "exe_name": "dc2pc.EXE",
+      "exe_sha256": "f0b3be701f3c8c94dad143db927d824d398325be57a5da7514556f862f505e46",
+      "image_base": "0x400000",
+      "dispatch_table": "0x41f480",
+      "dispatch_table_sha256": "405f7d20d2f9a68d09ac8cb8d4dcb0b5b4c992e270b0523067ecf6cc499ca1ba",
+      "dispatch_count": 105,
+      "framing": {
+        "id": "dc2pc-5769",
+        "alias": "dc2pc",
+        "layout": "offset1",
+        "version": 22377,
+        "ranges": [
+          [
+            "u8x2",
+            0,
+            40
+          ],
+          [
+            "u8str",
+            41,
+            46
+          ],
+          [
+            "string",
+            47,
+            73
+          ],
+          [
+            "encoded_string",
+            74,
+            77
+          ],
+          [
+            "u16x4",
+            78,
+            255
+          ]
+        ],
+        "string_key": 32,
+        "plain_text_opcodes": [
+          69
+        ],
+        "title": "D.C.II P.C.～ダ・カーポII～",
+        "evidence": "reference_format_only",
+        "execution_supported": false
+      },
+      "evidence": {
+        "provider": {
+          "id": "ghidra",
+          "name": "Ghidra",
+          "version": "12.1.4"
+        },
+        "evidence_id": "ev_42f4d78c14a58a06230b72c4c24ec397437a9faf2f33dfdef539efd392e97e27",
+        "dispatch_instruction": "0x41c640: JMP dword ptr [EAX*0x4 + 0x41f480]",
+        "function_entry": "0x41c530",
+        "fetch_site": "0x41c57b",
+        "loader": "0x41a050",
+        "read_variable": "0x41a300",
+        "write_variable": "0x41a5c0",
+        "loader_evidence_id": "ev_f9771b943229c383470347684d8932c25dda4dd48117a472320a91654f36dd9d"
+      },
+      "opcodes": [
+        {
+          "opcode": "0x00",
+          "handler_va": "0x0041C647",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "stream.stop",
+          "behavior": "终止/归还宿主；不能简单视为 pc++ 的 NOP。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x01",
+          "handler_va": "0x0041F434",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "native.no_effect",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x02",
+          "handler_va": "0x0041F434",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "control.marker",
+          "behavior": "Context-dependent 3-byte record: IF companion uses signed first byte as block ID; sum list terminator.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x03",
+          "handler_va": "0x0041F29E",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.history",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x04",
+          "handler_va": "0x0041F31B",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.checkpoint",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x05",
+          "handler_va": "0x0041EA07",
+          "args": "u8x2",
+          "logical_operands": [
+            "music_index:u8",
+            "mode:u8"
+          ],
+          "operation": "dm.audio.music",
+          "behavior": "NAMES music 索引；停止值及播放状态由版本宿主处理。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x06",
+          "handler_va": "0x0041EAF7",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.audio.music_attenuation",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x07",
+          "handler_va": "0x0041C89C",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.wait.message",
+          "behavior": "等待文本显示/用户推进；主循环必须归还控制权给平台。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x08",
+          "handler_va": "0x0041D32D",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.choice.begin",
+          "behavior": "初始化选项集合，使用脚本先前定义的按钮模板。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x09",
+          "handler_va": "0x0041D38C",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.choice.wait",
+          "behavior": "发布选项并暂停；点击根据按钮 action 跳回同一 MES 标签。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0A",
+          "handler_va": "0x0041D28D",
+          "args": "u8x2",
+          "logical_operands": [
+            "ticks:u8",
+            "mode:u8"
+          ],
+          "operation": "pc.ui.wait",
+          "behavior": "a1=1 为 200*a0 毫秒轮询等待；其他模式等待原版按钮输入。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0B",
+          "handler_va": "0x0041D750",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.grid.wait",
+          "behavior": "发布原版存读档网格并等待点击；PC1/2 保留槽 0/1；PC2 读档进入 selsave2，保存进入 selsave。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0C",
+          "handler_va": "0x0041D3BD",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.grid.begin",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0D",
+          "handler_va": "0x0041D7AE",
+          "args": "u8x2",
+          "logical_operands": [
+            "kind:u8",
+            "ticks:u8"
+          ],
+          "operation": "pc.transition",
+          "behavior": "转场类别/时长；部分原效果尚由近似淡入实现。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0E",
+          "handler_va": "0x0041C81D",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "system.exit",
+          "behavior": "Sends WM_DESTROY to the game window and yields; portable host ends the game Activity.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0F",
+          "handler_va": "0x0041C889",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.reset",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x10",
+          "handler_va": "0x0041DD08",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x11",
+          "handler_va": "0x0041DCDD",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.audio.fade_music",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x12",
+          "handler_va": "0x0041C9A1",
+          "args": "u8x2",
+          "logical_operands": [
+            "ticks:u8",
+            "mode:u8"
+          ],
+          "operation": "pc.wait",
+          "behavior": "a0=0 无限输入等待，否则 200*a0 毫秒；鼠标绑定可跳转标签。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x13",
+          "handler_va": "0x0041ED22",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.wait.media_mask",
+          "behavior": "PC2 41ED22 / 4230E0：位 1 等 BGM，2 等语音，4 等音效；位 8 原生计时分支尚未接入。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x14",
+          "handler_va": "0x0041CE81",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.ui.button_sound",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x15",
+          "handler_va": "0x0041D52F",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.grid.sound",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x16",
+          "handler_va": "0x0041E5DD",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.persist",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x17",
+          "handler_va": "0x0041CAC0",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.button_template",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x18",
+          "handler_va": "0x0041CE45",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.fullscreen",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x19",
+          "handler_va": "0x0041CF42",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.sprite_opaque",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1A",
+          "handler_va": "0x0041F331",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.save_context",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1B",
+          "handler_va": "0x0041EF75",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.system.return",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1C",
+          "handler_va": "0x0041C80E",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.command",
+          "behavior": "版本独立的原生服务：1 日历，2 好感排序，6 存档模式，10/11 片尾，PC2 20 地图；8 是 PC1 姓名输入：原14个按钮、字符页、汉字索引、四字姓名和确认模板；40C2E0/40C6D0/40D340/40D400。仍有未接入服务。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1D",
+          "handler_va": "0x0041EE2C",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1E",
+          "handler_va": "0x0041DE35",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "block.marker",
+          "behavior": "a0=0 向前扫描相同有符号块编号；非零直接继续。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1F",
+          "handler_va": "0x0041F434",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x20",
+          "handler_va": "0x0041D3D1",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.ui.commit",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x21",
+          "handler_va": "0x0041DFE4",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.quad_template",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x22",
+          "handler_va": "0x0041EDA4",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.random",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x23",
+          "handler_va": "0x0041EC59",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.voice_group.play",
+          "behavior": "模式 0 随机播一条并走普通角色开关，1 同时混音，2 清空；组可存十条，但同时播放上限 PC1 七条、PC2 六条（41CC10 通道3..9，427680 通道4..9）。同时播放只受全局开关限制。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x24",
+          "handler_va": "0x0041F434",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x25",
+          "handler_va": "0x0041CCA1",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.ui.binding",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x26",
+          "handler_va": "0x0041DB86",
+          "args": "u8x2",
+          "logical_operands": [
+            "kind:u8",
+            "strength:u8"
+          ],
+          "operation": "pc.effect",
+          "behavior": "版本独立的效果编号及参数；已绑定纹理，运动/时间近似，不能声称像素一致。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x27",
+          "handler_va": "0x0041E4D1",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x28",
+          "handler_va": "0x0041F434",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x29",
+          "handler_va": "0x0041F434",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x2A",
+          "handler_va": "0x0041CA51",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "pc.resource",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x2B",
+          "handler_va": "0x0041E8A4",
+          "args": "u8str",
+          "logical_operands": [
+            "slot:u8",
+            "resource:bytes_z"
+          ],
+          "operation": "pc.character",
+          "behavior": "u8 槽位 + 资源字符串；槽号和角色位置分离。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x2C",
+          "handler_va": "0x0041E885",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "pc.character_overlay",
+          "behavior": "u8 槽位 + 叠加资源字符串。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x2D",
+          "handler_va": "0x0041EF62",
+          "args": "u8str",
+          "logical_operands": null,
+          "operation": "pc.save_caption",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x2E",
+          "handler_va": "0x0041F226",
+          "args": "u8str",
+          "logical_operands": [
+            "mode:u8",
+            "script:bytes_z"
+          ],
+          "operation": "pc.script.transfer",
+          "behavior": "PC2 u8 模式+脚本名：4→2，3/5→3，其他→1。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x2F",
+          "handler_va": "0x0041F434",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x30",
+          "handler_va": "0x0041DE57",
+          "args": "string",
+          "logical_operands": [
+            "resource:bytes_z"
+          ],
+          "operation": "pc.background",
+          "behavior": "资源字符串；写入背景及预载槽；场景发布由后续指令控制。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x31",
+          "handler_va": "0x0041E3AE",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.image6",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x32",
+          "handler_va": "0x0041E3DB",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.image7",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x33",
+          "handler_va": "0x0041E408",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.image8",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x34",
+          "handler_va": "0x0041E435",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x35",
+          "handler_va": "0x0041F434",
+          "args": "string",
+          "logical_operands": [
+            "name:bytes_z"
+          ],
+          "operation": "label.named",
+          "behavior": "NUL 结尾的原始字节标签；跳转匹配不使用汉化显示字符串。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x36",
+          "handler_va": "0x0041EB0B",
+          "args": "string",
+          "logical_operands": [
+            "voice_path:bytes_z"
+          ],
+          "operation": "dm.audio.voice",
+          "behavior": "版本独立的角色开关：DM 使用 94/95，PC1/2 使用 100:60+角色号；保留位置前缀的声像及回看重播参数。PC1/2 是 64 字节旧索引，PC2 可跨 VOICE2.DAT。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x37",
+          "handler_va": "0x0041F1FD",
+          "args": "string",
+          "logical_operands": [
+            "name:bytes_z"
+          ],
+          "operation": "script.entry_label",
+          "behavior": "保存下次跨脚本入口的字节标签，应用后清空。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x38",
+          "handler_va": "0x0041ED71",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.movie",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x39",
+          "handler_va": "0x0041EDCE",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.external",
+          "behavior": "原宿主外部程序操作；本兼容层未执行，也没有通用 NOP 兜底。",
+          "semantic_status": "unimplemented",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3A",
+          "handler_va": "0x0041EF50",
+          "args": "string",
+          "logical_operands": [
+            "name:bytes_z"
+          ],
+          "operation": "jump.named_required",
+          "behavior": "从代码起点按原生规则扫描标签；兼容层对缺失标签报错。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3B",
+          "handler_va": "0x0041EEFE",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.action0",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3C",
+          "handler_va": "0x0041EF27",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.action1",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3D",
+          "handler_va": "0x0041CEAD",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "dm.ui.button_voice",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3E",
+          "handler_va": "0x0041CED4",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.button_hover_voice",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3F",
+          "handler_va": "0x0041EE6B",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.action2",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x40",
+          "handler_va": "0x0041EE94",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.action3",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x41",
+          "handler_va": "0x0041F1D9",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x42",
+          "handler_va": "0x0041D66D",
+          "args": "string",
+          "logical_operands": [
+            "label:bytes_z"
+          ],
+          "operation": "grid.item_action",
+          "behavior": "Attach original byte-exact action label to current data entry (PC2 41D66D; DD 434530).",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x43",
+          "handler_va": "0x0041EEBD",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.confirm",
+          "behavior": "原版确认模板与 caption；肯定/否定跳转 action2/action3，不能覆写普通点击 action0/action1。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x44",
+          "handler_va": "0x0041CF51",
+          "args": "string",
+          "logical_operands": [
+            "label:bytes_z",
+            "following_caption:encoded_bytes_z"
+          ],
+          "operation": "choice.item",
+          "behavior": "跳转标签字符串，消费紧随其后的 caption 记录，建立原版按钮。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x45",
+          "handler_va": "0x0041F434",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "choice.caption",
+          "behavior": "Encoded caption consumed by choice.item; independent dispatch uses the native fallback.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x46",
+          "handler_va": "0x0041EC11",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.voice_group.add",
+          "behavior": "向临时语音组追加资源，最多十条；PC1 414C84 / PC2 41EC11。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x47",
+          "handler_va": "0x0041EE03",
+          "args": "string",
+          "logical_operands": [
+            "label:bytes_z"
+          ],
+          "operation": "ui.music_end_action",
+          "behavior": "Menu-wait BGM-end callback: PC2 423571 consumes binding; DD 4340D7 retains binding and polls at >500ms until script clears it.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x48",
+          "handler_va": "0x0041D21E",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x49",
+          "handler_va": "0x0041C7B4",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "system.version",
+          "behavior": "DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4A",
+          "handler_va": "0x0041F434",
+          "args": "encoded_string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x4B",
+          "handler_va": "0x0041F392",
+          "args": "encoded_string",
+          "logical_operands": [
+            "speaker:encoded_bytes_z"
+          ],
+          "operation": "text.speaker",
+          "behavior": "原始解码字符串设置说话人；不加载资源、不推进下一句。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4C",
+          "handler_va": "0x0041F3A9",
+          "args": "encoded_string",
+          "logical_operands": [
+            "text:encoded_bytes_z"
+          ],
+          "operation": "text.body",
+          "behavior": "发布场景并呈现正文；文本完成与点击推进是不同等待状态。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4D",
+          "handler_va": "0x0041F434",
+          "args": "encoded_string",
+          "logical_operands": null,
+          "operation": "choice.caption",
+          "behavior": "Encoded caption consumed by choice.item; independent dispatch uses the native fallback.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x4E",
+          "handler_va": "0x0041F434",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "native.no_effect",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x4F",
+          "handler_va": "0x0041CCB1",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "host.command_with_string",
+          "behavior": "Consumes the next opcode-plus-NUL-string record as a payload and advances PC past it; passes four words and the string to a UI helper. Payload is not dispatched as a named jump. UI effects unresolved.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x50",
+          "handler_va": "0x0041CDA9",
+          "args": "u16x4",
+          "logical_operands": [
+            "dest_x:i16",
+            "dest_y:i16",
+            "origin_x:i16",
+            "origin_y:i16",
+            "width:i16",
+            "height:i16",
+            "flags:i16",
+            "state:i16"
+          ],
+          "operation": "pc.button_sprite",
+          "behavior": "按钮图片参数与静态 quad 不同：src=(a0-a2,a1-a3)，尺寸=(a4,a5)。滑条配置不按图片裁切转换：PC1 state=5/7；PC2 20/21/22/23 对应配置/分段/进度/滑块，24/25/26 是分段图集正常/悬停/按下。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x51",
+          "handler_va": "0x0041CEFB",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "ui.button_text",
+          "behavior": "Consumes the next string record and registers state-specific button text metadata. Active text rendering remains unimplemented.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x52",
+          "handler_va": "0x0041F434",
+          "args": "u16x4",
+          "logical_operands": [
+            "a4:i16",
+            "a5:i16",
+            "a6:i16",
+            "a7:i16"
+          ],
+          "operation": "arguments.extend",
+          "behavior": "0x52 在相邻主记录后追加四个有符号 i16，不能当成独立业务指令。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x53",
+          "handler_va": "0x0041E102",
+          "args": "u16x4",
+          "logical_operands": [
+            "dest_x:i16",
+            "dest_y:i16",
+            "source_x:i16",
+            "source_y:i16",
+            "source_right:i16",
+            "source_bottom:i16",
+            "flags:i16",
+            "state:i16"
+          ],
+          "operation": "pc.quad",
+          "behavior": "原生图片裁切：dest=(a0+originX,a1+originY)，src=(a2,a3)，尺寸=(a4-a2,a5-a3)；扩展字段含纹理槽及标志。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x54",
+          "handler_va": "0x0041EED9",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "pc.confirm_position",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x55",
+          "handler_va": "0x0041D42D",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "pc.grid.configure",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x56",
+          "handler_va": "0x0041D561",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.grid_rect",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x57",
+          "handler_va": "0x0041D5A5",
+          "args": "u16x4",
+          "logical_operands": [
+            "id:i16",
+            "reserved:i16",
+            "source_x:i16",
+            "source_y:i16",
+            "source_right:i16",
+            "source_bottom:i16",
+            "selector:i16",
+            "reserved:i16"
+          ],
+          "operation": "pc.grid.item",
+          "behavior": "Append native list data entry: ID, reserved, source rectangle, resource selector, reserved (41D5A5).",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x58",
+          "handler_va": "0x0041D696",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x59",
+          "handler_va": "0x0041CE90",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.navigation",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5A",
+          "handler_va": "0x0041D540",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5B",
+          "handler_va": "0x0041C82C",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.audio.sound",
+          "behavior": "音效索引/参数；不是文本指令。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5C",
+          "handler_va": "0x0041DC0D",
+          "args": "u16x4",
+          "logical_operands": [
+            "bank:i16",
+            "index:i16",
+            "value:i16",
+            "mode:i16"
+          ],
+          "operation": "variable.update",
+          "behavior": "四个 i16: bank,index,value,mode；mode 0=set,1=add,2=sub。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5D",
+          "handler_va": "0x0041DC84",
+          "args": "u16x4",
+          "logical_operands": [
+            "dst_bank:i16",
+            "dst_index:i16",
+            "src_bank:i16",
+            "src_index:i16"
+          ],
+          "operation": "variable.copy",
+          "behavior": "四个 i16: dstBank,dstIndex,srcBank,srcIndex。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5E",
+          "handler_va": "0x0041DCAB",
+          "args": "u16x4",
+          "logical_operands": [
+            "dst_bank:i16",
+            "dst_index:i16",
+            "src_bank:i16",
+            "src_index:i16"
+          ],
+          "operation": "variable.add_variable",
+          "behavior": "PC2 将源变量值加到目标变量。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5F",
+          "handler_va": "0x0041DD66",
+          "args": "u16x4",
+          "logical_operands": [
+            "bank:i16",
+            "index:i16",
+            "rhs:i16",
+            "mode:i16",
+            "companion:block_id_i8"
+          ],
+          "operation": "branch.compare",
+          "behavior": "四个 i16: bank,index,rhs,mode；0..5 为 == != > < >= <=；mode&0x80 时 rhs 是变量引用。紧邻 0x02 提供块编号，失败时扫描块尾。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x60",
+          "handler_va": "0x0041E2F9",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.text",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x61",
+          "handler_va": "0x0041E2C1",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "pc.origin",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x62",
+          "handler_va": "0x0041E52B",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "pc.scroll",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x63",
+          "handler_va": "0x0041D711",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x64",
+          "handler_va": "0x0041E8C5",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "pc.actor_position",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x65",
+          "handler_va": "0x0041E993",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "pc.actor_transform",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x66",
+          "handler_va": "0x0041E870",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.palette",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x67",
+          "handler_va": "0x0041E493",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x68",
+          "handler_va": "0x0041E4B2",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        }
+      ]
+    },
+    "dcpc-2063": {
+      "exe_name": "DCPCDVD.EXE",
+      "exe_sha256": "5f84e2fdd6f442509fd0e6a00ff8aa20f5c23b0afc43c811bb615598d4c8b67a",
+      "image_base": "0x400000",
+      "dispatch_table": "0x415754",
+      "dispatch_table_sha256": "2b4a446234fe775d70395e3f4ac067233542ebadd668cb98b95515c876930aae",
+      "dispatch_count": 99,
+      "framing": {
+        "id": "dcpc-2063",
+        "alias": "dcpc",
+        "layout": "offset1",
+        "version": 8291,
+        "ranges": [
+          [
+            "u8x2",
+            0,
+            44
+          ],
+          [
+            "string",
+            45,
+            73
+          ],
+          [
+            "encoded_string",
+            74,
+            77
+          ],
+          [
+            "u16x4",
+            78,
+            255
+          ]
+        ],
+        "string_key": 32,
+        "plain_text_opcodes": [
+          68
+        ],
+        "title": "D.C.P.C. DVD (local 63 20)",
+        "evidence": "DCPCDVD.EXE 41172D..411751; 960 local scripts",
+        "execution_supported": false
+      },
+      "evidence": {
+        "provider": {
+          "id": "ghidra",
+          "name": "Ghidra",
+          "version": "12.1.4"
+        },
+        "evidence_id": "ev_8ab984be764971bf898680a85d7117f7797d85a502e5fa9736fbece5a6679be8",
+        "dispatch_instruction": "0x412654: JMP dword ptr [EAX*0x4 + 0x415754]",
+        "function_entry": "0x4125b0",
+        "fetch_site": "0x4125f4",
+        "loader": "0x411670",
+        "read_variable": "0x411910",
+        "write_variable": "0x411b10",
+        "loader_evidence_id": "ev_a9e13d953c406b762339b5da8943dc90d4a4b1e20a979485b9577e52b3105975"
+      },
+      "opcodes": [
+        {
+          "opcode": "0x00",
+          "handler_va": "0x0041265B",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "stream.stop",
+          "behavior": "终止/归还宿主；不能简单视为 pc++ 的 NOP。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x01",
+          "handler_va": "0x0041570F",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "native.no_effect",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x02",
+          "handler_va": "0x0041570F",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "control.marker",
+          "behavior": "Context-dependent 3-byte record: IF companion uses signed first byte as block ID; sum list terminator.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x03",
+          "handler_va": "0x00415341",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.history",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x04",
+          "handler_va": "0x00415395",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.checkpoint",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x05",
+          "handler_va": "0x00412826",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.sound8",
+          "behavior": "u8 音效索引和通道参数；255 映射停止值。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x06",
+          "handler_va": "0x00414B64",
+          "args": "u8x2",
+          "logical_operands": [
+            "music_index:u8",
+            "mode:u8"
+          ],
+          "operation": "dm.audio.music",
+          "behavior": "NAMES music 索引；停止值及播放状态由版本宿主处理。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x07",
+          "handler_va": "0x00412898",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.wait.message",
+          "behavior": "等待文本显示/用户推进；主循环必须归还控制权给平台。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x08",
+          "handler_va": "0x004133AF",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.choice.begin",
+          "behavior": "初始化选项集合，使用脚本先前定义的按钮模板。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x09",
+          "handler_va": "0x00413413",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.choice.wait",
+          "behavior": "发布选项并暂停；点击根据按钮 action 跳回同一 MES 标签。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0A",
+          "handler_va": "0x00413334",
+          "args": "u8x2",
+          "logical_operands": [
+            "ticks:u8",
+            "mode:u8"
+          ],
+          "operation": "pc.ui.wait",
+          "behavior": "a1=1 为 200*a0 毫秒轮询等待；其他模式等待原版按钮输入。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0B",
+          "handler_va": "0x004136E4",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.grid.wait",
+          "behavior": "发布原版存读档网格并等待点击；PC1/2 保留槽 0/1；PC2 读档进入 selsave2，保存进入 selsave。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0C",
+          "handler_va": "0x0041343C",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.grid.begin",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0D",
+          "handler_va": "0x0041371B",
+          "args": "u8x2",
+          "logical_operands": [
+            "kind:u8",
+            "ticks:u8"
+          ],
+          "operation": "pc.transition",
+          "behavior": "转场类别/时长；部分原效果尚由近似淡入实现。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0E",
+          "handler_va": "0x00412817",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "system.exit",
+          "behavior": "Sends WM_DESTROY to the game window and yields; portable host ends the game Activity.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x0F",
+          "handler_va": "0x00412885",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.reset",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x10",
+          "handler_va": "0x00413B39",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x11",
+          "handler_va": "0x00413B0E",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.audio.fade_music",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x12",
+          "handler_va": "0x0041297B",
+          "args": "u8x2",
+          "logical_operands": [
+            "ticks:u8",
+            "mode:u8"
+          ],
+          "operation": "pc.wait",
+          "behavior": "a0=0 无限输入等待，否则 200*a0 毫秒；鼠标绑定可跳转标签。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x13",
+          "handler_va": "0x00412EF6",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.ui.button_sound",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x14",
+          "handler_va": "0x0041354E",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.grid.sound",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x15",
+          "handler_va": "0x0041434C",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.persist",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x16",
+          "handler_va": "0x0041570F",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x17",
+          "handler_va": "0x00412AF5",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.button_template",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x18",
+          "handler_va": "0x00412EBB",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.fullscreen",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x19",
+          "handler_va": "0x00412FE0",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.sprite_opaque",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1A",
+          "handler_va": "0x00414EF5",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.prompt_position",
+          "behavior": "PC1 确认框坐标为参数乘 8；随后 pc.confirm 使用原版模板 2。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1B",
+          "handler_va": "0x004153AB",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.save_context",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1C",
+          "handler_va": "0x00414FDA",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.system.return",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1D",
+          "handler_va": "0x00412808",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.command",
+          "behavior": "版本独立的原生服务：1 日历，2 好感排序，6 存档模式，10/11 片尾，PC2 20 地图；8 是 PC1 姓名输入：原14个按钮、字符页、汉字索引、四字姓名和确认模板；40C2E0/40C6D0/40D340/40D400。仍有未接入服务。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1E",
+          "handler_va": "0x00414E48",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x1F",
+          "handler_va": "0x00413C61",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "block.marker",
+          "behavior": "a0=0 向前扫描相同有符号块编号；非零直接继续。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x20",
+          "handler_va": "0x00412CB7",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x21",
+          "handler_va": "0x00413450",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "dm.ui.commit",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x22",
+          "handler_va": "0x00413DCE",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.quad_template",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x23",
+          "handler_va": "0x00414DC0",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.random",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x24",
+          "handler_va": "0x00414CCC",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.voice_group.play",
+          "behavior": "模式 0 随机播一条并走普通角色开关，1 同时混音，2 清空；组可存十条，但同时播放上限 PC1 七条、PC2 六条（41CC10 通道3..9，427680 通道4..9）。同时播放只受全局开关限制。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x25",
+          "handler_va": "0x00412A1A",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.resource_payload",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x26",
+          "handler_va": "0x00414F82",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x27",
+          "handler_va": "0x0041540C",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x28",
+          "handler_va": "0x00415521",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x29",
+          "handler_va": "0x0041570F",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x2A",
+          "handler_va": "0x00412D6E",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "pc.rapid_binding",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x2B",
+          "handler_va": "0x004139D4",
+          "args": "u8x2",
+          "logical_operands": [
+            "kind:u8",
+            "strength:u8"
+          ],
+          "operation": "pc.effect",
+          "behavior": "版本独立的效果编号及参数；已绑定纹理，运动/时间近似，不能声称像素一致。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x2C",
+          "handler_va": "0x0041570F",
+          "args": "u8x2",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x2D",
+          "handler_va": "0x0041570F",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x2E",
+          "handler_va": "0x00413C7D",
+          "args": "string",
+          "logical_operands": [
+            "resource:bytes_z"
+          ],
+          "operation": "pc.background",
+          "behavior": "资源字符串；写入背景及预载槽；场景发布由后续指令控制。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x2F",
+          "handler_va": "0x0041426F",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.image6",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x30",
+          "handler_va": "0x0041429C",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.image7",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x31",
+          "handler_va": "0x004142C9",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.image8",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x32",
+          "handler_va": "0x0041570F",
+          "args": "string",
+          "logical_operands": [
+            "name:bytes_z"
+          ],
+          "operation": "label.named",
+          "behavior": "NUL 结尾的原始字节标签；跳转匹配不使用汉化显示字符串。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x33",
+          "handler_va": "0x00414670",
+          "args": "string",
+          "logical_operands": [
+            "resource0:bytes_z",
+            "optional_0x46_resource1:bytes_z"
+          ],
+          "operation": "pc.character_pair",
+          "behavior": "第一个字符串给角色槽 0；紧邻 0x46 时消费其字符串给角色槽 1。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x34",
+          "handler_va": "0x00414578",
+          "args": "string",
+          "logical_operands": [
+            "resource0:bytes_z",
+            "optional_0x46_resource1:bytes_z"
+          ],
+          "operation": "pc.portrait_pair",
+          "behavior": "头像槽 0/1；同样可消费紧邻 0x46 字符串。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x35",
+          "handler_va": "0x00414BF1",
+          "args": "string",
+          "logical_operands": [
+            "voice_path:bytes_z"
+          ],
+          "operation": "dm.audio.voice",
+          "behavior": "版本独立的角色开关：DM 使用 94/95，PC1/2 使用 100:60+角色号；保留位置前缀的声像及回看重播参数。PC1/2 是 64 字节旧索引，PC2 可跨 VOICE2.DAT。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x36",
+          "handler_va": "0x004152C6",
+          "args": "string",
+          "logical_operands": [
+            "script:bytes_z"
+          ],
+          "operation": "dm.script.transfer",
+          "behavior": "PC1 跨脚本转移模式 1；不是通用 CPU CALL；系统返回由独立上下文保存实现。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x37",
+          "handler_va": "0x0041532D",
+          "args": "string",
+          "logical_operands": [
+            "script:bytes_z"
+          ],
+          "operation": "dm.script.transfer_alt",
+          "behavior": "PC1 跨脚本转移模式 2；重置语义与模式 1 有别。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x38",
+          "handler_va": "0x0041529D",
+          "args": "string",
+          "logical_operands": [
+            "name:bytes_z"
+          ],
+          "operation": "script.entry_label",
+          "behavior": "保存下次跨脚本入口的字节标签，应用后清空。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x39",
+          "handler_va": "0x00414D8D",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.movie",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3A",
+          "handler_va": "0x00414DEA",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.external",
+          "behavior": "原宿主外部程序操作；本兼容层未执行，也没有通用 NOP 兜底。",
+          "semantic_status": "unimplemented",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3B",
+          "handler_va": "0x00414F70",
+          "args": "string",
+          "logical_operands": [
+            "name:bytes_z"
+          ],
+          "operation": "jump.named_required",
+          "behavior": "从代码起点按原生规则扫描标签；兼容层对缺失标签报错。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3C",
+          "handler_va": "0x00414F1E",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.action0",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3D",
+          "handler_va": "0x00414F47",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.action1",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3E",
+          "handler_va": "0x00412F05",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "dm.ui.button_voice",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x3F",
+          "handler_va": "0x00412F54",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.button_hover_voice",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x40",
+          "handler_va": "0x00414E87",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.action2",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x41",
+          "handler_va": "0x00414EB0",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.action3",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x42",
+          "handler_va": "0x00415279",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x43",
+          "handler_va": "0x0041363E",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.grid.voice",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x44",
+          "handler_va": "0x00414ED9",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.confirm",
+          "behavior": "原版确认模板与 caption；肯定/否定跳转 action2/action3，不能覆写普通点击 action0/action1。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x45",
+          "handler_va": "0x00412FEF",
+          "args": "string",
+          "logical_operands": [
+            "label:bytes_z",
+            "following_caption:encoded_bytes_z"
+          ],
+          "operation": "choice.item",
+          "behavior": "跳转标签字符串，消费紧随其后的 caption 记录，建立原版按钮。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x46",
+          "handler_va": "0x0041570F",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "choice.caption",
+          "behavior": "Encoded caption consumed by choice.item; independent dispatch uses the native fallback.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x47",
+          "handler_va": "0x00414C84",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "pc.voice_group.add",
+          "behavior": "向临时语音组追加资源，最多十条；PC1 414C84 / PC2 41EC11。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x48",
+          "handler_va": "0x00414E1F",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x49",
+          "handler_va": "0x004132CA",
+          "args": "string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4A",
+          "handler_va": "0x0041570F",
+          "args": "encoded_string",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x4B",
+          "handler_va": "0x00415681",
+          "args": "encoded_string",
+          "logical_operands": [
+            "speaker:encoded_bytes_z"
+          ],
+          "operation": "text.speaker",
+          "behavior": "原始解码字符串设置说话人；不加载资源、不推进下一句。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4C",
+          "handler_va": "0x00415695",
+          "args": "encoded_string",
+          "logical_operands": [
+            "text:encoded_bytes_z"
+          ],
+          "operation": "text.body",
+          "behavior": "发布场景并呈现正文；文本完成与点击推进是不同等待状态。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x4D",
+          "handler_va": "0x0041570F",
+          "args": "encoded_string",
+          "logical_operands": null,
+          "operation": "choice.caption",
+          "behavior": "Encoded caption consumed by choice.item; independent dispatch uses the native fallback.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x4E",
+          "handler_va": "0x0041570F",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "native.no_effect",
+          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x4F",
+          "handler_va": "0x00412D7D",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "host.command_with_string",
+          "behavior": "Consumes the next opcode-plus-NUL-string record as a payload and advances PC past it; passes four words and the string to a UI helper. Payload is not dispatched as a named jump. UI effects unresolved.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x50",
+          "handler_va": "0x00412E28",
+          "args": "u16x4",
+          "logical_operands": [
+            "dest_x:i16",
+            "dest_y:i16",
+            "origin_x:i16",
+            "origin_y:i16",
+            "width:i16",
+            "height:i16",
+            "flags:i16",
+            "state:i16"
+          ],
+          "operation": "pc.button_sprite",
+          "behavior": "按钮图片参数与静态 quad 不同：src=(a0-a2,a1-a3)，尺寸=(a4,a5)。滑条配置不按图片裁切转换：PC1 state=5/7；PC2 20/21/22/23 对应配置/分段/进度/滑块，24/25/26 是分段图集正常/悬停/按下。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x51",
+          "handler_va": "0x00412FA1",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "ui.button_text",
+          "behavior": "Consumes the next string record and registers state-specific button text metadata. Active text rendering remains unimplemented.",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x52",
+          "handler_va": "0x0041570F",
+          "args": "u16x4",
+          "logical_operands": [
+            "a4:i16",
+            "a5:i16",
+            "a6:i16",
+            "a7:i16"
+          ],
+          "operation": "arguments.extend",
+          "behavior": "0x52 在相邻主记录后追加四个有符号 i16，不能当成独立业务指令。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": true
+        },
+        {
+          "opcode": "0x53",
+          "handler_va": "0x00414031",
+          "args": "u16x4",
+          "logical_operands": [
+            "dest_x:i16",
+            "dest_y:i16",
+            "source_x:i16",
+            "source_y:i16",
+            "source_right:i16",
+            "source_bottom:i16",
+            "flags:i16",
+            "state:i16"
+          ],
+          "operation": "pc.quad",
+          "behavior": "原生图片裁切：dest=(a0+originX,a1+originY)，src=(a2,a3)，尺寸=(a4-a2,a5-a3)；扩展字段含纹理槽及标志。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x54",
+          "handler_va": "0x00413478",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "pc.grid.configure",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x55",
+          "handler_va": "0x0041355F",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.grid_rect",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x56",
+          "handler_va": "0x0041358E",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x57",
+          "handler_va": "0x00413661",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x58",
+          "handler_va": "0x004139F6",
+          "args": "u16x4",
+          "logical_operands": [
+            "bank:i16",
+            "index:i16",
+            "value:i16",
+            "mode:i16"
+          ],
+          "operation": "variable.update",
+          "behavior": "四个 i16: bank,index,value,mode；mode 0=set,1=add,2=sub。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x59",
+          "handler_va": "0x00413A61",
+          "args": "u16x4",
+          "logical_operands": [
+            "dst_bank:i16",
+            "dst_index:i16",
+            "src_bank:i16",
+            "src_index:i16"
+          ],
+          "operation": "variable.copy",
+          "behavior": "四个 i16: dstBank,dstIndex,srcBank,srcIndex。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5A",
+          "handler_va": "0x00413A83",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "variable.sum_list",
+          "behavior": "PC1 后续九字节记录组成求和表，到 companion 0x02 为止。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5B",
+          "handler_va": "0x00413B97",
+          "args": "u16x4",
+          "logical_operands": [
+            "bank:i16",
+            "index:i16",
+            "rhs:i16",
+            "mode:i16",
+            "companion:block_id_i8"
+          ],
+          "operation": "branch.compare",
+          "behavior": "四个 i16: bank,index,rhs,mode；0..5 为 == != > < >= <=；mode&0x80 时 rhs 是变量引用。紧邻 0x02 提供块编号，失败时扫描块尾。",
+          "semantic_status": "reviewed_primitive",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5C",
+          "handler_va": "0x004141A1",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.text",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5D",
+          "handler_va": "0x0041416D",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "pc.origin",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5E",
+          "handler_va": "0x004142F6",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "pc.scroll",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x5F",
+          "handler_va": "0x004136C7",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "unknown",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "unknown",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x60",
+          "handler_va": "0x00414A81",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "pc.actor_position",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x61",
+          "handler_va": "0x00414A9E",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "pc.actor_transform",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        },
+        {
+          "opcode": "0x62",
+          "handler_va": "0x00414567",
+          "args": "u16x4",
+          "logical_operands": null,
+          "operation": "dm.ui.palette",
+          "behavior": "需继续核对参数及宿主副作用。",
+          "semantic_status": "partial_binding",
+          "shared_fallback": false
+        }
+      ],
+      "outside_dispatch": {
+        "range": "0x80..0xFF",
+        "record_bytes": 3,
+        "operation": "native.no_effect",
+        "evidence": [
+          "004125F4 MOVSX",
+          "00412618 signed JGE",
+          "0041263A PC += 3",
+          "0041264A unsigned JA default",
+          "0041570F continuation"
+        ],
+        "note": "Signed fetch precedes unsigned dispatch bound; does not authorize arbitrary unknown opcodes."
+      }
+    }
+  }
+}

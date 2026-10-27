@@ -15,6 +15,7 @@ import org.circus.core.*;
 public final class DocumentTree implements GameResources.Storage {
     private final ContentResolver resolver;private final Uri tree;
     private final Map<String,Uri> files=new TreeMap<>();
+    private final Set<String> displayPaths=new TreeSet<>();
     public DocumentTree(ContentResolver resolver,Uri tree)throws IOException{this.resolver=resolver;this.tree=tree;scan(DocumentsContract.getTreeDocumentId(tree),"",0);}
     private void scan(String id,String prefix,int depth)throws IOException {
         if(depth>12||files.size()>100000)throw new IOException("Selected tree exceeds index limits");
@@ -26,11 +27,11 @@ public final class DocumentTree implements GameResources.Storage {
                 if(name.indexOf('/')>=0||name.indexOf('\\')>=0)throw new IOException("Provider returned path-like filename");
                 if(DocumentsContract.Document.MIME_TYPE_DIR.equals(mime)){
                     if(!name.equalsIgnoreCase("SaveData")&&!name.equalsIgnoreCase("backups"))scan(child,prefix+name+"/",depth+1);
-                } else {String key=(prefix+name).toLowerCase(Locale.ROOT);if(files.put(key,DocumentsContract.buildDocumentUriUsingTree(tree,child))!=null)throw new IOException("Case-colliding resources");}
+                } else {String key=(prefix+name).toLowerCase(Locale.ROOT);if(files.put(key,DocumentsContract.buildDocumentUriUsingTree(tree,child))!=null)throw new IOException("Case-colliding resources");displayPaths.add(prefix+name);}
             }
         }catch(SecurityException e){throw new IOException("Directory permission revoked",e);}
     }
-    public Set<String> paths(){return Collections.unmodifiableSet(files.keySet());}
+    public Set<String> paths(){return Collections.unmodifiableSet(displayPaths);}
     public byte[] read(String name,int limit)throws IOException{
         Uri uri=files.get(Binary.safePath(name).toLowerCase(Locale.ROOT));if(uri==null)throw new FileNotFoundException(name);
         try(InputStream in=resolver.openInputStream(uri)){if(in==null)throw new IOException("Provider cannot open "+name);return Binary.read(in,limit);}

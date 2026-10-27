@@ -81,7 +81,7 @@ EXE: `DC3DD.EXE`；SHA-256: `ff119f4396cc1382e349fb1ed2c2eb77191db8ec699cb1352ca
 | 0x14 | u8x2 | 0x0042B20A | wait.duration | partial_binding | DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md. |
 | 0x15 | u8x2 | 0x0043017F | wait.audio | partial_binding | Native asynchronous completion event; wait.audio absorbs successive opcode 15 masks. |
 | 0x16 | u8x2 | 0x0042B738 | ui.button_sound | partial_binding | DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial. |
-| 0x17 | u8x2 | 0x0042DB26 | system.persist | partial_binding | DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md. |
+| 0x17 | u8x2 | 0x0042DB26 | system.persist | partial_binding | DD 17 的 u8 子模式：26 经 42E0FC 调用 40EE90 重读系统持久设置；文件缺失时 40ED10(1) 初始化。不是剧情存档读取。其他子模式见宿主和原版系统文档。 |
 | 0x18 | u8x2 | 0x00431CC2 | unknown | unknown | 需继续核对参数及宿主副作用。 |
 | 0x19 | u8x2 | 0x0042B3C6 | ui.panel | partial_binding | 19/0 clears current UI and action bindings; other reviewed selectors save current UI in a template slot. |
 | 0x1A | u8x2 | 0x0042B80B | unknown | unknown | 需继续核对参数及宿主副作用。 |
@@ -294,7 +294,7 @@ EXE: `DC2DM.EXE`；SHA-256: `7414de26db3e9ce4fec331df7cb517947af7957fbc85abe96c5
 | 0x38 | string | 0x00430C84 | dm.script.transfer | partial_binding | PC1 跨脚本转移模式 1；不是通用 CPU CALL；系统返回由独立上下文保存实现。 |
 | 0x39 | string | 0x00430CEE | dm.script.transfer_alt | partial_binding | PC1 跨脚本转移模式 2；重置语义与模式 1 有别。 |
 | 0x3A | string | 0x00430C64 | script.entry_label | partial_binding | 保存下次跨脚本入口的字节标签，应用后清空。 |
-| 0x3B | string | 0x0043046F | dm.movie | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x3B | string | 0x0043046F | dm.movie | partial_binding | 43046F 接收文件名；432D17..432D31 用 MOVIE 子目录和 .mpg 扩展名交给 422C20 构建路径。宿主暂停直到影片完成事件。 |
 | 0x3C | string | 0x004304DE | unknown | unknown | 需继续核对参数及宿主副作用。 |
 | 0x3D | string | 0x0043088F | jump.named_required | partial_binding | 从代码起点按原生规则扫描标签；兼容层对缺失标签报错。 |
 | 0x3E | string | 0x0042D834 | dm.ui.button_voice | partial_binding | 需继续核对参数及宿主副作用。 |

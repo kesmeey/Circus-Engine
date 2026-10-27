@@ -13,6 +13,8 @@ RANGES = {
     'template_static_quad': (0x42D63B, 0x42D828),
     'ui_text': (0x42D929, 0x42D9CC),
     'background_move': (0x42D9CC, 0x42DB26),
+    'settings_defaults': (0x40ED10, 0x40EDB5),
+    'settings_reload': (0x40EE90, 0x40EF9B),
     'persist': (0x42DB26, 0x42E152),
     'palette': (0x42E152, 0x42E193),
     'background_replace': (0x42E193, 0x42E425),

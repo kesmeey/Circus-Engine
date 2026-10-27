@@ -27,6 +27,7 @@ public final class RuntimeActivity extends Activity {
     private final long[] requestedResume=new long[6];private final File[] audioFiles=new File[6];
     private int movieGeneration=-1;private volatile int movieToken;private volatile NativeMovie movie;private Dialog movieDialog;private File movieFile;
     private String tree;private boolean resume;private boolean audit;
+    NativeMovie activeMovie(){return movie;}
     private final Runnable frame=new Runnable(){public void run(){if(!active||closed||failed)return;if(!busy&&engine!=null){busy=true;worker.execute(()->{try{
         updatePositions();long now=SystemClock.uptimeMillis();engine.tick(Math.min(100,Math.max(0,now-lastTick)));lastTick=now;syncMedia();
         if(engine.exitRequested()){engine.persist();main.post(()->finish());return;}
@@ -37,11 +38,12 @@ public final class RuntimeActivity extends Activity {
         if(tree==null){fail(new IOException("请选择包含 AdvData 的游戏目录"));return;}
         worker.execute(()->{try{
             System.setProperty("dc.saveRoot",new File(getFilesDir(),audit?"android-011-audit-saves":"shared-saves").getAbsolutePath());
-            resources=new GameResources(new DocumentTree(getContentResolver(),Uri.parse(tree)));GameVersion version=GameVersion.detect(resources);Profile profile=version.profile();
+            resources=new GameResources(new DocumentTree(getContentResolver(),Uri.parse(tree)),getIntent().getStringExtra("executable"));GameVersion version=GameVersion.detect(resources);Profile profile=version.profile();
             if(!profile.id.equals("dc3dd-a5a8")&&!profile.id.equals("dc2dm-9d72")&&!PcHost.supports(profile))throw new IOException("此版本尚未验证："+profile.id);
-            CircusResources data=new CircusResources(resources,profile);TextCodec codec=PcHost.supports(profile)?GameText.detect(resources,profile):TextConfiguration.load(resources);
+            CircusResources data=new CircusResources(resources,profile);TextCodec codec=GameText.select(resources,profile,getIntent().getStringExtra("encoding"),getIntent().getStringExtra("configuration"));ExecutableData.validate(data,codec);
             engine=profile.id.equals("dc3dd-a5a8")?new DesktopDd(data,codec,audit):new DesktopLegacy(data,codec,audit);
             if(!audit)migratePreviousAndroid();Path automatic=engine.saveDirectory.resolve("mobile-resume.sav");if(resume&&Files.isRegularFile(automatic))engine.restore(automatic);
+            String libraryId=getIntent().getStringExtra("library_id");if(!audit&&libraryId!=null)new GameLibrary(this).opened(libraryId);
             lastTick=SystemClock.uptimeMillis();main.post(()->{stage.setContentDescription("原版游戏画面，点击推进，返回键打开菜单");wake();});
         }catch(Throwable e){fail(e);}});
     }

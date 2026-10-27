@@ -109,6 +109,11 @@ public final class CompatibilityTests {
         h.ui.waiting=true;byte[] hostSave=session.vm.snapshot();Dc2Session roundTrip=new Dc2Session(dmData,TextCodec.identity());roundTrip.vm.restore(hostSave);
         check(Arrays.equals(hostSave,roundTrip.vm.snapshot()),"DM host UI/audio/save state snapshot round trip");
         check(roundTrip.host.voiceGain()>0,"Forced voice gain survives a save round trip");
+        h.ui.waiting=false;h.command("dm.movie",new int[0],"OPENING.MPG".getBytes(Binary.SJIS));
+        check(h.movie.equals("AdvData/MOVIE/OPENING.MPG"),"DM movie filename resolves under MOVIE, not AdvData root");
+        check(h.signal(h.waitTicket(),MesVm.HostSignal.MEDIA_COMPLETE)&&h.movie.isEmpty(),"DM movie completion releases the script wait");
+        h.movie="AdvData/OPENING.MPG";byte[] legacyMovie=session.vm.snapshot();Dc2Session resumedMovie=new Dc2Session(dmData,TextCodec.identity());resumedMovie.vm.restore(legacyMovie);
+        check(resumedMovie.host.movie.equals("AdvData/MOVIE/OPENING.MPG"),"legacy DM movie wait snapshot migrates its path");
         return checks;
     }
 }

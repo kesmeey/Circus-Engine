@@ -12,11 +12,14 @@ public final class GameResources {
     }
     private final Storage storage;
     private final Map<String,String> paths=new HashMap<>();
+    /** Empty: legacy automatic discovery; @none: data-only; otherwise an exact user choice. */
+    public final String executable;
     // Cache indices only; large decoded images and sounds do not accumulate here.
     private final LinkedHashMap<String,Archive> archives=new LinkedHashMap<String,Archive>(16,.75f,true){
         @Override protected boolean removeEldestEntry(Map.Entry<String,Archive> entry){return size()>8;}
     };
-    public GameResources(Storage storage)throws IOException {
+    public GameResources(Storage storage)throws IOException {this(storage,"");}
+    public GameResources(Storage storage,String executable)throws IOException {
         this.storage=storage;
         for(String path:storage.paths()){
             String canonical=Binary.safePath(path),key=canonical.toLowerCase(Locale.ROOT);
@@ -27,7 +30,12 @@ public final class GameResources {
             if(roots.size()>1)throw new IOException("目录包含多部游戏，请选择其中一部的目录");
             if(roots.size()==1){String prefix=roots.iterator().next();Map<String,String> child=new HashMap<>();for(Map.Entry<String,String> e:paths.entrySet())if(e.getKey().startsWith(prefix))child.put(e.getKey().substring(prefix.length()),e.getValue());paths.clear();paths.putAll(child);}
         }
+        this.executable=executable==null?"":executable;
+        if(explicitExecutable()){if(!this.executable.toLowerCase(Locale.ROOT).endsWith(".exe"))throw new IOException("请选择 EXE 文件");resolve(this.executable);}
     }
+    public boolean explicitExecutable(){return !executable.isEmpty()&&!executable.equals("@none");}
+    public List<String> executableCandidates(){if(executable.equals("@none"))return Collections.emptyList();if(explicitExecutable())return Collections.singletonList(executable);List<String> found=new ArrayList<>();for(String path:paths.keySet())if(path.endsWith(".exe"))found.add(path);Collections.sort(found);return found;}
+    public String displayPath(String path)throws IOException{return resolve(path);}
     private String resolve(String path)throws IOException {
         String actual=paths.get(Binary.safePath(path).toLowerCase(Locale.ROOT));
         if(actual==null)throw new FileNotFoundException(path);return actual;

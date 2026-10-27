@@ -8,6 +8,8 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
     public final Set<Integer> availableSaves=new HashSet<>();
     public final Dc2History history=new Dc2History();private int scriptOffset;private String historyVoice="";
     public boolean returnRequested;public int saveRequest=-1,loadRequest=-1;
+    public interface SettingsLoader {void load(Dc3State state)throws IOException;}
+    public SettingsLoader settingsLoader;
     public int windowRequest=-1;public boolean fullscreen;public boolean windowSizeReset;private int musicVolumeBackup;
     public UiCapture uiCapture;public UiCapture.Renderer captureRenderer;
     public Dc3Scene.Frame systemScene;
@@ -224,7 +226,8 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
             case 0:require(originalSystem,"native load operation");if(availableSaves.contains(state.read(99,254))){loadRequest=state.read(99,254);nextTicket();}return true;
             case 2:case 3:require(originalSystem,"desktop window visibility");return true; // Android owns window lifecycle.
             case 8:require(originalSystem,"desktop window mode");windowRequest=a[1];fullscreen=a[1]!=0;return true;
-            case 20:state.resetPreferences();return true;
+              case 20:state.resetPreferences();return true;
+              case 26:require(settingsLoader!=null,"system settings storage");settingsLoader.load(state);return true; // 42E0FC -> 40EE90: reload system settings, not a save-slot load.
             case 27:windowSizeReset=true;return true;
             case 10:require(originalSystem,"original media availability check");resources.scripts().script("START");return true;
             case 15:require(originalSystem,"input mode reset");ui.inputMode=a[1];state.write(99,195,0);return true;

@@ -12,8 +12,17 @@ public final class GameText {
         return TextCodec.identity();
     }
     public static TextCodec configuration(GameResources files)throws IOException{
-        byte[] raw;try{raw=files.read("uif_config.json",2*1024*1024);}catch(FileNotFoundException e){return TextCodec.identity();}
-        Object parsed=DataJson.parse(new String(raw,java.nio.charset.StandardCharsets.UTF_8));
+        try{return configuration(files,"uif_config.json");}catch(FileNotFoundException e){return TextCodec.identity();}
+    }
+    public static TextCodec select(GameResources files,Profile profile,String encoding,String configuration)throws IOException{
+        TextCodec map=configuration==null||configuration.isEmpty()?configuration(files):configuration.equals("@none")?TextCodec.identity():configuration(files,configuration);
+        String detected=encoding==null||encoding.equals("auto")?detectEncoding(files,profile):encoding;
+        return map.withEncoding(detected);
+    }
+    private static String detectEncoding(GameResources files,Profile profile)throws IOException{return PcHost.supports(profile)?detect(files,profile).charset.name().equalsIgnoreCase("GBK")?"GBK":"windows-31j":"windows-31j";}
+    public static TextCodec configuration(GameResources files,String path)throws IOException{
+        byte[] raw=files.read(path,2*1024*1024);String text=new String(raw,java.nio.charset.StandardCharsets.UTF_8);if(text.startsWith("\uFEFF"))text=text.substring(1);
+        Object parsed=DataJson.parse(text);
         if(!(parsed instanceof java.util.Map))throw new IOException("Invalid uif_config.json root");
         java.util.Map<?,?> root=(java.util.Map<?,?>)parsed;
         Object tunnel=root.get("tunnel_decoder"),sub=root.get("character_substitution");

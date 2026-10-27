@@ -35,7 +35,7 @@ public final class DesktopMedia implements AutoCloseable {
         }
         if(!engine.movie().isEmpty()&&movieGeneration!=engine.movieGeneration()){
             movieGeneration=engine.movieGeneration();movieTicket=engine.ticket();for(int ch=0;ch<6;ch++)stop(ch);
-            if(engine.audit){decodedMovies.add(engine.movie());engine.vm().signalHost(movieTicket,MesVm.HostSignal.MEDIA_COMPLETE);return;}
+            if(engine.audit){engine.resources.files.slice(engine.movie(),0,4);decodedMovies.add(engine.movie());engine.vm().signalHost(movieTicket,MesVm.HostSignal.MEDIA_COMPLETE);return;}
             movie=new Movie(engine.resources.files,engine.movie(),engine.width,engine.height);decodedMovies.add(engine.movie());
         }
         if(movie!=null){if(movie.error!=null)throw new IOException("Movie playback failed",movie.error);if(movie.videoDone&&movie.audioDone)finishMovie();}

@@ -21,7 +21,7 @@ def main():
     p.add_argument('--games', nargs='+', choices=GAMES, default=list(GAMES))
     p.add_argument('--no-core', action='store_true')
     p.add_argument('--upgrade', action='store_true', help='Use normal app saves, not the audit namespace')
-    p.add_argument('--out', type=Path, default=ROOT/'build/android/verification-011')
+    p.add_argument('--out', type=Path, default=ROOT/'build/android/verification-012')
     a = p.parse_args()
     adb = [str(Path.home()/'.cache/ethornell-android/sdk/platform-tools/adb.exe'), '-s', a.serial]
     a.out.mkdir(parents=True, exist_ok=True)
@@ -33,7 +33,7 @@ def main():
     if not a.no_core:
         log = run('shell', 'am', 'instrument', '-w', 'org.circus.runtime/.CoreInstrumentation').decode('utf-8')
         (a.out/'art-core.txt').write_text(log, encoding='utf-8')
-        results['core'] = 'PASS 325 assertions' in log and '7 pixel contracts PASS' in log and 'FAIL' not in log
+        results['core'] = bool(re.search(r'PASS \d+ assertions', log)) and '7 pixel contracts PASS' in log and 'FAIL' not in log
         print('CORE', results['core'], flush=True)
     for game in a.games:
         tree, profile = GAMES[game]

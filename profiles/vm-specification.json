@@ -303,7 +303,7 @@
           "args": "u8x2",
           "logical_operands": null,
           "operation": "system.persist",
-          "behavior": "DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md.",
+          "behavior": "DD 17 的 u8 子模式：26 经 42E0FC 调用 40EE90 重读系统持久设置；文件缺失时 40ED10(1) 初始化。不是剧情存档读取。其他子模式见宿主和原版系统文档。",
           "semantic_status": "partial_binding",
           "shared_fallback": false
         },
@@ -2480,7 +2480,7 @@
           "args": "string",
           "logical_operands": null,
           "operation": "dm.movie",
-          "behavior": "需继续核对参数及宿主副作用。",
+          "behavior": "43046F 接收文件名；432D17..432D31 用 MOVIE 子目录和 .mpg 扩展名交给 422C20 构建路径。宿主暂停直到影片完成事件。",
           "semantic_status": "partial_binding",
           "shared_fallback": false
         },

@@ -36,6 +36,7 @@ public final class TextCodec {
         return value.codePoints().toArray();
     }
     public static TextCodec identity(){try{return new TextCodec("","");}catch(IOException e){throw new AssertionError(e);}}
+    public TextCodec withEncoding(String encoding)throws IOException{StringBuilder source=new StringBuilder(),target=new StringBuilder();for(Map.Entry<Integer,Integer> e:substitution.entrySet()){source.appendCodePoint(e.getKey());target.appendCodePoint(e.getValue());}return new TextCodec(source.toString(),target.toString(),encoding);}
     public static String cp932(byte[] bytes)throws IOException {
         try{return Binary.SJIS.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(bytes)).toString();}
         catch(CharacterCodingException e){throw new IOException("Invalid CP932 text",e);}

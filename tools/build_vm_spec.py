@@ -17,6 +17,8 @@ PC={
 EXES={'dc3dd-a5a8':Path('D:/gal/DC3DD/DC3DD.EXE'),'dc2dm-9d72':Path('D:/gal/DC2DM/DC2DM.EXE')}
 
 NOTES={
+ 'dm.movie':'43046F 接收文件名；432D17..432D31 用 MOVIE 子目录和 .mpg 扩展名交给 422C20 构建路径。宿主暂停直到影片完成事件。',
+ 'system.persist':'DD 17 的 u8 子模式：26 经 42E0FC 调用 40EE90 重读系统持久设置；文件缺失时 40ED10(1) 初始化。不是剧情存档读取。其他子模式见宿主和原版系统文档。',
  'text.speaker':'原始解码字符串设置说话人；不加载资源、不推进下一句。',
  'text.body':'发布场景并呈现正文；文本完成与点击推进是不同等待状态。',
  'pc.background':'资源字符串；写入背景及预载槽；场景发布由后续指令控制。',

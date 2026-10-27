@@ -229,6 +229,14 @@ public final class CoreTests {
         assertions+=CaptureTests.run();
         assertions+=CompatibilityTests.run();
         assertions+=PcCompatibilityTests.run();
+        Dc3Host reloading=new Dc3Host(null,TextCodec.identity(),true);Variables transientVars=new Variables(reloading);reloading.attach(transientVars);transientVars.write(3,12,77);
+        Dc3State persistedSettings=new Dc3State(true);persistedSettings.write(100,10,1);persistedSettings.write(99,7,37);persistedSettings.write(97,14,1);persistedSettings.write(94,50,22);
+        byte[] durable=persistedSettings.settingsSnapshot();int[] reads={0};reloading.settingsLoader=target->{reads[0]++;target.restoreSettings(durable);};
+        reloading.write(99,7,99);reloading.command("system.persist",new int[]{26,0},new byte[0]);
+        check(reads[0]==1&&reloading.read(99,7)==37&&reloading.read(100,10)==1,"persist 26 reloads stored settings and initialized flag");
+        check(reloading.read(97,14)==1&&reloading.read(94,50)==22&&transientVars.read(3,12)==77,"persist 26 retains progress and voice preferences without replacing ordinary variables");
+        reloading.settingsLoader=target->{throw new IOException("unreadable settings");};reject(()->reloading.command("system.persist",new int[]{26,0},new byte[0]),"persist 26 storage failure is not ignored");
+        assertions+=ResourceSelectionTest.run();
         return "PASS "+assertions+" assertions; self-authored fixtures; DD choices/flow/original UI/animation/macros, WY bindings, DM memory/control and collection detection; archives, CRX/CRXD, audio, save integrity";
     }
     public static void main(String[] args)throws Exception{Path root=Paths.get(args[0]);System.out.println(run(name->Files.readAllBytes(root.resolve(name))));}

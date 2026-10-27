@@ -17,16 +17,22 @@ public final class PcNameInput {
 
     public void prepare(CircusResources resources,TextCodec codec)throws IOException {
         if(prepared)return;Dc2NativeData.Pe pe=null;
-        for(String path:resources.files.paths())if(path.equals("dcpcdvd.exe")){
-            pe=new Dc2NativeData.Pe(resources.files.read(path,4*1024*1024));break;
+        for(String path:resources.files.executableCandidates()){
+            try{Dc2NativeData.Pe candidate=new Dc2NativeData.Pe(resources.files.read(path,4*1024*1024));if((candidate.bytes[candidate.at(0x40c2e0)]&255)!=0x8b)throw new IOException("DCPC name table signature");pe=candidate;break;}
+            catch(IOException invalid){if(resources.files.explicitExecutable())throw new IOException("所选 EXE 不含兼容的 D.C.P.C 姓名表："+path,invalid);}
         }
-        if(pe==null)throw new IOException("The original DCPCDVD.EXE is needed as a read-only source for name-entry character tables");
+        if(pe==null)throw new IOException("姓名输入需要兼容的 EXE 数据表，请在游戏设置中选择原版或兼容的补丁 EXE");
         if((pe.bytes[pe.at(0x40c2e0)]&255)!=0x8b)throw new IOException("DCPC name table signature mismatch");
         for(int n=0;n<14;n++)for(int k=0;k<7;k++)rectangles[n][k]=word(pe,0x4306a0+n*28+k*4);
         for(int n=0;n<63;n++)for(int k=0;k<4;k++)atlas[n][k]=word(pe,0x430828+n*16+k*4);
         for(int n=0;n<51;n++)groups[n]=word(pe,0x43c57c+n*4);
-        tables.add(rows(pe,0x430cb8,60,7));tables.add(rows(pe,0x430e98,60,7));tables.add(rows(pe,0x431078,60,14));
-        tables.add(rows(pe,0x4313fc,40,4));
+        // The localized PE converts the four literal grids to GBK but leaves the
+        // numeric CP932 character ranges unchanged. Identify the kana by bytes.
+        byte[] firstRow=pe.stringBytes(0x430cb8);TextCodec tableCodec=null;
+        for(String encoding:new String[]{"windows-31j","GBK"}){TextCodec candidate=new TextCodec("","",encoding);try{if(candidate.decode(firstRow).startsWith("あいうえお"))tableCodec=candidate;}catch(IOException invalid){}}
+        if(tableCodec==null)throw new IOException("Unrecognized DCPC name table encoding");
+        tables.add(rows(pe,tableCodec,0x430cb8,60,7));tables.add(rows(pe,tableCodec,0x430e98,60,7));tables.add(rows(pe,tableCodec,0x431078,60,14));
+        tables.add(rows(pe,tableCodec,0x4313fc,40,4));
         for(int n=0;n<44;n++){
             int first=word(pe,0x43c64c+n*8),last=word(pe,0x43c650+n*8);if(first<0||last<first||last-first>65536)throw new IOException("DCPC character range");
             List<String> rows=new ArrayList<>();StringBuilder row=new StringBuilder();
@@ -39,11 +45,11 @@ public final class PcNameInput {
             }
             if(row.length()>0)rows.add(row.toString());tables.add(rows);
         }
-        boolean chinese=codec.charset.name().equalsIgnoreCase("GBK");defaultFamily=chinese?"朝仓":codec.apply(pe.string(0x43c8b4));defaultGiven=chinese?"纯一":codec.apply(pe.string(0x43c8ac));confirmationText=chinese?"使用这个姓名吗？":codec.apply(pe.string(0x43c8bc));prepared=true;
+        boolean chinese=codec.charset.name().equalsIgnoreCase("GBK");defaultFamily=chinese?"朝仓":codec.apply(tableCodec.decode(pe.stringBytes(0x43c8b4)));defaultGiven=chinese?"纯一":codec.apply(tableCodec.decode(pe.stringBytes(0x43c8ac)));confirmationText=chinese?"使用这个姓名吗？":codec.apply(tableCodec.decode(pe.stringBytes(0x43c8bc)));prepared=true;
     }
     private static int word(Dc2NativeData.Pe pe,int address)throws IOException{return (int)Binary.u32(pe.bytes,pe.at(address));}
-    private static List<String> rows(Dc2NativeData.Pe pe,int address,int stride,int limit)throws IOException {
-        List<String> result=new ArrayList<>();for(int n=0;n<limit;n++){int p=pe.at(address+n*stride);if((pe.bytes[p]&255)==255)break;result.add(pe.string(address+n*stride));}return result;
+    private static List<String> rows(Dc2NativeData.Pe pe,TextCodec codec,int address,int stride,int limit)throws IOException {
+        List<String> result=new ArrayList<>();for(int n=0;n<limit;n++){int at=address+n*stride,p=pe.at(at);if((pe.bytes[p]&255)==255)break;try{result.add(codec.decode(pe.stringBytes(at)));}catch(IOException e){throw new IOException("姓名字符表无法解码（0x"+Integer.toHexString(at)+"）。请选择兼容的原版 EXE；脚本文字编码可独立配置。",e);}}return result;
     }
     public void open(String f,String g){family=originalFamily=f;given=originalGiven=g;active=true;confirming=false;category=page=group=cursor=0;field=1;}
     private List<String> rows(){return tables.get(category==3?3+group:category);}

@@ -2310,7 +2310,7 @@
           "args": "u8str",
           "logical_operands": null,
           "operation": "dm.scene.preload",
-          "behavior": "需继续核对参数及宿主副作用。",
+          "behavior": "DM 42FA01 预载资源槽；角色槽 2..5 与附属槽 6..9 成对，432488/432699 在任一方变化时匹配近景和色调。此匹配不适用于头像槽 18/19。",
           "semantic_status": "partial_binding",
           "shared_fallback": false
         },
@@ -2350,7 +2350,7 @@
           "args": "u8str",
           "logical_operands": null,
           "operation": "dm.scene.character_overlay",
-          "behavior": "需继续核对参数及宿主副作用。",
+          "behavior": "DM 42FAEE 设置/清除角色附属图。412504、432488、432699 调用 428990：先移除附属图的 _B 和色调标记，再继承人物资源的 _B 近景后缀及 @/* 色调，保留附属图归档名；更换人物而保留附属图时也重新匹配。",
           "semantic_status": "partial_binding",
           "shared_fallback": false
         },

@@ -19,6 +19,20 @@ final class ResourceSelectionTest {
         Profile dd=Profiles.get("dc3dd-a5a8");reject(()->new Dc3NativeData(new CircusResources(manual,dd),TextCodec.identity()));
         TextCodec codec=GameText.select(manual,dd,"GBK","custom.json");check(codec.apply("漢").equals("汉")&&codec.charset.name().equalsIgnoreCase("GBK"),"explicit encoding and BOM mapping combined");
         check(GameText.select(manual,dd,"auto","@none").apply("漢").equals("漢"),"mapping opt out");reject(()->GameText.select(manual,dd,"auto","missing.json"));reject(()->GameText.select(manual,dd,"bad-encoding","@none"));
+        CircusResources dm=new CircusResources(auto,Profiles.get("dc2dm-9d72"));
+        String cap="BST/E_NNK_HAT2,BST/E_NNK",close="BST/NNK_0C_202_B@,BST/NNK_C";
+        check(dm.characterOverlay(close,cap).equals("BST/E_NNK_HAT2_B@,BST/E_NNK"),"DM reported close-up uses matching night accessory");
+        String enlarged=dm.characterOverlay(close,cap);
+        check(dm.characterOverlay(close,enlarged).equals(enlarged),"DM resolving an already adjusted accessory is idempotent");
+        check(dm.characterOverlay("BST/NNK_0C_202,BST/NNK_C",enlarged).equals(cap),"DM retained accessory loses close-up and tint when actor changes");
+        check(dm.characterOverlay("BST/NNK_0C_202*,BST/NNK_C",enlarged).equals("BST/E_NNK_HAT2*,BST/E_NNK"),"DM retained accessory follows warm tint");
+        check(dm.characterOverlay("BST/NNK_0C_202_b,BST/NNK_C",cap).equals("BST/E_NNK_HAT2_B,BST/E_NNK"),"DM close-up suffix is case insensitive");
+        check(dm.characterOverlay("BST/NNK_0C_202_B@.CRX,BST/NNK_C", "BST/E_NNK_HAT2*.CRX,BST/E_NNK").equals("BST/E_NNK_HAT2_B@.CRX,BST/E_NNK"),"DM overlay keeps explicit extension and archive");
+        check(dm.characterOverlay("actor_B@", "accessory").equals("accessory_B@"),"DM loose accessory follows actor");
+        check(dm.characterOverlay("actor,archive_B@", "accessory,other_B*").equals("accessory,other_B*"),"archive suffixes do not change variant or tint");
+        check(dm.characterOverlay("",cap).equals(cap)&&dm.characterOverlay(close,"").isEmpty(),"empty actor/accessory stays empty or unchanged");
+        files.put("wrapper/AdvData/DAT/NAMES.DAT",new byte[20]);
+        for(String p:new String[]{"dc3dd-a5a8","dcpc-2063","dc2pc-5769"})check(new CircusResources(new GameResources(storage),Profiles.get(p)).characterOverlay(close,cap).equals(cap),"DM accessory rule does not change "+p);
         return checks;
     }
 }

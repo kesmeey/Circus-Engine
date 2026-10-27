@@ -278,11 +278,11 @@ EXE: `DC2DM.EXE`；SHA-256: `7414de26db3e9ce4fec331df7cb517947af7957fbc85abe96c5
 | 0x28 | u8x2 | 0x0042F479 | unknown | unknown | 需继续核对参数及宿主副作用。 |
 | 0x29 | u8x2 | 0x00430EBC | unknown | unknown | 需继续核对参数及宿主副作用。 |
 | 0x2A | u8str | 0x00430EBC | unknown | unknown | 需继续核对参数及宿主副作用。 |
-| 0x2B | u8str | 0x0042FA01 | dm.scene.preload | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x2B | u8str | 0x0042FA01 | dm.scene.preload | partial_binding | DM 42FA01 预载资源槽；角色槽 2..5 与附属槽 6..9 成对，432488/432699 在任一方变化时匹配近景和色调。此匹配不适用于头像槽 18/19。 |
 | 0x2C | u8str | 0x0042D148 | dm.ui.resource | partial_binding | 需继续核对参数及宿主副作用。 |
 | 0x2D | u8str | 0x004308A1 | unknown | unknown | 需继续核对参数及宿主副作用。 |
 | 0x2E | u8str | 0x0042FBF6 | dm.scene.character | partial_binding | 需继续核对参数及宿主副作用。 |
-| 0x2F | u8str | 0x0042FAEE | dm.scene.character_overlay | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x2F | u8str | 0x0042FAEE | dm.scene.character_overlay | partial_binding | DM 42FAEE 设置/清除角色附属图。412504、432488、432699 调用 428990：先移除附属图的 _B 和色调标记，再继承人物资源的 _B 近景后缀及 @/* 色调，保留附属图归档名；更换人物而保留附属图时也重新匹配。 |
 | 0x30 | u8str | 0x0042FACE | unknown | unknown | 需继续核对参数及宿主副作用。 |
 | 0x31 | u8str | 0x004305EB | dm.ui.action | partial_binding | 需继续核对参数及宿主副作用。 |
 | 0x32 | string | 0x00430EBC | unknown | unknown | 需继续核对参数及宿主副作用。 |

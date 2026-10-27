@@ -18,6 +18,24 @@ public class CircusResources {
     }
     private static String extension(String path,String ext){return path.toLowerCase(Locale.ROOT).endsWith(ext.toLowerCase(Locale.ROOT))?path:path+ext;}
     private static String basename(String path){int slash=Math.max(path.lastIndexOf('/'),path.lastIndexOf('\\'));return path.substring(slash+1);}
+    /** DM 428990: an accessory follows its actor's close-up variant and color filter.
+     * Resolve at presentation time so old saves/captures and a retained accessory also
+     * follow a later actor change. Never rewrite the MES reference or archive name. */
+    public String characterOverlay(String actor,String overlay){
+        if(!profile.id.equals("dc2dm-9d72")||actor==null||actor.isEmpty()||overlay==null||overlay.isEmpty())return overlay;
+        String base=actor.split(",",-1)[0];
+        int comma=overlay.indexOf(',');String name=comma<0?overlay:overlay.substring(0,comma),archive=comma<0?"":overlay.substring(comma);
+        String ext=name.toLowerCase(Locale.ROOT).endsWith(".crx")?name.substring(name.length()-4):"";
+        if(!ext.isEmpty())name=name.substring(0,name.length()-4);
+        if(base.toLowerCase(Locale.ROOT).endsWith(".crx"))base=base.substring(0,base.length()-4);
+        char filter=base.charAt(base.length()-1);
+        if(filter=='@'||filter=='*')base=base.substring(0,base.length()-1);else filter=0;
+        if(name.endsWith("@")||name.endsWith("*"))name=name.substring(0,name.length()-1);
+        if(name.toLowerCase(Locale.ROOT).endsWith("_b"))name=name.substring(0,name.length()-2);
+        if(base.toLowerCase(Locale.ROOT).endsWith("_b"))name+="_B";
+        if(filter!=0)name+=filter;
+        return name+ext+archive;
+    }
     /** Windows archive lookup ignores ASCII case; non-ASCII filename bytes remain exact. */
     private Archive.Entry archiveEntry(String archive,String requested)throws IOException {
         byte[] raw=requested.getBytes(Binary.SJIS);Archive.Entry found=null;

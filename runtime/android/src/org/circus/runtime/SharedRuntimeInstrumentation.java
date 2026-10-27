@@ -13,8 +13,8 @@ import org.circus.graphics.BufferedImage;
 
 /** Exercise the shipping Android activity through SAF and real touch events. */
 public final class SharedRuntimeInstrumentation extends Instrumentation {
-    private RuntimeActivity activity;private String tree;private boolean audit=true,sequence,opening,inputRegression;private File output;private int checks;private final StringBuilder log=new StringBuilder();
-    public void onCreate(Bundle args){super.onCreate(args);tree=args.getString("tree");audit=!"false".equals(args.getString("audit"));sequence="true".equals(args.getString("sequence"));opening="true".equals(args.getString("opening"));inputRegression="true".equals(args.getString("inputRegression"));start();}
+    private RuntimeActivity activity;private String tree;private boolean audit=true,sequence,opening,inputRegression,overlayRegression;private File output;private int checks;private final StringBuilder log=new StringBuilder();
+    public void onCreate(Bundle args){super.onCreate(args);tree=args.getString("tree");audit=!"false".equals(args.getString("audit"));sequence="true".equals(args.getString("sequence"));opening="true".equals(args.getString("opening"));inputRegression="true".equals(args.getString("inputRegression"));overlayRegression="true".equals(args.getString("overlayRegression"));start();}
     interface Job<T>{T run(DesktopEngine e)throws Exception;}
     private <T>T call(Job<T> job)throws Exception {if(activity.failed)throw new IOException(activity.error);return activity.worker.submit(()->{if(activity.engine==null)throw new IOException("Engine not ready");return job.run(activity.engine);}).get(60,TimeUnit.SECONDS);}
     private void check(boolean value,String detail)throws IOException{if(!value)throw new IOException(detail);checks++;log.append("PASS ").append(detail).append('\n');}
@@ -28,6 +28,7 @@ public final class SharedRuntimeInstrumentation extends Instrumentation {
         check(title,"original START reaches title");Thread.sleep(800);capture("01-title");
         if(profile.equals("dcpc-2063")){tap("name");waitMenu();check(call(e->e.editingText()),"original name editor opens");tap("@name:field:4");call(e->{e.typeText("测试");return null;});tap("@name:button:7");capture("00-name-confirm");tap("@name:yes");waitMenu();check(call(e->((PcHost)((DesktopLegacy)e).host()).givenName.equals("测试")),"name confirmation uses shared host");}
         tap(actions().contains("sce_start")?"sce_start":"start");waitText();capture("02-first-dialogue");
+        if(overlayRegression){overlayRegression();result.putString("stream",log.toString());finish(-1,result);return;}
         if(inputRegression){inputRegression();result.putString("stream",log.toString());finish(-1,result);return;}
         if(opening){openingMovie();result.putString("stream",log.toString());finish(-1,result);return;}
         for(int n=0;n<12;n++){String before=call(e->e.vm().scriptName()+":"+e.vm().offset());end=SystemClock.uptimeMillis()+20000;boolean changed=false;while(SystemClock.uptimeMillis()<end){touch(.5f,.35f);waitText();if(call(e->!(e.vm().scriptName()+":"+e.vm().offset()).equals(before))){changed=true;break;}}check(changed,"dialogue advance "+(n+1));}
@@ -43,6 +44,16 @@ public final class SharedRuntimeInstrumentation extends Instrumentation {
         Files.write(output.toPath().resolve("result.txt"),log.toString().getBytes("UTF-8"));result.putString("stream",log.toString());finish(-1,result);
     }catch(Throwable e){log.append("FAIL ").append(e).append('\n');try{if(activity!=null&&activity.engine!=null)log.append(this.<String>call(v->v.vm().scriptName()+"@"+Integer.toHexString(v.vm().offset())+" "+v.vm().status()+" actions="+actionsUnsafe(v))).append('\n');}catch(Exception ignored){}try{if(output!=null)Files.write(output.toPath().resolve("result.txt"),log.toString().getBytes("UTF-8"));}catch(Exception ignored){}result.putString("stream",log.toString());finish(0,result);}finally{if(activity!=null)runOnMainSync(()->activity.finish());}}
     private static List<String> actionsUnsafe(DesktopEngine e){List<String>a=new ArrayList<>();for(DesktopEngine.Control c:e.controls())a.add(c.action);return a;}
+    private void overlayRegression()throws Exception {
+        log.append(this.<String>call(e->new DmOverlayAudit((DesktopLegacy)e).run(output.toPath().resolve("overlay-regression"))));
+        Thread.sleep(800);capture("14-reported-portrait");
+        check(call(e->e.vm().scriptName().equalsIgnoreCase("SIN_0810_F12")&&e.vm().offset()==0x2c59),"Android displays reported portrait scene");
+        if(!actions().contains(":option"))tap(":n");tap(":option");waitMenu();
+        runOnMainSync(()->activity.onBackPressed());waitText();
+        check(call(e->!((DesktopLegacy)e).session.inSystem()&&e.vm().offset()==0x2c59),"Android touch/Back returns to reported portrait");
+        check(!activity.failed,"no Android render or media failure at portrait scene");
+        log.append("ANDROID OVERLAY PASS CHECKS ").append(checks).append('\n');Files.write(output.toPath().resolve("android-overlay-result.txt"),log.toString().getBytes("UTF-8"));
+    }
     private void rapidMenus()throws Exception {
         for(String action:new String[]{":menu",":backlog"}){
             call(e->{e.rapid=true;e.tick(0);((DesktopLegacy)e).action(action);return null;});waitMenu();

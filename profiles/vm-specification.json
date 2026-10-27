@@ -3739,7 +3739,7 @@
           "args": "string",
           "logical_operands": null,
           "operation": "pc.action0",
-          "behavior": "需继续核对参数及宿主副作用。",
+          "behavior": "原始标签绑定到右键/Esc；PC1 414F1E 写 9D95DC，419310..419379 消费；PC2 41EEFE 写 B0B6F0，423A4C..423AB5 消费。接受跳转后清空该绑定。",
           "semantic_status": "partial_binding",
           "shared_fallback": false
         },
@@ -3749,7 +3749,7 @@
           "args": "string",
           "logical_operands": null,
           "operation": "pc.action1",
-          "behavior": "需继续核对参数及宿主副作用。",
+          "behavior": "原始标签绑定到左键/Enter；PC1 9D95FC / PC2 B0B710。与右键槽独立，确认框另用 action2/action3。",
           "semantic_status": "partial_binding",
           "shared_fallback": false
         },
@@ -4958,7 +4958,7 @@
           "args": "string",
           "logical_operands": null,
           "operation": "pc.action0",
-          "behavior": "需继续核对参数及宿主副作用。",
+          "behavior": "原始标签绑定到右键/Esc；PC1 414F1E 写 9D95DC，419310..419379 消费；PC2 41EEFE 写 B0B6F0，423A4C..423AB5 消费。接受跳转后清空该绑定。",
           "semantic_status": "partial_binding",
           "shared_fallback": false
         },
@@ -4968,7 +4968,7 @@
           "args": "string",
           "logical_operands": null,
           "operation": "pc.action1",
-          "behavior": "需继续核对参数及宿主副作用。",
+          "behavior": "原始标签绑定到左键/Enter；PC1 9D95FC / PC2 B0B710。与右键槽独立，确认框另用 action2/action3。",
           "semantic_status": "partial_binding",
           "shared_fallback": false
         },

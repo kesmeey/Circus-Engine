@@ -51,9 +51,12 @@ public final class PcHost extends Dc2Host {
     @Override public boolean beforeInstruction(Profile p,int op)throws IOException{if(!p.id.equals(resources.profile.id))throw new IOException("PC host profile mismatch");return waiting();}
     @Override public byte[] menuAction(long expected,int button)throws IOException{
         if(confirming&&ui.waiting&&expected==ticket){String a=button<0?":n":button<ui.buttons.size()?ui.buttons.get(button).action:"";if(a.equals(":y"))a=ui.actions[2];else if(a.equals(":n"))a=ui.actions[3];return a.isEmpty()?null:a.getBytes(Binary.SJIS);}
-        if(button<0&&!ui.waiting&&hasTimedInput()&&expected==ticket){String action=ui.actions[button==-2?0:1];return action.isEmpty()?null:action.getBytes(Binary.SJIS);}return super.menuAction(expected,button);
+        // PC1 419310..419379 / PC2 423A4C..423AB5: action0 is right/Esc,
+        // action1 is left/Enter; these are separate from confirmation slots 2/3.
+        if(button<0&&(ui.waiting||hasTimedInput())&&expected==ticket){String action=ui.actions[button==-2?1:0];return action.isEmpty()?null:action.getBytes(Binary.SJIS);}
+        if(button<0)return null;return super.menuAction(expected,button);
     }
-    @Override public void acceptMenuAction(int button)throws IOException{timedInput=false;musicEndAction="";super.acceptMenuAction(button);}
+    @Override public void acceptMenuAction(int button)throws IOException{if(button<0&&!confirming)ui.actions[button==-2?1:0]="";timedInput=false;musicEndAction="";super.acceptMenuAction(button);}
     @Override public int read(int b,int i)throws IOException{
         if(i<0)throw new IOException("Negative PC variable index");
         if(b==100)return at(globals,i);if(b==97)return at(cg,i);if(b==98)return at(seen,i);if(b==95)return second?at(voiceEnabled,i):1;if(b==90)return at(scratch,i);

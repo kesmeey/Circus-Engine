@@ -24,6 +24,7 @@ public final class DesktopLegacy extends DesktopEngine {
     static final class Picture {final Crx.Image raw;final BufferedImage image;Picture(BufferedImage b){raw=new Crx.Image(0,0,b.getWidth(),b.getHeight(),32,new byte[0],null);image=b;}Picture(Crx.Image r){raw=r;image=new BufferedImage(r.width,r.height,BufferedImage.TYPE_INT_ARGB);image.setRGB(0,0,r.width,r.height,r.argb(true),0,r.width);}}
 
     private boolean toolbar;private Dc2Ui.Button dragged;private int dragKind,pressedButton=-1;
+    private String pendingSystemAction;
     private final Dc2NativeData nativeData;
     public DesktopLegacy(CircusResources data,TextCodec codec,boolean audit)throws Exception {
         super(data,codec,audit,PcHost.supports(data.profile)?800:1024,PcHost.supports(data.profile)?600:576);
@@ -41,11 +42,12 @@ public final class DesktopLegacy extends DesktopEngine {
         MesVm.Status status=session.vm.run(1000);if(status==MesVm.Status.FAULT)throw new IOException(session.vm.error());session.observeTransfer();if(h.windowRequest>=0){fullscreenRequested=h.windowRequest!=0;h.windowRequest=-1;}
         session.captureHistory();
         if(!session.inSystem()&&(h.textWaiting||h.presentationWaiting)&&!h.history.entries.isEmpty()){Dc2History.Entry entry=h.history.entries.get(h.history.entries.size()-1);if(entry.scene.length==0){ByteArrayOutputStream b=new ByteArrayOutputStream();h.scene.shown.save(new DataOutputStream(b));entry.scene=b.toByteArray();}}
+        if(openPendingSystem())return;
         if(h.history.rewindRequest>=0){session.rewindHistory(h.history.rewindRequest);auto=rapid=false;}
         if(h.saveRequest>=0){writeSlot(h.saveRequest);h.completeSave();session.vm.elapse(0);}
         if(h.loadRequest>=0)readSlot(h.loadRequest);
         if(h.autosaveGeneration!=savedAutoGeneration&&!session.inSystem()&&h.textWaiting){savedAutoGeneration=h.autosaveGeneration;if(!audit)writeSlot(h instanceof PcHost?0:2);}
-        if(!h.ui.waiting&&(rapid&&h.skipAllowed||(auto||h instanceof PcHost&&h.read(99,13)>=2)&&textClock>autoDelay()&&!h.audioActive[5]))session.vm.signalHost(h.waitTicket(),MesVm.HostSignal.ADVANCE);
+        if(pendingSystemAction==null&&!h.ui.waiting&&(rapid&&h.skipAllowed||(auto||h instanceof PcHost&&h.read(99,13)>=2)&&textClock>autoDelay()&&!h.audioActive[5]))session.vm.signalHost(h.waitTicket(),MesVm.HostSignal.ADVANCE);
     }
     public java.util.List<Dc2Ui.Button> buttons(){Dc2Host h=host();if(h.ui.waiting){java.util.List<Dc2Ui.Button> bs=new ArrayList<>(h.ui.buttons);if(h.gridWaiting)for(int n=0;n<h.grid.size();n++){Dc2Ui.Button b=h.grid.get(n);b.action="@slot:"+n;bs.add(b);}return bs;}return !h.body.isEmpty()&&!hidden?h.ui.buttonTemplates.get(host() instanceof PcHost?(h.messageMode==0?1:4):(toolbar?6:1)):Collections.emptyList();}
     public void scroll(int units)throws IOException{if(host().history.active&&!(host() instanceof PcHost)){host().history.scroll(units);host().historyButtons();return;}if(host() instanceof PcHost){PcHost h=(PcHost)host();if(h.gridWaiting&&h.list.active())h.write(99,246,h.list.clamp(h.read(99,246)+units*h.list.columns,h.grid.size()));}}
@@ -60,7 +62,7 @@ public final class DesktopLegacy extends DesktopEngine {
             if(h instanceof PcHost&&h.history.active&&(b.action.equals(":close")||b.action.equals(":change"))){action(b.action);return;}
             for(Dc2Ui.Quad q:b.sprites)if(q.state==5){int value=(int)Math.round(Math.max(0,Math.min(1,(x-q.x)/(double)Math.max(1,q.y-q.x)))*Math.max(0,q.sx-1));session.vm.variables.write(q.sy,q.width,value);}
             if(b.action.startsWith("@slot:"))session.vm.activateGrid(h.waitTicket(),Integer.parseInt(b.action.substring(6)));else if(h.ui.waiting)session.vm.activateMenu(h.waitTicket(),n);else{h.toolbarSound(b);action(b.action);}return;}}
-        if(timedInput()&&!h.ui.actions[right?1:0].isEmpty()){session.vm.activateMenu(h.waitTicket(),right?-1:-2);return;}
+        if(h instanceof PcHost&&!h.confirming&&(timedInput()||h.ui.waiting)&&!h.ui.actions[right?0:1].isEmpty()){session.vm.activateMenu(h.waitTicket(),right?-1:-2);return;}
         if(right&&h.ui.waiting)session.vm.activateMenu(h.waitTicket(),-1);
         else if(!h.ui.waiting){if(right)action(":menu");else session.vm.signalHost(h.waitTicket(),MesVm.HostSignal.ADVANCE);}
     }
@@ -78,7 +80,7 @@ public final class DesktopLegacy extends DesktopEngine {
     public void action(String a)throws Exception {
         String key=a.toLowerCase(Locale.ROOT);
         if(key.equals(":close")||key.equals(":clear")||key.equals(":change")){hidden=true;return;}
-        if(host() instanceof PcHost&&(key.equals(":up")||key.equals(":backlog"))){if(host().presentationWaiting){vm().signalHost(ticket(),MesVm.HostSignal.TEXT_COMPLETE);vm().run(1000);}session.captureHistory();beginSystemAudio();session.openNativeSystem();((PcHost)host()).openHistory();auto=rapid=false;return;}
+        if(host() instanceof PcHost&&(key.equals(":up")||key.equals(":backlog"))){requestSystem("@history");return;}
         if(host() instanceof PcHost&&key.equals(":down")){vm().signalHost(ticket(),MesVm.HostSignal.ADVANCE);return;}
         if(key.equals(":full")){fullscreenRequested=!fullscreenRequested;return;}
         if(key.equals(":n")){toolbar=!toolbar;host().write(99,227,toolbar?1:0);return;}
@@ -87,8 +89,32 @@ public final class DesktopLegacy extends DesktopEngine {
         if(key.equals(":qsave")||key.equals(":qs")){writeSlot(1);toolbar=false;return;}
         if(key.equals(":qload")||key.equals(":ql")){if(Files.exists(slot(1)))readSlot(1);toolbar=false;return;}
         String script=key.equals(":backlog")?"LOG":key.equals(":torisetu")?"MANUAL":key.equals(":option")&&host() instanceof PcHost?"OPTION":key.equals(":menu")||key.equals(":option")?"ADVMENU":null;
-        if(script!=null){if(host().presentationWaiting){session.vm.signalHost(host().waitTicket(),MesVm.HostSignal.TEXT_COMPLETE);session.vm.run(1000);}session.captureHistory();beginSystemAudio();session.openSystem(script);toolbar=auto=rapid=false;return;}
+        if(script!=null){requestSystem(script);return;}
         throw new IOException("Unimplemented original system action "+a);
+    }
+    /** Input may arrive after ADVANCE releases a wait but before the next tick runs MES. */
+    private void requestSystem(String action)throws IOException {
+        if(session.inSystem())return;
+        auto=rapid=false;
+        // No story toolbar exists during startup, movies or a title transition.
+        if(host().body.isEmpty()&&!host().ui.waiting)return;
+        if(pendingSystemAction==null)pendingSystemAction=action;
+        openPendingSystem();
+    }
+    private boolean openPendingSystem()throws IOException {
+        if(pendingSystemAction==null)return false;
+        if(session.inSystem()||vm().status()==MesVm.Status.HALTED){pendingSystemAction=null;return false;}
+        if(host().presentationWaiting)vm().signalHost(ticket(),MesVm.HostSignal.TEXT_COMPLETE);
+        // Resolve the released wait, but never advance a dialogue or complete media here.
+        if(vm().run(1000)==MesVm.Status.FAULT)throw new IOException(vm().error());
+        if(vm().scriptName().equalsIgnoreCase("MAIN")||vm().scriptName().equalsIgnoreCase("START")){pendingSystemAction=null;return false;}
+        boolean nativeHistory=pendingSystemAction.equals("@history");
+        if(!host().textWaiting&&(nativeHistory||!host().ui.waiting))return false;
+        String action=pendingSystemAction;pendingSystemAction=null;
+        session.captureHistory();beginSystemAudio();
+        if(nativeHistory){session.openNativeSystem();((PcHost)host()).openHistory();}
+        else session.openSystem(action);
+        toolbar=auto=rapid=false;return true;
     }
     public void hover(int x,int y)throws IOException{int old=hovered;hovered=-1;java.util.List<Dc2Ui.Button> bs=buttons();for(int n=0;n<bs.size();n++){Dc2Ui.Button b=bs.get(n);if(x>=b.left&&x<b.right&&y>=b.top&&y<b.bottom)hovered=n;}if(host().ui.waiting)host().hoverMenu(hovered<host().ui.buttons.size()?hovered:-1);else if(old!=hovered&&hovered>=0&&bs.get(hovered).hoverSound!=255)host().play(1,resources.named("sound",bs.get(hovered).hoverSound),false);if(host() instanceof PcHost){Pc2Map m=((PcHost)host()).map;if(m.active&&m.selected<0){m.hovered=-1;for(int n=0;n<m.regions().length;n++){int[] r=m.regions()[n];if(x>=r[0]&&x<r[2]&&y>=r[1]&&y<r[3])m.hovered=n;}}}}
     public java.util.List<Control> controls(){java.util.List<Control> out=new ArrayList<>();for(Dc2Ui.Button b:buttons())if(!b.action.isEmpty())out.add(new Control(b.action,b.left,b.top,b.right,b.bottom));if(host() instanceof PcHost&&((PcHost)host()).nameInput.active){PcNameInput name=((PcHost)host()).nameInput;if(name.confirming)return out;for(int n=0;n<8;n++){int x=336+(n/4)*192+(n%4)*32;out.add(new Control("@name:field:"+n,x,40,x+32,72));}java.util.List<String> rows=name.visibleRows();for(int r=0;r<rows.size();r++)for(int c=0;c<Math.min(17,rows.get(r).length());c++){int x=280+c*24,y=96+r*24+(r>=4?8:0);if(rows.get(r).charAt(c)!='　')out.add(new Control("@name:char:"+(r*17+c),x,y,x+24,y+24));}}return out;}
@@ -114,7 +140,7 @@ public final class DesktopLegacy extends DesktopEngine {
     public int pan(int ch){return ch==5?host().voicePan:0;}
     public float volume(int ch)throws IOException{int enabled=ch==0?14:ch==5?5:15,level=ch==0?7:ch==5?9:8;return host().read(99,enabled)==0?0:(ch==0?host().musicFadeGain():ch==5?host().voiceGain():1)*Math.max(0,Math.min(1,host().read(99,level)/30f));}
     public byte[] snapshot()throws IOException{return session.storySnapshot();}
-    public void restore(byte[] bytes)throws IOException{cancelPointer();session.restore(bytes);host().ui.pressed=-1;savedAutoGeneration=host().autosaveGeneration;textTicket=-1;hidden=toolbar=false;scanSaves();}
+    public void restore(byte[] bytes)throws IOException{cancelPointer();session.restore(bytes);host().ui.pressed=-1;savedAutoGeneration=host().autosaveGeneration;textTicket=-1;hidden=toolbar=auto=rapid=false;pendingSystemAction=null;scanSaves();}
     private Path slot(int n)throws IOException{if(n<0||n>255)throw new IOException("Invalid save slot "+n);return saveDirectory.resolve("slot-"+n+".sav");}
     private void writeSlot(int n)throws IOException{save(slot(n));scanSaves();persist();}
     private void readSlot(int n)throws IOException{restore(slot(n));}

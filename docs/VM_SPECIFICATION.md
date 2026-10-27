@@ -416,8 +416,8 @@ EXE: `dc2pc.EXE`；SHA-256: `f0b3be701f3c8c94dad143db927d824d398325be57a5da75145
 | 0x38 | string | 0x0041ED71 | pc.movie | partial_binding | 需继续核对参数及宿主副作用。 |
 | 0x39 | string | 0x0041EDCE | pc.external | unimplemented | 原宿主外部程序操作；本兼容层未执行，也没有通用 NOP 兜底。 |
 | 0x3A | string | 0x0041EF50 | jump.named_required | partial_binding | 从代码起点按原生规则扫描标签；兼容层对缺失标签报错。 |
-| 0x3B | string | 0x0041EEFE | pc.action0 | partial_binding | 需继续核对参数及宿主副作用。 |
-| 0x3C | string | 0x0041EF27 | pc.action1 | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x3B | string | 0x0041EEFE | pc.action0 | partial_binding | 原始标签绑定到右键/Esc；PC1 414F1E 写 9D95DC，419310..419379 消费；PC2 41EEFE 写 B0B6F0，423A4C..423AB5 消费。接受跳转后清空该绑定。 |
+| 0x3C | string | 0x0041EF27 | pc.action1 | partial_binding | 原始标签绑定到左键/Enter；PC1 9D95FC / PC2 B0B710。与右键槽独立，确认框另用 action2/action3。 |
 | 0x3D | string | 0x0041CEAD | dm.ui.button_voice | partial_binding | 需继续核对参数及宿主副作用。 |
 | 0x3E | string | 0x0041CED4 | pc.button_hover_voice | partial_binding | 需继续核对参数及宿主副作用。 |
 | 0x3F | string | 0x0041EE6B | pc.action2 | partial_binding | 需继续核对参数及宿主副作用。 |
@@ -531,8 +531,8 @@ EXE: `DCPCDVD.EXE`；SHA-256: `5f84e2fdd6f442509fd0e6a00ff8aa20f5c23b0afc43c811b
 | 0x39 | string | 0x00414D8D | pc.movie | partial_binding | 需继续核对参数及宿主副作用。 |
 | 0x3A | string | 0x00414DEA | pc.external | unimplemented | 原宿主外部程序操作；本兼容层未执行，也没有通用 NOP 兜底。 |
 | 0x3B | string | 0x00414F70 | jump.named_required | partial_binding | 从代码起点按原生规则扫描标签；兼容层对缺失标签报错。 |
-| 0x3C | string | 0x00414F1E | pc.action0 | partial_binding | 需继续核对参数及宿主副作用。 |
-| 0x3D | string | 0x00414F47 | pc.action1 | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x3C | string | 0x00414F1E | pc.action0 | partial_binding | 原始标签绑定到右键/Esc；PC1 414F1E 写 9D95DC，419310..419379 消费；PC2 41EEFE 写 B0B6F0，423A4C..423AB5 消费。接受跳转后清空该绑定。 |
+| 0x3D | string | 0x00414F47 | pc.action1 | partial_binding | 原始标签绑定到左键/Enter；PC1 9D95FC / PC2 B0B710。与右键槽独立，确认框另用 action2/action3。 |
 | 0x3E | string | 0x00412F05 | dm.ui.button_voice | partial_binding | 需继续核对参数及宿主副作用。 |
 | 0x3F | string | 0x00412F54 | pc.button_hover_voice | partial_binding | 需继续核对参数及宿主副作用。 |
 | 0x40 | string | 0x00414E87 | pc.action2 | partial_binding | 需继续核对参数及宿主副作用。 |

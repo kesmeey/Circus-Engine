@@ -21,7 +21,7 @@ def main():
     p.add_argument('--games', nargs='+', choices=GAMES, default=list(GAMES))
     p.add_argument('--no-core', action='store_true')
     p.add_argument('--upgrade', action='store_true', help='Use normal app saves, not the audit namespace')
-    p.add_argument('--out', type=Path, default=ROOT/'build/android/verification-012')
+    p.add_argument('--out', type=Path, default=ROOT/'build/android/verification-013')
     a = p.parse_args()
     adb = [str(Path.home()/'.cache/ethornell-android/sdk/platform-tools/adb.exe'), '-s', a.serial]
     a.out.mkdir(parents=True, exist_ok=True)
@@ -55,7 +55,7 @@ def main():
     result = {'apk_sha256': hashlib.sha256(apk.read_bytes()).hexdigest(), 'serial': a.serial,
               'android': run('shell', 'getprop', 'ro.build.version.release').decode().strip(),
               'upgrade': a.upgrade, 'results': results, 'windows_game_executed': False,
-              'scope': 'Original title, 12 dialogue advances, native name input (PC1), save pixels, backlog, original save grid, real audio start. Not a full-route Android certification.'}
+              'scope': 'Original title, 12 dialogue advances, native name input (PC1), save pixels, backlog, original save grid, real audio start; DM/PC1/PC2 rapid menu/backlog and Android Back. Not a full-route Android certification.'}
     (a.out/('result-'+('-'.join(a.games))+('-upgrade' if a.upgrade else '')+'.json')).write_text(json.dumps(result, indent=2)+'\n', encoding='utf-8')
     if not all(v if isinstance(v, bool) else v['pass'] for v in results.values()): raise SystemExit(1)
 

@@ -73,7 +73,21 @@ public final class PcCompatibilityTests {
         check(Crx.plain(aligned,true).width==3,"Legacy CRX accepts exact zero row-alignment allocation");
         reject(()->Crx.plain(alignedCrx(13,0),true),"Legacy CRX rejects arbitrary zero excess");
         reject(()->Crx.plain(alignedCrx(12,1),true),"Legacy CRX rejects nonzero alignment tail");
+        inputBindings(files,one);inputBindings(files,two);
         return count;
+    }
+    private static void inputBindings(GameResources files,Profile profile)throws Exception {
+        CircusResources data=new CircusResources(files,profile);
+        for(boolean timed:new boolean[]{false,true})for(int button:new int[]{-1,-2}){
+            PcHost h=new PcHost(data,TextCodec.identity());int label=profile.id.equals("dcpc-2063")?0x32:0x35;
+            byte[] code=script(profile.version,(byte)label,(byte)'x',(byte)0,(byte)label,(byte)'r',(byte)0,(byte)0,(byte)0,(byte)0);
+            MesVm vm=new MesVm(n->new MesScript(n,code,profile),h,"input");
+            h.command(timed?"pc.wait":"pc.ui.wait",new int[]{0,0},new byte[0]);h.ui.actions[0]=button==-1?"r":"missing";h.ui.actions[1]=button==-2?"r":"missing";h.ui.actions[3]="wrong";
+            check(vm.run(10)==MesVm.Status.WAIT_HOST&&!vm.activateMenu(h.waitTicket()-1,button),"PC input rejects stale ticket");
+            check(vm.activateMenu(h.waitTicket(),button)&&vm.offset()==9&&h.ui.actions[button==-1?0:1].isEmpty()&&h.ui.actions[button==-1?1:0].equals("missing"),"PC original input resolves correct label and consumes only its binding");
+        }
+        PcHost h=new PcHost(data,TextCodec.identity());h.ui.waiting=h.confirming=true;h.ui.actions[0]="right";h.ui.actions[3]="cancel";
+        check(new String(h.menuAction(h.waitTicket(),-1),Binary.SJIS).equals("cancel"),"PC confirmation keeps independent cancel binding");h.acceptMenuAction(-1);check(h.ui.actions[0].equals("right"),"Confirmation does not consume normal right binding");
     }
     private static byte[] alignedCrx(int tail,int value)throws Exception{
         byte[] header=new byte[20];header[0]='C';header[1]='R';header[2]='X';header[3]='G';header[8]=3;header[10]=4;header[12]=2;

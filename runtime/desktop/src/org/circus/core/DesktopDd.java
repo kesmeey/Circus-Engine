@@ -15,12 +15,13 @@ public final class DesktopDd extends DesktopEngine {
     private long textTicket=-1,textClock;private int hovered=-1;
     private int historyHover=-1;private int savedAutoGeneration;private Dc3Ui.Button dragged;private int dragKind,pressedControl=-1;
     private byte[] caller;
+    private long savedProgressRevision;
     private final Dc3NativeData nativeData;
     private final DesktopTransitionMask transitionMask=new DesktopTransitionMask();
     private BufferedImage transitionFrame;
     private final Map<String,Picture> pictures=new LinkedHashMap<String,Picture>(32,.75f,true){protected boolean removeEldestEntry(Map.Entry<String,Picture> e){return size()>48;}};
     private static final class Picture {final Crx.Image raw;final BufferedImage image,opaque;Picture(BufferedImage b){raw=new Crx.Image(0,0,b.getWidth(),b.getHeight(),32,new byte[0],null);image=opaque=b;}Picture(Crx.Image r){raw=r;image=new BufferedImage(r.width,r.height,BufferedImage.TYPE_INT_ARGB);image.setRGB(0,0,r.width,r.height,r.argb(true),0,r.width);opaque=new BufferedImage(r.width,r.height,BufferedImage.TYPE_INT_ARGB);opaque.setRGB(0,0,r.width,r.height,r.argb(),0,r.width);}}
-    public DesktopDd(CircusResources r,TextCodec c,boolean audit)throws IOException{super(r,c,audit,1024,576);nativeData=new Dc3NativeData(r,c);host=new Dc3Host(r,c,true);host.settingsLoader=this::reloadSettings;captures=new DesktopCaptures(width,height,this::drawCapture);host.captureRenderer=captures;vm=new MesVm(r.scripts(),host,"START");Path p=saveDirectory.resolve("progress.dat");if(!audit&&Files.exists(p))loadProgress(host.state,Files.readAllBytes(p));scanSaves();}
+    public DesktopDd(CircusResources r,TextCodec c,boolean audit)throws IOException{super(r,c,audit,1024,576);nativeData=new Dc3NativeData(r,c);host=new Dc3Host(r,c,true);host.settingsLoader=this::reloadSettings;captures=new DesktopCaptures(width,height,this::drawCapture);host.captureRenderer=captures;vm=new MesVm(r.scripts(),host,"START");Path p=saveDirectory.resolve("progress.dat");if(!audit&&Files.exists(p))loadProgress(host.state,Files.readAllBytes(p));if(!audit)recoverGallerySaves();savedProgressRevision=host.state.progressRevision;scanSaves();}
     public MesVm vm(){return vm;}
     public void tick(long elapsed)throws Exception{
         host.fullscreen=fullscreenRequested;vm.elapse(elapsed);
@@ -34,6 +35,7 @@ public final class DesktopDd extends DesktopEngine {
         if(host.loadRequest>=0){restore(slot(host.loadRequest));caller=null;}
         if(caller!=null&&vm.scriptName().equalsIgnoreCase("MAIN"))caller=null;
         if(host.autosaveGeneration!=savedAutoGeneration&&caller==null&&textWaiting()){savedAutoGeneration=host.autosaveGeneration;if(!audit){save(slot(2));scanSaves();persist();}}
+        if(host.state.progressRevision!=savedProgressRevision)persist();
     }
     public List<Control> controls(){List<Control> r=new ArrayList<>();if(host.ui.waiting){for(Dc3Ui.Button b:host.ui.current.buttons)if(!b.action.isEmpty())r.add(new Control(b.action,b.left,b.top,b.right,b.bottom));if(host.ui.gridWaiting)for(int n=0;n<host.ui.grid.size();n++){Dc3Ui.Button b=host.ui.grid.get(n);r.add(new Control("@slot:"+n,b.left,b.top,b.right,b.bottom));}}
         else if(host.choosing()){Dc3Ui.Panel p=host.ui.templates[11];if(p!=null)for(int n=0;n<host.choices().size()&&n+1<p.buttons.size();n++){Dc3Ui.Button b=p.buttons.get(n+1);r.add(new Control("@choice:"+n,b.left,b.top,b.right,b.bottom));}}
@@ -167,9 +169,25 @@ public final class DesktopDd extends DesktopEngine {
     public float volume(int ch)throws IOException{return (host.read(99,203)==0?0:Math.max(0,Math.min(1,host.read(99,225)/100f)))*(ch==0?host.musicGain:ch==5?host.voiceGain():1)*Math.max(0,Math.min(1,host.read(99,ch==0?7:ch==5?9:8)/100f))*(host.read(99,ch==0?14:ch==5?5:15)==0?0:1);}
     private Path slot(int n)throws IOException{if(n<0||n>255)throw new IOException("Invalid DD save slot "+n);return saveDirectory.resolve("slot-"+n+".sav");}
     public byte[] snapshot()throws IOException{return caller==null?vm.snapshot():caller.clone();}
-    public void restore(byte[] bytes)throws IOException{cancelPointer();Dc3Host h=new Dc3Host(resources,codec,true);MesVm m=new MesVm(resources.scripts(),h,"START");m.restore(bytes);h.state.restoreSettings(host.state.settingsSnapshot());clearTransitionBuffers();host=h;host.settingsLoader=this::reloadSettings;host.captureRenderer=captures;vm=m;host.ui.pressed=-1;savedAutoGeneration=h.autosaveGeneration;textTicket=-1;historyHover=-1;hidden=false;caller=null;scanSaves();}
+    public void restore(byte[] bytes)throws IOException{cancelPointer();Dc3Host h=new Dc3Host(resources,codec,true);MesVm m=new MesVm(resources.scripts(),h,"START");m.restore(bytes);h.gallery.recover(h);Dc3State globals=new Dc3State(true);globals.restoreSettings(host.state.settingsSnapshot());globals.mergeGallery(h.state);h.state.restoreSettings(globals.settingsSnapshot());clearTransitionBuffers();host=h;host.settingsLoader=this::reloadSettings;host.captureRenderer=captures;vm=m;host.ui.pressed=-1;savedAutoGeneration=h.autosaveGeneration;textTicket=-1;historyHover=-1;hidden=false;caller=null;scanSaves();persist();}
     private void reloadSettings(Dc3State state)throws IOException{Path p=saveDirectory.resolve("progress.dat");if(!audit&&Files.exists(p))loadProgress(state,Files.readAllBytes(p));else state.restoreSettings(new Dc3State(true).settingsSnapshot());}
     private void loadProgress(Dc3State state,byte[] bytes)throws IOException{DataInputStream in=new DataInputStream(new ByteArrayInputStream(bytes));if(bytes.length>4&&in.readInt()==0x44445032){byte[] data=new byte[bytes.length-4];in.readFully(data);state.restoreSettings(data);}else{state.restoreSettings(bytes);state.migrateLegacyAudio();}}
     public String saveCaption(){return host.checkpointLabel().isEmpty()?body():codec.apply(host.checkpointLabel());}
-    public void persist()throws IOException{if(!audit){ByteArrayOutputStream b=new ByteArrayOutputStream();new DataOutputStream(b).writeInt(0x44445032);b.write(host.state.settingsSnapshot());atomic(saveDirectory.resolve("progress.dat"),b.toByteArray());}}
+    public void persist()throws IOException{if(!audit){ByteArrayOutputStream b=new ByteArrayOutputStream();new DataOutputStream(b).writeInt(0x44445032);b.write(host.state.settingsSnapshot());atomic(saveDirectory.resolve("progress.dat"),b.toByteArray());}savedProgressRevision=host.state.progressRevision;}
+    private void recoverGallerySaves()throws IOException{
+        Path marker=saveDirectory.resolve("gallery-recovery-v1.txt");if(Files.exists(marker))return;
+        StringBuilder report=new StringBuilder("Recover retained CG frames and completed script transitions only. Original saves are unchanged.\n");
+        List<Path> paths=new ArrayList<>();for(int slot=0;slot<256;slot++)paths.add(slot(slot));paths.add(saveDirectory.resolve("mobile-resume.sav"));
+        if(paths.stream().noneMatch(Files::isRegularFile))return; // Let the older Android importer create its settings first.
+        for(Path path:paths)if(Files.isRegularFile(path)){
+            try{
+                if(Files.size(path)>64*1024*1024)throw new IOException("Save size limit");
+                DesktopSave saved=DesktopSave.decode(Files.readAllBytes(path));Dc3Host prior=new Dc3Host(resources,codec,true);
+                new MesVm(resources.scripts(),prior,"START").restore(saved.state);prior.gallery.recover(prior);host.state.mergeGallery(prior.state);
+                report.append("Recovered ").append(path.getFileName()).append('\n');
+            }catch(IOException ex){report.append("Skipped ").append(path.getFileName()).append(": ").append(ex.getMessage()).append('\n');}
+        }
+        // Commit merged flags before the marker. Interrupted migration can safely run again.
+        persist();atomic(marker,report.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
 }

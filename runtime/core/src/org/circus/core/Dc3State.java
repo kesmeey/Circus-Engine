@@ -8,6 +8,8 @@ public final class Dc3State implements Variables.Special {
     private final int[] b99=new int[256],b93=new int[20],b94=new int[51],b95=new int[51];
     public final int[] musicFavorites=new int[400];
     public int voiceCount;
+    /** Runtime-only gallery/route-clear dirty counter; old serialized layouts remain unchanged. */
+    public long progressRevision;
     public Dc3State(){this(false);}
     public Dc3State(boolean originalSystem){
         // The original-system host uses 40ED10's initial preference table.
@@ -38,7 +40,7 @@ public final class Dc3State implements Variables.Special {
         return Dc3StateRules.READ[i]==0?0:b99[i];
     }
     public void write(int b,int i,int value)throws IOException {
-        byte[] bytes=bank(b);if(bytes!=null){if(i<0||i>=bytes.length)return;if(b==100&&i==49)write(99,11,value);bytes[i]=(byte)value;return;}
+        byte[] bytes=bank(b);if(bytes!=null){if(i<0||i>=bytes.length)return;if(b==100&&i==49)write(99,11,value);if(bytes[i]!=(byte)value&&(b==97||b==98||b==100&&i>=100&&i<=110))progressRevision++;bytes[i]=(byte)value;return;}
         if(b==93){if(i>=0&&i<20)b93[i]=value;return;}
         if(b==94||b==95){if(i==50||(i>=0&&i<voiceCount))(b==94?b94:b95)[i]=b==94?Math.min(value,100):value;return;}
         if(b!=99)return;index(i,256);
@@ -60,6 +62,10 @@ public final class Dc3State implements Variables.Special {
     public void save(DataOutput out)throws IOException {
         out.writeInt(voiceCount);for(byte[] b:new byte[][]{b100,b96,b97,b98})out.write(b);
         for(int[] b:new int[][]{b99,b93,b94,b95})for(int v:b)out.writeInt(v);
+    }
+    /** Loading an older story must not roll back gallery progress or current preferences. */
+    public void mergeGallery(Dc3State other)throws IOException{
+        for(int bank:new int[]{97,98}){byte[] source=other.bank(bank),target=bank(bank);for(int i=0;i<source.length;i++)if(target[i]==0&&source[i]!=0)write(bank,i,source[i]&255);}
     }
     /** Projection of native [state, state+0x4b74): excludes ordinary variables and live UI state. */
     public byte[] settingsSnapshot()throws IOException {

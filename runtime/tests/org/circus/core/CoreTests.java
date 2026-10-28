@@ -237,6 +237,7 @@ public final class CoreTests {
         check(reloading.read(97,14)==1&&reloading.read(94,50)==22&&transientVars.read(3,12)==77,"persist 26 retains progress and voice preferences without replacing ordinary variables");
         reloading.settingsLoader=target->{throw new IOException("unreadable settings");};reject(()->reloading.command("system.persist",new int[]{26,0},new byte[0]),"persist 26 storage failure is not ignored");
         assertions+=ResourceSelectionTest.run();
+        assertions+=DdGalleryTests.run();
         return "PASS "+assertions+" assertions; self-authored fixtures; DD choices/flow/original UI/animation/macros, WY bindings, DM memory/control and collection detection; archives, CRX/CRXD, audio, save integrity";
     }
     public static void main(String[] args)throws Exception{Path root=Paths.get(args[0]);System.out.println(run(name->Files.readAllBytes(root.resolve(name))));}

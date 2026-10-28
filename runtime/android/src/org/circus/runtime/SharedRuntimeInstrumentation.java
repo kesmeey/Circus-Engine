@@ -13,8 +13,8 @@ import org.circus.graphics.BufferedImage;
 
 /** Exercise the shipping Android activity through SAF and real touch events. */
 public final class SharedRuntimeInstrumentation extends Instrumentation {
-    private RuntimeActivity activity;private String tree;private boolean audit=true,sequence,opening,inputRegression,overlayRegression,transitionRegression,petalRegression,petalReplay;private File output;private int checks;private final StringBuilder log=new StringBuilder();
-    public void onCreate(Bundle args){super.onCreate(args);tree=args.getString("tree");audit=!"false".equals(args.getString("audit"));sequence="true".equals(args.getString("sequence"));opening="true".equals(args.getString("opening"));inputRegression="true".equals(args.getString("inputRegression"));overlayRegression="true".equals(args.getString("overlayRegression"));transitionRegression="true".equals(args.getString("transitionRegression"));petalRegression="true".equals(args.getString("petalRegression"));petalReplay="true".equals(args.getString("petalReplay"));start();}
+    private RuntimeActivity activity;private String tree;private boolean audit=true,sequence,opening,inputRegression,overlayRegression,transitionRegression,petalRegression,petalReplay,galleryRegression;private File output;private int checks;private final StringBuilder log=new StringBuilder();
+    public void onCreate(Bundle args){super.onCreate(args);tree=args.getString("tree");audit=!"false".equals(args.getString("audit"));sequence="true".equals(args.getString("sequence"));opening="true".equals(args.getString("opening"));inputRegression="true".equals(args.getString("inputRegression"));overlayRegression="true".equals(args.getString("overlayRegression"));transitionRegression="true".equals(args.getString("transitionRegression"));petalRegression="true".equals(args.getString("petalRegression"));petalReplay="true".equals(args.getString("petalReplay"));galleryRegression="true".equals(args.getString("galleryRegression"));start();}
     interface Job<T>{T run(DesktopEngine e)throws Exception;}
     private <T>T call(Job<T> job)throws Exception {if(activity.failed)throw new IOException(activity.error);return activity.worker.submit(()->{if(activity.engine==null)throw new IOException("Engine not ready");return job.run(activity.engine);}).get(60,TimeUnit.SECONDS);}
     private void check(boolean value,String detail)throws IOException{if(!value)throw new IOException(detail);checks++;log.append("PASS ").append(detail).append('\n');}
@@ -28,6 +28,7 @@ public final class SharedRuntimeInstrumentation extends Instrumentation {
         check(title,"original START reaches title");Thread.sleep(800);capture("01-title");
         if(transitionRegression){transitionRegression();result.putString("stream",log.toString());finish(-1,result);return;}
         if(petalRegression){petalRegression();result.putString("stream",log.toString());finish(-1,result);return;}
+        if(galleryRegression){log.append(this.<String>call(e->new DdGalleryAudit((DesktopDd)e).run(output.toPath().resolve("gallery-regression"))));result.putString("stream",log.toString());finish(-1,result);return;}
         if(profile.equals("dcpc-2063")){tap("name");waitMenu();check(call(e->e.editingText()),"original name editor opens");tap("@name:field:4");call(e->{e.typeText("测试");return null;});tap("@name:button:7");capture("00-name-confirm");tap("@name:yes");waitMenu();check(call(e->((PcHost)((DesktopLegacy)e).host()).givenName.equals("测试")),"name confirmation uses shared host");}
         tap(actions().contains("sce_start")?"sce_start":"start");waitText();capture("02-first-dialogue");
         if(overlayRegression){overlayRegression();result.putString("stream",log.toString());finish(-1,result);return;}

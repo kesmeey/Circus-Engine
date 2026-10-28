@@ -40,6 +40,7 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
     public final Dc3Performance performance=new Dc3Performance();
     public final Dc3Credits credits=new Dc3Credits();public boolean titleRequested,exitRequested;
     public final CircusResources resources;
+    public final Dc3Gallery gallery;
     public final String[] audio={"","","","","",""};
     public final int[] audioGeneration=new int[6];
     public final boolean[] audioLoop=new boolean[6];
@@ -57,7 +58,7 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
     public int movieGeneration;
     public int autosaveGeneration;
     public Dc3Host(CircusResources resources,TextCodec codec){this(resources,codec,false);}
-    public Dc3Host(CircusResources resources,TextCodec codec,boolean originalSystem){if(resources!=null&&!resources.profile.id.equals("dc3dd-a5a8"))throw new IllegalArgumentException("DD host cannot execute "+resources.profile.id);this.resources=resources;this.originalSystem=originalSystem;state=new Dc3State(originalSystem);dialogue=new DialogueHost(codec);dialogue.familyName="朝倉";dialogue.givenName="清隆";}
+    public Dc3Host(CircusResources resources,TextCodec codec,boolean originalSystem){if(resources!=null&&!resources.profile.id.equals("dc3dd-a5a8"))throw new IllegalArgumentException("DD host cannot execute "+resources.profile.id);this.resources=resources;gallery=new Dc3Gallery(resources);this.originalSystem=originalSystem;state=new Dc3State(originalSystem);dialogue=new DialogueHost(codec);dialogue.familyName="朝倉";dialogue.givenName="清隆";}
     public String checkpointLabel(){return checkpointLabel;}
     public void attach(Variables variables){this.variables=variables;}
     public void position(MesScript script,int pc){scriptName=script.name;scriptOffset=pc;}
@@ -89,8 +90,8 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
         if(signal==MesVm.HostSignal.ADVANCE){performance.elapse(86400000,scene,this::perform);scene.published=scene.capture();}
         boolean accepted=dialogue.signal(dialogue.waitTicket(),signal);syncDialogue();return accepted;
     }
-    private void publish(){
-        scene.publish();publishAudio();
+    private void publish()throws IOException{
+        scene.publish();gallery.image(state,scene.slots[1].resource);publishAudio();
     }
     private int voiceIndex(String resource){String suffix=resource.substring(resource.lastIndexOf('_')+1);for(int n=0;n<ui.voiceNames.size();n++)if(suffix.regionMatches(true,0,ui.voiceNames.get(n),0,ui.voiceNames.get(n).length()))return n;return 50;}
     private boolean systemVoice(String resource){return resource.replace('/', '\\').toLowerCase(Locale.ROOT).startsWith("voice\\system");}
@@ -108,6 +109,8 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
     public boolean beforeTransfer(int mode,String name)throws IOException {
         // Native 427620 clears selection results; ordinary variables survive.
         if(mode!=0&&!(originalSystem&&mode==1))throw new IOException("Alternate script transfer reset is not implemented");
+        // 430896 / 43096E mark the outgoing scenario before 4277C0 loads its successor.
+        gallery.completedScript(state,scriptName);
         publish();if(mode==0)scene.resetForTransfer();if(originalSystem){ui.clear();list.clear();musicRoom.caption=false;musicEndAction="";}state.write(99,245,-1);imageTone=0;return true;
     }
     public byte[] pollMenuAction(){if(ui.waiting&&!audioActive[0]&&!musicEndAction.isEmpty()&&musicPollElapsed>500){byte[] a=musicEndAction.getBytes(Binary.SJIS);musicPollElapsed=0;ui.waiting=ui.gridWaiting=false;return a;}return null;}
@@ -253,7 +256,8 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
         }
         case "scene.background":{
             String name=text(bytes);scene.quads.clear();if(name.startsWith(":n")){scene.novelMode=true;return true;}if(name.startsWith(":r")){scene.novelMode=false;return true;}
-            if(name.equals("--")){require(systemScene!=null,"background restore");return true;} // Reuse the caller image queued by 3A.
+            if(name.equals("--")){require(systemScene!=null,"background restore");gallery.image(state,systemScene.layers[1].resource);return true;} // Reuse the caller image queued by 3A.
+            gallery.image(state,name); // 42D3C6 -> 40EDC0, exact NAMES entry; preloading alone does not unlock.
             for(int s=4;s<=13;s++)scene.slots[s].resource="";scene.slots[24].resource="";
             return true;
         }

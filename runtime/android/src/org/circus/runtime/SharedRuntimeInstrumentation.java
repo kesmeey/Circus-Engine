@@ -13,8 +13,8 @@ import org.circus.graphics.BufferedImage;
 
 /** Exercise the shipping Android activity through SAF and real touch events. */
 public final class SharedRuntimeInstrumentation extends Instrumentation {
-    private RuntimeActivity activity;private String tree;private boolean audit=true,sequence,opening,inputRegression,overlayRegression,transitionRegression;private File output;private int checks;private final StringBuilder log=new StringBuilder();
-    public void onCreate(Bundle args){super.onCreate(args);tree=args.getString("tree");audit=!"false".equals(args.getString("audit"));sequence="true".equals(args.getString("sequence"));opening="true".equals(args.getString("opening"));inputRegression="true".equals(args.getString("inputRegression"));overlayRegression="true".equals(args.getString("overlayRegression"));transitionRegression="true".equals(args.getString("transitionRegression"));start();}
+    private RuntimeActivity activity;private String tree;private boolean audit=true,sequence,opening,inputRegression,overlayRegression,transitionRegression,petalRegression,petalReplay;private File output;private int checks;private final StringBuilder log=new StringBuilder();
+    public void onCreate(Bundle args){super.onCreate(args);tree=args.getString("tree");audit=!"false".equals(args.getString("audit"));sequence="true".equals(args.getString("sequence"));opening="true".equals(args.getString("opening"));inputRegression="true".equals(args.getString("inputRegression"));overlayRegression="true".equals(args.getString("overlayRegression"));transitionRegression="true".equals(args.getString("transitionRegression"));petalRegression="true".equals(args.getString("petalRegression"));petalReplay="true".equals(args.getString("petalReplay"));start();}
     interface Job<T>{T run(DesktopEngine e)throws Exception;}
     private <T>T call(Job<T> job)throws Exception {if(activity.failed)throw new IOException(activity.error);return activity.worker.submit(()->{if(activity.engine==null)throw new IOException("Engine not ready");return job.run(activity.engine);}).get(60,TimeUnit.SECONDS);}
     private void check(boolean value,String detail)throws IOException{if(!value)throw new IOException(detail);checks++;log.append("PASS ").append(detail).append('\n');}
@@ -27,6 +27,7 @@ public final class SharedRuntimeInstrumentation extends Instrumentation {
         boolean title=false;end=SystemClock.uptimeMillis()+90000;while(SystemClock.uptimeMillis()<end){List<String> a=actions();if(a.contains("start")||a.contains("sce_start")){title=true;break;}if(a.contains("window"))tap("window");else if(a.contains("03"))tap("03");else touch(.5f,.35f);Thread.sleep(300);}
         check(title,"original START reaches title");Thread.sleep(800);capture("01-title");
         if(transitionRegression){transitionRegression();result.putString("stream",log.toString());finish(-1,result);return;}
+        if(petalRegression){petalRegression();result.putString("stream",log.toString());finish(-1,result);return;}
         if(profile.equals("dcpc-2063")){tap("name");waitMenu();check(call(e->e.editingText()),"original name editor opens");tap("@name:field:4");call(e->{e.typeText("测试");return null;});tap("@name:button:7");capture("00-name-confirm");tap("@name:yes");waitMenu();check(call(e->((PcHost)((DesktopLegacy)e).host()).givenName.equals("测试")),"name confirmation uses shared host");}
         tap(actions().contains("sce_start")?"sce_start":"start");waitText();capture("02-first-dialogue");
         if(overlayRegression){overlayRegression();result.putString("stream",log.toString());finish(-1,result);return;}
@@ -45,6 +46,24 @@ public final class SharedRuntimeInstrumentation extends Instrumentation {
         Files.write(output.toPath().resolve("result.txt"),log.toString().getBytes("UTF-8"));result.putString("stream",log.toString());finish(-1,result);
     }catch(Throwable e){log.append("FAIL ").append(e).append('\n');try{if(activity!=null&&activity.engine!=null)log.append(this.<String>call(v->v.vm().scriptName()+"@"+Integer.toHexString(v.vm().offset())+" "+v.vm().status()+" actions="+actionsUnsafe(v))).append('\n');}catch(Exception ignored){}try{if(output!=null)Files.write(output.toPath().resolve("result.txt"),log.toString().getBytes("UTF-8"));}catch(Exception ignored){}result.putString("stream",log.toString());finish(0,result);}finally{if(activity!=null)runOnMainSync(()->activity.finish());}}
     private static List<String> actionsUnsafe(DesktopEngine e){List<String>a=new ArrayList<>();for(DesktopEngine.Control c:e.controls())a.add(c.action);return a;}
+    private void petalRegression()throws Exception {
+        log.append(this.<String>call(e->new DdPetalAudit((DesktopDd)e).run(output.toPath().resolve("petal-regression"),petalReplay)));
+        Thread.sleep(1000);List<Long> frames=new ArrayList<>();
+        runOnMainSync(()->activity.stage.presentationObserver=frames::add);
+        try{Thread.sleep(5000);}finally{runOnMainSync(()->activity.stage.presentationObserver=null);}
+        check(frames.size()>5,"continuous Android presentation with petals");
+        long[] gaps=new long[frames.size()-1];for(int n=1;n<frames.size();n++)gaps[n-1]=frames.get(n)-frames.get(n-1);Arrays.sort(gaps);
+        double fps=(frames.size()-1)*1e9/(frames.get(frames.size()-1)-frames.get(0));
+        String pacing="PRESENT_FPS "+fps+" MEDIAN_GAP_MS "+gaps[gaps.length/2]/1e6+" P95_GAP_MS "+gaps[(int)Math.ceil(gaps.length*.95)-1]/1e6;
+        log.append(pacing).append('\n');capture("16-petals");check(!activity.failed,"no Android petal scene failure");
+        runOnMainSync(()->callActivityOnPause(activity));Thread.sleep(150);
+        long pausedTime=call(e->((DesktopDd)e).host.scene.environmentTime);Thread.sleep(350);
+        check(call(e->((DesktopDd)e).host.scene.environmentTime)==pausedTime,"backgrounding freezes animation clock");
+        List<Long> resumed=new ArrayList<>();runOnMainSync(()->{activity.stage.presentationObserver=resumed::add;callActivityOnResume(activity);});
+        try{Thread.sleep(1000);}finally{runOnMainSync(()->activity.stage.presentationObserver=null);}
+        check(resumed.size()>5&&call(e->e.body().contains("较真地")),"resume restarts presentation at the same dialogue");
+        log.append("ANDROID PETALS PASS CHECKS ").append(checks).append('\n');Files.write(output.toPath().resolve("android-petal-result.txt"),log.toString().getBytes("UTF-8"));
+    }
     private void transitionRegression()throws Exception {
         log.append(this.<String>call(e->new DdTransitionAudit((DesktopDd)e).run(output.toPath().resolve("transition-regression"))));
         Thread.sleep(800);capture("15-after-eyelids");

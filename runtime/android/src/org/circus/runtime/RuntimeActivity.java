@@ -28,11 +28,13 @@ public final class RuntimeActivity extends Activity {
     private int movieGeneration=-1;private volatile int movieToken;private volatile NativeMovie movie;private Dialog movieDialog;private File movieFile;
     private String tree;private boolean resume;private boolean audit;
     NativeMovie activeMovie(){return movie;}
-    private final Runnable frame=new Runnable(){public void run(){if(!active||closed||failed)return;if(!busy&&engine!=null){busy=true;worker.execute(()->{try{
-        updatePositions();long now=SystemClock.uptimeMillis();engine.tick(Math.min(100,Math.max(0,now-lastTick)));lastTick=now;syncMedia();
+    // Sample animation time at vsync. Keep one worker frame in flight so a slow
+    // draw never builds an input-delaying queue; a busy frame waits for the next vsync.
+    private final Choreographer.FrameCallback frame=new Choreographer.FrameCallback(){public void doFrame(long frameTimeNanos){if(!active||closed||failed)return;if(!busy&&engine!=null){busy=true;worker.execute(()->{try{
+        updatePositions();long now=frameTimeNanos/1000000;engine.tick(Math.min(100,Math.max(0,now-lastTick)));lastTick=now;syncMedia();
         if(engine.exitRequested()){engine.persist();main.post(()->finish());return;}
         if(movie==null){BufferedImage image=engine.render();main.post(()->{if(closed){image.flush();return;}stage.present(image);});}
-    }catch(Throwable e){fail(e);}finally{main.post(()->busy=false);}});}main.postDelayed(this,33);}};
+    }catch(Throwable e){fail(e);}finally{main.post(()->busy=false);}});}Choreographer.getInstance().postFrameCallback(this);}};
     @Override public void onCreate(Bundle saved){super.onCreate(saved);getWindow().addFlags(128|1024);getWindow().getDecorView().setSystemUiVisibility(5894);stage=new Stage();setContentView(stage);
         tree=getIntent().getStringExtra("tree");resume=saved!=null&&saved.getBoolean("resume");audit=getIntent().getBooleanExtra("audit",false)&&(getApplicationInfo().flags&2)!=0;
         if(tree==null){fail(new IOException("请选择包含 AdvData 的游戏目录"));return;}
@@ -59,9 +61,9 @@ public final class RuntimeActivity extends Activity {
     void submit(Runnable action){if(!closed&&!worker.isShutdown())worker.execute(()->{try{action.run();}catch(Throwable e){fail(e);}});}
     interface Work {void run()throws Exception;}
     void input(Work action){submit(()->{try{if(engine!=null&&!failed){action.run();lastTick=SystemClock.uptimeMillis();}}catch(Exception e){fail(e);}});}
-    private void wake(){main.removeCallbacks(frame);if(active&&!closed&&!failed){lastTick=SystemClock.uptimeMillis();main.post(frame);}}
+    private void wake(){Choreographer.getInstance().removeFrameCallback(frame);if(active&&!closed&&!failed){lastTick=SystemClock.uptimeMillis();Choreographer.getInstance().postFrameCallback(frame);}}
     private void fail(Throwable e){if(closed||failed)return;failed=true;error=e.toString();android.util.Log.e("CIRCUS-011",engine==null?"startup":engine.vm().scriptName()+" @"+Integer.toHexString(engine.vm().offset()),e);
-        main.post(()->{main.removeCallbacks(frame);if(!closed)new AlertDialog.Builder(this).setTitle("CIRCUS 兼容诊断").setMessage((engine==null?"":engine.vm().scriptName()+" @0x"+Integer.toHexString(engine.vm().offset())+"\n")+error).setPositiveButton("返回",(d,w)->finish()).setCancelable(false).show();});
+        main.post(()->{Choreographer.getInstance().removeFrameCallback(frame);if(!closed)new AlertDialog.Builder(this).setTitle("CIRCUS 兼容诊断").setMessage((engine==null?"":engine.vm().scriptName()+" @0x"+Integer.toHexString(engine.vm().offset())+"\n")+error).setPositiveButton("返回",(d,w)->finish()).setCancelable(false).show();});
     }
     private void updatePositions()throws IOException {if(engine==null)return;for(int ch=0;ch<6;ch++)if(players[ch]!=null&&prepared[ch])engine.audioPosition(ch,players[ch].getCurrentPosition()*1000L,players[ch].getDuration()*1000L);}
     private void syncMedia()throws IOException {
@@ -95,14 +97,15 @@ public final class RuntimeActivity extends Activity {
     private void closeMovie(){movieToken++;if(movie!=null){movie.close();movie=null;}if(movieDialog!=null){movieDialog.dismiss();movieDialog=null;}if(movieFile!=null){movieFile.delete();movieFile=null;}}
     @Override public void onBackPressed(){if(engine==null||failed){super.onBackPressed();return;}input(()->engine.click(0,0,true));}
     @Override protected void onResume(){super.onResume();active=true;getWindow().getDecorView().setSystemUiVisibility(5894);submit(()->{for(int ch=0;ch<6;ch++)if(players[ch]!=null&&prepared[ch])players[ch].start();});if(movie!=null)movie.resumeMovie();wake();}
-    @Override protected void onPause(){active=false;main.removeCallbacks(frame);if(movie!=null)movie.pauseMovie();submit(()->{try{if(engine!=null&&!failed){engine.cancelPointer();updatePositions();if(!audit){engine.persist();engine.save(engine.saveDirectory.resolve("mobile-resume.sav"));}}}catch(Exception e){fail(e);}finally{for(int ch=0;ch<6;ch++)if(players[ch]!=null&&prepared[ch])players[ch].pause();}});super.onPause();}
+    @Override protected void onPause(){active=false;Choreographer.getInstance().removeFrameCallback(frame);if(movie!=null)movie.pauseMovie();submit(()->{try{if(engine!=null&&!failed){engine.cancelPointer();updatePositions();if(!audit){engine.persist();engine.save(engine.saveDirectory.resolve("mobile-resume.sav"));}}}catch(Exception e){fail(e);}finally{for(int ch=0;ch<6;ch++)if(players[ch]!=null&&prepared[ch])players[ch].pause();}});super.onPause();}
     @Override protected void onSaveInstanceState(Bundle out){super.onSaveInstanceState(out);out.putBoolean("resume",true);}
-    @Override protected void onDestroy(){closed=true;main.removeCallbacks(frame);closeMovie();worker.execute(()->{for(int ch=0;ch<6;ch++)stopAudio(ch);});worker.shutdown();stage.release();super.onDestroy();}
+    @Override protected void onDestroy(){closed=true;Choreographer.getInstance().removeFrameCallback(frame);closeMovie();worker.execute(()->{for(int ch=0;ch<6;ch++)stopAudio(ch);});worker.shutdown();stage.release();super.onDestroy();}
     @Override public boolean onKeyUp(int code,KeyEvent event){if(code==KeyEvent.KEYCODE_BACK)return super.onKeyUp(code,event);input(()->{if(engine.editingText()){int mapped=code==KeyEvent.KEYCODE_DEL?8:code==KeyEvent.KEYCODE_FORWARD_DEL?127:code==KeyEvent.KEYCODE_DPAD_LEFT?37:code==KeyEvent.KEYCODE_DPAD_RIGHT?39:code==KeyEvent.KEYCODE_ENTER?10:0;if(mapped!=0)engine.editKey(mapped);else if(event.getUnicodeChar()!=0)engine.typeText(new String(Character.toChars(event.getUnicodeChar())));}else if(code==KeyEvent.KEYCODE_ENTER||code==KeyEvent.KEYCODE_SPACE)engine.click(engine.width/2,engine.height/2,false);});return true;}
     final class Stage extends View {
+        java.util.function.LongConsumer presentationObserver;
         private BufferedImage image;private float scale=1,ox,oy;private final Paint paint=new Paint(Paint.FILTER_BITMAP_FLAG);private boolean held;private float downY;private boolean scrollGesture;
         Stage(){super(RuntimeActivity.this);setBackgroundColor(Color.BLACK);setFocusableInTouchMode(true);setContentDescription("正在读取游戏资源");}
-        void present(BufferedImage next){BufferedImage old=image;image=next;if(old!=null)old.flush();invalidate();}
+        void present(BufferedImage next){BufferedImage old=image;image=next;if(old!=null)old.flush();invalidate();if(presentationObserver!=null)presentationObserver.accept(System.nanoTime());}
         void release(){if(image!=null){image.flush();image=null;}}
         @Override protected void onDraw(Canvas canvas){super.onDraw(canvas);canvas.drawColor(Color.BLACK);if(image==null){Paint label=new Paint(Paint.ANTI_ALIAS_FLAG);label.setColor(0xffdddddd);label.setTextSize(18*getResources().getDisplayMetrics().scaledDensity);label.setTextAlign(Paint.Align.CENTER);canvas.drawText("正在读取游戏资源…",getWidth()/2f,getHeight()/2f,label);return;}scale=Math.min(getWidth()/(float)image.getWidth(),getHeight()/(float)image.getHeight());ox=(getWidth()-image.getWidth()*scale)/2;oy=(getHeight()-image.getHeight()*scale)/2;canvas.drawBitmap(image.bitmap,null,new RectF(ox,oy,ox+image.getWidth()*scale,oy+image.getHeight()*scale),paint);}
         @Override public boolean onTouchEvent(MotionEvent event){if(engine==null||failed||image==null)return true;int x=Math.round((event.getX()-ox)/scale),y=Math.round((event.getY()-oy)/scale);int action=event.getActionMasked();

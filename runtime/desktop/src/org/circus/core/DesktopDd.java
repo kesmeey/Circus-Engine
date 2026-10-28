@@ -16,6 +16,8 @@ public final class DesktopDd extends DesktopEngine {
     private int historyHover=-1;private int savedAutoGeneration;private Dc3Ui.Button dragged;private int dragKind,pressedControl=-1;
     private byte[] caller;
     private final Dc3NativeData nativeData;
+    private final DesktopTransitionMask transitionMask=new DesktopTransitionMask();
+    private BufferedImage transitionFrame;
     private final Map<String,Picture> pictures=new LinkedHashMap<String,Picture>(32,.75f,true){protected boolean removeEldestEntry(Map.Entry<String,Picture> e){return size()>48;}};
     private static final class Picture {final Crx.Image raw;final BufferedImage image,opaque;Picture(BufferedImage b){raw=new Crx.Image(0,0,b.getWidth(),b.getHeight(),32,new byte[0],null);image=opaque=b;}Picture(Crx.Image r){raw=r;image=new BufferedImage(r.width,r.height,BufferedImage.TYPE_INT_ARGB);image.setRGB(0,0,r.width,r.height,r.argb(true),0,r.width);opaque=new BufferedImage(r.width,r.height,BufferedImage.TYPE_INT_ARGB);opaque.setRGB(0,0,r.width,r.height,r.argb(),0,r.width);}}
     public DesktopDd(CircusResources r,TextCodec c,boolean audit)throws IOException{super(r,c,audit,1024,576);nativeData=new Dc3NativeData(r,c);host=new Dc3Host(r,c,true);host.settingsLoader=this::reloadSettings;captures=new DesktopCaptures(width,height,this::drawCapture);host.captureRenderer=captures;vm=new MesVm(r.scripts(),host,"START");Path p=saveDirectory.resolve("progress.dat");if(!audit&&Files.exists(p))loadProgress(host.state,Files.readAllBytes(p));scanSaves();}
@@ -92,8 +94,25 @@ public final class DesktopDd extends DesktopEngine {
         for(Dc3Scene.Quad q:quads)quad(g,q);
     }
     private void petals(Graphics2D g,int group,Dc3Petals ps,String name)throws IOException{if(ps.particles.isEmpty())return;Picture p=picture(name);if(p==null)return;Composite old=g.getComposite();for(Dc3Petals.Particle a:ps.particles)if(a.group==group){g.setComposite(AlphaComposite.SrcOver.derive(Math.max(0,Math.min(1,a.alpha))));int sx=a.frame*32,sy=a.row*28,x=(int)ps.x(a),y=(int)a.y;g.drawImage(p.image,x,y,x+28,y+28,sx,sy,sx+28,sy+28,null);}g.setComposite(old);}
+    private void clearTransitionBuffers(){transitionMask.clear();if(transitionFrame!=null){transitionFrame.flush();transitionFrame=null;}}
     public BufferedImage render()throws IOException{BufferedImage image=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D g=image.createGraphics();try{g.setColor(Color.BLACK);g.fillRect(0,0,width,height);g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);scene(g,host.scene.slots,host.scene.quads,host.scene.camera,host.scene.petals,host.scene.fog,host.scene.clouds,host.scene.environmentTime,true);
-            Dc3Transition f=host.scene.fade;if(f.active()){if(f.mode==3){g.setColor(new Color(1f,1f,1f,1-Math.abs(f.progress()*2-1)));g.fillRect(0,0,width,height);}else{BufferedImage before=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D bg=before.createGraphics();bg.setColor(Color.BLACK);bg.fillRect(0,0,width,height);scene(bg,f.from.layers,f.from.quads,f.from.camera,f.from.petals,f.from.fog,f.from.clouds,f.from.environmentTime,false);bg.dispose();Picture mask=picture(f.mask);if(mask!=null&&f.mode!=16){for(int y=0;y<height;y++)for(int x=0;x<width;x++){int blue=mask.image.getRGB(x*mask.image.getWidth()/width,y*mask.image.getHeight()/height)&255;before.setRGB(x,y,(before.getRGB(x,y)&0xffffff)|(f.maskAlpha(blue)<<24));}}else g.setComposite(AlphaComposite.SrcOver.derive(1-f.progress()));g.drawImage(before,0,0,null);g.setComposite(AlphaComposite.SrcOver);}}
+            Dc3Transition f=host.scene.fade;
+            if(!f.active())clearTransitionBuffers();
+            else if(f.mode==3){clearTransitionBuffers();g.setColor(new Color(1f,1f,1f,1-Math.abs(f.progress()*2-1)));g.fillRect(0,0,width,height);}
+            else{
+                // Repaint an opaque base each frame: a prior mask must not accumulate alpha.
+                // Keep only one scratch image, including ordinary crossfades with no mask.
+                if(transitionFrame==null)transitionFrame=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
+                BufferedImage before=transitionFrame;
+                try{
+                    Graphics2D bg=before.createGraphics();
+                    try{bg.setColor(Color.BLACK);bg.fillRect(0,0,width,height);scene(bg,f.from.layers,f.from.quads,f.from.camera,f.from.petals,f.from.fog,f.from.clouds,f.from.environmentTime,false);}finally{bg.dispose();}
+                    Picture mask=picture(f.mask);
+                    if(mask!=null&&f.mode!=16)transitionMask.apply(before,mask.image,f);
+                    else{transitionMask.clear();g.setComposite(AlphaComposite.SrcOver.derive(1-f.progress()));}
+                    g.drawImage(before,0,0,null);
+                }finally{g.setComposite(AlphaComposite.SrcOver);}
+            }
             if(host.credits.active()){drawCredits(g);return image;}
             if(textWaiting()&&!hidden)dialogue(g);
             for(Dc3Scene.Quad q:host.ui.visible())quad(g,q);
@@ -148,7 +167,7 @@ public final class DesktopDd extends DesktopEngine {
     public float volume(int ch)throws IOException{return (host.read(99,203)==0?0:Math.max(0,Math.min(1,host.read(99,225)/100f)))*(ch==0?host.musicGain:ch==5?host.voiceGain():1)*Math.max(0,Math.min(1,host.read(99,ch==0?7:ch==5?9:8)/100f))*(host.read(99,ch==0?14:ch==5?5:15)==0?0:1);}
     private Path slot(int n)throws IOException{if(n<0||n>255)throw new IOException("Invalid DD save slot "+n);return saveDirectory.resolve("slot-"+n+".sav");}
     public byte[] snapshot()throws IOException{return caller==null?vm.snapshot():caller.clone();}
-    public void restore(byte[] bytes)throws IOException{cancelPointer();Dc3Host h=new Dc3Host(resources,codec,true);MesVm m=new MesVm(resources.scripts(),h,"START");m.restore(bytes);h.state.restoreSettings(host.state.settingsSnapshot());host=h;host.settingsLoader=this::reloadSettings;host.captureRenderer=captures;vm=m;host.ui.pressed=-1;savedAutoGeneration=h.autosaveGeneration;textTicket=-1;historyHover=-1;hidden=false;caller=null;scanSaves();}
+    public void restore(byte[] bytes)throws IOException{cancelPointer();Dc3Host h=new Dc3Host(resources,codec,true);MesVm m=new MesVm(resources.scripts(),h,"START");m.restore(bytes);h.state.restoreSettings(host.state.settingsSnapshot());clearTransitionBuffers();host=h;host.settingsLoader=this::reloadSettings;host.captureRenderer=captures;vm=m;host.ui.pressed=-1;savedAutoGeneration=h.autosaveGeneration;textTicket=-1;historyHover=-1;hidden=false;caller=null;scanSaves();}
     private void reloadSettings(Dc3State state)throws IOException{Path p=saveDirectory.resolve("progress.dat");if(!audit&&Files.exists(p))loadProgress(state,Files.readAllBytes(p));else state.restoreSettings(new Dc3State(true).settingsSnapshot());}
     private void loadProgress(Dc3State state,byte[] bytes)throws IOException{DataInputStream in=new DataInputStream(new ByteArrayInputStream(bytes));if(bytes.length>4&&in.readInt()==0x44445032){byte[] data=new byte[bytes.length-4];in.readFully(data);state.restoreSettings(data);}else{state.restoreSettings(bytes);state.migrateLegacyAudio();}}
     public String saveCaption(){return host.checkpointLabel().isEmpty()?body():codec.apply(host.checkpointLabel());}

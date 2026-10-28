@@ -18,6 +18,7 @@ public final class CoreInstrumentation extends Instrumentation {
         GameSavesTest.run(getTargetContext());report+="; CAS2/CAS1 saves, atomic rollback and invalid envelope rejection PASS";
         GameLibraryTest.run(getTargetContext());report+="; persistent library, per-game choices and atomic rollback PASS";
         report+="; Android Canvas "+GraphicsTest.run()+" pixel contracts PASS";
+        report+="; Transition mask "+TransitionMaskTests.run()+" pixel comparisons PASS";
         if(treeUri!=null){
             DocumentTree tree=new DocumentTree(getTargetContext().getContentResolver(),android.net.Uri.parse(treeUri));GameResources resources=new GameResources(tree);
             Archive crm=resources.archive("sample.crm");if(resources.image("sample.crm",crm.entries.get(1).nameBytes).argb()[5]!=0xff21160b)throw new AssertionError("SAF difference image mismatch");

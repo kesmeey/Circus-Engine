@@ -5,7 +5,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
-/** Platform contract shared by all four bytecode profiles. */
+/** Platform contract for script engines, independent of the bytecode format. */
 public abstract class DesktopEngine {
     public final CircusResources resources;
     public final TextCodec codec;
@@ -24,14 +24,24 @@ public abstract class DesktopEngine {
     private long pointerTicket;
     private Control pointerControl;
     protected DesktopEngine(CircusResources r,TextCodec c,boolean audit,int w,int h)throws IOException{
+        this(r,c,audit,w,h,Binary.sha256(r.files.read("AdvData/MES/START.MES",2*1024*1024)).substring(0,16));
+    }
+    protected DesktopEngine(CircusResources r,TextCodec c,boolean audit,int w,int h,String identity)throws IOException{
         resources=r;codec=c;this.audit=audit;width=w;height=h;
-        String identity=Binary.sha256(r.files.read("AdvData/MES/START.MES",2*1024*1024)).substring(0,16);
-        saveDirectory=Paths.get(System.getProperty("dc.saveRoot",audit?"build/desktop/audit-saves":"build/desktop/saves"),r.profile.id+"-"+identity);
+        if(!identity.matches("[a-zA-Z0-9_-]{1,80}"))throw new IOException("Invalid game identity");
+        saveDirectory=Paths.get(System.getProperty("dc.saveRoot",audit?"build/desktop/audit-saves":"build/desktop/saves"),r.profileId+"-"+identity);
     }
     public boolean editingText(){return false;}
     public void typeText(String text){}
     public void editKey(int code)throws IOException{}
     public abstract MesVm vm();
+    public Object executionIdentity(){return vm();}
+    public String scriptName(){return vm().scriptName();}
+    public int scriptOffset(){return vm().offset();}
+    public boolean halted(){return vm().status()==MesVm.Status.HALTED;}
+    public boolean waiting(){return vm().status()==MesVm.Status.WAIT_HOST;}
+    public void mediaCompleted(long ticket)throws IOException{vm().signalHost(ticket,MesVm.HostSignal.MEDIA_COMPLETE);}
+    protected int saveIcon()throws IOException{return vm().variables.read(9,20);}
     public abstract void tick(long elapsed)throws Exception;
     public abstract void click(int x,int y,boolean right)throws Exception;
     public boolean drag(int x,int y,boolean begin)throws Exception{return false;}
@@ -82,9 +92,9 @@ public abstract class DesktopEngine {
         public Control(String a,int l,int t,int r,int b){action=a;left=l;top=t;right=r;bottom=b;}
         public boolean contains(int x,int y){return x>=left&&x<right&&y>=top&&y<bottom;}
     }
-    public void choose(String action)throws Exception{for(Control b:controls())if(b.action.equalsIgnoreCase(action)){click((b.left+b.right)/2,(b.top+b.bottom)/2,false);return;}throw new IOException("Missing original action "+action+" in "+vm().scriptName());}
+    public void choose(String action)throws Exception{for(Control b:controls())if(b.action.equalsIgnoreCase(action)){click((b.left+b.right)/2,(b.top+b.bottom)/2,false);return;}throw new IOException("Missing original action "+action+" in "+scriptName());}
     public void save(Path path)throws IOException{
-        DesktopSave s=new DesktopSave();s.state=snapshot();s.textElapsed=playbackMillis();s.created=System.currentTimeMillis();s.icon=vm().variables.read(9,20);String caption=saveCaption();s.caption=caption.length()>200?caption.substring(0,200):caption;
+        DesktopSave s=new DesktopSave();s.state=snapshot();s.textElapsed=playbackMillis();s.created=System.currentTimeMillis();s.icon=saveIcon();String caption=saveCaption();s.caption=caption.length()>200?caption.substring(0,200):caption;
         s.preview=DesktopSave.thumbnail(preview(),256,256*height/width);for(int ch=0;ch<6;ch++){s.audio[ch]=systemAudio==null?audio(ch):systemAudio[ch];s.position[ch]=s.audio[ch].equals(mediaResource[ch])?mediaPosition[ch]:systemAudioPosition==null?0:systemAudioPosition[ch];}
         atomic(path,s.encode());s.state=null;saveMetadata.put(path,s);
     }

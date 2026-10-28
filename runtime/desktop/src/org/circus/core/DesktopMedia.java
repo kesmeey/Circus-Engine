@@ -35,7 +35,7 @@ public final class DesktopMedia implements AutoCloseable {
         }
         if(!engine.movie().isEmpty()&&movieGeneration!=engine.movieGeneration()){
             movieGeneration=engine.movieGeneration();movieTicket=engine.ticket();for(int ch=0;ch<6;ch++)stop(ch);
-            if(engine.audit){engine.resources.files.slice(engine.movie(),0,4);decodedMovies.add(engine.movie());engine.vm().signalHost(movieTicket,MesVm.HostSignal.MEDIA_COMPLETE);return;}
+            if(engine.audit){engine.resources.files.slice(engine.movie(),0,4);decodedMovies.add(engine.movie());engine.mediaCompleted(movieTicket);return;}
             movie=new Movie(engine.resources.files,engine.movie(),engine.width,engine.height);decodedMovies.add(engine.movie());
         }
         if(movie!=null){if(movie.error!=null)throw new IOException("Movie playback failed",movie.error);if(movie.videoDone&&movie.audioDone)finishMovie();}
@@ -46,7 +46,7 @@ public final class DesktopMedia implements AutoCloseable {
     public long audioFrames(int ch){return clips[ch]==null?0:clips[ch].getLongFramePosition();}
     public long movieAudioFrames(){return movie==null||movie.line==null?0:movie.line.getLongFramePosition();}
     public boolean playingMovie(){return movie!=null;}
-    public void finishMovie()throws IOException{if(movie!=null){movie.close();movie=null;}engine.vm().signalHost(movieTicket,MesVm.HostSignal.MEDIA_COMPLETE);}
+    public void finishMovie()throws IOException{if(movie!=null){movie.close();movie=null;}engine.mediaCompleted(movieTicket);}
     private void stop(int n){if(clips[n]!=null){clips[n].stop();clips[n].close();clips[n]=null;}}
     public void reset(){for(int n=0;n<6;n++)stop(n);Arrays.fill(heard,-1);movieGeneration=-1;if(movie!=null){movie.close();movie=null;}}
     public void close(){reset();}

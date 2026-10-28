@@ -8,9 +8,12 @@ public class CircusResources {
     public final GameResources files;
     public final NamesCatalog names;
     public final Profile profile;
+    public final String profileId;
     public CircusResources(GameResources files,Profile profile)throws IOException {
-        this.files=files;this.profile=profile;names=PcHost.supports(profile)?new NamesCatalog(files.read("AdvData/DAT/NAMES.DAT",32*1024*1024),true):files.names("AdvData/GRP/NAMES.DAT");
+        this.files=files;this.profile=profile;profileId=profile.id;names=PcHost.supports(profile)?new NamesCatalog(files.read("AdvData/DAT/NAMES.DAT",32*1024*1024),true):files.names("AdvData/GRP/NAMES.DAT");
     }
+    /** Resource-only backends have their own script format and no MES profile. */
+    protected CircusResources(GameResources files,String profileId){this.files=files;this.profileId=profileId;profile=null;names=null;}
     public String named(String category,int index)throws IOException {
         List<NamesCatalog.Entry> entries=names.table(category);
         if(index<0||index>=entries.size())throw new IOException("NAMES "+category+" index "+index);

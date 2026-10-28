@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import org.circus.core.*;
 
-/** Library only; the game's title and menus still come from its original MES. */
+/** Library only; the game's title and menus still come from its original scripts. */
 public final class LauncherActivity extends Activity {
     static final String[] ROUTES={"森園立夏","芳乃シャルル","葛木姫乃","瑠川さら","陽ノ下葵","美琴","雪村すもも"};
     static final String[] ENTRIES={"DD_1_0611_A1","DD_2_1128_E1","DD_3_0211_A1","DD_4_0908_E1","DD_5_0924_B1","DD_6_1211_C1","DD_7_0121_A1"};
@@ -23,9 +23,9 @@ public final class LauncherActivity extends Activity {
     @Override protected void onDestroy(){if(progress!=null)progress.dismiss();worker.shutdown();super.onDestroy();}
     private void show(){if(library==null)return;ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);content=new LinearLayout(this);content.setOrientation(1);content.setPadding(32,18,32,18);content.setBackgroundColor(0xff101b2b);scroll.addView(content);scroll.setOnApplyWindowInsetsListener((v,i)->{v.setPadding(i.getSystemWindowInsetLeft(),i.getSystemWindowInsetTop(),i.getSystemWindowInsetRight(),i.getSystemWindowInsetBottom());return i;});setContentView(scroll);scroll.requestApplyInsets();
         label(content,"CIRCUS Runtime",27);label(content,"最近打开的游戏会保存在这里。每部游戏可单独选择 EXE 数据文件和文字配置。",15);
-        LinearLayout actions=row(content);button(actions,"添加游戏目录",()->pick(null));button(actions,"关于",()->new AlertDialog.Builder(this).setTitle("0.12 Android 开发版").setMessage("支持 DC3DD、DC2DM、D.C.P.C DVD（2063）和 D.C.II P.C（5769）。直接解释原版脚本、标题和菜单；不执行 Windows EXE。返回键对应右键，列表支持双指滑动。APK 不含游戏资源。\n\n核心 GPL-3.0-only；PL_MPEG、GARbro 相关解码器为 MIT。其他引擎版本、Windows 注入式汉化仍需单独适配。").setPositiveButton("关闭",null).show());button(actions,"开发测试",()->startActivity(new Intent(this,MainActivity.class)));
+        LinearLayout actions=row(content);button(actions,"添加游戏目录",()->pick(null));button(actions,"关于",()->new AlertDialog.Builder(this).setTitle("0.13.0 Android 开发版").setMessage("支持 DC3DD、DC2DM、D.C.P.C DVD（2063）和 D.C.II P.C（5769）。新增 DC3R Unity 版的初步兼容，完整路线仍在验证。直接解释原版脚本、标题和菜单；不执行 Windows EXE。返回键对应右键，列表支持双指滑动。APK 不含游戏资源。\n\n核心 GPL-3.0-only；PL_MPEG、GARbro 相关解码器为 MIT。其他引擎版本、Windows 注入式汉化仍需单独适配。").setPositiveButton("关闭",null).show());button(actions,"开发测试",()->startActivity(new Intent(this,MainActivity.class)));
         label(content,"最近打开",21);
-        try{List<GameLibrary.Entry> entries=library.entries();if(entries.isEmpty())label(content,"尚未添加游戏。请选择包含 AdvData 的游戏目录。",16);
+        try{List<GameLibrary.Entry> entries=library.entries();if(entries.isEmpty())label(content,"尚未添加游戏。请选择包含 AdvData 或 DC3_Data 的游戏目录。",16);
             for(GameLibrary.Entry e:entries){LinearLayout card=new LinearLayout(this);card.setOrientation(1);card.setPadding(16,10,16,10);card.setBackgroundColor(0xff203148);LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.setMargins(0,6,0,6);content.addView(card,p);label(card,e.title,20);label(card,Uri.decode(e.tree)+"\nEXE："+(e.executable.isEmpty()?"待选择":e.executable.equals("@none")?"仅资源数据":e.executable)+" · 文字："+e.encoding,13);LinearLayout buttons=row(card);button(buttons,"启动 · "+e.title,()->launch(e));button(buttons,"配置 · "+e.title,()->configure(e,false));button(buttons,"更多 · "+e.title,()->more(e));}
         }catch(Exception e){error(e);}
     }
@@ -39,9 +39,10 @@ public final class LauncherActivity extends Activity {
     interface Job<T>{T run()throws Exception;}interface Done<T>{void accept(T value)throws Exception;}
     private <T>void background(Job<T> job,Done<T> done){loading=true;progress=ProgressDialog.show(this,"读取游戏配置","正在检查目录和文件…",true,false);worker.execute(()->{try{T value=job.run();runOnUiThread(()->{complete();if(isDestroyed())return;try{done.accept(value);}catch(Exception e){error(e);}});}catch(Exception e){runOnUiThread(()->{complete();if(!isDestroyed())error(e);});}});}
     private void complete(){loading=false;if(progress!=null){progress.dismiss();progress=null;}}
-    private void configure(GameLibrary.Entry e,boolean launchAfter){background(()->{GameResources files=new GameResources(new DocumentTree(getContentResolver(),Uri.parse(e.tree)));Profile profile=GameVersion.detect(files).profile();if(!e.profile.isEmpty()&&!e.profile.equals(profile.id))throw new IOException("所选目录的游戏版本与原记录不同，请作为新游戏添加");return new Object[]{files,profile};},r->settings(e,(GameResources)r[0],(Profile)r[1],launchAfter));}
+    private void configure(GameLibrary.Entry e,boolean launchAfter){background(()->{GameResources files=new GameResources(new DocumentTree(getContentResolver(),Uri.parse(e.tree)));Profile profile=UnityCircusResources.candidate(files)?null:GameVersion.detect(files).profile();String id=profile==null?UnityCircusResources.ID:profile.id;if(!e.profile.isEmpty()&&!e.profile.equals(id))throw new IOException("所选目录的游戏版本与原记录不同，请作为新游戏添加");if(profile==null)new CircusScrScript("start",new UnityCircusResources(files).script("start"));return new Object[]{files,profile};},r->settings(e,(GameResources)r[0],(Profile)r[1],launchAfter));}
     private Spinner spinner(LinearLayout box,String title,List<String> labels,int selected){label(box,title,16);Spinner s=new Spinner(this);ArrayAdapter<String> a=new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,labels);a.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);s.setAdapter(a);s.setSelection(Math.max(0,selected));box.addView(s);return s;}
     private void settings(GameLibrary.Entry e,GameResources files,Profile profile,boolean launchAfter)throws IOException{
+        if(profile==null){new AlertDialog.Builder(this).setTitle(e.title+" · DC3R Unity").setMessage("已识别 DC3R Unity 版资源和启动脚本。该版本直接读取 DC3_Data 中的资源包，文字为 UTF-8，无需选择 EXE 数据表。兼容功能仍在验证中。").setPositiveButton(launchAfter?"保存并启动":"保存",(d,w)->{try{e.profile=UnityCircusResources.ID;e.executable="@none";e.encoding="UTF-8";e.configuration="@none";library.configure(e);e.configured=true;show();if(launchAfter)launch(e);}catch(Exception error){error(error);}}).setNegativeButton("取消",null).show();return;}
         LinearLayout box=new LinearLayout(this);box.setOrientation(1);box.setPadding(24,8,24,8);ScrollView scroll=new ScrollView(this);scroll.addView(box);
         label(box,"所选 EXE 仅用于读取角色、姓名等数据表，不执行 Windows 程序。注入式汉化需要另外适配。",14);
         List<String> exes=new ArrayList<>(Arrays.asList("","@none")),exeLabels=new ArrayList<>(Arrays.asList("请选择 EXE 数据文件","仅使用资源数据（不读取 EXE）"));for(String path:files.executableCandidates()){exes.add(path);exeLabels.add(files.displayPath(path));}

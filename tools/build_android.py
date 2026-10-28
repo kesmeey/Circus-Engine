@@ -38,11 +38,14 @@ def main():
     legal=ROOT/'runtime/android/assets/legal';legal.mkdir(exist_ok=True)
     for name in ['LICENSE','THIRD_PARTY.md']:shutil.copyfile(ROOT/name,legal/name)
     core=list((ROOT/'runtime/core/src').rglob('*.java'));tests=list((ROOT/'runtime/tests').rglob('*.java'));app=list((ROOT/'runtime/android/src').rglob('*.java'))
+    resources=sorted(p for p in (ROOT/'runtime/core/resources').rglob('*') if p.is_file())
     classes=out/'classes';classes.mkdir(exist_ok=True);jvm=out/'jvm';jvm.mkdir(exist_ok=True)
     # javac output dirs are unique to this project. Remove only previously generated class files.
     for directory in [classes,jvm]:
         for path in directory.rglob('*.class'):path.unlink()
     run([java/'javac.exe','-encoding','UTF-8','--release','8','-d',jvm,*core,*tests],env)
+    for resource in resources:
+        target=jvm/resource.relative_to(ROOT/'runtime/core/resources');target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(resource,target)
     test_log=run([java/'java.exe','-cp',jvm,'org.circus.core.CoreTests',ROOT/'runtime/android/assets/demo'],env)
     run([java/'javac.exe','-encoding','UTF-8','-source','8','-target','8','-classpath',android,'-d',classes,*core,*tests,*app,*shared],env)
     jar=out/'classes.jar'
@@ -61,6 +64,7 @@ def main():
     with zipfile.ZipFile(unsigned,'a',zipfile.ZIP_DEFLATED) as z:
         for path in dex.glob('classes*.dex'):z.write(path,path.name)
         for path in native.glob('*/*.so'):z.write(path,'lib/'+path.relative_to(native).as_posix())
+        for path in resources:z.write(path,path.relative_to(ROOT/'runtime/core/resources').as_posix())
     run([bt/'zipalign.exe','-f','4',unsigned,aligned],env)
     key=out/'debug.keystore'
     if not key.exists():run([java/'keytool.exe','-genkeypair','-keystore',key,'-storepass','android','-keypass','android','-alias','androiddebugkey','-keyalg','RSA','-keysize','2048','-validity','10000','-dname','CN=CIRCUS Core Development,O=Local,C=CN','-noprompt'],env)
@@ -69,7 +73,7 @@ def main():
     signed=run([*signer,'verify','--verbose',apk],env)
     badging=run([bt/'aapt.exe','dump','badging',apk],env)
     native_sources=list((ROOT/'runtime/native').rglob('*'));inputs=core+tests+app+[ROOT/'runtime/desktop/src/org/circus/core'/p.name for p in shared]+[p for p in (ROOT/'runtime/android/res').rglob('*') if p.is_file()]+[p for p in native_sources if p.is_file()]+[ROOT/'LICENSE',ROOT/'THIRD_PARTY.md',ROOT/'runtime/android/AndroidManifest.xml',ROOT/'tools/generate_android_backend.py',Path(__file__)]
-    report={'apk':str(apk),'sha256':hashlib.sha256(apk.read_bytes()).hexdigest(),'bytes':apk.stat().st_size,'jvm_tests':test_log.strip(),'signature_verified':True,'min_sdk':26,'target_sdk':35,'original_game_assets_included':False,'user_supplied_launcher_icon':hashlib.sha256((ROOT/'runtime/android/res/drawable-nodpi/launcher_logo.png').read_bytes()).hexdigest(),'original_game_executed':False,'sdk':str(sdk),'java_home':str(java.parent),'sources':{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs}}
+    report={'apk':str(apk),'sha256':hashlib.sha256(apk.read_bytes()).hexdigest(),'bytes':apk.stat().st_size,'jvm_tests':test_log.strip(),'signature_verified':True,'min_sdk':26,'target_sdk':35,'original_game_assets_included':False,'user_supplied_launcher_icon':hashlib.sha256((ROOT/'runtime/android/res/drawable-nodpi/launcher_logo.png').read_bytes()).hexdigest(),'original_game_executed':False,'sdk':str(sdk),'java_home':str(java.parent),'sources':{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs+resources}}
     (out/'build-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     (out/'apk-verification.txt').write_text(signed+'\n'+badging,encoding='utf-8');print(json.dumps({k:v for k,v in report.items() if k!='sources'},ensure_ascii=True))
 

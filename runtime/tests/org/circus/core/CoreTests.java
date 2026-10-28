@@ -19,7 +19,7 @@ public final class CoreTests {
     private static byte[] names()throws IOException{ByteArrayOutputStream out=new ByteArrayOutputStream();for(int stride:new int[]{32,48,36,32,32}){out.write(new byte[]{1,0,0,0});byte[] row=new byte[stride];row[0]='A';if(stride>32)row[32]=42;out.write(row);}return out.toByteArray();}
     private static byte[] compressedSilence(byte[] spectrum)throws IOException{ByteArrayOutputStream packed=new ByteArrayOutputStream();try(java.util.zip.DeflaterOutputStream z=new java.util.zip.DeflaterOutputStream(packed)){z.write(spectrum);}java.nio.ByteBuffer h=java.nio.ByteBuffer.allocate(32+packed.size()).order(java.nio.ByteOrder.LITTLE_ENDIAN);h.putInt(0x4d435058).putInt(882).putInt(0x303).putShort((short)1).putShort((short)1).putInt(44100).putInt(88200).putShort((short)2).putShort((short)16).putInt(packed.size()).put(packed.toByteArray());return h.array();}
     public static String run(Assets assets)throws Exception{
-        assertions=0;Profile demo=Profiles.get("circus-demo-v1");
+        assertions=Dc3rHostTests.run();Profile demo=Profiles.get("circus-demo-v1");
         MesVm.Library lib=name->new MesScript(name,assets.read(name+".mes"),demo);
         DemoHost host=new DemoHost();MesVm vm=new MesVm(lib,host,"main");
         check(vm.run(1000)==MesVm.Status.WAIT_CLICK,"intro wait");check(host.scene.equals("dawn.crx"),"scene event");
@@ -238,6 +238,9 @@ public final class CoreTests {
         reloading.settingsLoader=target->{throw new IOException("unreadable settings");};reject(()->reloading.command("system.persist",new int[]{26,0},new byte[0]),"persist 26 storage failure is not ignored");
         assertions+=ResourceSelectionTest.run();
         assertions+=DdGalleryTests.run();
+        assertions+=CircusScrVmTests.run();
+        assertions+=UnityResourceTests.run();
+        assertions+=Fsb5VorbisTests.run();
         return "PASS "+assertions+" assertions; self-authored fixtures; DD choices/flow/original UI/animation/macros, WY bindings, DM memory/control and collection detection; archives, CRX/CRXD, audio, save integrity";
     }
     public static void main(String[] args)throws Exception{Path root=Paths.get(args[0]);System.out.println(run(name->Files.readAllBytes(root.resolve(name))));}

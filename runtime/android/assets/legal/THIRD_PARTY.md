@@ -130,3 +130,41 @@ and `BUILD.json`. This build declares GPL version 3 or later; the full GPL text
 is included as `LICENSE`. Upstream: https://ffmpeg.org/ and
 https://www.gyan.dev/ffmpeg/builds/ . No FFmpeg or JRE files are copied into the
 project's source ZIP; the PC packager accepts user-provided toolchain paths.
+
+## Unity FSB5 Vorbis setup headers
+
+`runtime/core/resources/org/circus/core/fsb5-vorbis-headers.bin.gz` contains the
+161 codec setup packets from HearthSim/python-fsb5, converted from its Python
+dictionary into a compact binary table. These are public codec configuration
+headers, not game audio. Original file SHA-256:
+`abb2a177ddad75d4c42f8c19ae20cd86be4145761ff40881136a13652dd3aa70`.
+Retrieved 2026-10-29 from
+https://github.com/HearthSim/python-fsb5/blob/master/fsb5/vorbis_headers.py .
+The FSB5 container documentation and reconstruction reference are from the same
+project. The runtime Ogg writer and bounded readers are implemented in Java.
+
+The MIT License (MIT)
+
+Copyright (c) 2016 Simon Pinfold
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+UnityFS and Unity serialized-v17 field layouts were cross-checked against
+AssetStudio's published format readers (MIT; reference only, source not copied):
+https://github.com/Perfare/AssetStudio .

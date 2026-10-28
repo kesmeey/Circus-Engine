@@ -41,6 +41,8 @@ public final class GameResources {
         if(actual==null)throw new FileNotFoundException(path);return actual;
     }
     public byte[] read(String path,int limit)throws IOException{return storage.read(resolve(path),limit);}
+    /** Read-only random access for block-based formats such as UnityFS. */
+    public Archive.Source source(String path)throws IOException{return storage.source(resolve(path));}
     public Set<String> paths(){return Collections.unmodifiableSet(paths.keySet());}
     /** Small bounded reads for version inspection without loading archives or complete scripts. */
     public byte[] slice(String path,long offset,int length)throws IOException{

@@ -10,6 +10,7 @@ public final class Xpcm {
     public final String codec;public final byte[] payload;public final int channels,sampleRate,bits;
     private Xpcm(String c,byte[] p,int ch,int hz,int b){codec=c;payload=p;channels=ch;sampleRate=hz;bits=b;}
     static Xpcm pcm(byte[] p,int channels,int rate,int bits){return new Xpcm("pcm",p,channels,rate,bits);}
+    public static Xpcm ogg(byte[] data)throws IOException{if(data.length<4||data[0]!='O'||data[1]!='g'||data[2]!='g'||data[3]!='S')throw new IOException("Expected Ogg stream");return new Xpcm("ogg",data,0,0,0);}
     public static Xpcm decode(byte[] data)throws IOException{
         if(Binary.u32(data,0)!=0x4d435058L)throw new IOException("Expected XPCM");
         long size=Binary.u32(data,4);if(size==0||size>128*1024*1024)throw new IOException("Invalid decoded audio size");int mode=Binary.u8(data,8);

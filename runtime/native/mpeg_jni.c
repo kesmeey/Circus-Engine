@@ -16,11 +16,17 @@ JNIEXPORT void JNICALL Java_org_circus_runtime_MpegDecoder_info(JNIEnv *e,jclass
     (void)c;plm_t *d=(plm_t*)(intptr_t)handle;if(!d||(*e)->GetArrayLength(e,values)!=6){fail(e,"Invalid MPEG info buffer");return;}
     jdouble v[]={plm_get_width(d),plm_get_height(d),plm_get_framerate(d),plm_get_samplerate(d),plm_get_num_audio_streams(d),plm_get_duration(d)};(*e)->SetDoubleArrayRegion(e,values,0,6,v);
 }
-JNIEXPORT jdouble JNICALL Java_org_circus_runtime_MpegDecoder_video(JNIEnv *e,jclass c,jlong handle,jintArray pixels){
-    (void)c;plm_t *d=(plm_t*)(intptr_t)handle;if(!d){fail(e,"Closed MPEG decoder");return -1;}int w=plm_get_width(d),h=plm_get_height(d);
+static jdouble video(JNIEnv *e,jlong handle,jintArray pixels,double drop_before){
+    plm_t *d=(plm_t*)(intptr_t)handle;if(!d){fail(e,"Closed MPEG decoder");return -1;}int w=plm_get_width(d),h=plm_get_height(d);
     if((*e)->GetArrayLength(e,pixels)!=w*h){fail(e,"Invalid video buffer");return -1;}plm_frame_t *f=plm_decode_video(d);if(!f)return -1;
+    if(f->time<drop_before)return f->time;
     if(f->width!=(unsigned)w||f->height!=(unsigned)h){fail(e,"MPEG dimensions changed");return -1;}jint *out=(*e)->GetIntArrayElements(e,pixels,0);if(!out)return -1;
     for(int i=0;i<w*h;i++)out[i]=(jint)0xff000000;plm_frame_to_bgra(f,(uint8_t*)out,w*4);(*e)->ReleaseIntArrayElements(e,pixels,out,0);return f->time;
+}
+JNIEXPORT jdouble JNICALL Java_org_circus_runtime_MpegDecoder_video(JNIEnv *e,jclass c,jlong handle,jintArray pixels){(void)c;return video(e,handle,pixels,-1);}
+JNIEXPORT jdouble JNICALL Java_org_circus_runtime_MpegDecoder_videoTimed(JNIEnv *e,jclass c,jlong handle,jintArray pixels,jdouble drop_before){(void)c;return video(e,handle,pixels,drop_before);}
+JNIEXPORT void JNICALL Java_org_circus_runtime_MpegDecoder_streams(JNIEnv *e,jclass c,jlong handle,jboolean v,jboolean a){
+    (void)c;plm_t *d=(plm_t*)(intptr_t)handle;if(!d){fail(e,"Closed MPEG decoder");return;}plm_set_video_enabled(d,v);plm_set_audio_enabled(d,a);
 }
 JNIEXPORT jdouble JNICALL Java_org_circus_runtime_MpegDecoder_audio(JNIEnv *e,jclass c,jlong handle,jshortArray samples){
     (void)c;plm_t *d=(plm_t*)(intptr_t)handle;if(!d||(*e)->GetArrayLength(e,samples)!=PLM_AUDIO_SAMPLES_PER_FRAME*2){fail(e,"Invalid audio buffer");return -1;}

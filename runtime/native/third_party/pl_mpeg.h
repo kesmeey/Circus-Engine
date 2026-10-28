@@ -4213,18 +4213,19 @@ void plm_audio_decode_frame(plm_audio_t *self) {
 						d_index += 64 - 32;
 					}
 
-					// Output samples
+					// Output samples. CIRCUS: Q30 synthesis normalization (2^30);
+					// the original 65 * 2^24 divisor applied an extra 64/65 gain.
 					#ifdef PLM_AUDIO_SEPARATE_CHANNELS
 						float *out_channel = ch == 0
 							? self->samples.left
 							: self->samples.right;
 						for (int j = 0; j < 32; j++) {
-							out_channel[out_pos + j] = self->U[j] / -1090519040.0f;
+							out_channel[out_pos + j] = self->U[j] / -1073741824.0f;
 						}
 					#else
 						for (int j = 0; j < 32; j++) {
 							self->samples.interleaved[((out_pos + j) << 1) + ch] = 
-								self->U[j] / -1090519040.0f;
+									self->U[j] / -1073741824.0f;
 						}
 					#endif
 				} // End of synthesis channel loop
@@ -4282,7 +4283,9 @@ void plm_audio_read_samples(plm_audio_t *self, int ch, int sb, int part) {
 	}
 
 	// Postmultiply samples
-	int scale = 65536 / (adj + 1);
+	// CIRCUS: normalize by the number of quantization levels. Dividing by
+	// levels + 1 attenuates each subband differently (e.g. 3/4, 5/6, 7/8).
+	int scale = 65536 / adj;
 	adj = ((adj + 1) >> 1) - 1;
 
 	val = (adj - sample[0]) * scale;
@@ -4437,4 +4440,3 @@ void plm_audio_idct36(int s[32][3], int ss, float *d, int dp) {
 
 
 #endif // PL_MPEG_IMPLEMENTATION
-

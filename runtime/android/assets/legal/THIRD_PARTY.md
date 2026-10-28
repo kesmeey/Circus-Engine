@@ -59,6 +59,11 @@ upstream Git blob `b42f53f89f868a697435ab1e15742f370819ffbc`, retrieved 2026-10-
 The header identifies its author as Dominic Szablewski (https://phoboslab.org)
 and declares `SPDX-License-Identifier: MIT`.
 
+Local audio corrections (2026-10-28): dequantize using the number of quantizer
+levels instead of levels + 1, and normalize the synthesis output by 2^30.
+The original constants produced subband-dependent attenuation and an extra
+64/65 output gain. See `docs/ANDROID_0126.md` for independent PCM comparisons.
+
 Copyright (c) Dominic Szablewski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

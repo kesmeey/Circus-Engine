@@ -13,8 +13,8 @@ import org.circus.graphics.BufferedImage;
 
 /** Exercise the shipping Android activity through SAF and real touch events. */
 public final class SharedRuntimeInstrumentation extends Instrumentation {
-    private RuntimeActivity activity;private String tree;private boolean audit=true,sequence,opening,inputRegression,overlayRegression,transitionRegression,petalRegression,petalReplay,galleryRegression;private File output;private int checks;private final StringBuilder log=new StringBuilder();
-    public void onCreate(Bundle args){super.onCreate(args);tree=args.getString("tree");audit=!"false".equals(args.getString("audit"));sequence="true".equals(args.getString("sequence"));opening="true".equals(args.getString("opening"));inputRegression="true".equals(args.getString("inputRegression"));overlayRegression="true".equals(args.getString("overlayRegression"));transitionRegression="true".equals(args.getString("transitionRegression"));petalRegression="true".equals(args.getString("petalRegression"));petalReplay="true".equals(args.getString("petalReplay"));galleryRegression="true".equals(args.getString("galleryRegression"));start();}
+    private RuntimeActivity activity;private String tree;private boolean audit=true,sequence,opening,inputRegression,overlayRegression,transitionRegression,petalRegression,petalReplay,galleryRegression,gestureRegression;private File output;private int checks;private final StringBuilder log=new StringBuilder();
+    public void onCreate(Bundle args){super.onCreate(args);tree=args.getString("tree");audit=!"false".equals(args.getString("audit"));sequence="true".equals(args.getString("sequence"));opening="true".equals(args.getString("opening"));inputRegression="true".equals(args.getString("inputRegression"));overlayRegression="true".equals(args.getString("overlayRegression"));transitionRegression="true".equals(args.getString("transitionRegression"));petalRegression="true".equals(args.getString("petalRegression"));petalReplay="true".equals(args.getString("petalReplay"));galleryRegression="true".equals(args.getString("galleryRegression"));gestureRegression="true".equals(args.getString("gestureRegression"));start();}
     interface Job<T>{T run(DesktopEngine e)throws Exception;}
     private <T>T call(Job<T> job)throws Exception {if(activity.failed)throw new IOException(activity.error);return activity.worker.submit(()->{if(activity.engine==null)throw new IOException("Engine not ready");return job.run(activity.engine);}).get(60,TimeUnit.SECONDS);}
     private void check(boolean value,String detail)throws IOException{if(!value)throw new IOException(detail);checks++;log.append("PASS ").append(detail).append('\n');}
@@ -31,6 +31,7 @@ public final class SharedRuntimeInstrumentation extends Instrumentation {
         if(galleryRegression){log.append(this.<String>call(e->new DdGalleryAudit((DesktopDd)e).run(output.toPath().resolve("gallery-regression"))));result.putString("stream",log.toString());finish(-1,result);return;}
         if(profile.equals("dcpc-2063")){tap("name");waitMenu();check(call(e->e.editingText()),"original name editor opens");tap("@name:field:4");call(e->{e.typeText("测试");return null;});tap("@name:button:7");capture("00-name-confirm");tap("@name:yes");waitMenu();check(call(e->((PcHost)((DesktopLegacy)e).host()).givenName.equals("测试")),"name confirmation uses shared host");}
         tap(actions().contains("sce_start")?"sce_start":"start");waitText();capture("02-first-dialogue");
+        if(gestureRegression){gestureRegression();result.putString("stream",log.toString());finish(-1,result);return;}
         if(overlayRegression){overlayRegression();result.putString("stream",log.toString());finish(-1,result);return;}
         if(inputRegression){inputRegression();result.putString("stream",log.toString());finish(-1,result);return;}
         if(opening){openingMovie();result.putString("stream",log.toString());finish(-1,result);return;}
@@ -47,6 +48,78 @@ public final class SharedRuntimeInstrumentation extends Instrumentation {
         Files.write(output.toPath().resolve("result.txt"),log.toString().getBytes("UTF-8"));result.putString("stream",log.toString());finish(-1,result);
     }catch(Throwable e){log.append("FAIL ").append(e).append('\n');try{if(activity!=null&&activity.engine!=null)log.append(this.<String>call(v->v.vm().scriptName()+"@"+Integer.toHexString(v.vm().offset())+" "+v.vm().status()+" actions="+actionsUnsafe(v))).append('\n');}catch(Exception ignored){}try{if(output!=null)Files.write(output.toPath().resolve("result.txt"),log.toString().getBytes("UTF-8"));}catch(Exception ignored){}result.putString("stream",log.toString());finish(0,result);}finally{if(activity!=null)runOnMainSync(()->activity.finish());}}
     private static List<String> actionsUnsafe(DesktopEngine e){List<String>a=new ArrayList<>();for(DesktopEngine.Control c:e.controls())a.add(c.action);return a;}
+    private static final class StoryPoint {
+        final String script,body;final int pc;
+        StoryPoint(MesVm vm,Dc2Host host){script=vm.scriptName();body=host.body;pc=vm.offset();}
+        boolean matches(MesVm vm,Dc2Host host){return script.equals(vm.scriptName())&&pc==vm.offset()&&body.equals(host.body);}
+    }
+    private StoryPoint storyPoint()throws Exception{return call(e->{DesktopLegacy d=(DesktopLegacy)e;return new StoryPoint(d.vm(),d.host());});}
+    private boolean sameStory(StoryPoint before)throws Exception{return call(e->{DesktopLegacy d=(DesktopLegacy)e;if(!d.session.inSystem())return before.matches(d.vm(),d.host());Dc2Session suspended=new Dc2Session(e.resources,e.codec);suspended.restore(d.session.storySnapshot());return before.matches(suspended.vm,suspended.host);});}
+    private void stableStory()throws Exception{
+        waitText();long end=SystemClock.uptimeMillis()+20000;
+        while(SystemClock.uptimeMillis()<end){if(call(e->{DesktopLegacy d=(DesktopLegacy)e;return !d.session.inSystem()&&d.host().textWaiting&&!d.host().presentationWaiting;}))return;Thread.sleep(50);}
+        throw new IOException("Story text never reached its completed wait");
+    }
+    /** Feed Android MotionEvents to the real Stage; no direct menu/right-click calls. */
+    private void gestureRegression()throws Exception{
+        check(call(e->e instanceof DesktopLegacy),"gesture audit uses original MES story and menus");stableStory();StoryPoint before=storyPoint();
+        twoFinger("tap",false);waitMenu();
+        check(call(e->((DesktopLegacy)e).session.inSystem())&&sameStory(before),"two-finger tap opens one original menu without advancing dialogue");
+        check(actions().contains("save")||actions().contains("s")||actions().contains(":save"),"two-finger menu exposes original SAVE action");capture("20-two-finger-menu");
+        twoFinger("tap",true);stableStory();check(sameStory(before),"first finger lifted first closes menu and preserves dialogue");
+        twoFinger("tap",true);waitMenu();check(call(e->((DesktopLegacy)e).session.inSystem())&&sameStory(before),"reverse lift order opens menu exactly once");
+        twoFinger("tap",false);stableStory();check(sameStory(before),"second finger lifted first returns to same story");
+        for(String kind:new String[]{"hold","move-x","move-y","out-and-back","first-moved","third","cancel"}){
+            twoFinger(kind,false);Thread.sleep(150);
+            check(call(e->!((DesktopLegacy)e).session.inSystem())&&sameStory(before),kind+" does not open menu or advance dialogue");
+        }
+        twoFinger("pause",false);stableStory();check(sameStory(before)&&call(e->!((DesktopLegacy)e).session.inSystem()),"pause cancels unfinished two-finger tap");
+        advanceStory(before);check(!sameStory(before),"single tap still advances dialogue after rejected gestures");
+        for(int n=0;n<30&&call(e->((DesktopLegacy)e).host().history.entries.size())<14;n++){stableStory();advanceStory(storyPoint());}
+        stableStory();check(call(e->((DesktopLegacy)e).host().history.entries.size())>=14,"genuine story playback populates 14 history entries");StoryPoint historyStory=storyPoint();
+        call(e->{((DesktopLegacy)e).action(":backlog");return null;});waitMenu();
+        check(call(e->((DesktopLegacy)e).host().history.active),"original backlog opens for gesture scroll audit");int cursor=call(e->((DesktopLegacy)e).host().history.cursor);
+        twoFinger("scroll",false);Thread.sleep(250);
+        check(call(e->((DesktopLegacy)e).host().history.active&&((DesktopLegacy)e).session.inSystem())&&sameStory(historyStory),"two-finger vertical drag keeps backlog open and story unchanged");
+        if(call(e->!(((DesktopLegacy)e).host() instanceof PcHost)))check(call(e->((DesktopLegacy)e).host().history.cursor)<cursor,"existing two-finger vertical scrolling moves actual backlog cursor");
+        else log.append("INFO PC2 backlog has no existing scroll handler; non-dismissal verified, cursor movement covered separately by DM.\n");
+        capture("21-two-finger-backlog");twoFinger("tap",true);stableStory();check(sameStory(historyStory),"two-finger tap closes backlog at original dialogue");
+        check(!activity.failed,"no Android VM, renderer or media failure during gesture audit");
+        log.append("ANDROID TWO-FINGER PASS CHECKS ").append(checks).append('\n');Files.write(output.toPath().resolve("android-gesture-result.txt"),log.toString().getBytes("UTF-8"));
+    }
+    private void advanceStory(StoryPoint before)throws Exception{
+        long end=SystemClock.uptimeMillis()+20000;while(SystemClock.uptimeMillis()<end){touch(.45f,.30f);stableStory();if(!sameStory(before))return;}
+        throw new IOException("Single tap did not advance story");
+    }
+    private void twoFinger(String kind,boolean firstUp)throws Exception{
+        float[] positions=new float[7];runOnMainSync(()->{View v=activity.stage;DesktopEngine e=activity.engine;float scale=Math.min(v.getWidth()/(float)e.width,v.getHeight()/(float)e.height);float ox=(v.getWidth()-e.width*scale)/2,oy=(v.getHeight()-e.height*scale)/2;
+            positions[0]=ox+e.width*scale*.42f;positions[1]=oy+e.height*scale*.30f;positions[2]=ox+e.width*scale*.55f;positions[3]=positions[1];positions[4]=ViewConfiguration.get(activity).getScaledTouchSlop()+3;positions[5]=80*scale;positions[6]=scale;});
+        long down=SystemClock.uptimeMillis();float x=positions[0],y=positions[1],bx=positions[2],by=positions[3];
+        dispatch(down,0,MotionEvent.ACTION_DOWN,new int[]{7},new float[]{x,y});
+        if(kind.equals("first-moved"))dispatch(down,10,MotionEvent.ACTION_MOVE,new int[]{7},new float[]{x+positions[4],y});
+        dispatch(down,20,MotionEvent.ACTION_POINTER_DOWN|(1<<MotionEvent.ACTION_POINTER_INDEX_SHIFT),new int[]{7,11},new float[]{x,y,bx,by});
+        if(kind.equals("cancel")){dispatch(down,70,MotionEvent.ACTION_CANCEL,new int[]{7,11},new float[]{x,y,bx,by});return;}
+        if(kind.equals("pause")){runOnMainSync(()->callActivityOnPause(activity));Thread.sleep(100);runOnMainSync(()->callActivityOnResume(activity));}
+        if(kind.equals("third")){
+            dispatch(down,30,MotionEvent.ACTION_POINTER_DOWN|(2<<MotionEvent.ACTION_POINTER_INDEX_SHIFT),new int[]{7,11,19},new float[]{x,y,bx,by,bx+30,by+30});
+            dispatch(down,40,MotionEvent.ACTION_POINTER_UP|(2<<MotionEvent.ACTION_POINTER_INDEX_SHIFT),new int[]{7,11,19},new float[]{x,y,bx,by,bx+30,by+30});
+        }
+        if(kind.equals("out-and-back")){
+            final float[] displaced={x+positions[4],y,bx,by},returned={x,y,bx,by};
+            runOnMainSync(()->{MotionEvent move=motion(down,down+50,MotionEvent.ACTION_MOVE,new int[]{7,11},displaced);move.addBatch(down+60,coords(returned),0);try{activity.stage.dispatchTouchEvent(move);}finally{move.recycle();}});
+        }
+        if(kind.equals("move-x")){x+=positions[4];bx+=positions[4];}
+        if(kind.equals("move-y")){y+=positions[4];by+=positions[4];}
+        if(kind.equals("scroll")){y+=positions[5];by+=positions[5];}
+        if(kind.startsWith("move-")||kind.equals("scroll"))dispatch(down,60,MotionEvent.ACTION_MOVE,new int[]{7,11},new float[]{x,y,bx,by});
+        int elapsed=kind.equals("hold")?400:100;int index=firstUp?0:1;
+        dispatch(down,elapsed,MotionEvent.ACTION_POINTER_UP|(index<<MotionEvent.ACTION_POINTER_INDEX_SHIFT),new int[]{7,11},new float[]{x,y,bx,by});
+        dispatch(down,elapsed+20,MotionEvent.ACTION_UP,new int[]{firstUp?11:7},firstUp?new float[]{bx,by}:new float[]{x,y});
+        call(e->null);
+    }
+    private static MotionEvent.PointerCoords[] coords(float[] xy){MotionEvent.PointerCoords[] cs=new MotionEvent.PointerCoords[xy.length/2];for(int n=0;n<cs.length;n++){cs[n]=new MotionEvent.PointerCoords();cs[n].x=xy[n*2];cs[n].y=xy[n*2+1];cs[n].pressure=1;cs[n].size=1;}return cs;}
+    private static MotionEvent motion(long down,long time,int action,int[] ids,float[] xy){MotionEvent.PointerProperties[] ps=new MotionEvent.PointerProperties[ids.length];for(int n=0;n<ids.length;n++){ps[n]=new MotionEvent.PointerProperties();ps[n].id=ids[n];ps[n].toolType=MotionEvent.TOOL_TYPE_FINGER;}return MotionEvent.obtain(down,time,action,ids.length,ps,coords(xy),0,0,1,1,0,0,android.view.InputDevice.SOURCE_TOUCHSCREEN,0);}
+    private void dispatch(long down,int elapsed,int action,int[] ids,float[] xy){runOnMainSync(()->{MotionEvent event=motion(down,down+elapsed,action,ids,xy);try{activity.stage.dispatchTouchEvent(event);}finally{event.recycle();}});}
     private void petalRegression()throws Exception {
         log.append(this.<String>call(e->new DdPetalAudit((DesktopDd)e).run(output.toPath().resolve("petal-regression"),petalReplay)));
         Thread.sleep(1000);List<Long> frames=new ArrayList<>();

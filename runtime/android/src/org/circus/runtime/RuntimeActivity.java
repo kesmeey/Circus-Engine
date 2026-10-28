@@ -52,7 +52,7 @@ public final class RuntimeActivity extends Activity {
             }
             if(!audit&&!(engine instanceof DesktopUnity))migratePreviousAndroid();Path automatic=engine.saveDirectory.resolve("mobile-resume.sav");if(resume&&Files.isRegularFile(automatic))engine.restore(automatic);
             String libraryId=getIntent().getStringExtra("library_id");if(!audit&&libraryId!=null)new GameLibrary(this).opened(libraryId);
-            lastTick=SystemClock.uptimeMillis();main.post(()->{stage.setContentDescription("原版游戏画面，点击推进，返回键打开菜单");wake();});
+            lastTick=SystemClock.uptimeMillis();main.post(()->{stage.setContentDescription("原版游戏画面，点击推进，双指点按或返回键打开菜单");wake();});
         }catch(Throwable e){fail(e);}});
     }
     private void migratePreviousAndroid()throws IOException {
@@ -117,23 +117,41 @@ public final class RuntimeActivity extends Activity {
     private void closeMovie(){movieToken++;if(movie!=null){movie.close();movie=null;}if(platformMovie!=null){platformMovie.stopPlayback();platformMovie=null;}if(movieDialog!=null){movieDialog.dismiss();movieDialog=null;}if(movieFile!=null){movieFile.delete();movieFile=null;}}
     @Override public void onBackPressed(){if(engine==null||failed){super.onBackPressed();return;}input(()->engine.click(0,0,true));}
     @Override protected void onResume(){super.onResume();active=true;getWindow().getDecorView().setSystemUiVisibility(5894);submit(()->{for(int ch=0;ch<6;ch++)if(players[ch]!=null&&prepared[ch])players[ch].start();});if(movie!=null)movie.resumeMovie();if(platformMovie!=null)platformMovie.start();wake();}
-    @Override protected void onPause(){active=false;Choreographer.getInstance().removeFrameCallback(frame);if(movie!=null)movie.pauseMovie();if(platformMovie!=null)platformMovie.pause();submit(()->{try{if(engine!=null&&!failed){engine.cancelPointer();updatePositions();if(!audit){engine.persist();engine.save(engine.saveDirectory.resolve("mobile-resume.sav"));}}}catch(Exception e){fail(e);}finally{for(int ch=0;ch<6;ch++)if(players[ch]!=null&&prepared[ch])players[ch].pause();}});super.onPause();}
+    @Override protected void onPause(){active=false;if(stage!=null)stage.cancelGesture();Choreographer.getInstance().removeFrameCallback(frame);if(movie!=null)movie.pauseMovie();if(platformMovie!=null)platformMovie.pause();submit(()->{try{if(engine!=null&&!failed){engine.cancelPointer();updatePositions();if(!audit){engine.persist();engine.save(engine.saveDirectory.resolve("mobile-resume.sav"));}}}catch(Exception e){fail(e);}finally{for(int ch=0;ch<6;ch++)if(players[ch]!=null&&prepared[ch])players[ch].pause();}});super.onPause();}
     @Override protected void onSaveInstanceState(Bundle out){super.onSaveInstanceState(out);out.putBoolean("resume",true);}
     @Override protected void onDestroy(){closed=true;Choreographer.getInstance().removeFrameCallback(frame);closeMovie();worker.execute(()->{for(int ch=0;ch<6;ch++)stopAudio(ch);});worker.shutdown();stage.release();super.onDestroy();}
     @Override public boolean onKeyUp(int code,KeyEvent event){if(code==KeyEvent.KEYCODE_BACK)return super.onKeyUp(code,event);input(()->{if(engine.editingText()){int mapped=code==KeyEvent.KEYCODE_DEL?8:code==KeyEvent.KEYCODE_FORWARD_DEL?127:code==KeyEvent.KEYCODE_DPAD_LEFT?37:code==KeyEvent.KEYCODE_DPAD_RIGHT?39:code==KeyEvent.KEYCODE_ENTER?10:0;if(mapped!=0)engine.editKey(mapped);else if(event.getUnicodeChar()!=0)engine.typeText(new String(Character.toChars(event.getUnicodeChar())));}else if(code==KeyEvent.KEYCODE_ENTER||code==KeyEvent.KEYCODE_SPACE)engine.click(engine.width/2,engine.height/2,false);});return true;}
     final class Stage extends View {
         java.util.function.LongConsumer presentationObserver;
-        private BufferedImage image;private float scale=1,ox,oy;private final Paint paint=new Paint(Paint.FILTER_BITMAP_FLAG);private boolean held;private float downY;private boolean scrollGesture;
+        private BufferedImage image;private float scale=1,ox,oy;private final Paint paint=new Paint(Paint.FILTER_BITMAP_FLAG);private boolean held,multiTouch,tapCandidate,scrollAllowed,firstMoved;
+        private int firstPointer=-1,secondPointer=-1;private float firstX,firstY,secondX,secondY,scrollY;private long touchStarted;
+        private static final long TWO_FINGER_TAP_MS=350;
+        private final int touchSlop=ViewConfiguration.get(RuntimeActivity.this).getScaledTouchSlop();
         Stage(){super(RuntimeActivity.this);setBackgroundColor(Color.BLACK);setFocusableInTouchMode(true);setContentDescription("正在读取游戏资源");}
         void present(BufferedImage next){BufferedImage old=image;image=next;if(old!=null)old.flush();invalidate();if(presentationObserver!=null)presentationObserver.accept(System.nanoTime());}
         void release(){if(image!=null){image.flush();image=null;}}
         @Override protected void onDraw(Canvas canvas){super.onDraw(canvas);canvas.drawColor(Color.BLACK);if(image==null){Paint label=new Paint(Paint.ANTI_ALIAS_FLAG);label.setColor(0xffdddddd);label.setTextSize(18*getResources().getDisplayMetrics().scaledDensity);label.setTextAlign(Paint.Align.CENTER);canvas.drawText("正在读取游戏资源…",getWidth()/2f,getHeight()/2f,label);return;}scale=Math.min(getWidth()/(float)image.getWidth(),getHeight()/(float)image.getHeight());ox=(getWidth()-image.getWidth()*scale)/2;oy=(getHeight()-image.getHeight()*scale)/2;canvas.drawBitmap(image.bitmap,null,new RectF(ox,oy,ox+image.getWidth()*scale,oy+image.getHeight()*scale),paint);}
+        void cancelGesture(){held=multiTouch=tapCandidate=scrollAllowed=firstMoved=false;firstPointer=secondPointer=-1;}
+        private boolean moved(MotionEvent e,int id,float startX,float startY){
+            int i=e.findPointerIndex(id);if(i<0)return false;float limit=touchSlop*(float)touchSlop;
+            for(int h=0;h<=e.getHistorySize();h++){float dx=(h==e.getHistorySize()?e.getX(i):e.getHistoricalX(i,h))-startX,dy=(h==e.getHistorySize()?e.getY(i):e.getHistoricalY(i,h))-startY;if(dx*dx+dy*dy>limit)return true;}return false;
+        }
+        private void trackTap(MotionEvent e){firstMoved|=moved(e,firstPointer,firstX,firstY);if(firstMoved||secondPointer>=0&&moved(e,secondPointer,secondX,secondY))tapCandidate=false;}
         @Override public boolean onTouchEvent(MotionEvent event){if(engine==null||failed||image==null)return true;int x=Math.round((event.getX()-ox)/scale),y=Math.round((event.getY()-oy)/scale);int action=event.getActionMasked();
-            if(action==MotionEvent.ACTION_POINTER_DOWN){scrollGesture=true;input(()->engine.cancelPointer());return true;}
-            if(action==MotionEvent.ACTION_DOWN){held=true;scrollGesture=false;downY=event.getY();input(()->engine.pointerDown(x,y));}
-            else if(action==MotionEvent.ACTION_MOVE){if(scrollGesture){float delta=(event.getY()-downY)/scale;if(Math.abs(delta)>35){int units=delta>0?-1:1;downY=event.getY();input(()->engine.scroll(units));}}else if(held)input(()->engine.pointerMove(x,y));}
-            else if(action==MotionEvent.ACTION_UP){if(held&&!scrollGesture)input(()->engine.pointerUp(x,y));held=false;performClick();}
-            else if(action==MotionEvent.ACTION_CANCEL){held=false;input(()->engine.cancelPointer());}return true;
+            if(action==MotionEvent.ACTION_DOWN){cancelGesture();held=true;firstPointer=event.getPointerId(0);firstX=event.getX();firstY=event.getY();touchStarted=event.getEventTime();input(()->engine.pointerDown(x,y));}
+            else if(action==MotionEvent.ACTION_POINTER_DOWN){
+                trackTap(event);boolean pair=!multiTouch&&held&&event.getPointerCount()==2;
+                tapCandidate=pair&&!firstMoved&&event.getEventTime()-touchStarted<=TWO_FINGER_TAP_MS;
+                if(pair){int i=event.getActionIndex();secondPointer=event.getPointerId(i);secondX=event.getX(i);secondY=event.getY(i);scrollY=(event.getY(0)+event.getY(1))/2;}
+                scrollAllowed=pair;multiTouch=true;held=false;input(()->engine.cancelPointer());
+            }
+            else if(action==MotionEvent.ACTION_MOVE){trackTap(event);if(multiTouch){if(scrollAllowed&&event.getPointerCount()==2){float center=(event.getY(0)+event.getY(1))/2,delta=(center-scrollY)/scale;if(Math.abs(delta)>35){tapCandidate=false;int units=delta>0?-1:1;scrollY=center;input(()->engine.scroll(units));}}}else if(held)input(()->engine.pointerMove(x,y));}
+            else if(action==MotionEvent.ACTION_POINTER_UP){trackTap(event);scrollAllowed=false;}
+            else if(action==MotionEvent.ACTION_UP){
+                trackTap(event);boolean right=multiTouch&&tapCandidate&&event.getEventTime()-touchStarted<=TWO_FINGER_TAP_MS,left=held&&!multiTouch;cancelGesture();
+                if(right)input(()->{engine.cancelPointer();engine.click(0,0,true);});else if(left)input(()->engine.pointerUp(x,y));performClick();
+            }
+            else if(action==MotionEvent.ACTION_CANCEL){cancelGesture();input(()->engine.cancelPointer());}return true;
         }
         @Override public boolean performClick(){super.performClick();return true;}
         @Override public boolean onGenericMotionEvent(MotionEvent event){if(event.getAction()==MotionEvent.ACTION_SCROLL){int units=-(int)Math.signum(event.getAxisValue(MotionEvent.AXIS_VSCROLL));input(()->engine.scroll(units));return true;}if(event.getAction()==MotionEvent.ACTION_HOVER_MOVE){int x=Math.round((event.getX()-ox)/scale),y=Math.round((event.getY()-oy)/scale);input(()->engine.hover(x,y));return true;}return super.onGenericMotionEvent(event);}

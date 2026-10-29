@@ -4,6 +4,7 @@
 仓库包含资源解包工具、VM 规范、Java 核心、PC/Android 前端、测试及构建脚本；不包含游戏数据、采集副本、签名密钥或构建工具链。下文 `build/` 和 `analysis/` 路径指本机构建/验证生成物，不是 GitHub 中已上传的文件。APK 和 PC 包需按文档构建。
 
 **2026-10-29 当前验收顺序：资源解包器 → VM 规范 → PC 解释器 → 移动端。**
+Android 0.13.6 修复 DC2PC 选择支普通状态下文字不显示，并补回 DCPC／DC2PC／DC2DM 的原版文字阴影；兼容旧解释器快照。四个 MES 版本均减少启动时脚本读取，目录未变化时复用版本识别结果。安装包为 `build/distribution/circus-runtime-0.13.6-android-dev.apk`，可覆盖安装；范围与验证见 [Android 0.13.6 说明](docs/ANDROID_0136.md)。
 Android 0.13.5 将原版系统进度导入扩展至 DCPC、DC2PC、DC2DM、DC3DD：游戏卡片「更多 → 导入原版进度」，按版本合并通关和鉴赏解锁，多份系统存档可自行选择来源。保留手机设置和存档，原版剧情槽位仍不转换。安装包为 `build/distribution/circus-runtime-0.13.5-android-dev.apk`，使用与格式证据见 [Android 0.13.5 说明](docs/ANDROID_0135.md)。
 Android 0.13.4 修复 DC2PC Dacapo 线切换长 BGM 时的内存溢出：原始 PCM／Ogg 分块写入播放缓存，避免整段音频的多份内存副本。安装包为 `build/distribution/circus-runtime-0.13.4-android-dev.apk`，可覆盖安装；验证与边界见 [Android 0.13.4 说明](docs/ANDROID_0134.md)。
 Android 0.13.3 新增 DC2PC 原版通关／CG／场景进度导入：游戏卡片“更多”→“导入原版进度（DC2PC）”。自动合并和备份手机系统进度，原版剧情槽位尚不转换。安装包为 `build/distribution/circus-runtime-0.13.3-android-dev.apk`，操作及支持范围见 [Android 0.13.3 说明](docs/ANDROID_0133.md)。
@@ -16,7 +17,7 @@ Android 0.12.6 安装包：`build/distribution/circus-runtime-0.12.6-android-dev
 新增 [D.C. Engine VM Specification](docs/VM_SPECIFICATION.md) 和 `profiles/vm-specification.json`，包含四个版本的 485 项原生分发表；PC1/2 已用 REA + Ghidra 交叉核对。未知语义不当成 NOP。
 PC 测试包：`build/distribution/dc-runtime-0.11.0-pc-dev-windows-x64/DC Runtime.cmd`，双击选择原游戏目录，自带 Java 和 FFmpeg。四部本地版本均已验证原版启动、正文、选择、存读档和到达结尾；0.10 的 48 次路线策略测试通过，0.11 另重跑四部各一条完整路线；已有实际音视频输出检查。
 0.11 修复连续系统截图丢失底图，并保存冻结的控件、颜色和动画状态；四部均通过嵌套截图、40次重复捕获及存档后的逐像素比较。兼容0.9/0.10解释器存档。
-0.10 补入 PC1 原版姓名编辑、存档缩略图/角色图标、音乐位置续播、逐字显示及显示进度存档、角色语音设置、原版滑条、回看预览与滚动条拖动；继续保留 0.9 的原脚本鉴赏列表。325 项 JVM 断言和 47 项 Python 测试通过。部分演出、字体和系统设置副作用仍未完整还原，不能称为所有功能完成。确切范围、运行方法和证据见 [PC 兼容性说明](docs/PC_COMPATIBILITY.md)。`old_source_circus_dcpc` 不作为输入或参考。下方 Android 0.3–0.6 记录为历史基线；当前 APK 以 Android 0.13.5 文档为准。
+0.10 补入 PC1 原版姓名编辑、存档缩略图/角色图标、音乐位置续播、逐字显示及显示进度存档、角色语音设置、原版滑条、回看预览与滚动条拖动；继续保留 0.9 的原脚本鉴赏列表。325 项 JVM 断言和 47 项 Python 测试通过。部分演出、字体和系统设置副作用仍未完整还原，不能称为所有功能完成。确切范围、运行方法和证据见 [PC 兼容性说明](docs/PC_COMPATIBILITY.md)。`old_source_circus_dcpc` 不作为输入或参考。下方 Android 0.3–0.6 记录为历史基线；当前 APK 以 Android 0.13.6 文档为准。
 
 **项目目标已重新明确：实现类似用户所说的 krkr 模拟器使用体验的 DC1／2／3 引擎兼容层。**
 选择游戏目录后，应执行该版本的原版启动、标题、菜单、正文与返回流程，使用原版界面资源和脚本定义的按钮行为。

@@ -7,12 +7,17 @@ import java.util.*;
 public final class Archive {
     public interface Source {
         long size()throws IOException; byte[] read(long offset,int length)throws IOException;
+        /** Keep one read handle for a group of small random-access inspections. */
+        default Reader openReader()throws IOException{
+            final Source source=this;return new Reader(){public long size()throws IOException{return source.size();}public byte[] read(long at,int count)throws IOException{return source.read(at,count);}public void close(){}};
+        }
         /** Platforms with persistent file handles may override this bounded
          * copy; the default never allocates a complete entry. */
         default void copyTo(long offset,long count,OutputStream out)throws IOException{
             Binary.range(offset,count,size());for(long copied=0;copied<count;){int n=(int)Math.min(64*1024,count-copied);byte[] block=read(offset+copied,n);if(block.length!=n)throw new EOFException("Short archive copy");out.write(block);copied+=n;}
         }
     }
+    public interface Reader extends Source,AutoCloseable {void close()throws IOException;}
     public static final class Entry {
         public final int index;public final byte[] nameBytes;public final String name;public final long offset;public final int length;
         Entry(int i,byte[] n,long o,int l){index=i;nameBytes=n;name=new String(n,Binary.SJIS);offset=o;length=l;}

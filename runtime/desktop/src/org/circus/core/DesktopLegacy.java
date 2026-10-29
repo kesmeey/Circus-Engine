@@ -155,7 +155,12 @@ public final class DesktopLegacy extends DesktopEngine {
         BufferedImage image=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D g=image.createGraphics();try{g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);scene(g,captureState.frame);}finally{g.dispose();captureState=saved;}return image;
     }
     private void at(Graphics2D g,String name,int x,int y)throws IOException {Picture p=picture(name);if(p!=null)g.drawImage(p.image,x+p.raw.x,y+p.raw.y,null);}
-    private void text(Graphics2D g,String s,int x,int y,int lineHeight,int style,int width){g.setFont(new Font("Microsoft YaHei",Font.PLAIN,22));g.setColor(new Color(color(style),true));int at=x,base=y+22;for(int pos=0;pos<s.length();){int cp=s.codePointAt(pos);String c=new String(Character.toChars(cp));pos+=Character.charCount(cp);int w=g.getFontMetrics().stringWidth(c);if(cp==10||at+w>x+width){at=x;base+=Math.max(22,lineHeight);if(cp==10)continue;}g.drawString(c,at,base);at+=w;}}
+    private void text(Graphics2D g,String s,int x,int y,int lineHeight,int style,int width){
+        g.setFont(new Font("Microsoft YaHei",Font.PLAIN,22));Color foreground=new Color(color(style),true);
+        // PC1 417A5E / PC2 421CA6 / DM 4024E8 draw style 0x80 at (+1,+1), using palette 0; PC2 uses 9 for black text.
+        boolean shadow=(style&0x80)!=0;Color shade=shadow?new Color(color(host() instanceof PcHost&&((PcHost)host()).second&&(style&63)==0?9:0),true):foreground;
+        g.setColor(foreground);int at=x,base=y+22;for(int pos=0;pos<s.length();){int cp=s.codePointAt(pos);String c=new String(Character.toChars(cp));pos+=Character.charCount(cp);int w=g.getFontMetrics().stringWidth(c);if(cp==10||at+w>x+width){at=x;base+=Math.max(22,lineHeight);if(cp==10)continue;}if(shadow){g.setColor(shade);g.drawString(c,at+1,base+1);g.setColor(foreground);}g.drawString(c,at,base);at+=w;}
+    }
     private void quad(Graphics2D g,Dc2Ui.Quad q,String[] slots,boolean sprite)throws IOException {
         if(q.binding!=0&&session.vm.variables.read(q.binding>>8,q.binding&255)==0)return;
         if(q.type==2){if(!q.text.isEmpty())text(g,codec.apply(q.text),q.x,q.y,sprite?23:Math.max(22,q.width),sprite?q.flags:q.height,width-q.x);return;}

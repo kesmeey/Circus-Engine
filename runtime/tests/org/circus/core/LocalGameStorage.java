@@ -21,6 +21,13 @@ public final class LocalGameStorage implements GameResources.Storage {
     public byte[] read(String name,int limit)throws IOException{try(InputStream in=Files.newInputStream(path(name))){return Binary.read(in,limit);}}
     public Archive.Source source(String name)throws IOException{
         final Path p=path(name);return new Archive.Source(){
+            @Override public Archive.Reader openReader()throws IOException{
+                final RandomAccessFile file=new RandomAccessFile(p.toFile(),"r");return new Archive.Reader(){
+                    public long size()throws IOException{return file.length();}
+                    public byte[] read(long at,int count)throws IOException{Binary.range(at,count,file.length());byte[] bytes=new byte[count];file.seek(at);file.readFully(bytes);return bytes;}
+                    public void close()throws IOException{file.close();}
+                };
+            }
             public long size()throws IOException{return Files.size(p);}
             public byte[] read(long offset,int length)throws IOException{try(RandomAccessFile file=new RandomAccessFile(p.toFile(),"r")){Binary.range(offset,length,file.length());byte[] b=new byte[length];file.seek(offset);file.readFully(b);return b;}}
             @Override public void copyTo(long offset,long length,OutputStream out)throws IOException{try(RandomAccessFile file=new RandomAccessFile(p.toFile(),"r")){Binary.range(offset,length,file.length());file.seek(offset);byte[] block=new byte[65536];while(length>0){int n=(int)Math.min(block.length,length);file.readFully(block,0,n);out.write(block,0,n);length-=n;}}}

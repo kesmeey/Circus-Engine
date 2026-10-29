@@ -11,6 +11,8 @@ public final class PcHost extends Dc2Host {
     private final byte[] globals=new byte[100],cg=new byte[1600],seen=new byte[1600],voiceEnabled=new byte[128],scratch=new byte[100];
     public final ScriptList list=new ScriptList();private boolean gridTarget;private String musicEndAction="";
     private int spriteFlags;private int randomState=0x63c25769;private boolean timedInput;
+    // PC1 4304F8 / PC2 500F30 defaults (native bytes are G,R,B,0). START assigns later indices separately.
+    private static final int[] PC_PALETTE={0xff000000,0xff0000ff,0xffff0000,0xffff00ff,0xff00ff00,0xff00ffff,0xffffff00,0xffffffff,0xff854e28,0xffccccff,0xff774400,0xffff7f7f,0xffcccccc};
     public final int[] gridBounds=new int[8];
     public int gridSlot(int index)throws IOException{return read(99,0)*(second?8:5)+index;}
     @Override public byte[] menuActionForGrid(int index)throws IOException{
@@ -27,7 +29,7 @@ public final class PcHost extends Dc2Host {
     public void openHistory()throws IOException{history.active=true;history.selected=Math.max(0,history.entries.size()-2);ui.waiting=true;ui.buttons.clear();ui.buttons.addAll(Dc2Ui.copyButtons(ui.buttonTemplates.get(messageMode==0?1:4)));showHistory();nextTicket();}
     private void showHistory(){if(history.entries.isEmpty())return;Dc2History.Entry e=history.entries.get(history.selected);speaker=e.speaker;body=e.body;}
     public static boolean supports(Profile p){return p.id.equals("dc2pc-5769")||p.id.equals("dcpc-2063");}
-    public PcHost(CircusResources r,TextCodec c){super(r,c);second=r.profile.id.equals("dc2pc-5769");boolean cn=c.charset.name().equalsIgnoreCase("GBK");familyName=second?(cn?"樱内":"桜内"):(cn?"朝仓":"朝倉");givenName=second?(cn?"义之":"義之"):(cn?"纯一":"純一");gridHoverSound=gridClickSound=255;Arrays.fill(voiceEnabled,(byte)1);registers.put(13,0);registers.put(19,0);registers.put(25,0);registers.put(26,8);registers.put(27,8);}
+    public PcHost(CircusResources r,TextCodec c){super(r,c);second=r.profile.id.equals("dc2pc-5769");System.arraycopy(PC_PALETTE,0,ui.palette,0,PC_PALETTE.length);boolean cn=c.charset.name().equalsIgnoreCase("GBK");familyName=second?(cn?"樱内":"桜内"):(cn?"朝仓":"朝倉");givenName=second?(cn?"义之":"義之"):(cn?"纯一":"純一");gridHoverSound=gridClickSound=255;Arrays.fill(voiceEnabled,(byte)1);registers.put(13,0);registers.put(19,0);registers.put(25,0);registers.put(26,8);registers.put(27,8);}
     @Override public void elapse(long ms){super.elapse(ms);pcCredits.elapse(ms);if(map.active)map.elapsed+=Math.max(0,ms);}
     @Override public boolean waiting(){return pcCredits.active||super.waiting();}
     @Override public boolean internalMenuAction(long expected,int button)throws IOException{
@@ -106,6 +108,9 @@ public final class PcHost extends Dc2Host {
         List<Dc2Ui.Button> templates=ui.buttonTemplates.get(3);int n=++choiceCount;if(n>=templates.size())throw new IOException("PC choice template missing");Dc2Ui.Button b=Dc2Ui.copyButtons(Collections.singletonList(templates.get(n))).get(0);b.action=TextCodec.cp932(label);
         for(Dc2Ui.Quad q:b.sprites)if(q.type==2){q.text=codec.decode(caption);q.width=caption.length*14+1;}ui.buttons.add(b);
     }
+    /** PC2 412860 stores text state 9; 4132E3 makes it visible at rest, like image state 9. */
+    private void normalizeButtonText(Dc2Ui.Quad q){if(second&&q.type==2&&q.state==9)q.state=99;}
+    private void normalizeButtonText(List<Dc2Ui.Button> buttons){for(Dc2Ui.Button b:buttons)for(Dc2Ui.Quad q:b.sprites)normalizeButtonText(q);}
     @Override public boolean command(String op,int[] a,byte[] bytes)throws IOException{
         timedInput=false;
         String text=new String(bytes,Binary.SJIS);
@@ -128,7 +133,7 @@ public final class PcHost extends Dc2Host {
         }
         case "text.speaker":speaker=prose(bytes);speakerPending=true;return true;
         case "text.body":scene.publish(ui,0,0);if(!speakerPending||messageMode!=0)speaker="";speakerPending=false;body=prose(bytes);unlock("scenario_scripts",script.name,98);if(!body.isEmpty())history.append(speaker,body,lineVoice,script.name,pc);lineVoice="";presentationWaiting=true;textRendered=false;nextTicket();return true;
-        case "ui.button_text":case "dm.ui.text":{ui.text(a,new byte[0],op.equals("ui.button_text"));Dc2Ui.Quad q=op.equals("ui.button_text")?ui.last().sprites.get(ui.last().sprites.size()-1):ui.quads.get(ui.quads.size()-1);q.text=codec.decode(bytes);q.width=op.equals("ui.button_text")?bytes.length*14+1:q.width;return true;}
+        case "ui.button_text":case "dm.ui.text":{boolean sprite=op.equals("ui.button_text");ui.text(a,new byte[0],sprite);Dc2Ui.Quad q=sprite?ui.last().sprites.get(ui.last().sprites.size()-1):ui.quads.get(ui.quads.size()-1);q.text=codec.decode(bytes);if(sprite){q.width=bytes.length*14+1;normalizeButtonText(q);}return true;}
         case "pc.movie":movie=Binary.safePath(text);if(!movie.toLowerCase(Locale.ROOT).startsWith("advdata/"))movie="AdvData/"+movie;movieGeneration++;play(0,"",false);nextTicket();return true;
         case "pc.history":case "pc.checkpoint":checkpoint=a[0]|a[1]<<8;if(op.equals("pc.history"))readCheckpoints.add(script.name+":"+checkpoint);return true;
         case "pc.reset":variables.clearOrdinary();variables.clearHistory();return true;
@@ -261,7 +266,12 @@ public final class PcHost extends Dc2Host {
     private void savePc(DataOutput o)throws IOException{o.writeInt(0x50435032);o.write(globals);o.write(cg);o.write(seen);o.write(voiceEnabled);o.write(scratch);o.writeInt(spriteFlags);o.writeInt(randomState);o.writeUTF(familyName);o.writeUTF(givenName);}
     private void loadPc(DataInput i)throws IOException{int format=i.readInt();if(format!=0x50435031&&format!=0x50435032)throw new IOException("PC state format");i.readFully(globals);i.readFully(cg);i.readFully(seen);i.readFully(voiceEnabled);i.readFully(scratch);spriteFlags=i.readInt();randomState=i.readInt();if(format>=0x50435032){familyName=i.readUTF();givenName=i.readUTF();if(familyName.length()>4||givenName.length()>4)throw new IOException("Saved player name too long");}}
     @Override public void save(DataOutput o)throws IOException{super.save(o);o.writeInt(0x50434835);savePc(o);o.writeBoolean(timedInput);for(int n:gridBounds)o.writeInt(n);map.save(o);pcCredits.save(o);o.writeInt(voiceGroup.size());for(String voice:voiceGroup)o.writeUTF(voice);list.save(o);o.writeBoolean(gridTarget);o.writeUTF(musicEndAction);nameInput.save(o);}
-    @Override public void load(DataInput i)throws IOException{super.load(i);int format=i.readInt();if(format!=0x50434832&&format!=0x50434833&&format!=0x50434834&&format!=0x50434835)throw new IOException("PC host state version");loadPc(i);timedInput=i.readBoolean();for(int n=0;n<8;n++)gridBounds[n]=i.readInt();map.load(i);voiceGroup.clear();if(format>=0x50434833){pcCredits.load(i);int count=i.readInt();if(count<0||count>10)throw new IOException("PC voice group count");while(count-->0)voiceGroup.add(i.readUTF());}if(format>=0x50434834){list.load(i);gridTarget=i.readBoolean();musicEndAction=i.readUTF();}if(format>=0x50434835){nameInput.load(i);if(nameInput.active)nameInput.prepare(resources,codec);}}
+    @Override public void load(DataInput i)throws IOException{super.load(i);int format=i.readInt();if(format!=0x50434832&&format!=0x50434833&&format!=0x50434834&&format!=0x50434835)throw new IOException("PC host state version");loadPc(i);timedInput=i.readBoolean();for(int n=0;n<8;n++)gridBounds[n]=i.readInt();map.load(i);voiceGroup.clear();if(format>=0x50434833){pcCredits.load(i);int count=i.readInt();if(count<0||count>10)throw new IOException("PC voice group count");while(count-->0)voiceGroup.add(i.readUTF());}if(format>=0x50434834){list.load(i);gridTarget=i.readBoolean();musicEndAction=i.readUTF();}if(format>=0x50434835){nameInput.load(i);if(nameInput.active)nameInput.prepare(resources,codec);}
+        // Older phone snapshots contain the unconverted native text state in both the active menu and START templates.
+        normalizeButtonText(ui.buttons);for(List<Dc2Ui.Button> template:ui.buttonTemplates)normalizeButtonText(template);
+        // Before native defaults were initialized, all thirteen entries were white. Preserve any nondefault saved palette.
+        boolean missing=true;for(int n=0;n<PC_PALETTE.length;n++)missing&=ui.palette[n]==0xffffffff;if(missing)System.arraycopy(PC_PALETTE,0,ui.palette,0,PC_PALETTE.length);
+    }
     @Override public void savePersistent(DataOutput o)throws IOException{super.savePersistent(o);savePc(o);}
     @Override public void loadPersistent(DataInput i)throws IOException{super.loadPersistent(i);loadPc(i);}
 }

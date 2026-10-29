@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SHARED = ['DesktopEngine', 'DesktopSave', 'DesktopCaptures', 'DesktopLegacy', 'DesktopDd', 'DesktopUnity', 'DesktopTransitionMask', 'TransitionMaskTests', 'LegacyInputAudit', 'DmOverlayAudit', 'DdTransitionAudit', 'DdPetalAudit', 'DdGalleryAudit', 'Dc2PcAudioMemoryAudit', 'Json']
+SHARED = ['DesktopEngine', 'DesktopSave', 'DesktopCaptures', 'DesktopLegacy', 'DesktopDd', 'DesktopUnity', 'DesktopTransitionMask', 'TransitionMaskTests', 'LegacyInputAudit', 'DmOverlayAudit', 'DdTransitionAudit', 'DdPetalAudit', 'DdGalleryAudit', 'Dc2PcAudioMemoryAudit', 'PcChoiceAudit', 'LegacyChoiceStyleAudit', 'Json']
 
 
 def generate():

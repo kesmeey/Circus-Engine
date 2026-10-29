@@ -21,6 +21,7 @@ import org.circus.graphics.BufferedImage;
 public final class RuntimeActivity extends Activity {
     final ExecutorService worker=Executors.newSingleThreadExecutor();private final Handler main=new Handler();
     volatile DesktopEngine engine;volatile boolean failed,closed,active;volatile String error="";volatile Stage stage;int audioStarted;
+    volatile long initializedNanos,firstPresentationNanos;
     private GameResources resources;private long lastTick;private boolean busy;private Object seenVm;
     private final MediaPlayer[] players=new MediaPlayer[6];private final boolean[] prepared=new boolean[6];
     private final int[] heard={-1,-1,-1,-1,-1,-1},seekGeneration={-1,-1,-1,-1,-1,-1};
@@ -45,14 +46,14 @@ public final class RuntimeActivity extends Activity {
             resources=new GameResources(storage,getIntent().getStringExtra("executable"));
             if(UnityCircusResources.candidate(resources))engine=new DesktopUnity(new UnityCircusResources(resources),audit);
             else {
-            GameVersion version=GameVersion.detect(resources);Profile profile=version.profile();
+            Profile profile=storage instanceof DocumentTree?GameVersionCache.detect((DocumentTree)storage,resources,getCacheDir()):GameVersion.detect(resources).profile();
             if(!profile.id.equals("dc3dd-a5a8")&&!profile.id.equals("dc2dm-9d72")&&!PcHost.supports(profile))throw new IOException("此版本尚未验证："+profile.id);
             CircusResources data=new CircusResources(resources,profile);TextCodec codec=GameText.select(resources,profile,getIntent().getStringExtra("encoding"),getIntent().getStringExtra("configuration"));ExecutableData.validate(data,codec);
             engine=profile.id.equals("dc3dd-a5a8")?new DesktopDd(data,codec,audit):new DesktopLegacy(data,codec,audit);
             }
             if(!audit&&!(engine instanceof DesktopUnity))migratePreviousAndroid();Path automatic=engine.saveDirectory.resolve("mobile-resume.sav");if(resume&&Files.isRegularFile(automatic))engine.restore(automatic);
             String libraryId=getIntent().getStringExtra("library_id");if(!audit&&libraryId!=null)new GameLibrary(this).opened(libraryId);
-            lastTick=SystemClock.uptimeMillis();main.post(()->{stage.setContentDescription("原版游戏画面，点击推进，双指点按或返回键打开菜单");wake();});
+            initializedNanos=System.nanoTime();lastTick=SystemClock.uptimeMillis();main.post(()->{stage.setContentDescription("原版游戏画面，点击推进，双指点按或返回键打开菜单");wake();});
         }catch(Throwable e){fail(e);}});
     }
     private void migratePreviousAndroid()throws IOException {
@@ -131,7 +132,7 @@ public final class RuntimeActivity extends Activity {
         private static final long TWO_FINGER_TAP_MS=350;
         private final int touchSlop=ViewConfiguration.get(RuntimeActivity.this).getScaledTouchSlop();
         Stage(){super(RuntimeActivity.this);setBackgroundColor(Color.BLACK);setFocusableInTouchMode(true);setContentDescription("正在读取游戏资源");}
-        void present(BufferedImage next){BufferedImage old=image;image=next;if(old!=null)old.flush();invalidate();if(presentationObserver!=null)presentationObserver.accept(System.nanoTime());}
+        void present(BufferedImage next){BufferedImage old=image;image=next;if(old!=null)old.flush();if(firstPresentationNanos==0)firstPresentationNanos=System.nanoTime();invalidate();if(presentationObserver!=null)presentationObserver.accept(System.nanoTime());}
         void release(){if(image!=null){image.flush();image=null;}}
         @Override protected void onDraw(Canvas canvas){super.onDraw(canvas);canvas.drawColor(Color.BLACK);if(image==null){Paint label=new Paint(Paint.ANTI_ALIAS_FLAG);label.setColor(0xffdddddd);label.setTextSize(18*getResources().getDisplayMetrics().scaledDensity);label.setTextAlign(Paint.Align.CENTER);canvas.drawText("正在读取游戏资源…",getWidth()/2f,getHeight()/2f,label);return;}scale=Math.min(getWidth()/(float)image.getWidth(),getHeight()/(float)image.getHeight());ox=(getWidth()-image.getWidth()*scale)/2;oy=(getHeight()-image.getHeight()*scale)/2;canvas.drawBitmap(image.bitmap,null,new RectF(ox,oy,ox+image.getWidth()*scale,oy+image.getHeight()*scale),paint);}
         void cancelGesture(){held=multiTouch=tapCandidate=scrollAllowed=firstMoved=false;firstPointer=secondPointer=-1;}

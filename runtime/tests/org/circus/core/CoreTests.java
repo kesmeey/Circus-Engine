@@ -229,6 +229,8 @@ public final class CoreTests {
         assertions+=CaptureTests.run();
         assertions+=CompatibilityTests.run();
         assertions+=PcCompatibilityTests.run();
+        assertions+=PcChoiceTests.run();
+        assertions+=DmDdPaletteTests.run();
         assertions+=PcNativeProgressTests.run();
         assertions+=NativeProgressTests.run();
         assertions+=AudioStreamingTests.run(assets);

@@ -15,6 +15,7 @@ import org.circus.core.*;
 public final class DocumentTree implements GameResources.Storage {
     private final ContentResolver resolver;private final Uri tree;private final boolean includeSaves;
     private final Map<String,Uri> files=new TreeMap<>();
+    private final Map<String,long[]> metadata=new HashMap<>();
     private final Set<String> displayPaths=new TreeSet<>();
     public DocumentTree(ContentResolver resolver,Uri tree)throws IOException{this(resolver,tree,false);}
     /** SaveData is indexed only for an explicit original-save import. */
@@ -22,18 +23,30 @@ public final class DocumentTree implements GameResources.Storage {
     private void scan(String id,String prefix,int depth)throws IOException {
         if(depth>12||files.size()>100000)throw new IOException("Selected tree exceeds index limits");
         Uri children=DocumentsContract.buildChildDocumentsUriUsingTree(tree,id);
-        try(Cursor c=resolver.query(children,new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID,DocumentsContract.Document.COLUMN_DISPLAY_NAME,DocumentsContract.Document.COLUMN_MIME_TYPE},null,null,null)){
+        try(Cursor c=resolver.query(children,new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID,DocumentsContract.Document.COLUMN_DISPLAY_NAME,DocumentsContract.Document.COLUMN_MIME_TYPE,DocumentsContract.Document.COLUMN_SIZE,DocumentsContract.Document.COLUMN_LAST_MODIFIED},null,null,null)){
             if(c==null)throw new IOException("Document provider returned no cursor");
+            int sizeColumn=c.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE),modifiedColumn=c.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED);
             while(c.moveToNext()){
                 String child=c.getString(0),name=c.getString(1),mime=c.getString(2);Binary.safePath(name);
                 if(name.indexOf('/')>=0||name.indexOf('\\')>=0)throw new IOException("Provider returned path-like filename");
                 if(DocumentsContract.Document.MIME_TYPE_DIR.equals(mime)){
                     if((includeSaves||!name.equalsIgnoreCase("SaveData"))&&!name.equalsIgnoreCase("backups"))scan(child,prefix+name+"/",depth+1);
-                } else {String key=(prefix+name).toLowerCase(Locale.ROOT);if(files.put(key,DocumentsContract.buildDocumentUriUsingTree(tree,child))!=null)throw new IOException("Case-colliding resources");displayPaths.add(prefix+name);}
+                } else {String key=(prefix+name).toLowerCase(Locale.ROOT);if(files.put(key,DocumentsContract.buildDocumentUriUsingTree(tree,child))!=null)throw new IOException("Case-colliding resources");displayPaths.add(prefix+name);metadata.put(key,new long[]{sizeColumn<0||c.isNull(sizeColumn)?-1:c.getLong(sizeColumn),modifiedColumn<0||c.isNull(modifiedColumn)?0:c.getLong(modifiedColumn)});}
             }
         }catch(SecurityException e){throw new IOException("Directory permission revoked",e);}
     }
     public Set<String> paths(){return Collections.unmodifiableSet(displayPaths);}
+    String treeIdentity(){return tree.toString();}
+    /** Re-enumerated on every launch; providers without useful metadata bypass caching. */
+    String scriptFingerprint(GameResources resources)throws IOException{
+        ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream out=new DataOutputStream(bytes);out.writeUTF(tree.toString());int count=0;
+        for(String path:new TreeSet<>(resources.paths()))if(path.startsWith("advdata/mes/")&&path.endsWith(".mes")){
+            String actual=resources.displayPath(path).toLowerCase(Locale.ROOT);long[] stat=metadata.get(actual);
+            if(stat==null||stat[0]<0||stat[1]<=0)return null;
+            out.writeUTF(path);out.writeUTF(files.get(actual).toString());out.writeLong(stat[0]);out.writeLong(stat[1]);count++;
+        }
+        if(count==0)return null;out.writeInt(count);out.flush();return Binary.sha256(bytes.toByteArray());
+    }
     public byte[] read(String name,int limit)throws IOException{
         Uri uri=files.get(Binary.safePath(name).toLowerCase(Locale.ROOT));if(uri==null)throw new FileNotFoundException(name);
         try(InputStream in=resolver.openInputStream(uri)){if(in==null)throw new IOException("Provider cannot open "+name);return Binary.read(in,limit);}
@@ -41,6 +54,19 @@ public final class DocumentTree implements GameResources.Storage {
     public Archive.Source source(String name)throws IOException {
         final Uri uri=files.get(Binary.safePath(name).toLowerCase(Locale.ROOT));if(uri==null)throw new FileNotFoundException(name);
         return new Archive.Source(){
+            @Override public Archive.Reader openReader()throws IOException{
+                ParcelFileDescriptor fd=resolver.openFileDescriptor(uri,"r");if(fd==null)throw new IOException("Cannot open resource");
+                final FileInputStream in=new ParcelFileDescriptor.AutoCloseInputStream(fd);final long length=fd.getStatSize();
+                if(length<0){in.close();throw new IOException("Resource provider must support file size/seeking");}
+                return new Archive.Reader(){
+                    public long size(){return length;}
+                    public byte[] read(long offset,int count)throws IOException{
+                        Binary.range(offset,count,length);FileChannel channel=in.getChannel();channel.position(offset);byte[] bytes=new byte[count];ByteBuffer buffer=ByteBuffer.wrap(bytes);
+                        while(buffer.hasRemaining()){int n=channel.read(buffer);if(n<0)throw new EOFException("Short resource slice");if(n==0)throw new IOException("Provider did not supply requested data");}return bytes;
+                    }
+                    public void close()throws IOException{in.close();}
+                };
+            }
             public long size()throws IOException{try(ParcelFileDescriptor fd=resolver.openFileDescriptor(uri,"r")){if(fd==null||fd.getStatSize()<0)throw new IOException("Archive provider must support file size/seeking");return fd.getStatSize();}}
             public byte[] read(long offset,int length)throws IOException{
                 ParcelFileDescriptor fd=resolver.openFileDescriptor(uri,"r");

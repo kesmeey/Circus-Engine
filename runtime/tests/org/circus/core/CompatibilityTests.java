@@ -24,10 +24,37 @@ public final class CompatibilityTests {
     }
     private static MesVm machine(byte[] bytes,Host host)throws IOException{return new MesVm(n->new MesScript(n,bytes,Profiles.get("dc2dm-9d72")),host,"main");}
     private static final class Storage implements GameResources.Storage {
-        final Map<String,byte[]> files=new HashMap<>();int maxRead;
+        final Map<String,byte[]> files=new HashMap<>();int maxRead,wholeReads,readersOpened,readersClosed;long bytesRead,sizeOverride=-1;boolean shortRead,failRead;
         public Set<String> paths(){return files.keySet();}
-        public byte[] read(String path,int limit)throws IOException{byte[] b=files.get(path);if(b.length>limit)throw new IOException("limit");return b.clone();}
-        public Archive.Source source(String path){final byte[] b=files.get(path);return new Archive.Source(){public long size(){return b.length;}public byte[] read(long offset,int length)throws IOException{Binary.range(offset,length,b.length);maxRead=Math.max(maxRead,length);return Arrays.copyOfRange(b,(int)offset,(int)offset+length);}};}
+        public byte[] read(String path,int limit)throws IOException{wholeReads++;byte[] b=files.get(path);if(b.length>limit)throw new IOException("limit");return b.clone();}
+        public Archive.Source source(String path){final byte[] b=files.get(path);return new Archive.Source(){
+            public long size(){return sizeOverride>=0?sizeOverride:b.length;}
+            public byte[] read(long offset,int length)throws IOException{if(failRead)throw new IOException("Provider read failure");Binary.range(offset,length,b.length);maxRead=Math.max(maxRead,length);bytesRead+=length;return Arrays.copyOfRange(b,(int)offset,(int)offset+length-(shortRead?1:0));}
+            public Archive.Reader openReader(){Archive.Source source=this;readersOpened++;return new Archive.Reader(){private boolean closed;
+                private void requireOpen()throws IOException{if(closed)throw new IOException("Reader already closed");}
+                public long size()throws IOException{requireOpen();return source.size();}
+                public byte[] read(long offset,int length)throws IOException{requireOpen();return source.read(offset,length);}
+                public void close(){if(!closed){closed=true;readersClosed++;}}
+            };}
+        };}
+    }
+    private static void boundedVersionReads()throws Exception{
+        Storage files=new Storage();byte[] large=new byte[8*1024*1024];large[4]=0x72;large[5]=(byte)0x9d;files.files.put("AdvData/MES/START.MES",large);
+        check(GameVersion.detect(new GameResources(files)).profileId.equals("dc2dm-9d72")&&files.wholeReads==0&&files.bytesRead<=14,"Large MES payload is not read during version admission");
+        check(files.readersOpened==1&&files.readersClosed==1,"Version admission closes its single source reader");
+        files.sizeOverride=64L*1024*1024+1;long readBefore=files.bytesRead;
+        reject(()->GameVersion.detect(new GameResources(files)),"Oversized MES rejected before payload read");
+        check(files.bytesRead==readBefore&&files.readersOpened==files.readersClosed,"Oversized-file rejection closes the reader without reading data");files.sizeOverride=-1;
+        files.files.put("AdvData/MES/START.MES",new byte[7]);reject(()->GameVersion.detect(new GameResources(files)),"Short MES header rejected");
+        files.files.put("AdvData/MES/START.MES",new byte[]{-1,-1,-1,-1,0,0,0,0});reject(()->GameVersion.detect(new GameResources(files)),"Unsigned excessive label count rejected");
+        files.files.put("AdvData/MES/START.MES",new byte[]{100,0,0,0,0,0,0,0});reject(()->GameVersion.detect(new GameResources(files)),"Label table pointing outside file rejected");
+        files.files.put("AdvData/MES/START.MES",script(0x9d72));files.shortRead=true;
+        reject(()->GameVersion.detect(new GameResources(files)),"Provider short reads become checked I/O errors");files.shortRead=false;files.failRead=true;
+        reject(()->GameVersion.detect(new GameResources(files)),"Provider read failure is propagated");files.failRead=false;
+        check(files.readersOpened==files.readersClosed,"All failed version inspections close provider readers");
+        files.files.put("AdvData/MES/START.MES",script(0xa5a8));check(GameVersion.detect(new GameResources(files)).profileId.equals("dc3dd-a5a8"),"A changed script header is re-read instead of using a stale version cache");
+        files.files.put("AdvData/MES/main.mes",files.files.remove("AdvData/MES/START.MES"));reject(()->GameVersion.detect(new GameResources(files)),"Valid collection still requires START");
+        files.files.clear();reject(()->GameVersion.detect(new GameResources(files)),"Empty collection remains invalid");
     }
     public static int run()throws Exception{
         checks=0;Dc2State state=new Dc2State();Variables v=new Variables(state,Variables.Model.DC2_PACKED);
@@ -73,7 +100,8 @@ public final class CompatibilityTests {
         MesVm highBlock=machine(script(0x9d72,new byte[]{0x1d,0,(byte)200},new byte[]{0x1d,1,(byte)200}),new Host());check(highBlock.run(100)==MesVm.Status.FAULT,"DM unconditional block operand is unsigned but scanner marker is signed");
         MesVm unknown=machine(script(0x9d72,word(0x70,0,0,0,0)),new Host());check(unknown.run(100)==MesVm.Status.FAULT&&unknown.offset()==7,"unknown DM instructions stop at original PC");
         Storage files=new Storage();files.files.put("AdvData/MES/START.MES",script(0x9d72));files.files.put("AdvData/MES/main.mes",script(0x9d72));
-        GameVersion version=GameVersion.detect(new GameResources(files));check(version.profileId.equals(dm.id)&&version.scriptCount==2&&files.maxRead<=8,"collection detection uses small reads and ignores path case");
+        GameVersion version=GameVersion.detect(new GameResources(files));check(version.profileId.equals(dm.id)&&version.scriptCount==2&&files.maxRead<=8&&files.wholeReads==0,"collection detection uses small reads and ignores path case");
+        check(files.readersOpened==2&&files.readersClosed==2,"Collection admission opens and closes one reader per script");
         files.files.put("AdvData/MES/third.mes",script(0xa5a8));reject(()->GameVersion.detect(new GameResources(files)),"mixed collection rejected even with a DM majority");files.files.remove("AdvData/MES/third.mes");
         files.files.put("AdvData/MES/main.mes",script(0x1111));reject(()->GameVersion.detect(new GameResources(files)),"unknown member is not silently ignored");
         files.files.remove("AdvData/MES/main.mes");files.files.put("AdvData/MES/START.MES",new byte[]{0,0,0,0,0x5d,0,0,0});
@@ -82,6 +110,7 @@ public final class CompatibilityTests {
         reject(()->GameVersion.detect(new GameResources(files)),"one ambiguous header does not select a guessed profile");
         files.files.put("AdvData/MES/main.mes",script(0x9d72));
         check(GameVersion.detect(new GameResources(files)).profileId.equals(dm.id),"collection intersection resolves coincidental version bytes inside metadata");
+        boundedVersionReads();
         Storage dmFiles=new Storage();dmFiles.files.put("AdvData/GRP/NAMES.DAT",new byte[20]);
         dmFiles.files.put("AdvData/MES/START.MES",script(0x9d72,new byte[]{0x06,0,0}));
         dmFiles.files.put("AdvData/MES/ADVMENU.MES",script(0x9d72,new byte[]{0x1a,2,0}));

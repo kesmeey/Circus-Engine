@@ -14,12 +14,14 @@ final class UnitySaveImport {
     private static final long TOTAL_LIMIT=256L*1024*1024;
     static final class Request {
         final UnityCircusResources data;final GameResources sources;final Path root,cache;final List<String> folders;
+        final SelectedSaveFile.Source selectedSource;
         Request(UnityCircusResources data,GameResources sources,Path root,Path cache)throws IOException{
-            this.data=data;this.sources=sources;this.root=root;this.cache=cache;SortedSet<String> found=new TreeSet<>();
+            this.data=data;this.sources=sources;this.root=root;this.cache=cache;selectedSource=null;SortedSet<String> found=new TreeSet<>();
             for(String path:sources.paths())if(nativeFile(path))found.add(parent(path));folders=new ArrayList<>(found);
             if(folders.isEmpty())throw new IOException("未找到 DC3R 原版存档。请把电脑 %APPDATA%\\Mangagamer\\DaCapo3R 中的 global.dat 和 saveNNN.dat 复制到手机，再选择存档所在文件夹。");
         }
-        Preview prepare(String folder)throws Exception{if(!folders.contains(folder))throw new IOException("无效存档目录");return UnitySaveImport.prepare(this,folder);}
+        Request(UnityCircusResources data,SelectedSaveFile.Source source,Path root,Path cache){this.data=data;sources=null;selectedSource=source;this.root=root;this.cache=cache;folders=Collections.singletonList("");}
+        Preview prepare(String folder)throws Exception{if(!folders.contains(folder))throw new IOException("无效存档目录");return selectedSource==null?UnitySaveImport.prepare(this,folder):prepareSelected(this);}
     }
     static final class Slot {
         final int number;final String source,sourceHash,convertedHash,caption;final Path converted;final boolean conflict;
@@ -43,8 +45,8 @@ final class UnitySaveImport {
         public void close()throws IOException{if(closed)return;closed=true;try(DirectoryStream<Path> files=Files.newDirectoryStream(temporary)){for(Path file:files){if(!file.toAbsolutePath().normalize().getParent().equals(temporary.toAbsolutePath().normalize())||Files.isDirectory(file))throw new IOException("Invalid import staging path");Files.deleteIfExists(file);}}Files.deleteIfExists(temporary);}
     }
     static final class Result {
-        int slots,skipped;Dc3rNativeProgress.Summary progress;Path backup;
-        String description(){return "已导入剧情存档："+slots+" 个\n保留同号手机存档："+skipped+" 个\n"+(progress==null?"":counts(progress)+"\n")+"\n启动游戏后，在原版 LOAD 界面读取对应槽位；save101.dat 对应自动存档。"+(backup==null?"":"\n\n替换前的手机文件已备份到："+backup.getFileName());}
+        int slots,skipped;Dc3rNativeProgress.Summary progress;Path backup;boolean progressOnly;
+        String description(){String message=progressOnly?((progress==null||progress.total==0)?"所选文件没有可新增的通关或鉴赏进度。":counts(progress)+"\n\n重新启动游戏后可查看鉴赏和通关进度。")+"\n手机设置和剧情存档保持不变。":"已导入剧情存档："+slots+" 个\n保留同号手机存档："+skipped+" 个\n"+(progress==null?"":counts(progress)+"\n")+"\n启动游戏后，在原版 LOAD 界面读取对应槽位；save101.dat 对应自动存档。";return message+(backup==null?"":"\n\n替换前的手机文件已备份到："+backup.getFileName());}
     }
     static String counts(Dc3rNativeProgress.Summary s){return "新增或提高通关标记："+s.completion+"\n新增 CG 标记："+s.cg+"\n新增场景标记："+s.scenes+(s.music==0?"":"\n新增音乐标记："+s.music);}
     private static String parent(String path){int slash=path.lastIndexOf('/');return slash<0?"":path.substring(0,slash);}
@@ -55,6 +57,25 @@ final class UnitySaveImport {
         GameResources files=new GameResources(new DocumentTree(context.getContentResolver(),Uri.parse(entry.tree)),"@none");
         GameResources sources=new GameResources(new DocumentTree(context.getContentResolver(),sourceTree==null?Uri.parse(entry.tree):sourceTree,true),"@none");
         return new Request(new UnityCircusResources(files),sources,new File(context.getFilesDir(),"shared-saves").toPath(),new File(context.getCacheDir(),"native-save-import").toPath());
+    }
+    /** Single-document progress import; the native file may have been renamed by its owner. */
+    static Result importFile(Context context,GameLibrary.Entry entry,Uri uri)throws Exception{
+        if(!entry.configured||!UnityCircusResources.ID.equals(entry.profile))throw new IOException("请先配置 DC3R Unity 游戏目录");
+        SelectedSaveFile.Source source=SelectedSaveFile.open(context.getContentResolver(),uri);
+        GameResources files=new GameResources(new DocumentTree(context.getContentResolver(),Uri.parse(entry.tree)),"@none");
+        Preview preview=prepareFile(new UnityCircusResources(files),new File(context.getFilesDir(),"shared-saves").toPath(),new File(context.getCacheDir(),"native-save-import").toPath(),source);
+        try{return apply(preview,false);}finally{try{preview.close();}catch(IOException cleanup){android.util.Log.w("CIRCUS","Cannot clear native import staging",cleanup);}}
+    }
+    /** Explicit roots allow the exact selected-file path to be tested away from user saves. */
+    static Preview prepareFile(UnityCircusResources data,Path root,Path cache,SelectedSaveFile.Source source)throws IOException{
+        return prepareSelected(new Request(data,source,root,cache));
+    }
+    private static Preview prepareSelected(Request request)throws IOException{
+        // Reject wrong or oversized content before even creating a staging directory.
+        byte[] raw=SelectedSaveFile.read(request.selectedSource,INPUT_LIMIT);Dc3rNativeProgress progress;
+        try{progress=Dc3rNativeProgress.parse(raw,request.data);}catch(IOException failure){throw new IOException("所选文件不是此版本 DC3R 的有效原版系统进度。请选择原版 global.dat（允许改名）；剧情槽位请使用文件夹批量导入。\n"+failure.getMessage(),failure);}
+        Preview preview=new Preview(request,"");try{preview.progress=progress;preview.globalSource=SelectedSaveFile.label(request.selectedSource.name());preview.globalHash=Binary.sha256(raw);preview.additions=progress.preview(target(preview));return preview;}
+        catch(IOException|RuntimeException failure){try{preview.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
     }
     static Dc3rHost target(Preview preview)throws IOException{
         Dc3rHost host=new Dc3rHost();host.configureCatalogues(new String(preview.request.data.script("cglist"),"UTF-8"),new String(preview.request.data.script("scenelist"),"UTF-8"));Path path=preview.directory.resolve("progress.dat");
@@ -79,8 +100,8 @@ final class UnitySaveImport {
     }
     static Result apply(Preview p,boolean replace)throws Exception{
         synchronized(LOCK){if(p.closed)throw new IOException("导入预览已关闭，请重新选择存档");if(!p.identity.equals(p.request.data.identity()))throw new IOException("游戏脚本已变化，请重新预览");
-            if(p.progress!=null&&!p.globalHash.equals(Binary.sha256(p.request.sources.read(p.globalSource,INPUT_LIMIT))))throw new IOException("原版 global.dat 在预览后发生变化，请重新预览");
-            Result result=new Result();Dc3rHost phone=target(p);Map<String,Path> writes=new LinkedHashMap<>();
+            if(p.progress!=null){byte[] raw=p.request.selectedSource==null?p.request.sources.read(p.globalSource,INPUT_LIMIT):SelectedSaveFile.read(p.request.selectedSource,INPUT_LIMIT);if(!p.globalHash.equals(Binary.sha256(raw)))throw new IOException("原版系统存档在导入前发生变化，请重新选择文件");}
+            Result result=new Result();result.progressOnly=p.request.selectedSource!=null;Dc3rHost phone=target(p);Map<String,Path> writes=new LinkedHashMap<>();
             if(p.progress!=null){result.progress=p.progress.apply(phone);if(result.progress.total>0){Path staged=p.temporary.resolve("progress.dat");Files.write(staged,persistent(phone));writes.put("progress.dat",staged);}}
             for(Slot slot:p.slots){if(!slot.sourceHash.equals(Binary.sha256(p.request.sources.read(slot.source,INPUT_LIMIT))))throw new IOException("原版存档在预览后发生变化："+slot.source);
                 if(Files.exists(p.directory.resolve(slot.target()))&&!replace){result.skipped++;continue;}

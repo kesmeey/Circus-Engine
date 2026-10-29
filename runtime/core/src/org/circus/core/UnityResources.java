@@ -43,7 +43,8 @@ public final class UnityResources {
         private void putPath(String key,UnitySerializedFile.ObjectInfo object){collision(key,paths.put(key,object),object);}
         synchronized Map<String,UnitySerializedFile.ObjectInfo> index(int type)throws IOException{
             Map<String,UnitySerializedFile.ObjectInfo> result=names.get(type);if(result!=null)return result;result=new LinkedHashMap<>();
-            for(UnitySerializedFile.ObjectInfo o:file.objects)if(o.classId==type){String key=file.name(o).toLowerCase(Locale.ROOT);collision(key,result.put(key,o),o);}
+            Map<UnitySerializedFile.ObjectInfo,String> objectNames=bundle.withReader(()->file.names(type));
+            for(UnitySerializedFile.ObjectInfo o:file.objects)if(o.classId==type){String key=objectNames.get(o).toLowerCase(Locale.ROOT);collision(key,result.put(key,o),o);}
             names.put(type,result);return result;
         }
         synchronized UnitySerializedFile.ObjectInfo find(int type,String name)throws IOException{String key=name.replace('\\','/').toLowerCase(Locale.ROOT);Map<String,UnitySerializedFile.ObjectInfo> named=names.get(type);

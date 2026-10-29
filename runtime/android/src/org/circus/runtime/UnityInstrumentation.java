@@ -14,8 +14,8 @@ import org.circus.graphics.BufferedImage;
 
 /** Real Activity/input/Canvas/audio checks against ranges recorded from user-owned assets. */
 public final class UnityInstrumentation extends Instrumentation {
-    private RuntimeActivity activity;private String pack,movieDirectory;private int checks;private File output;private final StringBuilder log=new StringBuilder();
-    public void onCreate(Bundle args){super.onCreate(args);pack=args.getString("pack","dc3r-audit.pack");movieDirectory=args.getString("movies","dc3r-audit-movies");start();}
+    private RuntimeActivity activity;private String pack,movieDirectory,tree;private boolean realtime;private int checks;private File output;private final StringBuilder log=new StringBuilder();
+    public void onCreate(Bundle args){super.onCreate(args);pack=args.getString("pack","dc3r-audit.pack");movieDirectory=args.getString("movies","dc3r-audit-movies");tree=args.getString("tree");realtime="true".equalsIgnoreCase(args.getString("realtime"));start();}
     interface Job<T>{T run(DesktopUnity engine)throws Exception;}
     private <T>T call(Job<T> job)throws Exception{if(activity.failed)throw new IOException(activity.error);return activity.worker.submit(()->job.run((DesktopUnity)activity.engine)).get(60,TimeUnit.SECONDS);}
     private void check(boolean ok,String message)throws IOException{if(!ok)throw new IOException(message);checks++;log.append("PASS ").append(message).append('\n');}
@@ -51,10 +51,35 @@ public final class UnityInstrumentation extends Instrumentation {
         runOnMainSync(()->{long t=SystemClock.uptimeMillis();MotionEvent down=MotionEvent.obtain(t,t,MotionEvent.ACTION_DOWN,opening.getWidth()/2f,opening.getHeight()/2f,0),up=MotionEvent.obtain(t,t+30,MotionEvent.ACTION_UP,opening.getWidth()/2f,opening.getHeight()/2f,0);opening.dispatchTouchEvent(down);opening.dispatchTouchEvent(up);down.recycle();up.recycle();});
         check(platformMovie()==null&&ui(()->field("movieFile").get(activity))==null,"touch skips MP4 and closes the real movie dialog and file");check(!activity.failed,"MP4 decoder reports no media error");
     }
+    /** Shipping frame clock and MediaPlayer callbacks only; never advance the VM in the test. */
+    private void realtimeAudit()throws Exception{
+        long start=SystemClock.uptimeMillis(),selected=0,end=start+120000;boolean title=false,prologue=false;String prior="";int lines=0;
+        while(SystemClock.uptimeMillis()<end){
+            if(activity.failed)throw new IOException(activity.error);
+            String state=call(e->e.scriptName()+":"+e.scriptOffset()+":"+e.script.status());
+            if(!state.equals(prior)){prior=state;log.append("STATE ").append(SystemClock.uptimeMillis()-start).append("ms ").append(state).append('\n');android.util.Log.i("CIRCUS-UNITY-AUDIT",state);Files.write(new File(output,"realtime-progress.txt").toPath(),log.toString().getBytes("UTF-8"));}
+            List<String> actions=actions();
+            if(!title&&actions.contains("sce_start")){title=true;screenshot("realtime-title");select("sce_start");}
+            else if(!prologue&&actions.contains("sce01")){prologue=true;selected=SystemClock.uptimeMillis();select("sce01");}
+            else if(!title&&actions.contains("window"))select("window");
+            else if(!title&&actions.contains("01"))select("01");
+            if(prologue&&call(e->e.textWaiting())){
+                if(lines==0){log.append("PROLOGUE_FIRST_DIALOGUE_MS ").append(SystemClock.uptimeMillis()-selected).append('\n');screenshot("realtime-first-dialogue");}
+                if(++lines==5)break;touch(32,32);
+            }
+            Thread.sleep(80);
+        }
+        check(title&&prologue,"real-time title and prologue controls activated by touch");
+        check(lines==5,"real-time prologue reaches five dialogue waits without synthetic ticks or audio completion");
+        check(activity.audioStarted>0,"real-time MediaPlayer playback started");
+        check(!activity.failed,"real-time startup has no resource, VM or media failure");
+    }
     public void onStart(){Bundle result=new Bundle();try{
         output=new File(getTargetContext().getFilesDir(),"dc3r-android-audit");output.mkdirs();
-        activity=(RuntimeActivity)startActivitySync(new Intent(getTargetContext(),RuntimeActivity.class).putExtra("audit",true).putExtra("range_pack",pack).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        Intent launch=new Intent(getTargetContext(),RuntimeActivity.class).putExtra("audit",true).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);if(tree==null)launch.putExtra("range_pack",pack);else launch.putExtra("tree",tree);
+        activity=(RuntimeActivity)startActivitySync(launch);
         long end=SystemClock.uptimeMillis()+90000;while(activity.engine==null&&!activity.failed&&SystemClock.uptimeMillis()<end)Thread.sleep(100);check(activity.engine instanceof DesktopUnity&&!activity.failed,"Activity detects Unity CircusScr backend");
+        if(realtime){realtimeAudit();Files.write(new File(output,"realtime-result.txt").toPath(),log.toString().getBytes("UTF-8"));result.putString("stream",log.toString());finish(-1,result);return;}
         boolean title=false;for(int i=0;i<200;i++){call(e->{e.tick(1000);return null;});Thread.sleep(60);List<String> a=actions();if(a.contains("sce_start")){title=true;break;}if(a.contains("window"))select("window");else if(a.contains("01"))select("01");}
         check(title,"original START reaches title");Thread.sleep(300);screenshot("title");select("sce_start");
         int lines=0;String prior="";boolean actor=false;for(int i=0;i<600&&lines<50;i++){call(e->{e.tick(1000);return null;});Thread.sleep(60);List<String> a=actions();if(a.contains("sce01")){select("sce01");continue;}if(call(e->e.menuWaiting()&&!e.host.choiceWaiting))throw new IOException("Unexpected menu "+a);

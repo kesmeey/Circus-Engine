@@ -27,4 +27,26 @@ public final class UnitySerializedFile {
     public byte[] read(ObjectInfo object)throws IOException{if(object.size>128*1024*1024)throw new IOException("Unity object read limit");return UnityBinary.read(source,object.offset,object.size);}
     public byte[] slice(ObjectInfo object,long offset,int length)throws IOException{Binary.range(offset,length,object.size);return UnityBinary.read(source,object.offset+offset,length);}
     public String name(ObjectInfo object)throws IOException{if(object.classId!=28&&object.classId!=49&&object.classId!=83)throw new IOException("Object is not a supported Unity named asset");UnityBinary r=new UnityBinary(slice(object,0,Math.min(object.size,4096)),littleEndian);return r.string();}
+    /** Batch adjacent object headers when a name-index fallback is needed. In large
+     * raw bundles, opening a document-provider handle for each tiny object is slow. */
+    Map<ObjectInfo,String> names(int type)throws IOException{
+        if(type!=28&&type!=49&&type!=83)throw new IOException("Object is not a supported Unity named asset");
+        List<ObjectInfo> selected=new ArrayList<>();for(ObjectInfo object:objects)if(object.classId==type)selected.add(object);
+        selected.sort(Comparator.comparingLong(object->object.offset));Map<ObjectInfo,String> result=new HashMap<>();
+        for(int first=0;first<selected.size();){
+            ObjectInfo object=selected.get(first);long begin=object.offset,end=begin+Math.min(object.size,4096);int last=first+1;
+            while(last<selected.size()){
+                ObjectInfo next=selected.get(last);long nextEnd=next.offset+Math.min(next.size,4096);
+                if(next.offset-end>4096||Math.max(end,nextEnd)-begin>256*1024)break;
+                end=Math.max(end,nextEnd);last++;
+            }
+            byte[] bytes=UnityBinary.read(source,begin,(int)(end-begin));
+            for(int n=first;n<last;n++){
+                ObjectInfo current=selected.get(n);int offset=(int)(current.offset-begin),length=Math.min(current.size,4096);
+                result.put(current,new UnityBinary(Arrays.copyOfRange(bytes,offset,offset+length),littleEndian).string());
+            }
+            first=last;
+        }
+        return result;
+    }
 }

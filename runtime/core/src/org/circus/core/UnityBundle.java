@@ -16,6 +16,14 @@ public final class UnityBundle {
     public final String unityVersion,unityRevision;public final int version;
     public final List<Entry> entries; public final long unpackedSize;
     private final Archive.Source source;private final List<Block> blocks=new ArrayList<>();
+    private Archive.Reader batchReader;
+    interface ReadBatch<T>{T run()throws IOException;}
+    /** The lock prevents other readers from observing the temporary handle. */
+    synchronized <T>T withReader(ReadBatch<T> work)throws IOException{
+        if(batchReader!=null)return work.run();
+        try(Archive.Reader reader=source.openReader()){batchReader=reader;try{return work.run();}finally{batchReader=null;}}
+    }
+    private Archive.Source readingSource(){return batchReader==null?source:batchReader;}
     private final LinkedHashMap<Integer,byte[]> cache=new LinkedHashMap<>(16,.75f,true);
     private int cacheBytes;private static final int CACHE_LIMIT=1024*1024,CHUNK_LIMIT=32*1024*1024;
     public UnityBundle(Archive.Source source)throws IOException{
@@ -46,13 +54,13 @@ public final class UnityBundle {
     public synchronized int cachedBytes(){return cacheBytes;}
     public synchronized void clearCache(){cache.clear();cacheBytes=0;}
     private byte[] block(int i)throws IOException{
-        byte[] data=cache.get(i);if(data!=null)return data;Block b=blocks.get(i);data=unpack(UnityBinary.read(source,b.packedOffset,b.packedSize),b.size,b.flags&63);
+        byte[] data=cache.get(i);if(data!=null)return data;Block b=blocks.get(i);data=unpack(UnityBinary.read(readingSource(),b.packedOffset,b.packedSize),b.size,b.flags&63);
         if(data.length<=CACHE_LIMIT){while(cacheBytes+data.length>CACHE_LIMIT&&!cache.isEmpty()){Iterator<byte[]> it=cache.values().iterator();cacheBytes-=it.next().length;it.remove();}cache.put(i,data);cacheBytes+=data.length;}return data;
     }
     public synchronized byte[] read(long at,int length)throws IOException{
         Binary.range(at,length,unpackedSize);if(length>128*1024*1024)throw new IOException("UnityFS resource exceeds read limit");byte[] out=new byte[length];if(length==0)return out;
         int lo=0,hi=blocks.size();while(lo<hi){int m=(lo+hi)>>>1;Block b=blocks.get(m);if(b.offset+b.size<=at)lo=m+1;else hi=m;}
-        int written=0;for(int i=lo;written<length&&i<blocks.size();i++){Block b=blocks.get(i);int begin=(int)Math.max(0,at-b.offset),count=Math.min(b.size-begin,length-written);if((b.flags&63)==0&&b.size>CACHE_LIMIT){byte[] bytes=UnityBinary.read(source,b.packedOffset+begin,count);System.arraycopy(bytes,0,out,written,count);}else System.arraycopy(block(i),begin,out,written,count);written+=count;at+=count;}
+        int written=0;for(int i=lo;written<length&&i<blocks.size();i++){Block b=blocks.get(i);int begin=(int)Math.max(0,at-b.offset),count=Math.min(b.size-begin,length-written);if((b.flags&63)==0&&b.size>CACHE_LIMIT){byte[] bytes=UnityBinary.read(readingSource(),b.packedOffset+begin,count);System.arraycopy(bytes,0,out,written,count);}else System.arraycopy(block(i),begin,out,written,count);written+=count;at+=count;}
         if(written!=length)throw new EOFException("Truncated UnityFS block span");return out;
     }
     static byte[] unpack(byte[] input,int size,int compression)throws IOException{

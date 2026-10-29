@@ -250,7 +250,15 @@ public final class DesktopLegacy extends DesktopEngine {
         }
     }
     private void drawPcGrid(Graphics2D g,PcHost h)throws IOException{
-        if(h.list.active()){int offset=h.list.clamp(h.read(99,246),h.grid.size());for(int n=0;n<h.grid.size();n++){ScriptList.Item item=h.list.at(offset,n,h.grid.size());if(item==null)continue;Dc2Ui.Button b=h.grid.get(n);java.awt.geom.AffineTransform old=g.getTransform();g.translate(b.left,b.top);for(Dc2Ui.Quad q:ScriptList.visible(item.sprites,hovered==h.ui.buttons.size()+n?1:99))quad(g,q,h.scene.slots,true);g.setTransform(old);}return;}
+        if(h.list.active()){int offset=h.list.clamp(h.read(99,246),h.grid.size());for(int n=0;n<h.grid.size();n++){ScriptList.Item item=h.list.at(offset,n,h.grid.size());if(item==null)continue;Dc2Ui.Button b=h.grid.get(n);java.awt.geom.AffineTransform old=g.getTransform();g.translate(b.left,b.top);boolean selected=hovered==h.ui.buttons.size()+n,sceneList=h.second&&h.list.textStyle==4;String name=sceneList?h.sceneListName(item):"";
+        if(sceneList&&PcHost.sceneListSpecial(name))chip(g,12,232,selected?56:0,232,56,0,0);
+        for(Dc2Ui.Quad q:ScriptList.visible(item.sprites,selected?1:99)){
+            if(q.type!=2){quad(g,q,h.scene.slots,true);continue;}
+            // 41169A..41177D: -1 Y hides a caption; -1 X centers it. Text is
+            // clipped to the cell, independently of the atlas rectangle.
+            if(q.y==-1)continue;Shape clip=g.getClip();g.clipRect(0,0,b.right-b.left-(sceneList?12:0),b.bottom-b.top);int x=q.x==-1?(b.right-b.left-q.width)/2:q.x;
+            if(sceneList){String date=PcHost.sceneListDate(name);pcSceneText(g,codec.apply(q.text),q.width/14,x,q.y,b.right-b.left-x);pcSceneText(g,date,date.getBytes(Binary.SJIS).length,x,6,b.right-b.left-x);}else text(g,codec.apply(q.text),x,q.y,q.height,q.flags,b.right-b.left-x);g.setClip(clip);
+        }g.setTransform(old);}return;}
         Picture p=picture(h.scene.slots[10]);if(p==null)return;
         for(int n=0;n<h.grid.size();n++){Dc2Ui.Button b=h.grid.get(n);int slot=h.gridSlot(n),sx=hovered==h.ui.buttons.size()+n?288:0;
             int sy=h.second?(slot==0?0:slot==1?(h.saveGrid?72:216):144):(h.saveGrid?0:72);
@@ -261,6 +269,8 @@ public final class DesktopLegacy extends DesktopEngine {
             if(meta!=null&&!meta.caption.isEmpty()){Shape clip=g.getClip();g.clipRect(b.left+64,b.top,224,42);roomText(g,meta.caption,b.left+(h.second?72:64),b.top+(h.second?10:6),216,18,0xffffffff);g.setClip(clip);}
         }
     }
+    /** 407DD6..40814E uses palette 7 for an eight-neighbour outline and palette 14 for the text. */
+    private void pcSceneText(Graphics2D g,String value,int rawLength,int x,int y,int width)throws IOException{int size=host().variables.read(3,30)!=0?(rawLength>20?14:16):host().variables.read(3,31)!=0?16:28;for(int dy=-1;dy<=1;dy++)for(int dx=-1;dx<=1;dx++)if(dx!=0||dy!=0)roomText(g,value,x+dx,y+dy,width,size,color(7));roomText(g,value,x,y,width,size,color(14));}
     private void chip(Graphics2D g,int slot,int sx,int sy,int w,int h,int x,int y)throws IOException{Picture p=picture(host().scene.slots[slot]);if(p!=null)g.drawImage(p.image,x,y,x+w,y+h,sx,sy,sx+w,sy+h,null);}
     private void roomText(Graphics2D g,String value,int x,int y,int w,int size,int color){g.setFont(new Font("Microsoft YaHei",Font.PLAIN,size));g.setColor(new Color(color,true));int at=x,base=y+size;for(char ch:value.toCharArray()){int cw=g.getFontMetrics().charWidth(ch);if(ch=='\n'||at+cw>x+w){at=x;base+=size+4;if(ch=='\n')continue;}g.drawString(String.valueOf(ch),at,base);at+=cw;}}
     private void drawHistory(Graphics2D g)throws IOException{

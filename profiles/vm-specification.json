@@ -4070,10 +4070,16 @@
           "opcode": "0x58",
           "handler_va": "0x0041D696",
           "args": "u16x4",
-          "logical_operands": null,
-          "operation": "unknown",
-          "behavior": "需继续核对参数及宿主副作用。",
-          "semantic_status": "unknown",
+          "logical_operands": [
+            "x:i16",
+            "y:i16",
+            "normal_palette:i16",
+            "hover_palette:i16",
+            "caption:following_raw_string"
+          ],
+          "operation": "pc.grid.caption",
+          "behavior": "PC2 41D696 消费后继原始字符串，为前一个列表条目写 x,y,正常/悬停调色板；41169A..41177D 按 cell 相对坐标绘制，x=-1 居中、y=-1 不显示。无前项仍消费字符串。",
+          "semantic_status": "partial_binding",
           "shared_fallback": false
         },
         {

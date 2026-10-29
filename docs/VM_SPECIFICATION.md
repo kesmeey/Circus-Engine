@@ -445,7 +445,7 @@ EXE: `dc2pc.EXE`；SHA-256: `f0b3be701f3c8c94dad143db927d824d398325be57a5da75145
 | 0x55 | u16x4 | 0x0041D42D | pc.grid.configure | partial_binding | 需继续核对参数及宿主副作用。 |
 | 0x56 | u16x4 | 0x0041D561 | dm.ui.grid_rect | partial_binding | 需继续核对参数及宿主副作用。 |
 | 0x57 | u16x4 | 0x0041D5A5 | pc.grid.item | partial_binding | Append native list data entry: ID, reserved, source rectangle, resource selector, reserved (41D5A5). |
-| 0x58 | u16x4 | 0x0041D696 | unknown | unknown | 需继续核对参数及宿主副作用。 |
+| 0x58 | u16x4 | 0x0041D696 | pc.grid.caption | partial_binding | PC2 41D696 消费后继原始字符串，为前一个列表条目写 x,y,正常/悬停调色板；41169A..41177D 按 cell 相对坐标绘制，x=-1 居中、y=-1 不显示。无前项仍消费字符串。 |
 | 0x59 | u16x4 | 0x0041CE90 | dm.ui.navigation | partial_binding | 需继续核对参数及宿主副作用。 |
 | 0x5A | u16x4 | 0x0041D540 | unknown | unknown | 需继续核对参数及宿主副作用。 |
 | 0x5B | u16x4 | 0x0041C82C | dm.audio.sound | partial_binding | 音效索引/参数；不是文本指令。 |

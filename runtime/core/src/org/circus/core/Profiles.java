@@ -291,6 +291,7 @@ ops.put(19, "pc.wait.media_mask");
 ops.put(70, "pc.voice_group.add");
 ops.put(71, "ui.music_end_action");
 ops.put(87, "pc.grid.item");
+ops.put(88, "pc.grid.caption");
 return new Profile("dc2pc-5769",22377,4,2,41,47,74,78,82,53,30,2,true,false,true,false,Variables.Model.PC_WIDE,ops);
 }
 if(id.equals("dcpc-2063")) {

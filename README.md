@@ -4,6 +4,7 @@
 仓库包含资源解包工具、VM 规范、Java 核心、PC/Android 前端、测试及构建脚本；不包含游戏数据、采集副本、签名密钥或构建工具链。下文 `build/` 和 `analysis/` 路径指本机构建/验证生成物，不是 GitHub 中已上传的文件。APK 和 PC 包需按文档构建。
 
 **2026-10-28 当前验收顺序：资源解包器 → VM 规范 → PC 解释器 → 移动端。**
+Android 0.13.3 新增 DC2PC 原版通关／CG／场景进度导入：游戏卡片“更多”→“导入原版进度（DC2PC）”。自动合并和备份手机系统进度，原版剧情槽位尚不转换。安装包为 `build/distribution/circus-runtime-0.13.3-android-dev.apk`，操作及支持范围见 [Android 0.13.3 说明](docs/ANDROID_0133.md)。
 Android 0.13.2 修复 DC2PC 打开菜单、存档确认时的截图压缩停顿，保留原存档格式。安装包为 `build/distribution/circus-runtime-0.13.2-android-dev.apk`，可覆盖安装；耗时对照及原版 Windows 存档的兼容边界见 [Android 0.13.2 说明](docs/ANDROID_0132.md)。
 Android 0.13.1 新增双指点按：两根手指轻点游戏画面即可触发鼠标右键，打开或返回原版菜单；单指推进、系统返回键和既有双指滚动继续保留。安装包为 `build/distribution/circus-runtime-0.13.1-android-dev.apk`，可覆盖安装，见 [Android 0.13.1 说明](docs/ANDROID_0131.md)。
 Android 0.13.0 新增 DC3R Unity 版的初步兼容：直接读取 `DC3_Data/StreamingAssets`，使用独立的 CircusScr VM 执行原版标题、正文和系统脚本。安装包为 `build/distribution/circus-runtime-0.13.0-android-dev.apk`，可以覆盖安装；用法、验证范围与尚存缺口见 [Android 0.13.0 说明](docs/ANDROID_0130.md)。尚未完成全路线验证。
@@ -13,7 +14,7 @@ Android 0.12.6 安装包：`build/distribution/circus-runtime-0.12.6-android-dev
 新增 [D.C. Engine VM Specification](docs/VM_SPECIFICATION.md) 和 `profiles/vm-specification.json`，包含四个版本的 485 项原生分发表；PC1/2 已用 REA + Ghidra 交叉核对。未知语义不当成 NOP。
 PC 测试包：`build/distribution/dc-runtime-0.11.0-pc-dev-windows-x64/DC Runtime.cmd`，双击选择原游戏目录，自带 Java 和 FFmpeg。四部本地版本均已验证原版启动、正文、选择、存读档和到达结尾；0.10 的 48 次路线策略测试通过，0.11 另重跑四部各一条完整路线；已有实际音视频输出检查。
 0.11 修复连续系统截图丢失底图，并保存冻结的控件、颜色和动画状态；四部均通过嵌套截图、40次重复捕获及存档后的逐像素比较。兼容0.9/0.10解释器存档。
-0.10 补入 PC1 原版姓名编辑、存档缩略图/角色图标、音乐位置续播、逐字显示及显示进度存档、角色语音设置、原版滑条、回看预览与滚动条拖动；继续保留 0.9 的原脚本鉴赏列表。325 项 JVM 断言和 47 项 Python 测试通过。部分演出、字体和系统设置副作用仍未完整还原，不能称为所有功能完成。确切范围、运行方法和证据见 [PC 兼容性说明](docs/PC_COMPATIBILITY.md)。`old_source_circus_dcpc` 不作为输入或参考。下方 Android 0.3–0.6 记录为历史基线；当前 APK 以 Android 0.13.2 文档为准。
+0.10 补入 PC1 原版姓名编辑、存档缩略图/角色图标、音乐位置续播、逐字显示及显示进度存档、角色语音设置、原版滑条、回看预览与滚动条拖动；继续保留 0.9 的原脚本鉴赏列表。325 项 JVM 断言和 47 项 Python 测试通过。部分演出、字体和系统设置副作用仍未完整还原，不能称为所有功能完成。确切范围、运行方法和证据见 [PC 兼容性说明](docs/PC_COMPATIBILITY.md)。`old_source_circus_dcpc` 不作为输入或参考。下方 Android 0.3–0.6 记录为历史基线；当前 APK 以 Android 0.13.3 文档为准。
 
 **项目目标已重新明确：实现类似用户所说的 krkr 模拟器使用体验的 DC1／2／3 引擎兼容层。**
 选择游戏目录后，应执行该版本的原版启动、标题、菜单、正文与返回流程，使用原版界面资源和脚本定义的按钮行为。
@@ -43,7 +44,7 @@ DM 与 DD 使用独立宿主绑定，共用资源接口、VM 和 Android 基础�
 当前版本的触摸操作见 Android 0.13.1 说明，游戏兼容范围见 Android 0.13.0 说明；不把脚本解析成功或模拟流程结束视为所有系统功能已完成。
 SAF 仅申请读取权限；存档和解码缓存写入应用私有目录。
 导入时读取外置 `uif_config.json` 的字符替换表，不加载 DLL 或程序；
-开启 tunnel decoder 的配置会明确拒绝。原 Windows 存档目前不导入。
+开启 tunnel decoder 的配置会明确拒绝。原 Windows 剧情槽位目前不导入；DC2PC 系统进度可通过 0.13.3 的导入入口合并。
 
 核心代码在 `runtime/core/src/org/circus/core/`，没有 Android 依赖；
 Android 宿主在 `runtime/android/`。新增作品应增加版本绑定及宿主行为，复用资源、
@@ -151,7 +152,7 @@ python tools/capture_mes_evidence.py D:\gal\DC3DD\DC3DD.EXE --profile dc3dd-a5a8
 当前支持 DC3DD 七条剧情路线，详细验证与未完成项目见 [播放说明](docs/DC3DD_PLAYBACK.md)。
 DC2DM 的标题、正文、回看和鉴赏接入范围见上文；DC3DD 的原版系统适配仍有独立缺口，不能把 DM 的新增功能当成 DD 已验证的功能。
 部分演出时序仍需原版画面对照，ARM 实体设备尚未验证；不宣称所有功能完整复刻。
-XPCM mode 1/3 已接入整数频谱解码；原 Windows 存档导入尚未实现。MPEG-1／MP2 影片已在 Android 上验证。
+XPCM mode 1/3 已接入整数频谱解码；原 Windows 剧情槽位导入尚未实现；DC2PC 通关／鉴赏系统进度现可显式导入。MPEG-1／MP2 影片已在 Android 上验证。
 自己的 CAS2 / CVS1 存档不是原 Windows 格式。模拟器已验证播放轨道，未验证扬声器听感。
 独立 `DialogueHost` 的严格纯文本接口仍可用于早期测试；实际播放使用 `Dc3Host`、
 `Dc3Performance` 与 Canvas，实现逐字显示、分页和正文内演出控制。

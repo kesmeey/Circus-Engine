@@ -24,13 +24,15 @@ public abstract class DesktopEngine {
     private long pointerTicket;
     private Control pointerControl;
     protected DesktopEngine(CircusResources r,TextCodec c,boolean audit,int w,int h)throws IOException{
-        this(r,c,audit,w,h,Binary.sha256(r.files.read("AdvData/MES/START.MES",2*1024*1024)).substring(0,16));
+        this(r,c,audit,w,h,mesIdentity(r));
     }
     protected DesktopEngine(CircusResources r,TextCodec c,boolean audit,int w,int h,String identity)throws IOException{
         resources=r;codec=c;this.audit=audit;width=w;height=h;
         if(!identity.matches("[a-zA-Z0-9_-]{1,80}"))throw new IOException("Invalid game identity");
         saveDirectory=Paths.get(System.getProperty("dc.saveRoot",audit?"build/desktop/audit-saves":"build/desktop/saves"),r.profileId+"-"+identity);
     }
+    public static String mesIdentity(CircusResources r)throws IOException{return Binary.sha256(r.files.read("AdvData/MES/START.MES",2*1024*1024)).substring(0,16);}
+    public static Path mesSaveDirectory(Path root,CircusResources r)throws IOException{return root.resolve(r.profileId+"-"+mesIdentity(r));}
     public boolean editingText(){return false;}
     public void typeText(String text){}
     public void editKey(int code)throws IOException{}

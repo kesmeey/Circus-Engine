@@ -13,10 +13,12 @@ import org.circus.core.*;
 
 /** Read-only Storage Access Framework tree. No broad-storage permission or extraction. */
 public final class DocumentTree implements GameResources.Storage {
-    private final ContentResolver resolver;private final Uri tree;
+    private final ContentResolver resolver;private final Uri tree;private final boolean includeSaves;
     private final Map<String,Uri> files=new TreeMap<>();
     private final Set<String> displayPaths=new TreeSet<>();
-    public DocumentTree(ContentResolver resolver,Uri tree)throws IOException{this.resolver=resolver;this.tree=tree;scan(DocumentsContract.getTreeDocumentId(tree),"",0);}
+    public DocumentTree(ContentResolver resolver,Uri tree)throws IOException{this(resolver,tree,false);}
+    /** SaveData is indexed only for an explicit original-save import. */
+    public DocumentTree(ContentResolver resolver,Uri tree,boolean includeSaves)throws IOException{this.resolver=resolver;this.tree=tree;this.includeSaves=includeSaves;scan(DocumentsContract.getTreeDocumentId(tree),"",0);}
     private void scan(String id,String prefix,int depth)throws IOException {
         if(depth>12||files.size()>100000)throw new IOException("Selected tree exceeds index limits");
         Uri children=DocumentsContract.buildChildDocumentsUriUsingTree(tree,id);
@@ -26,7 +28,7 @@ public final class DocumentTree implements GameResources.Storage {
                 String child=c.getString(0),name=c.getString(1),mime=c.getString(2);Binary.safePath(name);
                 if(name.indexOf('/')>=0||name.indexOf('\\')>=0)throw new IOException("Provider returned path-like filename");
                 if(DocumentsContract.Document.MIME_TYPE_DIR.equals(mime)){
-                    if(!name.equalsIgnoreCase("SaveData")&&!name.equalsIgnoreCase("backups"))scan(child,prefix+name+"/",depth+1);
+                    if((includeSaves||!name.equalsIgnoreCase("SaveData"))&&!name.equalsIgnoreCase("backups"))scan(child,prefix+name+"/",depth+1);
                 } else {String key=(prefix+name).toLowerCase(Locale.ROOT);if(files.put(key,DocumentsContract.buildDocumentUriUsingTree(tree,child))!=null)throw new IOException("Case-colliding resources");displayPaths.add(prefix+name);}
             }
         }catch(SecurityException e){throw new IOException("Directory permission revoked",e);}

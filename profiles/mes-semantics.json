@@ -488,6 +488,10 @@
       "description": "Attach original byte-exact action label to current data entry (PC2 41D66D; DD 434530).",
       "operands": []
     },
+    "pc.grid.caption": {
+      "description": "PC2 41D696 consumes the following raw string and sets the preceding list entry caption: relative x/y, normal and hover palettes. 41169A..41177D clips to the cell; x=-1 centers and y=-1 hides. Without an entry only consume the string.",
+      "operands": ["x", "y", "normal_palette", "hover_palette", "following_string"]
+    },
     "pc.grid.item": {
       "description": "Append native list data entry: ID, reserved, source rectangle, resource selector, reserved (41D5A5).",
       "operands": []
@@ -1132,7 +1136,8 @@
         "0x13": "pc.wait.media_mask",
         "0x46": "pc.voice_group.add",
         "0x47": "ui.music_end_action",
-        "0x57": "pc.grid.item"
+        "0x57": "pc.grid.item",
+        "0x58": "pc.grid.caption"
       }
     },
     "dcpc-2063": {

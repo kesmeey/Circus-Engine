@@ -116,6 +116,16 @@ public final class PcHost extends Dc2Host {
         case "dm.ui.grid_rect":gridTarget=true;return super.command(op,a,bytes);
         case "pc.grid.item":gridTarget=false;list.add(a,slot(a[6]));return true;
         case "grid.item_action":list.last().action=text;return true;
+        // 41D696 writes the preceding entry's x/y and normal/hover palettes,
+        // consuming the next raw string record even when there is no entry.
+        case "pc.grid.caption":{
+            if(!second||a.length!=4)throw new IOException("PC2 list caption arguments");
+            if(list.items.isEmpty())return true;
+            ScriptList.Item item=list.last();item.sprites.removeIf(q->q.type==2);
+            String caption=prose(bytes).replace("$f",familyName);
+            for(int n=0;n<2;n++){Dc2Ui.Quad q=new Dc2Ui.Quad();q.type=2;q.x=a[0];q.y=a[1];q.flags=a[2+n];q.state=n==0?99:1;q.text=caption;q.width=bytes.length*14;q.height=28;item.sprites.add(q);}
+            return true;
+        }
         case "text.speaker":speaker=prose(bytes);speakerPending=true;return true;
         case "text.body":scene.publish(ui,0,0);if(!speakerPending||messageMode!=0)speaker="";speakerPending=false;body=prose(bytes);unlock("scenario_scripts",script.name,98);if(!body.isEmpty())history.append(speaker,body,lineVoice,script.name,pc);lineVoice="";presentationWaiting=true;textRendered=false;nextTicket();return true;
         case "ui.button_text":case "dm.ui.text":{ui.text(a,new byte[0],op.equals("ui.button_text"));Dc2Ui.Quad q=op.equals("ui.button_text")?ui.last().sprites.get(ui.last().sprites.size()-1):ui.quads.get(ui.quads.size()-1);q.text=codec.decode(bytes);q.width=op.equals("ui.button_text")?bytes.length*14+1:q.width;return true;}
@@ -186,6 +196,7 @@ public final class PcHost extends Dc2Host {
         }
         case "pc.command":
             if(!second&&a[0]==8){nameInput.prepare(resources,codec);nameInput.open(familyName,givenName);nameInput.build(ui);scene.publish(ui,0,0);nextTicket();return true;}if(second&&a[0]==9)return true; /* 407350 selects the generic music list renderer. */
+            if(second&&a[0]==7){list.textStyle=4;return true;} // 408911 -> 407340: Scene list renderer; argument 1 is ignored.
             if(second&&a[0]==20){map.open(variables);map.buttons(ui);scene.publish(ui,0,0);nextTicket();return true;}if(a[0]==6){saveGrid=a[1]==0;return true;}
             if(second&&a[0]==10){endingClock=0;return true;} // 408960: records timeGetTime for the ending service.
             if(second&&a[0]==11){if(a[1]==0)pcCredits.active=false;else{pcCredits.start(a[1],endingClock);scene.publish(ui,0,0);nextTicket();}return true;}
@@ -197,6 +208,29 @@ public final class PcHost extends Dc2Host {
             throw new IOException("Unimplemented PC native system command "+Arrays.toString(a));
         default:return super.command(op,a,bytes);
         }
+    }
+    /** The native Scene renderer indexes the scenario catalog by the list entry id.
+     * Empty actions are locked entries and must not reveal their date or decoration. */
+    public String sceneListName(ScriptList.Item item)throws IOException{
+        if(!second||list.textStyle!=4||item.action.isEmpty())return "";
+        List<NamesCatalog.Entry> entries=resources.names.table("scenario_scripts");
+        return item.id>=0&&item.id<entries.size()?entries.get(item.id).name:"";
+    }
+    /** 407360: this specific set receives the original special-scene background. */
+    static boolean sceneListSpecial(String name){
+        String[] names={"ind_0110_e1_rno","fst_1224_f1_snb","ind_0102_f1_mhr","ind_0121_e2_ais","ind_0120_f2_erk","ind_0118_f2_erk","ind_0128_f2_myk","ind_0122_f3_myk","ind_0124_f1_mya","ind_0120_f3_mya","ind_0211_f1_akn","ind_0115_f2_akn","ind_0129_f2_anz","ind_0120_f1_mnt","ind_0116_f1_mnt","ind_0127_f1_nnk","ind_0116_f1_nnk","ind_0127_f3_kko","ind_0128_a1_yme","ind_0121_f2_yme","ind_0120_f3_yme","ind_0401_f1_otm"};
+        for(String value:names)if(value.equalsIgnoreCase(name))return true;return false;
+    }
+    /** 4078B0 / 407F48: date or original route-period label, independent of the title. */
+    static String sceneListDate(String name){
+        if(name.isEmpty())return "";
+        if(name.charAt(0)=='0'||name.charAt(0)=='1')return " dacapo";
+        int separator=name.indexOf('_');String value=separator<0?"":name.substring(separator+1);int date=0;
+        for(int i=0;i<value.length()&&value.charAt(i)>='0'&&value.charAt(i)<='9';i++)date=date*10+value.charAt(i)-'0';
+        if(date==0||date>1300||date==400||value.equals("0216_b1_anz")||value.equals("0305_b1_akn")||value.equals("0125_a1_rno"))return " epilogue";
+        if(date/100==4)return " alfine";
+        if(date==1)return " dacapo";if(date==2)return " alfine";if(date==3)return " epilogue";
+        return date>=100?String.format(Locale.ROOT,"%2d月%2d日",date/100,date%100):"";
     }
     /** Native 404EE0 / 408560; calendar fields are script-visible route state. */
     private void calendar(int mode)throws IOException{

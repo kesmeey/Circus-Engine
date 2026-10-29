@@ -74,8 +74,43 @@ public final class PcCompatibilityTests {
         reject(()->Crx.plain(alignedCrx(13,0),true),"Legacy CRX rejects arbitrary zero excess");
         reject(()->Crx.plain(alignedCrx(12,1),true),"Legacy CRX rejects nonzero alignment tail");
         inputBindings(files,one);inputBindings(files,two);
+        listCaptions(files,two);
+        sceneListMode(files,one,two);
         return count;
     }
+    private static void sceneListMode(GameResources files,Profile one,Profile two)throws Exception{
+        byte[] names=new byte[20+188];names[16]=1;byte[] name="ind_0401_f1_otm".getBytes(Binary.SJIS);System.arraycopy(name,0,names,20,name.length);
+        Map<String,byte[]> entries=new HashMap<>();entries.put("AdvData/DAT/NAMES.DAT",names);
+        PcHost h=new PcHost(new CircusResources(files(entries),two),TextCodec.identity());h.attach(new Variables(h,Variables.Model.PC_WIDE));
+        h.command("pc.grid.item",new int[]{0,0,0,0,68,52,6,0},new byte[0]);h.command("grid.item_action",new int[0],"sce0".getBytes(Binary.SJIS));
+        h.command("pc.command",new int[]{7,255},new byte[0]);check(h.list.textStyle==4&&h.list.last().action.equals("sce0"),"Scene renderer selector ignores its second parameter and preserves jump actions");
+        check(h.sceneListName(h.list.last()).equals("ind_0401_f1_otm")&&PcHost.sceneListSpecial(h.sceneListName(h.list.last())),"Scene decoration indexes the original scenario catalog by entry id");
+        ByteArrayOutputStream out=new ByteArrayOutputStream();h.list.save(new DataOutputStream(out));ScriptList copy=new ScriptList();copy.load(new DataInputStream(new ByteArrayInputStream(out.toByteArray())));check(copy.textStyle==4&&copy.last().action.equals("sce0"),"Scene renderer selector survives existing list snapshots");
+        h.list.last().action="";check(h.sceneListName(h.list.last()).isEmpty(),"Locked scenes do not expose native dates or decoration");
+        check(PcHost.sceneListDate("ind_0120_f3_yme").equals(" 1月20日")&&PcHost.sceneListDate("ind_0401_f1_otm").equals(" alfine")&&PcHost.sceneListDate("0ind_1216_a1_skr").equals(" dacapo"),"Scene dates preserve native calendar and period labels");
+        check(PcHost.sceneListDate("ind_0216_b1_anz").equals(" epilogue")&&PcHost.sceneListDate("ind_0305_b1_akn").equals(" epilogue")&&PcHost.sceneListDate("ind_0125_a1_rno").equals(" epilogue")&&PcHost.sceneListDate("").isEmpty(),"Scene date exceptions and locked labels match native rules");
+        h.list.clear();h.command("pc.command",new int[]{6,0},new byte[0]);check(h.list.textStyle==0&&h.saveGrid,"Ordinary save-grid setup remains separate from Scene list styling");
+        PcHost first=new PcHost(new CircusResources(files,one),TextCodec.identity());reject(()->first.command("pc.command",new int[]{7,0},new byte[0]),"PC1 command 7 remains unimplemented rather than inheriting PC2 renderer semantics");
+    }
+    private static void listCaptions(GameResources files,Profile profile)throws Exception{
+        check(profile.operation(0x58).equals("pc.grid.caption")&&Profiles.get("dcpc-2063").operation(0x58).equals("variable.update"),"PC2 caption opcode does not replace PC1 variable update");
+        PcHost h=new PcHost(new CircusResources(files,profile),TextCodec.identity());
+        byte[] code=scriptInts(0x5769,0x57,0,0,0,0,0,0,0,0,0x52,68,0,52,0,6,0,0,0,0x42,'g','o',0,
+            (byte)0x58,70,0,34,0,1,0,2,0,(byte)0x45,'T','i','t','l','e',0,(byte)0x5c,2,0,3,0,17,0,0,0,0,0,0);
+        MesVm vm=new MesVm(n->new MesScript(n,code,profile),h,"caption");check(vm.run(100)==MesVm.Status.HALTED&&vm.variables.read(2,3)==17,"Caption consumes raw following string and resumes at next opcode");
+        ScriptList.Item item=h.list.last();check(item.action.equals("go")&&item.sprites.size()==3,"Caption preserves entry action and thumbnail");
+        Dc2Ui.Quad normal=item.sprites.get(1),hover=item.sprites.get(2);
+        check(normal.type==2&&normal.x==70&&normal.y==34&&normal.text.equals("Title")&&normal.flags==1&&normal.state==99,"Normal caption keeps relative coordinates and raw caption bytes");
+        check(hover.text.equals("Title")&&hover.flags==2&&hover.state==1,"Hover caption selects independent native palette");
+        check(ScriptList.visible(item.sprites,99).size()==2&&ScriptList.visible(item.sprites,1).size()==2,"Both normal and hover retain the common thumbnail exactly once");
+        h.command("pc.grid.caption",new int[]{-1,-1,3,4},"other".getBytes(Binary.SJIS));check(item.sprites.size()==3&&item.sprites.get(1).x==-1&&item.sprites.get(1).y==-1&&item.sprites.get(1).text.equals("other"),"Repeated caption replaces fields and preserves native center/hide sentinels");
+        ByteArrayOutputStream out=new ByteArrayOutputStream();h.list.save(new DataOutputStream(out));ScriptList copy=new ScriptList();copy.load(new DataInputStream(new ByteArrayInputStream(out.toByteArray())));
+        check(copy.last().sprites.get(2).type==2&&copy.last().sprites.get(2).text.equals("other")&&copy.last().sprites.get(2).flags==4,"List snapshot roundtrip preserves caption and hover palette");
+        PcHost empty=new PcHost(new CircusResources(files,profile),TextCodec.identity());byte[] noEntry=scriptInts(0x5769,0x58,0,0,0,0,1,0,1,0,0x45,'x',0,0,0,0);
+        MesVm noEntryVm=new MesVm(n->new MesScript(n,noEntry,profile),empty,"empty");check(noEntryVm.run(10)==MesVm.Status.HALTED&&empty.list.items.isEmpty(),"Native caption without an entry still consumes its string");
+        byte[] invalid=scriptInts(0x5769,0x58,0,0,0,0,1,0,1,0,0,0,0);MesVm invalidVm=new MesVm(n->new MesScript(n,invalid,profile),empty,"invalid");check(invalidVm.run(10)==MesVm.Status.FAULT,"Caption missing string payload is an explicit error");
+    }
+    private static byte[] scriptInts(int marker,int...values)throws IOException{byte[] bytes=new byte[values.length];for(int n=0;n<values.length;n++)bytes[n]=(byte)values[n];return script(marker,bytes);}
     private static void inputBindings(GameResources files,Profile profile)throws Exception {
         CircusResources data=new CircusResources(files,profile);
         for(boolean timed:new boolean[]{false,true})for(int button:new int[]{-1,-2}){

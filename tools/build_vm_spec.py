@@ -59,6 +59,7 @@ NOTES={
  'pc.transition':'转场类别/时长；部分原效果尚由近似淡入实现。',
  'pc.external':'原宿主外部程序操作；本兼容层未执行，也没有通用 NOP 兜底。',
  'pc.grid.wait':'发布原版存读档网格并等待点击；PC1/2 保留槽 0/1；PC2 读档进入 selsave2，保存进入 selsave。',
+ 'pc.grid.caption':'PC2 41D696 消费后继原始字符串，为前一个列表条目写 x,y,正常/悬停调色板；41169A..41177D 按 cell 相对坐标绘制，x=-1 居中、y=-1 不显示。无前项仍消费字符串。',
  'pc.voice_group.add':'向临时语音组追加资源，最多十条；PC1 414C84 / PC2 41EC11。',
  'pc.voice_group.play':'模式 0 随机播一条并走普通角色开关，1 同时混音，2 清空；组可存十条，但同时播放上限 PC1 七条、PC2 六条（41CC10 通道3..9，427680 通道4..9）。同时播放只受全局开关限制。',
  'pc.wait.media_mask':'PC2 41ED22 / 4230E0：位 1 等 BGM，2 等语音，4 等音效；位 8 原生计时分支尚未接入。',
@@ -71,6 +72,7 @@ NOTES={
 LOGICAL={
  'ui.music_end_action':['label:bytes_z'], 'grid.item_action':['label:bytes_z'],
  'pc.grid.item':['id:i16','reserved:i16','source_x:i16','source_y:i16','source_right:i16','source_bottom:i16','selector:i16','reserved:i16'],
+ 'pc.grid.caption':['x:i16','y:i16','normal_palette:i16','hover_palette:i16','caption:following_raw_string'],
  'dd.grid.item':['id:i16','reserved:i16','source_x:i16','source_y:i16','source_right:i16','source_bottom:i16','slot:i16','reserved:i16'],
  'dd.grid.text':['x_or_style:i16','y:i16','reserved:i16','state:i16','caption:following_string_unless_state_99'],
  'dd.grid.columns':['columns:i16','reserved:i16','reserved:i16','reserved:i16'],

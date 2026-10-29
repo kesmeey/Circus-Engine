@@ -13,8 +13,8 @@ import org.circus.graphics.BufferedImage;
 
 /** Exercise the shipping Android activity through SAF and real touch events. */
 public final class SharedRuntimeInstrumentation extends Instrumentation {
-    private RuntimeActivity activity;private String tree;private boolean audit=true,sequence,opening,inputRegression,overlayRegression,transitionRegression,petalRegression,petalReplay,galleryRegression,gestureRegression;private File output;private int checks;private final StringBuilder log=new StringBuilder();
-    public void onCreate(Bundle args){super.onCreate(args);tree=args.getString("tree");audit=!"false".equals(args.getString("audit"));sequence="true".equals(args.getString("sequence"));opening="true".equals(args.getString("opening"));inputRegression="true".equals(args.getString("inputRegression"));overlayRegression="true".equals(args.getString("overlayRegression"));transitionRegression="true".equals(args.getString("transitionRegression"));petalRegression="true".equals(args.getString("petalRegression"));petalReplay="true".equals(args.getString("petalReplay"));galleryRegression="true".equals(args.getString("galleryRegression"));gestureRegression="true".equals(args.getString("gestureRegression"));start();}
+    private RuntimeActivity activity;private String tree;private boolean audit=true,sequence,opening,inputRegression,overlayRegression,transitionRegression,petalRegression,petalReplay,galleryRegression,gestureRegression,menuPerformance;private File output;private int checks;private final StringBuilder log=new StringBuilder();
+    public void onCreate(Bundle args){super.onCreate(args);tree=args.getString("tree");audit=!"false".equals(args.getString("audit"));sequence="true".equals(args.getString("sequence"));opening="true".equals(args.getString("opening"));inputRegression="true".equals(args.getString("inputRegression"));overlayRegression="true".equals(args.getString("overlayRegression"));transitionRegression="true".equals(args.getString("transitionRegression"));petalRegression="true".equals(args.getString("petalRegression"));petalReplay="true".equals(args.getString("petalReplay"));galleryRegression="true".equals(args.getString("galleryRegression"));gestureRegression="true".equals(args.getString("gestureRegression"));menuPerformance="true".equals(args.getString("menuPerformance"));start();}
     interface Job<T>{T run(DesktopEngine e)throws Exception;}
     private <T>T call(Job<T> job)throws Exception {if(activity.failed)throw new IOException(activity.error);return activity.worker.submit(()->{if(activity.engine==null)throw new IOException("Engine not ready");return job.run(activity.engine);}).get(60,TimeUnit.SECONDS);}
     private void check(boolean value,String detail)throws IOException{if(!value)throw new IOException(detail);checks++;log.append("PASS ").append(detail).append('\n');}
@@ -31,6 +31,7 @@ public final class SharedRuntimeInstrumentation extends Instrumentation {
         if(galleryRegression){log.append(this.<String>call(e->new DdGalleryAudit((DesktopDd)e).run(output.toPath().resolve("gallery-regression"))));result.putString("stream",log.toString());finish(-1,result);return;}
         if(profile.equals("dcpc-2063")){tap("name");waitMenu();check(call(e->e.editingText()),"original name editor opens");tap("@name:field:4");call(e->{e.typeText("测试");return null;});tap("@name:button:7");capture("00-name-confirm");tap("@name:yes");waitMenu();check(call(e->((PcHost)((DesktopLegacy)e).host()).givenName.equals("测试")),"name confirmation uses shared host");}
         tap(actions().contains("sce_start")?"sce_start":"start");waitText();capture("02-first-dialogue");
+        if(menuPerformance){menuPerformance();result.putString("stream",log.toString());finish(-1,result);return;}
         if(gestureRegression){gestureRegression();result.putString("stream",log.toString());finish(-1,result);return;}
         if(overlayRegression){overlayRegression();result.putString("stream",log.toString());finish(-1,result);return;}
         if(inputRegression){inputRegression();result.putString("stream",log.toString());finish(-1,result);return;}
@@ -48,6 +49,35 @@ public final class SharedRuntimeInstrumentation extends Instrumentation {
         Files.write(output.toPath().resolve("result.txt"),log.toString().getBytes("UTF-8"));result.putString("stream",log.toString());finish(-1,result);
     }catch(Throwable e){log.append("FAIL ").append(e).append('\n');try{if(activity!=null&&activity.engine!=null)log.append(this.<String>call(v->v.vm().scriptName()+"@"+Integer.toHexString(v.vm().offset())+" "+v.vm().status()+" actions="+actionsUnsafe(v))).append('\n');}catch(Exception ignored){}try{if(output!=null)Files.write(output.toPath().resolve("result.txt"),log.toString().getBytes("UTF-8"));}catch(Exception ignored){}result.putString("stream",log.toString());finish(0,result);}finally{if(activity!=null)runOnMainSync(()->activity.finish());}}
     private static List<String> actionsUnsafe(DesktopEngine e){List<String>a=new ArrayList<>();for(DesktopEngine.Control c:e.controls())a.add(c.action);return a;}
+    private void menuPerformance()throws Exception{
+        check(call(e->e instanceof DesktopLegacy&&((DesktopLegacy)e).host() instanceof PcHost),"PC original menu performance fixture");stableStory();
+        log.append(this.<String>call(e->{
+            DesktopLegacy d=(DesktopLegacy)e;StringBuilder timings=new StringBuilder();String body=d.body(),script=d.scriptName();int pc=d.scriptOffset();
+            for(int round=0;round<3;round++){
+                long start=System.nanoTime();d.click(0,0,true);settleMenu(d);long opened=System.nanoTime();
+                d.choose("save");settleMenu(d);long grid=System.nanoTime();
+                if(!d.host().gridWaiting||!d.host().saveGrid)throw new IOException("Expected original save grid: "+actionsUnsafe(d));
+                d.choose("@slot:"+(round+2));settleMenu(d);
+                if(actionsUnsafe(d).contains("iconset00")){d.choose("iconset00");settleMenu(d);}
+                if(actionsUnsafe(d).contains("dosave")){d.choose("dosave");settleMenu(d);}
+                if(d.host().confirming){String yes=actionsUnsafe(d).contains(":yes")?":yes":actionsUnsafe(d).contains("yes")?"yes":null;if(yes==null)throw new IOException("Unknown save confirmation "+actionsUnsafe(d));d.choose(yes);settleMenu(d);}
+                long saved=System.nanoTime();
+                boolean recorded=false;for(int slot:d.host().availableSaves)if(slot>=2&&Files.getLastModifiedTime(d.saveDirectory.resolve("slot-"+slot+".sav")).toMillis()>System.currentTimeMillis()-10000)recorded=true;
+                if(!recorded)throw new IOException("Original save action did not write a slot");
+                for(int back=0;back<4&&d.session.inSystem();back++){d.click(0,0,true);settleMenu(d);}
+                if(d.session.inSystem()||!body.equals(d.body())||!script.equals(d.scriptName())||pc!=d.scriptOffset())throw new IOException("Menu/save changed caller dialogue");
+                timings.append(String.format(Locale.ROOT,"PERF round=%d open_ms=%.3f save_grid_ms=%.3f save_action_ms=%.3f return_ms=%.3f%n",round,(opened-start)/1e6,(grid-opened)/1e6,(saved-grid)/1e6,(System.nanoTime()-saved)/1e6));
+            }
+            return timings.toString();
+        }));check(!activity.failed,"three original menu/save round trips preserve caller dialogue");
+        // Touch dispatch uses the same engine path measured above; do not include helper sleeps in timings.
+        gestureRegression();log.append("PERF scope: worker click, VM ticks and render; excludes touch-helper sleeps, presentation and media preparation.\n");
+        Files.write(output.toPath().resolve("menu-performance.txt"),log.toString().getBytes("UTF-8"));
+    }
+    private static void settleMenu(DesktopLegacy d)throws Exception{
+        for(int n=0;n<300;n++){d.tick(16);BufferedImage rendered=d.render();rendered.flush();if(d.menuWaiting()||!d.session.inSystem()&&d.host().textWaiting)return;}
+        throw new IOException("Performance menu did not settle: "+d.scriptName()+" "+actionsUnsafe(d));
+    }
     private static final class StoryPoint {
         final String script,body;final int pc;
         StoryPoint(MesVm vm,Dc2Host host){script=vm.scriptName();body=host.body;pc=vm.offset();}

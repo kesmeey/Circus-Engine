@@ -30,7 +30,9 @@ public final class UiCapture {
     public static UiCapture pixels(int width,int height,int[] argb)throws IOException {
         dimensions(width,height);if(argb.length!=(long)width*height)throw new IOException("UI capture pixel count");
         ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream header=new DataOutputStream(bytes);header.writeInt(width);header.writeInt(height);
-        try(DataOutputStream out=new DataOutputStream(new DeflaterOutputStream(bytes))){for(int pixel:argb)out.writeInt(pixel);}
+        // Batch pixels before crossing the native zlib boundary. A menu capture
+        // otherwise makes one compression call per pixel (480,000 at 800x600).
+        try(DataOutputStream out=new DataOutputStream(new BufferedOutputStream(new DeflaterOutputStream(bytes),32768))){for(int pixel:argb)out.writeInt(pixel);}
         return new UiCapture(ARGB,bytes.toByteArray(),null);
     }
     public static final class Pixels {
@@ -40,7 +42,7 @@ public final class UiCapture {
     public Pixels pixels()throws IOException {
         if(kind!=ARGB)throw new IOException("Capture is not a raster");
         DataInputStream header=input();int width=header.readInt(),height=header.readInt();dimensions(width,height);Pixels result=new Pixels(width,height);
-        try(DataInputStream in=new DataInputStream(new InflaterInputStream(header))){for(int n=0;n<result.argb.length;n++)result.argb[n]=in.readInt();if(in.read()!=-1)throw new IOException("Extra UI capture pixels");}
+        try(DataInputStream in=new DataInputStream(new BufferedInputStream(new InflaterInputStream(header),32768))){for(int n=0;n<result.argb.length;n++)result.argb[n]=in.readInt();if(in.read()!=-1)throw new IOException("Extra UI capture pixels");}
         return result;
     }
     private static void dimensions(int w,int h)throws IOException{if(w<1||h<1||w>2048||h>2048||(long)w*h>2048*2048)throw new IOException("Invalid UI capture dimensions");}

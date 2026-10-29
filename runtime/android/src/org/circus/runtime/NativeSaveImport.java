@@ -35,7 +35,7 @@ final class NativeSaveImport {
     static String counts(NativeProgress.Summary s){return "新增或提高的通关标记："+s.completion+"\n新增 CG 标记："+s.cg+"\n新增场景标记："+s.scenes+"\n新增音乐标记："+s.music;}
     static Request inspect(Context context,GameLibrary.Entry entry)throws IOException{
         if(!entry.configured)throw new IOException("请先保存此游戏的配置，再导入原版进度");
-        if(UnityCircusResources.ID.equals(entry.profile))throw new IOException("DC3R Unity 版的原版存档尚不支持导入。其电脑存档保存在 %APPDATA%\\Mangagamer\\DaCapo3R，使用 global.dat 和 saveNNN.dat，与 DC3DD 等版本的格式不同。解释器内新建的存档可以正常保存和读取。");
+        if(UnityCircusResources.ID.equals(entry.profile))throw new IOException("DC3R Unity 请使用游戏卡片的“导入原版存档”入口。");
         if(!NativeProgress.supports(entry.profile))throw new IOException("原版进度导入支持 DCPC、DC2PC、DC2DM、DC3DD 的已验证版本；此游戏版本尚未适配");
         GameResources files=new GameResources(new DocumentTree(context.getContentResolver(),Uri.parse(entry.tree),true),entry.executable);
         Profile profile=GameVersion.detect(files).profile();if(!profile.id.equals(entry.profile))throw new IOException("游戏目录版本已改变，请重新配置游戏");

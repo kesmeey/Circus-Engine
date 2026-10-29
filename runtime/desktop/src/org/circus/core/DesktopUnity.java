@@ -22,13 +22,17 @@ public final class DesktopUnity extends DesktopEngine {
     private byte[] storyState;private long storyTicket=-1;private BufferedImage storyPreview;private String storyCaption="";private final String[] storyAudio={"","","","","",""};private int savedAutoGeneration;
     private long pictureBytes;private static final long PICTURE_BUDGET=48L*1024*1024;
     private final Map<String,BufferedImage> pictures=new LinkedHashMap<String,BufferedImage>(32,.75f,true);
+    private final boolean diskSaves;
     public DesktopUnity(UnityCircusResources r,boolean audit)throws IOException{
-        super(r,TextCodec.identity(),audit,1024,576,r.identity());data=r;
+        this(r,audit,Paths.get(System.getProperty("dc.saveRoot",audit?"build/desktop/audit-saves":"build/desktop/saves")),true);
+    }
+    private DesktopUnity(UnityCircusResources r,boolean audit,Path root,boolean diskSaves)throws IOException{
+        super(r,TextCodec.identity(),audit,1024,576,r.identity(),root);data=r;this.diskSaves=diskSaves;
         host.configureCatalogues(new String(r.script("cglist"),java.nio.charset.StandardCharsets.UTF_8),new String(r.script("scenelist"),java.nio.charset.StandardCharsets.UTF_8));
         host.textAssets=name->new String(r.script(name),java.nio.charset.StandardCharsets.UTF_8);host.capture=this::capture;
         Map<String,CircusScrScript> cache=new LinkedHashMap<String,CircusScrScript>(16,.75f,true){protected boolean removeEldestEntry(Map.Entry<String,CircusScrScript> e){return size()>24;}};
         script=new CircusScrVm(name->{CircusScrScript s=cache.get(name);if(s==null){s=new CircusScrScript(name,r.script(name));cache.put(name,s);}return s;},host,"start");
-        Path progress=saveDirectory.resolve("progress.dat");if(!audit&&Files.isRegularFile(progress))try(DataInputStream in=new DataInputStream(Files.newInputStream(progress))){host.loadPersistent(in);}
+        Path progress=saveDirectory.resolve("progress.dat");if(diskSaves&&!audit&&Files.isRegularFile(progress))try(DataInputStream in=new DataInputStream(Files.newInputStream(progress))){host.loadPersistent(in);}
         scanSaves();
     }
     /** Legacy callers may request a MES VM only for a MES backend. */
@@ -55,7 +59,44 @@ public final class DesktopUnity extends DesktopEngine {
     }
     private void captureStoryPreview()throws IOException{if(storyState!=null&&storyPreview==null&&script.callDepth()==0)storyPreview=scene();}
     private void saveStory(Path file)throws IOException{if(storyState==null)throw new IOException("No stable story state to save");DesktopSave saved=new DesktopSave();saved.state=storyState;saved.caption=storyCaption;saved.created=System.currentTimeMillis();saved.textElapsed=textClock;saved.icon=saveIcon();if(storyPreview==null&&script.callDepth()==0)storyPreview=scene();if(storyPreview!=null)saved.preview=DesktopSave.thumbnail(storyPreview,256,144);for(int ch=0;ch<6;ch++)saved.audio[ch]=storyAudio[ch];atomic(file,saved.encode());scanSaves();}
-    private void scanSaves()throws IOException{host.availableSaves.clear();for(int slot=0;slot<=101;slot++){Path file=saveDirectory.resolve("slot-"+slot+".sav");if(!Files.isRegularFile(file))continue;DesktopSave info=DesktopSave.decode(Files.readAllBytes(file));host.availableSaves.put(slot,new Dc3rHost.SaveInfo(new java.text.SimpleDateFormat("yyyy MM/dd HH:mm",Locale.ROOT).format(new Date(info.created)),info.caption));}}
+    private void scanSaves()throws IOException{host.availableSaves.clear();if(!diskSaves)return;for(int slot=0;slot<=101;slot++){Path file=saveDirectory.resolve("slot-"+slot+".sav");if(!Files.isRegularFile(file))continue;DesktopSave info=DesktopSave.decode(Files.readAllBytes(file));host.availableSaves.put(slot,new Dc3rHost.SaveInfo(new java.text.SimpleDateFormat("yyyy MM/dd HH:mm",Locale.ROOT).format(new Date(info.created)),info.caption));}}
+
+    /** Read-only native save conversion. The caller owns destination paths and atomic writes. */
+    public static DesktopSave convertNative(UnityCircusResources data,byte[] nativeSave,byte[] persistent)throws IOException{
+        Dc3rNativeProgress.validateTarget(data);
+        Dc3rNativeSlot slot=new Dc3rNativeSlot(nativeSave);
+        DesktopUnity engine=new DesktopUnity(data,true,Paths.get("."),false);
+        try{
+            if(persistent!=null&&persistent.length>0)engine.importPersistent(persistent);
+            // Native save files omit the message-window and menu definitions installed by START.
+            // Run only original startup, without rendering, decoding audio, or executing a story.
+            for(int n=0;n<2000&&!engine.host.menuWaiting;n++){
+                engine.script.elapse(1000);engine.host.elapse(1000,engine.script);
+                if(engine.script.run(10000)==CircusScrVm.Status.FAULT)throw new IOException(engine.script.error());
+                if(!engine.host.movie.isEmpty())engine.host.mediaCompleted(engine.script);
+                for(int ch=0;ch<6;ch++)if(engine.host.audioActive[ch]&&!engine.host.audioLoop[ch])engine.host.audioCompleted(ch,engine.host.audioGeneration[ch]);
+                if(engine.script.instructionsExecuted()>2000000)throw new IOException("Native import startup instruction limit");
+            }
+            if(!engine.host.menuWaiting||!engine.scriptName().equals("main")||!engine.host.putDefs.containsKey(1))throw new IOException("Native import could not initialize original START UI");
+            Dc3rHost clean=new Dc3rHost();clean.colors.putAll(engine.host.colors);
+            // Keep START's system initialization; native loading replaces only local memory.
+            for(Map.Entry<Integer,Integer> e:engine.host.flags.entrySet())if(e.getKey()>=655360)clean.flags.put(e.getKey(),e.getValue());
+            for(Map.Entry<Integer,Dc3rHost.Panel> e:engine.host.putDefs.entrySet())clean.putDefs.put(e.getKey(),e.getValue().copy());
+            for(Map.Entry<Integer,Dc3rHost.Panel> e:engine.host.menuDefs.entrySet())clean.menuDefs.put(e.getKey(),e.getValue().copy());
+            ByteArrayOutputStream reset=new ByteArrayOutputStream();clean.save(new DataOutputStream(reset));
+            engine.host.flags.clear();engine.host.viewedCg.clear();engine.host.viewedScripts.clear();
+            engine.host.load(new DataInputStream(new ByteArrayInputStream(reset.toByteArray())));
+            if(persistent!=null&&persistent.length>0)engine.importPersistent(persistent);
+            slot.apply(engine);
+            DesktopSave saved=new DesktopSave();saved.caption=slot.caption;saved.created=slot.created;saved.icon=engine.saveIcon();saved.state=engine.snapshot();
+            BufferedImage preview=engine.preview();try{saved.preview=DesktopSave.thumbnail(preview,256,144);}finally{preview.flush();}
+            for(int ch=0;ch<6;ch++)saved.audio[ch]=engine.audio(ch);
+            if(saved.encode().length>16*1024*1024)throw new IOException("Converted native save exceeds 16 MiB");
+            return saved;
+        }finally{engine.releaseImages();}
+    }
+    private void importPersistent(byte[] bytes)throws IOException{if(bytes.length>16*1024*1024)throw new IOException("Persistent import size limit");DataInputStream in=new DataInputStream(new ByteArrayInputStream(bytes));host.loadPersistent(in);if(in.available()!=0)throw new IOException("Trailing persistent state");}
+    private void releaseImages(){for(BufferedImage p:pictures.values())p.flush();pictures.clear();pictureBytes=0;if(lastScene!=null)lastScene.flush();if(transitionFrom!=null)transitionFrom.flush();if(storyPreview!=null)storyPreview.flush();for(BufferedImage p:thumbnails.values())p.flush();thumbnails.clear();captured.clear();}
     private void platformAction()throws IOException{String action=host.platformAction;host.platformAction="";switch(action){case "auto":auto=!auto;rapid=false;break;case "rapid":rapid=!rapid;auto=false;break;case "clear":hidden=true;break;case "qs":saveStory(saveDirectory.resolve("quick.sav"));break;case "ql":Path file=saveDirectory.resolve("quick.sav");if(Files.isRegularFile(file))restore(file);break;case "":break;default:throw new IOException("Unknown Unity platform action "+action);}}
     public void click(int x,int y,boolean right)throws IOException{if(hidden){hidden=false;return;}if(right){captureStoryPreview();host.cancel(script);return;}int button=host.hit(x,y);if(button>=0){captureStoryPreview();host.choose(button,script);platformAction();return;}if(script.status()==CircusScrVm.Status.WAIT_CLICK)host.advance(script);}
     public void hover(int x,int y){host.hover(x,y);}

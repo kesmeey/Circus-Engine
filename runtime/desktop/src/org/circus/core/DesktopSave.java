@@ -18,7 +18,7 @@ public final class DesktopSave {
     public static byte[] thumbnail(BufferedImage image,int width,int height)throws IOException{
         BufferedImage scaled=new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);Graphics2D g=scaled.createGraphics();
         try{g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);g.drawImage(image,0,0,width,height,null);}finally{g.dispose();}
-        ByteArrayOutputStream bytes=new ByteArrayOutputStream();ImageIO.write(scaled,"png",bytes);return bytes.toByteArray();
+        ByteArrayOutputStream bytes=new ByteArrayOutputStream();try{ImageIO.write(scaled,"png",bytes);return bytes.toByteArray();}finally{scaled.flush();}
     }
     public byte[] encode()throws IOException{
         ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream out=new DataOutputStream(bytes);

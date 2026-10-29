@@ -230,6 +230,7 @@ public final class CoreTests {
         assertions+=CompatibilityTests.run();
         assertions+=PcCompatibilityTests.run();
         assertions+=PcChoiceTests.run();
+        assertions+=PcActorLayoutTests.run();
         assertions+=DmDdPaletteTests.run();
         assertions+=PcNativeProgressTests.run();
         assertions+=NativeProgressTests.run();
@@ -245,6 +246,7 @@ public final class CoreTests {
         assertions+=DdGalleryTests.run();
         assertions+=CircusScrVmTests.run();
         assertions+=UnityResourceTests.run();
+        assertions+=Dc3rNativeProgressTests.run();
         assertions+=Fsb5VorbisTests.run();
         return "PASS "+assertions+" assertions; self-authored fixtures; DD choices/flow/original UI/animation/macros, WY bindings, DM memory/control and collection detection; archives, CRX/CRXD, audio, save integrity";
     }

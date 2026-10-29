@@ -173,7 +173,12 @@ public final class DesktopLegacy extends DesktopEngine {
     }
     private void scene(Graphics2D g,Dc2Scene.Frame f)throws IOException {
         g.setColor(Color.BLACK);g.fillRect(0,0,width,height);at(g,f.slots[1],-f.x,-f.y);
-        for(int n=3;n>=0;n--){int[] a=f.actors[n];for(int slot:new int[]{n+2,n+6}){String name=slot==n+6?resources.characterOverlay(f.slots[n+2],f.slots[slot]):f.slots[slot];Picture p=picture(name);if(p==null)continue;AffineTransform tr=g.getTransform();g.translate(a[0]+a[3],a[1]+a[4]);g.scale(a[2]/100.0,a[2]/100.0);g.drawImage(p.image,p.raw.x-a[3],p.raw.y-a[4],null);g.setTransform(tr);}}
+        boolean pc2=resources.profileId.equals("dc2pc-5769");
+        // PC2 41A950 visits actor slots 0..3, so a later close-up covers earlier actors.
+        for(int order=0;order<4;order++){int n=pc2?order:3-order;int[] a=f.actors[n];for(int slot:new int[]{n+2,n+6}){String name=slot==n+6?resources.characterOverlay(f.slots[n+2],f.slots[slot]):f.slots[slot];Picture p=picture(name);if(p==null)continue;
+            if(pc2){PcActorLayout r=PcActorLayout.dc2pc(a,p.raw.width,p.raw.height);g.drawImage(p.image,r.x,r.y,r.x+r.width,r.y+r.height,0,0,p.raw.width,p.raw.height,null);}
+            else{AffineTransform tr=g.getTransform();g.translate(a[0]+a[3],a[1]+a[4]);g.scale(a[2]/100.0,a[2]/100.0);g.drawImage(p.image,p.raw.x-a[3],p.raw.y-a[4],null);g.setTransform(tr);}
+        }}
         drawEffects(g);for(Dc2Ui.Quad q:f.quads)quad(g,q,f.slots,false);
     }
     private void drawEffects(Graphics2D g)throws IOException{

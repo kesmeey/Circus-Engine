@@ -50,6 +50,14 @@ public final class DocumentTree implements GameResources.Storage {
                     while(buffer.hasRemaining()){int n=channel.read(buffer);if(n<0)throw new EOFException("Short archive slice");if(n==0)throw new IOException("Provider did not supply requested data");}return b;
                 }
             }
+            @Override public void copyTo(long offset,long length,OutputStream out)throws IOException{
+                ParcelFileDescriptor fd=resolver.openFileDescriptor(uri,"r");
+                if(fd==null)throw new IOException("Cannot open archive");
+                try(FileInputStream in=new ParcelFileDescriptor.AutoCloseInputStream(fd)){
+                    Binary.range(offset,length,fd.getStatSize());FileChannel channel=in.getChannel();channel.position(offset);byte[] block=new byte[65536];
+                    while(length>0){ByteBuffer buffer=ByteBuffer.wrap(block,0,(int)Math.min(block.length,length));int n=channel.read(buffer);if(n<0)throw new EOFException("Short resource copy");if(n==0)throw new IOException("Provider did not supply requested data");out.write(block,0,n);length-=n;}
+                }
+            }
         };
     }
     /** Static admission report. Parsing a file is not permission to execute its script. */

@@ -13,8 +13,9 @@ import org.circus.graphics.BufferedImage;
 
 /** Exercise the shipping Android activity through SAF and real touch events. */
 public final class SharedRuntimeInstrumentation extends Instrumentation {
+    private boolean audioMemory;private volatile byte[][] retainedAudioPressure;
     private RuntimeActivity activity;private String tree;private boolean audit=true,sequence,opening,inputRegression,overlayRegression,transitionRegression,petalRegression,petalReplay,galleryRegression,gestureRegression,menuPerformance;private File output;private int checks;private final StringBuilder log=new StringBuilder();
-    public void onCreate(Bundle args){super.onCreate(args);tree=args.getString("tree");audit=!"false".equals(args.getString("audit"));sequence="true".equals(args.getString("sequence"));opening="true".equals(args.getString("opening"));inputRegression="true".equals(args.getString("inputRegression"));overlayRegression="true".equals(args.getString("overlayRegression"));transitionRegression="true".equals(args.getString("transitionRegression"));petalRegression="true".equals(args.getString("petalRegression"));petalReplay="true".equals(args.getString("petalReplay"));galleryRegression="true".equals(args.getString("galleryRegression"));gestureRegression="true".equals(args.getString("gestureRegression"));menuPerformance="true".equals(args.getString("menuPerformance"));start();}
+    public void onCreate(Bundle args){super.onCreate(args);tree=args.getString("tree");audit=!"false".equals(args.getString("audit"));sequence="true".equals(args.getString("sequence"));opening="true".equals(args.getString("opening"));inputRegression="true".equals(args.getString("inputRegression"));overlayRegression="true".equals(args.getString("overlayRegression"));transitionRegression="true".equals(args.getString("transitionRegression"));petalRegression="true".equals(args.getString("petalRegression"));petalReplay="true".equals(args.getString("petalReplay"));galleryRegression="true".equals(args.getString("galleryRegression"));gestureRegression="true".equals(args.getString("gestureRegression"));menuPerformance="true".equals(args.getString("menuPerformance"));audioMemory="true".equals(args.getString("audioMemory"));start();}
     interface Job<T>{T run(DesktopEngine e)throws Exception;}
     private <T>T call(Job<T> job)throws Exception {if(activity.failed)throw new IOException(activity.error);return activity.worker.submit(()->{if(activity.engine==null)throw new IOException("Engine not ready");return job.run(activity.engine);}).get(60,TimeUnit.SECONDS);}
     private void check(boolean value,String detail)throws IOException{if(!value)throw new IOException(detail);checks++;log.append("PASS ").append(detail).append('\n');}
@@ -26,6 +27,7 @@ public final class SharedRuntimeInstrumentation extends Instrumentation {
         String profile=call(e->e.resources.profile.id);output=new File(getTargetContext().getFilesDir(),"android-011-audit/"+profile+(audit?"":"-upgrade"));output.mkdirs();
         boolean title=false;end=SystemClock.uptimeMillis()+90000;while(SystemClock.uptimeMillis()<end){List<String> a=actions();if(a.contains("start")||a.contains("sce_start")){title=true;break;}if(a.contains("window"))tap("window");else if(a.contains("03"))tap("03");else touch(.5f,.35f);Thread.sleep(300);}
         check(title,"original START reaches title");Thread.sleep(800);capture("01-title");
+        if(audioMemory){audioMemoryRegression();result.putString("stream",log.toString());finish(-1,result);return;}
         if(transitionRegression){transitionRegression();result.putString("stream",log.toString());finish(-1,result);return;}
         if(petalRegression){petalRegression();result.putString("stream",log.toString());finish(-1,result);return;}
         if(galleryRegression){log.append(this.<String>call(e->new DdGalleryAudit((DesktopDd)e).run(output.toPath().resolve("gallery-regression"))));result.putString("stream",log.toString());finish(-1,result);return;}
@@ -49,6 +51,28 @@ public final class SharedRuntimeInstrumentation extends Instrumentation {
         Files.write(output.toPath().resolve("result.txt"),log.toString().getBytes("UTF-8"));result.putString("stream",log.toString());finish(-1,result);
     }catch(Throwable e){log.append("FAIL ").append(e).append('\n');try{if(activity!=null&&activity.engine!=null)log.append(this.<String>call(v->v.vm().scriptName()+"@"+Integer.toHexString(v.vm().offset())+" "+v.vm().status()+" actions="+actionsUnsafe(v))).append('\n');}catch(Exception ignored){}try{if(output!=null)Files.write(output.toPath().resolve("result.txt"),log.toString().getBytes("UTF-8"));}catch(Exception ignored){}result.putString("stream",log.toString());finish(0,result);}finally{if(activity!=null)runOnMainSync(()->activity.finish());}}
     private static List<String> actionsUnsafe(DesktopEngine e){List<String>a=new ArrayList<>();for(DesktopEngine.Control c:e.controls())a.add(c.action);return a;}
+    private android.media.MediaPlayer player(int channel)throws Exception{java.lang.reflect.Field field=RuntimeActivity.class.getDeclaredField("players");field.setAccessible(true);return ((android.media.MediaPlayer[])field.get(activity))[channel];}
+    private void audioMemoryRegression()throws Exception{
+        check(call(e->e.resources.profileId.equals("dc2pc-5769")),"DC2PC audio memory fixture");
+        check(Runtime.getRuntime().maxMemory()<=256L*1024*1024,"Android heap remains limited to 256 MiB");
+        Path directory=output.toPath().resolve("audio-memory");Files.createDirectories(directory);
+        log.append(this.<String>call(e->Dc2PcAudioMemoryAudit.verifyAudio(e.resources,directory.resolve("streams"),130)));
+        try{
+            log.append(this.<String>call(e->{retainedAudioPressure=new byte[130][];for(int n=0;n<retainedAudioPressure.length;n++)retainedAudioPressure[n]=new byte[1024*1024];return Dc2PcAudioMemoryAudit.prepareScene((DesktopLegacy)e,directory.resolve("scene"));}));
+            long end=SystemClock.uptimeMillis()+30000;boolean playing=false;
+            while(SystemClock.uptimeMillis()<end){playing=call(e->{android.media.MediaPlayer p=player(0);return p!=null&&p.isPlaying()&&e.audio(0).equalsIgnoreCase(e.resources.named("music",42));});if(playing)break;Thread.sleep(50);}
+            check(playing,"shipping RuntimeActivity streams and plays original BGM 42 with 130 MiB retained pressure");
+            long first=call(e->player(0).getCurrentPosition());Thread.sleep(1500);long second=call(e->player(0).getCurrentPosition());
+            check(second>first+500,"real BGM playback clock advances");
+            check(call(e->Math.abs(player(0).getDuration()-268221)<300),"real BGM retains original duration and wave format");
+            capture("30-dacapo-bgm42");
+            retainedAudioPressure=null;
+            for(int n=0;n<5;n++){String before=call(e->e.scriptName()+":"+e.scriptOffset());end=SystemClock.uptimeMillis()+20000;boolean changed=false;while(SystemClock.uptimeMillis()<end){touch(.5f,.35f);waitText();if(call(e->!(e.scriptName()+":"+e.scriptOffset()).equals(before))){changed=true;break;}}check(changed,"dialogue advances after former OOM "+(n+1));}
+            check(!activity.failed,"no audio or renderer error after the reported scene");
+            log.append("ANDROID AUDIO MEMORY PASS CHECKS ").append(checks).append("\nScene reached by audit transfer after original START; subsequent BGM uses real MediaPlayer. Not a full-route certification.\n");
+            Files.write(directory.resolve("result.txt"),log.toString().getBytes("UTF-8"));
+        }finally{retainedAudioPressure=null;}
+    }
     private void menuPerformance()throws Exception{
         check(call(e->e instanceof DesktopLegacy&&((DesktopLegacy)e).host() instanceof PcHost),"PC original menu performance fixture");stableStory();
         log.append(this.<String>call(e->{

@@ -23,6 +23,7 @@ public final class LocalGameStorage implements GameResources.Storage {
         final Path p=path(name);return new Archive.Source(){
             public long size()throws IOException{return Files.size(p);}
             public byte[] read(long offset,int length)throws IOException{try(RandomAccessFile file=new RandomAccessFile(p.toFile(),"r")){Binary.range(offset,length,file.length());byte[] b=new byte[length];file.seek(offset);file.readFully(b);return b;}}
+            @Override public void copyTo(long offset,long length,OutputStream out)throws IOException{try(RandomAccessFile file=new RandomAccessFile(p.toFile(),"r")){Binary.range(offset,length,file.length());file.seek(offset);byte[] block=new byte[65536];while(length>0){int n=(int)Math.min(block.length,length);file.readFully(block,0,n);out.write(block,0,n);length-=n;}}}
         };
     }
 }

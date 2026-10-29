@@ -5,7 +5,14 @@ import java.util.*;
 
 /** PCK/CRM indices retain raw names, duplicate aliases and archive-relative offsets. */
 public final class Archive {
-    public interface Source { long size()throws IOException; byte[] read(long offset,int length)throws IOException; }
+    public interface Source {
+        long size()throws IOException; byte[] read(long offset,int length)throws IOException;
+        /** Platforms with persistent file handles may override this bounded
+         * copy; the default never allocates a complete entry. */
+        default void copyTo(long offset,long count,OutputStream out)throws IOException{
+            Binary.range(offset,count,size());for(long copied=0;copied<count;){int n=(int)Math.min(64*1024,count-copied);byte[] block=read(offset+copied,n);if(block.length!=n)throw new EOFException("Short archive copy");out.write(block);copied+=n;}
+        }
+    }
     public static final class Entry {
         public final int index;public final byte[] nameBytes;public final String name;public final long offset;public final int length;
         Entry(int i,byte[] n,long o,int l){index=i;nameBytes=n;name=new String(n,Binary.SJIS);offset=o;length=l;}
@@ -14,7 +21,9 @@ public final class Archive {
     /** Older VOICE.DAT: count, then 60-byte names and u32 offsets; payloads are aligned. */
     public Archive(Source source,boolean oldVoice)throws IOException{this(source,null);if(!oldVoice)throw new IllegalArgumentException("Use ordinary archive constructor");}
     public Archive(final Source primary,final Source secondary)throws IOException{
-        final long split=primary.size();this.source=secondary==null?primary:new Source(){public long size()throws IOException{return split+secondary.size();}public byte[] read(long at,int n)throws IOException{if(at>=split)return secondary.read(at-split,n);Binary.range(at,n,split);return primary.read(at,n);}};
+        final long split=primary.size();this.source=secondary==null?primary:new Source(){public long size()throws IOException{return split+secondary.size();}public byte[] read(long at,int n)throws IOException{if(at>=split)return secondary.read(at-split,n);Binary.range(at,n,split);return primary.read(at,n);}public void copyTo(long at,long n,OutputStream out)throws IOException{
+            Binary.range(at,n,size());if(at<split){long first=Math.min(n,split-at);primary.copyTo(at,first,out);at+=first;n-=first;}if(n>0)secondary.copyTo(at-split,n,out);
+        }};
         long total=this.source.size();long count=Binary.u32(primary.read(0,4),0);
         if(count==0||count>1000000)throw new IOException("Legacy voice count limit");long end=4+count*64;Binary.range(0,end,split);byte[] table=primary.read(4,(int)count*64);List<Entry> list=new ArrayList<>();TreeSet<Long> offsets=new TreeSet<>();
         for(int n=0;n<count;n++){int p=n*64,z=p;while(z<p+60&&table[z]!=0)z++;long packed=Binary.u32(table,p+60),at=packed;
@@ -43,5 +52,15 @@ public final class Archive {
     }
     public Entry find(byte[] raw)throws IOException {Entry found=null;for(Entry e:entries)if(Arrays.equals(e.nameBytes,raw)){if(found!=null && (found.offset!=e.offset||found.length!=e.length))throw new IOException("Ambiguous archive name");found=e;}if(found==null)throw new FileNotFoundException("Archive entry "+new String(raw,Binary.SJIS));return found;}
     public Entry atOffset(long offset)throws IOException{for(Entry e:entries)if(e.offset==offset)return e;throw new FileNotFoundException("Archive offset "+offset);}
+    /** A read-only view bounded to one entry, including split legacy voice banks. */
+    public Source source(final Entry entry)throws IOException{
+        if(entry.length<=0||entry.length>128*1024*1024)throw new IOException("Invalid archive entry size: "+entry.name);
+        Binary.range(entry.offset,entry.length,source.size());
+        return new Source(){public long size(){return entry.length;}public byte[] read(long at,int count)throws IOException{
+            Binary.range(at,count,entry.length);return source.read(entry.offset+at,count);
+        }public void copyTo(long at,long count,OutputStream out)throws IOException{
+            Binary.range(at,count,entry.length);source.copyTo(entry.offset+at,count,out);
+        }};
+    }
     public byte[] read(Entry entry)throws IOException{if(entry.length==0)throw new IOException("Archive entry has invalid payload offset: "+entry.name);if(entry.length>128*1024*1024)throw new IOException("Resource exceeds 128 MiB limit");return source.read(entry.offset,entry.length);}
 }

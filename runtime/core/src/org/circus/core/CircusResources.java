@@ -91,5 +91,23 @@ public class CircusResources {
         }
         return files.audio("AdvData/"+extension(path,".PCM"));
     }
+    /** Playback export keeps long native PCM tracks out of the Java heap. */
+    public void writeAudio(String reference,OutputStream out)throws IOException {
+        // Resource-only editions override audio(); mixed voice still needs its
+        // sample-wise mixer. Preserve those backends rather than interpreting
+        // their references as ordinary XPCM paths.
+        if(profile==null||reference.startsWith("mix:")){audio(reference).writeTo(out);return;}
+        String path=Binary.safePath(reference);
+        if(path.regionMatches(true,0,"VOICE/",0,6)){
+            String archive="AdvData/VOICE.DAT",raw=path.substring(6).replace('/','\\');
+            if(PcHost.supports(profile)){
+                if(raw.toLowerCase(Locale.ROOT).endsWith(".wav"))raw=raw.substring(0,raw.length()-4);raw=extension(raw,".PCM");
+                Archive a=files.legacyVoice(archive);for(Archive.Entry e:a.entries)if(e.name.equalsIgnoreCase(raw)){Xpcm.write(a.source(e),out);return;}
+                throw new FileNotFoundException("VOICE64 : "+raw);
+            }
+            Archive a=files.archive(archive);Xpcm.write(a.source(archiveEntry(archive,extension(raw,".PCM"))),out);return;
+        }
+        Xpcm.write(files.source("AdvData/"+extension(path,".PCM")),out);
+    }
     public MesVm.Library scripts()throws IOException{return files.scripts("AdvData/MES",profile);}
 }

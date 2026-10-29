@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.zip.*;
 
 public final class Xpcm {
+    private static final int LIMIT=128*1024*1024;
     public final String codec;public final byte[] payload;public final int channels,sampleRate,bits;
     private Xpcm(String c,byte[] p,int ch,int hz,int b){codec=c;payload=p;channels=ch;sampleRate=hz;bits=b;}
     static Xpcm pcm(byte[] p,int channels,int rate,int bits){return new Xpcm("pcm",p,channels,rate,bits);}
@@ -21,8 +22,37 @@ public final class Xpcm {
         if(mode==1||mode==3){if(bits!=16)throw new IOException("XPCM transform requires PCM16");return new Xpcm("pcm",XpcmTransform.decode(data,(int)size,mode,Binary.u8(data,9)),ch,hz,bits);}
         Binary.range(28,size,data.length);return new Xpcm("pcm",Arrays.copyOfRange(data,28,28+(int)size),ch,hz,bits);
     }
+    /** Write an already decoded sound without constructing a second complete WAV. */
+    public void writeTo(OutputStream out)throws IOException{
+        if(codec.equals("pcm"))waveHeader(out,payload.length,channels,sampleRate,bits);
+        else if(!codec.equals("ogg"))throw new IOException("Unsupported audio codec "+codec);
+        out.write(payload);
+    }
+    /** Uncompressed PCM and embedded Ogg are copied in bounded chunks. The
+     * existing transform decoder remains authoritative for modes 1 and 3. */
+    public static void write(Archive.Source source,OutputStream out)throws IOException{
+        long length=source.size();if(length<16||length>LIMIT)throw new IOException("Invalid XPCM resource size");
+        byte[] header=readExact(source,0,(int)Math.min(length,32));
+        if(Binary.u32(header,0)!=0x4d435058L)throw new IOException("Expected XPCM");
+        long size=Binary.u32(header,4);if(size==0||size>LIMIT)throw new IOException("Invalid decoded audio size");int mode=Binary.u8(header,8);
+        if(mode==5){long packed=Binary.u32(header,12);Binary.range(16,packed,length);
+            if(packed<4||Binary.u32(header,16)!=0x5367674fL)throw new IOException("Invalid Ogg payload");
+            source.copyTo(16,packed,out);return;
+        }
+        if(mode!=0&&mode!=1&&mode!=3)throw new IOException("Unsupported XPCM transform mode "+mode);
+        int tag=Binary.u16(header,12),ch=Binary.u16(header,14),hz=(int)Binary.u32(header,16),align=Binary.u16(header,24),bits=Binary.u16(header,26);
+        if(tag!=1||ch<1||ch>2||hz<8000||hz>192000||(bits!=8&&bits!=16)||align!=ch*bits/8||size%align!=0)throw new IOException("Invalid PCM wave format");
+        if(mode==1||mode==3){decode(readExact(source,0,(int)length)).writeTo(out);return;}
+        Binary.range(28,size,length);waveHeader(out,(int)size,ch,hz,bits);source.copyTo(28,size,out);
+    }
+    private static byte[] readExact(Archive.Source source,long offset,int count)throws IOException{
+        byte[] bytes=source.read(offset,count);if(bytes.length!=count)throw new EOFException("Short XPCM resource read");return bytes;
+    }
+    private static void waveHeader(OutputStream out,int size,int channels,int sampleRate,int bits)throws IOException{
+        out.write(new byte[]{82,73,70,70});le(out,size+36,4);out.write(new byte[]{87,65,86,69,102,109,116,32});le(out,16,4);le(out,1,2);le(out,channels,2);le(out,sampleRate,4);le(out,sampleRate*channels*bits/8,4);le(out,channels*bits/8,2);le(out,bits,2);out.write(new byte[]{100,97,116,97});le(out,size,4);
+    }
     public byte[] wav()throws IOException{
-        if(!codec.equals("pcm"))throw new IOException("Not PCM");ByteArrayOutputStream out=new ByteArrayOutputStream();out.write(new byte[]{82,73,70,70});le(out,payload.length+36,4);out.write(new byte[]{87,65,86,69,102,109,116,32});le(out,16,4);le(out,1,2);le(out,channels,2);le(out,sampleRate,4);le(out,sampleRate*channels*bits/8,4);le(out,channels*bits/8,2);le(out,bits,2);out.write(new byte[]{100,97,116,97});le(out,payload.length,4);out.write(payload);return out.toByteArray();
+        if(!codec.equals("pcm"))throw new IOException("Not PCM");ByteArrayOutputStream out=new ByteArrayOutputStream(payload.length+44);writeTo(out);return out.toByteArray();
     }
     private static void le(OutputStream out,int value,int count)throws IOException{for(int i=0;i<count;i++)out.write(value>>>(8*i));}
 }

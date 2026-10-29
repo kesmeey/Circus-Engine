@@ -85,8 +85,11 @@ public final class RuntimeActivity extends Activity {
     }
     private void stopAudio(int ch){prepared[ch]=false;if(players[ch]!=null){players[ch].release();players[ch]=null;}if(audioFiles[ch]!=null){audioFiles[ch].delete();audioFiles[ch]=null;}}
     private void startAudio(int ch,String resource,int serial,boolean loop)throws IOException {
-        stopAudio(ch);if(resource.isEmpty())return;Xpcm decoded=engine.resources.audio(resource);File file=File.createTempFile("circus-"+ch+"-",decoded.codec.equals("ogg")?".ogg":".wav",getCacheDir());audioFiles[ch]=file;
-        try(FileOutputStream out=new FileOutputStream(file)){out.write(decoded.codec.equals("ogg")?decoded.payload:decoded.wav());}
+        stopAudio(ch);if(resource.isEmpty())return;File file=File.createTempFile("circus-"+ch+"-",".audio",getCacheDir());audioFiles[ch]=file;
+        // MediaPlayer detects WAV/Ogg from the header; long PCM tracks are copied
+        // in bounded blocks instead of retaining several complete WAV arrays.
+        try(FileOutputStream out=new FileOutputStream(file)){engine.resources.writeAudio(resource,out);}
+        catch(IOException|RuntimeException e){file.delete();audioFiles[ch]=null;throw e;}
         MediaPlayer player=new MediaPlayer();players[ch]=player;player.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());player.setDataSource(file.getAbsolutePath());player.setLooping(loop);
         player.setOnPreparedListener(p->submit(()->{if(players[ch]!=p)return;file.delete();audioFiles[ch]=null;prepared[ch]=true;try{syncMedia();if(active&&players[ch]==p){p.start();audioStarted++;}}catch(Exception e){fail(e);}}));
         player.setOnCompletionListener(p->submit(()->{if(players[ch]==p){engine.audioCompleted(ch,serial);stopAudio(ch);}}));

@@ -20,15 +20,15 @@ public final class PcNativeProgressTests {
     }
     private static byte[] persistent(PcHost host)throws IOException{ByteArrayOutputStream bytes=new ByteArrayOutputStream();host.savePersistent(new DataOutputStream(bytes));return bytes.toByteArray();}
     public static int run()throws Exception{
-        count=0;String id=PcNativeProgress.PROFILE_ID;
-        check(PcNativeProgress.supports(id)&&!PcNativeProgress.supports("dcpc-2063")&&!PcNativeProgress.supports(null),"Native save format is bound to the reviewed PC2 version");
-        for(int size:new int[]{0,3311,3313})reject(()->PcNativeProgress.parse(id,new byte[size]),"Native save exact length required: "+size);
-        reject(()->PcNativeProgress.parse(id,null),"Missing native bytes rejected");
-        reject(()->PcNativeProgress.parse("dc2dm-9d72",new byte[3312]),"Another game cannot be forced into PC2 layout");
-        reject(()->PcNativeProgress.parse("dcpc-2063",new byte[3312]),"PC1 does not inherit PC2 support");
+        count=0;String id="dc2pc-5769";
+        check(NativeProgress.supports(id)&&NativeProgress.supports("dcpc-2063")&&!NativeProgress.supports(null),"Native save format is bound to the reviewed PC2 version");
+        for(int size:new int[]{0,3311,3313})reject(()->NativeProgress.parse(id,new byte[size]),"Native save exact length required: "+size);
+        reject(()->NativeProgress.parse(id,null),"Missing native bytes rejected");
+        reject(()->NativeProgress.parse("dc2dm-9d72",new byte[3312]),"Another game cannot be forced into PC2 layout");
+        reject(()->NativeProgress.parse("dcpc-2063",new byte[3312]),"PC1 does not inherit PC2 support");
         for(int at:new int[]{0x70,0x70+29,0xd4,0xd4+1499,0x6b0,0x6b0+1499}){
             byte[] bad=new byte[3312];bad[at]=(byte)255;
-            reject(()->PcNativeProgress.parse(id,bad),"Malformed unlock flag rejected at "+at);
+            reject(()->NativeProgress.parse(id,bad),"Malformed unlock flag rejected at "+at);
         }
         byte[] original=new byte[3312];Arrays.fill(original,0,0x70,(byte)0xfe);
         Arrays.fill(original,0x70,0xd4,(byte)255);
@@ -37,7 +37,7 @@ public final class PcNativeProgressTests {
         original[0xd4]=original[0xd4+45]=original[0xd4+1499]=1;
         original[0x6b0]=original[0x6b0+88]=original[0x6b0+1499]=1;
         Arrays.fill(original,0xc8c,3312,(byte)255);
-        PcNativeProgress progress=PcNativeProgress.parse(id,original);
+        NativeProgress progress=NativeProgress.parse(id,original);
         check(progress.source.completion==23&&progress.source.cg==3&&progress.source.scenes==3&&progress.source.total==29,"Source counts only reviewed unlock banks, ignoring native settings/names/voice preferences");
         Arrays.fill(original,(byte)0);
         check(progress.profileId.equals(id)&&progress.sourceSummary.contains("3312"),"Parsed source identifies supported layout");
@@ -45,10 +45,10 @@ public final class PcNativeProgressTests {
         target.write(100,1,1);target.write(100,20,7);target.write(100,56,9);target.write(100,57,5);target.write(100,60,1);target.write(100,99,17);
         target.write(97,45,1);target.write(97,46,1);target.write(97,1500,1);target.write(98,88,1);target.write(98,89,1);target.write(98,1500,1);
         target.write(95,1,0);target.write(90,7,90);target.variables.write(3,4,123);target.readCheckpoints.add("local:42");target.availableSaves.add(6);
-        byte[] before=persistent(target);PcNativeProgress.Summary preview=progress.preview(target);
+        byte[] before=persistent(target);NativeProgress.Summary preview=progress.preview(target);
         check(preview.completion==22&&preview.cg==2&&preview.scenes==2&&preview.total==26,"Preview reports only additions, not existing unlocks");
         check(Arrays.equals(before,persistent(target)),"Preview leaves persistent data byte-for-byte unchanged");
-        PcNativeProgress.Summary applied=progress.apply(target);
+        NativeProgress.Summary applied=progress.apply(target);
         check(applied.total==preview.total&&progress.preview(target).total==0,"Apply matches preview and records progress despite caller modifying source bytes");
         for(int n:completion)check(target.read(100,n)==1,"Reviewed completion flag imported: "+n);
         check(target.read(97,0)==1&&target.read(97,1499)==1&&target.read(98,0)==1&&target.read(98,1499)==1,"First and last native CG/scene entries use independent exact offsets");
@@ -59,10 +59,10 @@ public final class PcNativeProgressTests {
         byte[] merged=persistent(target);check(progress.apply(target).total==0&&Arrays.equals(merged,persistent(target)),"Repeated import is byte-for-byte idempotent");
         PcHost reloaded=host(id);reloaded.loadPersistent(new DataInputStream(new ByteArrayInputStream(merged)));
         check(progress.preview(reloaded).total==0&&Arrays.equals(merged,persistent(reloaded)),"Imported unlocks round-trip through existing phone persistent format");
-        check(PcNativeProgress.parse(id,new byte[3312]).apply(target).total==0&&Arrays.equals(merged,persistent(target)),"Fresh PC save cannot reset phone progress");
+        check(NativeProgress.parse(id,new byte[3312]).apply(target).total==0&&Arrays.equals(merged,persistent(target)),"Fresh PC save cannot reset phone progress");
         PcHost wrong=host("dcpc-2063");byte[] wrongBefore=persistent(wrong);
         reject(()->progress.preview(wrong),"Read-only preview rejects mismatched host");reject(()->progress.apply(wrong),"Mutation rejects mismatched host");
-        check(Arrays.equals(wrongBefore,persistent(wrong)),"Wrong host remains unchanged");reject(()->progress.apply(null),"Missing target rejected");
+        check(Arrays.equals(wrongBefore,persistent(wrong)),"Wrong host remains unchanged");reject(()->progress.apply((Dc2Host)null),"Missing target rejected");
         PcHost noncanonical=host(id);noncanonical.write(100,1,2);noncanonical.write(97,0,2);noncanonical.write(98,0,2);progress.apply(noncanonical);
         check(noncanonical.read(100,1)==2&&noncanonical.read(97,0)==2&&noncanonical.read(98,0)==2,"Existing nonzero target values are never normalized or overwritten");
         return count;

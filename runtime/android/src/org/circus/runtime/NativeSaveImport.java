@@ -11,60 +11,64 @@ import org.circus.core.*;
 final class NativeSaveImport {
     static final String SOURCE="AdvData/SaveData/system.dat";
     private static final Object LOCK=new Object();
+    static final class Request {
+        final CircusResources data;final TextCodec codec;final Path root,legacyProgress;final List<String> sources;
+        Request(CircusResources data,TextCodec codec,Path root,Path legacy)throws IOException{this.data=data;this.codec=codec;this.root=root;legacyProgress=legacy;sources=NativeProgress.sourcePaths(data.files,data.profileId);if(sources.isEmpty())throw new IOException("未找到原版 system.dat。请保留电脑存档的相对位置，复制到手机游戏目录：AdvData/SaveData、SaveData，或游戏根目录（DC3DD）。");}
+        Preview prepare(String source)throws IOException{if(!sources.contains(source))throw new IOException("无效的原版进度来源");Preview p=NativeSaveImport.prepare(data,codec,root,source);p.legacyProgress=legacyProgress;requireMigrated(p.directory.resolve("progress.dat"),legacyProgress);return p;}
+    }
     static final class Preview {
         final CircusResources data;final TextCodec codec;final Path directory;
-        final PcNativeProgress progress;final PcNativeProgress.Summary additions;
-        final String sourceHash,identity;final int storySlots;
+        final NativeProgress progress;final NativeProgress.Summary additions;
+        final String sourcePath,sourceHash,identity;final int storySlots;
         Path legacyProgress;
-        Preview(CircusResources data,TextCodec codec,Path directory,PcNativeProgress progress,String hash,int slots)throws IOException{
-            this.data=data;this.codec=codec;this.directory=directory;this.progress=progress;sourceHash=hash;storySlots=slots;
-            identity=DesktopEngine.mesIdentity(data);additions=progress.preview(readHost(this));
+        Preview(CircusResources data,TextCodec codec,Path directory,NativeProgress progress,String path,String hash,int slots)throws IOException{
+            this.data=data;this.codec=codec;this.directory=directory;this.progress=progress;sourcePath=path;sourceHash=hash;storySlots=slots;
+            identity=DesktopEngine.mesIdentity(data);additions=progress.preview(readTarget(this));
         }
-        String description(){String action=progress.source.total==0?"原版系统存档中没有可导入的解锁记录。":additions.total==0?"手机已包含这些解锁记录，无需重复导入，不会修改文件。":"将合并已解锁进度，并在导入前备份手机现有系统进度。手机设置和已有剧情存档保留。";return "来源："+SOURCE+"\n\n"+counts(additions)+"\n\n"+action+"\n\n检测到 "+storySlots+" 个原版剧情存档槽位；此版本仅导入通关、CG 和场景解锁，不转换剧情槽位。";}
+        String description(){String action=progress.source.total==0?"原版系统存档中没有可导入的解锁记录。":additions.total==0?"手机已包含这些解锁记录，无需重复导入，不会修改文件。":"将合并已解锁进度，通关计数保留较高值；导入前备份手机现有系统进度。手机设置和已有剧情存档保留。";return "来源："+sourcePath+"\n版本："+data.profileId+"\n\n"+counts(additions)+"\n（统计内部标记，不等于路线或图片数量）\n\n"+action+"\n\n同目录检测到 "+storySlots+" 个原版剧情存档槽位；此版本仅导入系统解锁进度，不转换剧情槽位或已读文本记录。";}
     }
     static final class Result {
-        final PcNativeProgress.Summary added;final Path backup;
-        Result(PcNativeProgress.Summary added,Path backup){this.added=added;this.backup=backup;}
+        final NativeProgress.Summary added;final Path backup;
+        Result(NativeProgress.Summary added,Path backup){this.added=added;this.backup=backup;}
         String description(){return (added.total==0?"手机已经包含这些进度，无需重复导入。":counts(added)+"\n\n重新启动游戏后可查看鉴赏和通关进度。")+(backup==null?"":"\n\n原手机系统进度已备份："+backup.getFileName());}
     }
-    static String counts(PcNativeProgress.Summary s){return "新增通关标记："+s.completion+"\n新增 CG 标记："+s.cg+"\n新增场景标记："+s.scenes;}
-    static Preview prepare(Context context,GameLibrary.Entry entry)throws IOException{
+    static String counts(NativeProgress.Summary s){return "新增或提高的通关标记："+s.completion+"\n新增 CG 标记："+s.cg+"\n新增场景标记："+s.scenes+"\n新增音乐标记："+s.music;}
+    static Request inspect(Context context,GameLibrary.Entry entry)throws IOException{
         if(!entry.configured)throw new IOException("请先保存此游戏的配置，再导入原版进度");
-        if(!PcNativeProgress.supports(entry.profile))throw new IOException("当前原版进度导入仅支持 D.C.II P.C（5769），其他版本尚未适配");
+        if(!NativeProgress.supports(entry.profile))throw new IOException("原版进度导入支持 DCPC、DC2PC、DC2DM、DC3DD 的已验证版本；此游戏版本尚未适配");
         GameResources files=new GameResources(new DocumentTree(context.getContentResolver(),Uri.parse(entry.tree),true),entry.executable);
-        Profile profile=GameVersion.detect(files).profile();
-        if(!profile.id.equals(entry.profile))throw new IOException("游戏目录版本已改变，请重新配置游戏");
+        Profile profile=GameVersion.detect(files).profile();if(!profile.id.equals(entry.profile))throw new IOException("游戏目录版本已改变，请重新配置游戏");
         TextCodec codec=GameText.select(files,profile,entry.encoding,entry.configuration);
-        Preview preview=prepare(new CircusResources(files,profile),codec,new File(context.getFilesDir(),"shared-saves").toPath());
-        preview.legacyProgress=new File(new GameSaves(context,entry.tree,profile.id).directory,"progress.dm").toPath();
-        requireMigrated(preview.directory.resolve("progress.dat"),preview.legacyProgress);return preview;
+        String oldKey=profile.id.equals("dc3dd-a5a8")?"dc3dd":profile.id.equals("dc2dm-9d72")?"dc2dm":profile.id;
+        File old=new GameSaves(context,entry.tree,oldKey).directory;
+        Path legacy=profile.id.equals("dc3dd-a5a8")?new File(context.getApplicationInfo().dataDir,"shared_prefs/"+old.getName()+".xml").toPath():new File(old,"progress.dm").toPath();
+        return new Request(new CircusResources(files,profile),codec,new File(context.getFilesDir(),"shared-saves").toPath(),legacy);
     }
     /** Separate root allows instrumentation to exercise the shipping service without user saves. */
     static Preview prepare(CircusResources data,TextCodec codec,Path root)throws IOException{
-        if(!PcNativeProgress.supports(data.profileId))throw new IOException("此版本不支持原版进度导入");
-        if(!data.files.paths().contains(SOURCE.toLowerCase(Locale.ROOT)))throw new IOException("未找到 "+SOURCE+"。请将电脑上的整个 SaveData 文件夹复制到手机游戏目录的 AdvData 中，再重试。");
-        byte[] raw=data.files.read(SOURCE,3312);PcNativeProgress parsed=PcNativeProgress.parse(data.profileId,raw);
-        int slots=0;for(String path:data.files.paths())if(path.matches("advdata/savedata/dc2pc[0-9]+\\.dat"))slots++;
-        synchronized(LOCK){return new Preview(data,codec,DesktopEngine.mesSaveDirectory(root,data),parsed,Binary.sha256(raw),slots);}
+        List<String> sources=NativeProgress.sourcePaths(data.files,data.profileId);if(sources.size()!=1)throw new IOException("请选择原版系统存档来源（找到 "+sources.size()+" 份）");return prepare(data,codec,root,sources.get(0));
     }
-    static PcHost readHost(Preview preview)throws IOException{
-        PcHost host=new PcHost(preview.data,preview.codec);Path file=preview.directory.resolve("progress.dat");
-        if(Files.exists(file))load(host,read(file));return host;
+    static Preview prepare(CircusResources data,TextCodec codec,Path root,String source)throws IOException{
+        if(!NativeProgress.sourcePaths(data.files,data.profileId).contains(source))throw new IOException("无效的原版进度来源");
+        byte[] raw=data.files.read(source,NativeProgress.fileSize(data.profileId));NativeProgress parsed=NativeProgress.parse(data.profileId,raw);
+        int slots=0;for(String path:data.files.paths())if(NativeProgress.storySlot(data.profileId,source,path))slots++;
+        synchronized(LOCK){return new Preview(data,codec,DesktopEngine.mesSaveDirectory(root,data),parsed,source,Binary.sha256(raw),slots);}
+    }
+    static NativeProgress.Target readTarget(Preview preview)throws IOException{
+        NativeProgress.Target target=new NativeProgress.Target(preview.data,preview.codec);Path file=preview.directory.resolve("progress.dat");if(Files.exists(file))target.load(read(file));return target;
     }
     private static byte[] read(Path file)throws IOException{try(InputStream in=Files.newInputStream(file)){return Binary.read(in,16*1024*1024);}}
-    static void requireMigrated(Path target,Path legacy)throws IOException{if(legacy!=null&&!Files.exists(target)&&Files.exists(legacy))throw new IOException("检测到尚未迁移的旧版手机进度。请先启动此游戏，再返回游戏列表，让旧进度迁移完成后重新导入。");}
-    private static void load(PcHost host,byte[] bytes)throws IOException{try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(bytes))){host.loadPersistent(in);if(in.available()!=0)throw new IOException("手机系统进度存在无法识别的数据，已保留原文件");}}
+    static void requireMigrated(Path target,Path legacy)throws IOException{if(legacy!=null&&!Files.exists(target)&&(Files.exists(legacy)||Files.exists(legacy.resolveSibling(legacy.getFileName()+".bak"))))throw new IOException("检测到尚未迁移的旧版手机进度。请先启动此游戏，再返回游戏列表，让旧进度迁移完成后重新导入。");}
     static Result apply(Preview preview)throws IOException{
         synchronized(LOCK){
             requireMigrated(preview.directory.resolve("progress.dat"),preview.legacyProgress);
-            if(!preview.identity.equals(DesktopEngine.mesIdentity(preview.data))||!preview.sourceHash.equals(Binary.sha256(preview.data.files.read(SOURCE,3312))))throw new IOException("预览后原文件发生变化，请重新打开导入页面");
-            Path target=preview.directory.resolve("progress.dat");byte[] previous=Files.exists(target)?read(target):null;
-            PcHost host=new PcHost(preview.data,preview.codec);if(previous!=null)load(host,previous);
-            PcNativeProgress.Summary added=preview.progress.apply(host);if(added.total==0)return new Result(added,null);
-            ByteArrayOutputStream bytes=new ByteArrayOutputStream();host.savePersistent(new DataOutputStream(bytes));byte[] merged=bytes.toByteArray();
-            PcHost verified=new PcHost(preview.data,preview.codec);load(verified,merged);if(preview.progress.preview(verified).total!=0)throw new IOException("导入进度校验失败");
+            if(!preview.identity.equals(DesktopEngine.mesIdentity(preview.data))||!preview.sourceHash.equals(Binary.sha256(preview.data.files.read(preview.sourcePath,NativeProgress.fileSize(preview.data.profileId)))))throw new IOException("预览后原文件发生变化，请重新打开导入页面");
+            Path file=preview.directory.resolve("progress.dat");byte[] previous=Files.exists(file)?read(file):null;
+            NativeProgress.Target target=new NativeProgress.Target(preview.data,preview.codec);if(previous!=null)target.load(previous);
+            NativeProgress.Summary added=preview.progress.apply(target);if(added.total==0)return new Result(added,null);
+            byte[] merged=target.save();NativeProgress.Target verified=new NativeProgress.Target(preview.data,preview.codec);verified.load(merged);if(preview.progress.preview(verified).total!=0)throw new IOException("导入进度校验失败");
             Path backup=null;if(previous!=null){backup=preview.directory.resolve("progress.before-native-"+System.currentTimeMillis()+"-"+UUID.randomUUID()+".dat");DesktopEngine.atomic(backup,previous);}
-            DesktopEngine.atomic(target,merged);return new Result(added,backup);
+            DesktopEngine.atomic(file,merged);return new Result(added,backup);
         }
     }
 }

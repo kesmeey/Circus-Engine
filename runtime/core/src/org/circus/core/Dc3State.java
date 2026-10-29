@@ -74,6 +74,13 @@ public final class Dc3State implements Variables.Special {
         for(int v:b93)out.writeInt(v);for(int i:Dc3StateRules.SETTINGS)out.writeInt(b99[i]);for(int f:musicFavorites)out.writeInt(f);for(int[] b:new int[][]{b94,b95})for(int v:b)out.writeInt(v);return bytes.toByteArray();
     }
     public boolean acceptsSettingsLength(int n)throws IOException{int length=settingsSnapshot().length;return n==length||n==length-408||n==length-2008;}
+    /** Shared by normal play and explicit native-progress import. */
+    public byte[] savePersistent()throws IOException{ByteArrayOutputStream bytes=new ByteArrayOutputStream();new DataOutputStream(bytes).writeInt(0x44445032);bytes.write(settingsSnapshot());return bytes.toByteArray();}
+    public void loadPersistent(byte[] bytes)throws IOException{
+        DataInputStream in=new DataInputStream(new ByteArrayInputStream(bytes));
+        if(bytes.length>4&&in.readInt()==0x44445032){byte[] data=new byte[bytes.length-4];in.readFully(data);restoreSettings(data);}
+        else{restoreSettings(bytes);migrateLegacyAudio();}
+    }
     public void restoreSettings(byte[] bytes)throws IOException {
         if(!acceptsSettingsLength(bytes.length))throw new IOException("Invalid settings snapshot");
         DataInputStream in=new DataInputStream(new ByteArrayInputStream(bytes));

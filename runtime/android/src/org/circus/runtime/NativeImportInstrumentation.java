@@ -35,18 +35,18 @@ public final class NativeImportInstrumentation extends Instrumentation {
             check(!Files.exists(preview.directory.resolve("progress.dat")),"preview makes no private progress write");
             NativeSaveImport.Result imported=NativeSaveImport.apply(preview);
             check(imported.added.total==preview.additions.total&&imported.backup==null,"first import writes all progress without a fictitious backup");
-            check(preview.progress.preview(NativeSaveImport.readHost(preview)).total==0,"reopened private progress contains every imported flag");
+            check(preview.progress.preview(NativeSaveImport.readTarget(preview)).total==0,"reopened private progress contains every imported flag");
             byte[] fresh=Files.readAllBytes(preview.directory.resolve("progress.dat"));
             NativeSaveImport.Result duplicate=NativeSaveImport.apply(NativeSaveImport.prepare(data,codec,freshRoot));
             check(duplicate.added.total==0&&duplicate.backup==null&&Arrays.equals(fresh,Files.readAllBytes(preview.directory.resolve("progress.dat"))),"repeat import is byte-identical and creates no backup");
 
             Path mergeRoot=output.resolve("merge");NativeSaveImport.Preview merge=NativeSaveImport.prepare(data,codec,mergeRoot);
-            PcHost phone=NativeSaveImport.readHost(merge);phone.write(97,1599,1);phone.write(98,1599,1);phone.write(100,1,2);phone.write(100,56,7);phone.write(100,60,1);phone.write(99,5,3);phone.write(95,2,0);phone.givenName="手机";phone.readCheckpoints.add("native-import-existing-checkpoint");
+            PcHost phone=(PcHost)NativeSaveImport.readTarget(merge).legacy;phone.write(97,1599,1);phone.write(98,1599,1);phone.write(100,1,2);phone.write(100,56,7);phone.write(100,60,1);phone.write(99,5,3);phone.write(95,2,0);phone.givenName="手机";phone.readCheckpoints.add("native-import-existing-checkpoint");
             ByteArrayOutputStream bytes=new ByteArrayOutputStream();phone.savePersistent(new DataOutputStream(bytes));byte[] previous=bytes.toByteArray();DesktopEngine.atomic(merge.directory.resolve("progress.dat"),previous);
             DesktopSave slot=new DesktopSave();slot.state=new Dc2Session(data,codec).vm.snapshot();slot.caption="native-import-slot-preservation";byte[] slotBytes=slot.encode();Path mobileSlot=merge.directory.resolve("slot-250.sav");DesktopEngine.atomic(mobileSlot,slotBytes);
             merge=NativeSaveImport.prepare(data,codec,mergeRoot);NativeSaveImport.Result merged=NativeSaveImport.apply(merge);
             check(merged.added.total>0&&merged.backup!=null&&Arrays.equals(previous,Files.readAllBytes(merged.backup)),"backup exactly preserves pre-import private progress bytes");
-            PcHost after=NativeSaveImport.readHost(merge);
+            PcHost after=(PcHost)NativeSaveImport.readTarget(merge).legacy;
             check(after.read(97,1599)==1&&after.read(98,1599)==1&&after.read(100,1)==2,"merge preserves existing phone unlocks and nonzero completion value");
             check(after.read(99,5)==3&&after.read(100,56)==7&&after.read(100,60)==1&&after.read(95,2)==0&&after.givenName.equals("手机")&&after.readCheckpoints.contains("native-import-existing-checkpoint"),"merge preserves phone settings, player name, voice preferences and read checkpoints");
             check(Arrays.equals(slotBytes,Files.readAllBytes(mobileSlot)),"import leaves an existing mobile story slot byte-identical");

@@ -230,6 +230,7 @@ public final class CoreTests {
         assertions+=CompatibilityTests.run();
         assertions+=PcCompatibilityTests.run();
         assertions+=PcNativeProgressTests.run();
+        assertions+=NativeProgressTests.run();
         assertions+=AudioStreamingTests.run(assets);
         Dc3Host reloading=new Dc3Host(null,TextCodec.identity(),true);Variables transientVars=new Variables(reloading);reloading.attach(transientVars);transientVars.write(3,12,77);
         Dc3State persistedSettings=new Dc3State(true);persistedSettings.write(100,10,1);persistedSettings.write(99,7,37);persistedSettings.write(97,14,1);persistedSettings.write(94,50,22);

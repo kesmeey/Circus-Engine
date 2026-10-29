@@ -5,6 +5,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.List;
 import javax.imageio.ImageIO;
@@ -19,7 +20,13 @@ public final class DesktopUnity extends DesktopEngine {
     private byte[] maskLevels;private int[] maskPixels;private String appliedMask="";
     private final float[] breakVx=new float[576],breakVy=new float[576];
     private final Map<String,byte[]> captured=new LinkedHashMap<>();private int captureSerial;private static final int CAPTURE_BUDGET=8*1024*1024;
-    private byte[] storyState;private long storyTicket=-1;private BufferedImage storyPreview;private String storyCaption="";private final String[] storyAudio={"","","","","",""};private int savedAutoGeneration;
+    private byte[] storyState,storyPreviewPng;private long storyTicket=-1;private BufferedImage storyPreview;private String storyCaption="";private final String[] storyAudio={"","","","","",""};private int savedAutoGeneration;
+    private static final class SlotMetadata {
+        final long size;final java.nio.file.attribute.FileTime modified;final Dc3rHost.SaveInfo info;
+        SlotMetadata(BasicFileAttributes attributes,DesktopSave saved){size=attributes.size();modified=attributes.lastModifiedTime();info=new Dc3rHost.SaveInfo(new java.text.SimpleDateFormat("yyyy MM/dd HH:mm",Locale.ROOT).format(new Date(saved.created)),saved.caption);}
+        boolean matches(BasicFileAttributes attributes){return size==attributes.size()&&modified.equals(attributes.lastModifiedTime());}
+    }
+    private final Map<Integer,SlotMetadata> saveIndex=new HashMap<>();
     private long pictureBytes;private static final long PICTURE_BUDGET=48L*1024*1024;
     private final Map<String,BufferedImage> pictures=new LinkedHashMap<String,BufferedImage>(32,.75f,true);
     private final boolean diskSaves;
@@ -51,15 +58,41 @@ public final class DesktopUnity extends DesktopEngine {
         if(!host.movie.isEmpty()&&resolvedMovie!=host.movieGeneration){movieReference=data.movie(host.movie);resolvedMovie=host.movieGeneration;}
         if(host.transitionRevision!=transitionRevision){transitionRevision=host.transitionRevision;transitionClock=0;maskLevels=null;appliedMask="";if(transitionFrom!=null)transitionFrom.flush();transitionFrom=lastScene;lastScene=null;Random random=new Random(0x554e4954L+transitionRevision);for(int i=0;i<576;i++){breakVx[i]=random.nextFloat()*300-150;breakVy[i]=random.nextFloat()*75-50;}}
         fullscreenRequested=host.fullscreen;
-        if(script.callDepth()==0&&(textWaiting()||host.choiceWaiting)&&storyTicket!=ticket()){storyTicket=ticket();storyState=snapshot();storyCaption=body();for(int ch=0;ch<6;ch++)storyAudio[ch]=audio(ch);if(storyPreview!=null){storyPreview.flush();storyPreview=null;}}
-        if(host.saveRequest>=0){int slot=host.saveRequest;host.saveRequest=-1;saveStory(saveDirectory.resolve("slot-"+slot+".sav"));script.resume();persist();}
+        if(script.callDepth()==0&&(textWaiting()||host.choiceWaiting)&&storyTicket!=ticket()){storyTicket=ticket();storyState=snapshot();storyCaption=body();for(int ch=0;ch<6;ch++)storyAudio[ch]=audio(ch);if(storyPreview!=null){storyPreview.flush();storyPreview=null;}storyPreviewPng=null;}
+        if(host.saveRequest>=0){int slot=host.saveRequest;host.saveRequest=-1;saveStory(slot);script.resume();persist();}
         if(host.loadRequest>=0){int slot=host.loadRequest;host.loadRequest=-1;restore(saveDirectory.resolve("slot-"+slot+".sav"));}
         if(host.persistRequested){host.persistRequested=false;persist();}
-        if(storyState!=null&&textWaiting()&&host.autosaveGeneration!=savedAutoGeneration){savedAutoGeneration=host.autosaveGeneration;if(!audit)saveStory(saveDirectory.resolve("slot-101.sav"));}
+        if(storyState!=null&&textWaiting()&&host.autosaveGeneration!=savedAutoGeneration){savedAutoGeneration=host.autosaveGeneration;if(!audit)saveStory(101);}
     }
-    private void captureStoryPreview()throws IOException{if(storyState!=null&&storyPreview==null&&script.callDepth()==0)storyPreview=scene();}
-    private void saveStory(Path file)throws IOException{if(storyState==null)throw new IOException("No stable story state to save");DesktopSave saved=new DesktopSave();saved.state=storyState;saved.caption=storyCaption;saved.created=System.currentTimeMillis();saved.textElapsed=textClock;saved.icon=saveIcon();if(storyPreview==null&&script.callDepth()==0)storyPreview=scene();if(storyPreview!=null)saved.preview=DesktopSave.thumbnail(storyPreview,256,144);for(int ch=0;ch<6;ch++)saved.audio[ch]=storyAudio[ch];atomic(file,saved.encode());scanSaves();}
-    private void scanSaves()throws IOException{host.availableSaves.clear();if(!diskSaves)return;for(int slot=0;slot<=101;slot++){Path file=saveDirectory.resolve("slot-"+slot+".sav");if(!Files.isRegularFile(file))continue;DesktopSave info=DesktopSave.decode(Files.readAllBytes(file));host.availableSaves.put(slot,new Dc3rHost.SaveInfo(new java.text.SimpleDateFormat("yyyy MM/dd HH:mm",Locale.ROOT).format(new Date(info.created)),info.caption));}}
+    private void captureStoryPreview()throws IOException{
+        if(storyState==null||storyPreview!=null||storyPreviewPng!=null||script.callDepth()!=0)return;
+        BufferedImage scene=scene();try{
+            // A save preview only needs 256x144 pixels. Do not retain a full-screen
+            // bitmap throughout the system menu or compress PNGs on menu input.
+            storyPreview=DesktopSave.scalePreview(scene,256,144);
+        }finally{scene.flush();}
+    }
+    private byte[] storyPreviewBytes()throws IOException{
+        if(storyPreviewPng==null&&storyPreview!=null){ByteArrayOutputStream bytes=new ByteArrayOutputStream();ImageIO.write(storyPreview,"png",bytes);storyPreviewPng=bytes.toByteArray();storyPreview.flush();storyPreview=null;}
+        return storyPreviewPng==null?new byte[0]:storyPreviewPng;
+    }
+    private void saveStory(int slot)throws IOException{
+        if(storyState==null)throw new IOException("No stable story state to save");
+        DesktopSave saved=new DesktopSave();saved.state=storyState;saved.caption=storyCaption;saved.created=System.currentTimeMillis();saved.textElapsed=textClock;saved.icon=saveIcon();captureStoryPreview();saved.preview=storyPreviewBytes();for(int ch=0;ch<6;ch++)saved.audio[ch]=storyAudio[ch];
+        Path file=saveDirectory.resolve(slot<0?"quick.sav":"slot-"+slot+".sav");atomic(file,saved.encode());
+        // This atomic write changed one slot. Re-reading every saved VM/history
+        // here made a long game's save time grow with the entire save collection.
+        if(diskSaves&&slot>=0){SlotMetadata info=new SlotMetadata(Files.readAttributes(file,BasicFileAttributes.class),saved);saveIndex.put(slot,info);host.availableSaves.put(slot,info.info);}
+    }
+    private void scanSaves()throws IOException{
+        host.availableSaves.clear();if(!diskSaves)return;
+        for(int slot=0;slot<=101;slot++){
+            Path file=saveDirectory.resolve("slot-"+slot+".sav");if(!Files.isRegularFile(file)){saveIndex.remove(slot);continue;}
+            BasicFileAttributes attributes=Files.readAttributes(file,BasicFileAttributes.class);SlotMetadata cached=saveIndex.get(slot);
+            if(cached==null||!cached.matches(attributes)){cached=new SlotMetadata(attributes,DesktopSave.decode(Files.readAllBytes(file)));saveIndex.put(slot,cached);}
+            host.availableSaves.put(slot,cached.info);
+        }
+    }
 
     /** Read-only native save conversion. The caller owns destination paths and atomic writes. */
     public static DesktopSave convertNative(UnityCircusResources data,byte[] nativeSave,byte[] persistent)throws IOException{
@@ -97,7 +130,7 @@ public final class DesktopUnity extends DesktopEngine {
     }
     private void importPersistent(byte[] bytes)throws IOException{if(bytes.length>16*1024*1024)throw new IOException("Persistent import size limit");DataInputStream in=new DataInputStream(new ByteArrayInputStream(bytes));host.loadPersistent(in);if(in.available()!=0)throw new IOException("Trailing persistent state");}
     private void releaseImages(){for(BufferedImage p:pictures.values())p.flush();pictures.clear();pictureBytes=0;if(lastScene!=null)lastScene.flush();if(transitionFrom!=null)transitionFrom.flush();if(storyPreview!=null)storyPreview.flush();for(BufferedImage p:thumbnails.values())p.flush();thumbnails.clear();captured.clear();}
-    private void platformAction()throws IOException{String action=host.platformAction;host.platformAction="";switch(action){case "auto":auto=!auto;rapid=false;break;case "rapid":rapid=!rapid;auto=false;break;case "clear":hidden=true;break;case "qs":saveStory(saveDirectory.resolve("quick.sav"));break;case "ql":Path file=saveDirectory.resolve("quick.sav");if(Files.isRegularFile(file))restore(file);break;case "":break;default:throw new IOException("Unknown Unity platform action "+action);}}
+    private void platformAction()throws IOException{String action=host.platformAction;host.platformAction="";switch(action){case "auto":auto=!auto;rapid=false;break;case "rapid":rapid=!rapid;auto=false;break;case "clear":hidden=true;break;case "qs":saveStory(-1);break;case "ql":Path file=saveDirectory.resolve("quick.sav");if(Files.isRegularFile(file))restore(file);break;case "":break;default:throw new IOException("Unknown Unity platform action "+action);}}
     public void click(int x,int y,boolean right)throws IOException{if(hidden){hidden=false;return;}if(right){captureStoryPreview();host.cancel(script);return;}int button=host.hit(x,y);if(button>=0){captureStoryPreview();host.choose(button,script);platformAction();return;}if(script.status()==CircusScrVm.Status.WAIT_CLICK)host.advance(script);}
     public void hover(int x,int y){host.hover(x,y);}
     public boolean drag(int x,int y,boolean begin)throws IOException{return host.drag(x,y,begin,script);}
@@ -160,7 +193,7 @@ public final class DesktopUnity extends DesktopEngine {
         // A menu can survive Activity recreation only if its underlying story save
         // context survives too. Story snapshots have no quick-script caller, so they
         // deliberately do not embed the previous story snapshot recursively.
-        boolean stable=script.callDepth()>0&&storyState!=null;out.writeBoolean(stable);if(stable){writeBlob(out,storyState);out.writeUTF(storyCaption);for(String ref:storyAudio)out.writeUTF(ref);writeBlob(out,storyPreview==null?new byte[0]:DesktopSave.thumbnail(storyPreview,256,144));}if(bytes.size()>48*1024*1024)throw new IOException("Unity snapshot memory limit");return bytes.toByteArray();
+        boolean stable=script.callDepth()>0&&storyState!=null;out.writeBoolean(stable);if(stable){writeBlob(out,storyState);out.writeUTF(storyCaption);for(String ref:storyAudio)out.writeUTF(ref);writeBlob(out,storyPreviewBytes());}if(bytes.size()>48*1024*1024)throw new IOException("Unity snapshot memory limit");return bytes.toByteArray();
     }
     private static void writeBlob(DataOutput out,byte[] bytes)throws IOException{out.writeInt(bytes.length);out.write(bytes);}
     private static byte[] readBlob(DataInputStream in,int limit)throws IOException{int length=in.readInt();if(length<0||length>limit||length>in.available())throw new IOException("Invalid Unity save block");byte[] bytes=new byte[length];in.readFully(bytes);return bytes;}
@@ -168,7 +201,7 @@ public final class DesktopUnity extends DesktopEngine {
         if(bytes.length>48*1024*1024)throw new IOException("Unity snapshot memory limit");DataInputStream in=new DataInputStream(new ByteArrayInputStream(bytes));if(in.readInt()!=0x554e4933)throw new IOException("Invalid Unity runtime save");host.load(in);script.load(in);int serial=in.readInt(),count=in.readInt();if(serial<0||count<0||count>16)throw new IOException("Invalid capture count");Map<String,byte[]> restored=new LinkedHashMap<>();int total=0;for(int i=0;i<count;i++){String name=in.readUTF();if(!name.matches("@capture/[0-9]+")||restored.containsKey(name))throw new IOException("Invalid captured scene");byte[] data=readBlob(in,Math.min(4*1024*1024,CAPTURE_BUDGET-total));total+=data.length;restored.put(name,data);}
         byte[] stableState=null,preview=new byte[0];String caption="";String[] audio={"","","","","",""};if(in.readBoolean()){if(script.callDepth()==0)throw new IOException("Nested Unity story snapshot");stableState=readBlob(in,24*1024*1024);caption=in.readUTF();for(int ch=0;ch<6;ch++)audio[ch]=in.readUTF();preview=readBlob(in,1024*1024);}if(in.available()!=0)throw new IOException("Trailing Unity runtime save");BufferedImage restoredPreview=null;if(preview.length>0){restoredPreview=ImageIO.read(new ByteArrayInputStream(preview));if(restoredPreview==null)throw new IOException("Invalid story preview");}captured.clear();captured.putAll(restored);captureSerial=serial;
         Iterator<Map.Entry<String,BufferedImage>> it=pictures.entrySet().iterator();while(it.hasNext()){Map.Entry<String,BufferedImage> e=it.next();if(e.getKey().startsWith("@capture/")){pictureBytes-=e.getValue().getWidth()*(long)e.getValue().getHeight()*4;e.getValue().flush();it.remove();}}
-        if(transitionFrom!=null){transitionFrom.flush();transitionFrom=null;}transitionRevision=host.transitionRevision;lastTicket=storyTicket=-1;executionToken=new Object();resolvedMovie=-1;movieReference="";if(storyPreview!=null)storyPreview.flush();storyPreview=restoredPreview;storyState=stableState;storyCaption=caption;System.arraycopy(audio,0,storyAudio,0,6);scanSaves();
+        if(transitionFrom!=null){transitionFrom.flush();transitionFrom=null;}transitionRevision=host.transitionRevision;lastTicket=storyTicket=-1;executionToken=new Object();resolvedMovie=-1;movieReference="";if(storyPreview!=null)storyPreview.flush();storyPreview=null;storyPreviewPng=preview.length==0?null:preview;if(restoredPreview!=null)restoredPreview.flush();storyState=stableState;storyCaption=caption;System.arraycopy(audio,0,storyAudio,0,6);scanSaves();
     }
     public void persist()throws IOException{if(audit)return;ByteArrayOutputStream bytes=new ByteArrayOutputStream();host.savePersistent(new DataOutputStream(bytes));atomic(saveDirectory.resolve("progress.dat"),bytes.toByteArray());}
 }

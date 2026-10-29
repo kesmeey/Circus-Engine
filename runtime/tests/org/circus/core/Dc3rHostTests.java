@@ -11,6 +11,19 @@ public final class Dc3rHostTests {
     private static CircusScrVm.Value[] args(Object... values){CircusScrVm.Value[] a=new CircusScrVm.Value[values.length];for(int i=0;i<a.length;i++)a[i]=values[i] instanceof String?new CircusScrVm.Value((String)values[i]):new CircusScrVm.Value((Integer)values[i]);return a;}
     private static CircusScrVm vm(Dc3rHost host)throws IOException{ByteBuffer b=ByteBuffer.allocate(12+4+8+16+1).order(ByteOrder.LITTLE_ENDIAN);b.put("CircusScr1.0".getBytes(StandardCharsets.US_ASCII));b.putInt(1).putInt(23).putInt(0);for(int i=0;i<4;i++)b.putInt(0);b.put((byte)0);return new CircusScrVm(name->new CircusScrScript(name,b.array()),host,"unit");}
     private static byte[] save(Dc3rHost h)throws IOException{ByteArrayOutputStream b=new ByteArrayOutputStream();h.save(new DataOutputStream(b));return b.toByteArray();}
+    private static void largeHistoryRoundTrip()throws Exception {
+        Dc3rHost source=new Dc3rHost();CircusScrVm script=vm(source);
+        for(int n=0;n<400;n++){source.writeFlag(n,n*17);Dc3rHost.Quad q=new Dc3rHost.Quad();q.resource="fixture/scene-"+n;q.x=n;q.width=q.height=24;source.fore.quads.add(q);}
+        check(save(source).length>32768,"history fixture spans a compression buffer");
+        source.command(121,args("speaker","first buffered dialogue"),script);
+        source.writeFlag(399,-1);source.fore.quads.clear();source.command(121,args("speaker","later dialogue"),script);
+        Dc3rHost loaded=new Dc3rHost();loaded.load(new DataInputStream(new ByteArrayInputStream(save(source))));
+        check(loaded.canRewindHistory(0)&&loaded.canRewindHistory(1),"both compressed histories survive save/load");
+        loaded.writeFlag((97<<16)+88,1);CircusScrVm resumed=vm(loaded);loaded.rewindHistory(0,resumed);
+        check(loaded.body.equals("first buffered dialogue")&&loaded.history.size()==1&&resumed.status()==CircusScrVm.Status.WAIT_CLICK,"buffered history restores dialogue and VM wait after reload");
+        check(loaded.fore.quads.size()==400&&loaded.fore.quads.get(399).resource.equals("fixture/scene-399")&&loaded.fore.quads.get(399).x==399&&loaded.readFlag(399)==399*17,"buffered history restores all scene entries and local variables");
+        check(loaded.readFlag((97<<16)+88)==1,"large history rewind preserves newer global progress");
+    }
     public static void main(String[] ignored)throws Exception{System.out.println("PASS DC3R host "+run()+" checks");}
     public static int run()throws Exception{checks=0;
         Dc3rHost h=new Dc3rHost();CircusScrVm vm=vm(h);h.configureCatalogues("4\tev01\n","9\tunit\n");h.command(5,args("bg","ev01"),vm);check(h.readFlag((97<<16)+4)==1,"viewed CG writes original flag");h.command(148,args("next"),vm);check(h.readFlag((98<<16)+9)==1,"completed scenario writes original flag");
@@ -34,6 +47,6 @@ public final class Dc3rHostTests {
         h.command(129,args(),vm);h.command(164,args(0,0,28,0,400),vm);h.command(121,args("","Sample"),vm);h.command(127,args(4364,1,0,9999),vm);Dc3rHost.Text sample=h.fore.texts.get(0);check(sample.loopTyping&&h.displayText(sample,sample.text).isEmpty(),"option text animation targets CString rather than stale quad");h.elapse(100,vm);check(h.displayText(sample,sample.text).equals("Sample"),"option sample follows native character speed");
         h.command(5,args("bg","moving"),vm);h.command(10,args(500,440,248),vm);h.elapse(1000,vm);int storyX=h.layers[0].x;h.command(37,args("advmenu"),vm);h.command(5,args("system","option_back"),vm);h.elapse(1000,vm);check(h.layers[0].x==0&&h.layers[0].y==0&&h.layers[0].moveTime==0,"new background cancels prior story scroll");h.command(122,args(),vm);h.elapse(1000,vm);check(h.layers[0].x==storyX&&h.layers[0].moveTime==0,"PrevBack freezes copied story background in menu");h.command(38,args(),vm);check(h.layers[0].moveTime>0&&h.layers[0].x==storyX,"return restores original pending story scroll");
         check(!h.command(200,args(),vm),"unverified function does not silently succeed");
-        return checks;
+        largeHistoryRoundTrip();return checks;
     }
 }

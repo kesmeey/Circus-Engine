@@ -79,7 +79,14 @@ public final class UnityResources {
     public boolean contains(String bundle,String name,int classId)throws IOException{BundleIndex b=bundle(bundle);String key=name.replace('\\','/').toLowerCase(Locale.ROOT);UnitySerializedFile.ObjectInfo o=b.paths.get(key);return o!=null?o.classId==classId:key.indexOf('/')<0&&b.index(classId).containsKey(key);}
     public byte[] text(String bundle,String name)throws IOException{BundleIndex b=bundle(bundle);UnitySerializedFile.ObjectInfo o=b.find(49,name);UnityBinary r=new UnityBinary(b.file.read(o),b.file.littleEndian);r.string();return r.bytes(r.count(64*1024*1024,"TextAsset bytes"));}
     public Texture texture(String bundle,String name)throws IOException{
-        BundleIndex b=bundle(bundle);UnitySerializedFile.ObjectInfo o=b.find(28,name);UnityBinary r=new UnityBinary(b.file.slice(o,0,Math.min(o.size,4096)),b.file.littleEndian);
+        BundleIndex b=bundle(bundle);UnitySerializedFile.ObjectInfo o=b.find(28,name);
+        // Resolve names before taking the bundle lock: name indexing uses the
+        // opposite index -> bundle order. Header and all pixel blocks then share
+        // one document-provider handle, including streamed .resS textures.
+        return b.bundle.withReader(()->readTexture(b,o));
+    }
+    private static Texture readTexture(BundleIndex b,UnitySerializedFile.ObjectInfo o)throws IOException{
+        UnityBinary r=new UnityBinary(b.file.slice(o,0,Math.min(o.size,4096)),b.file.littleEndian);
         String actual=r.string();int width=r.i32(),height=r.i32();r.i32();int format=r.i32(),mips=r.i32();r.u8();r.align();r.skip(32);int size=r.i32();
         if(width<=0||height<=0||(long)width*height>16777216||mips<1||mips>32||size<0)throw new IOException("Invalid Unity texture geometry");
         int needed;if(format==10||format==12)needed=((width+3)/4)*((height+3)/4)*(format==10?8:16);else if(format==1||format==3||format==4||format==5||format==14)needed=width*height*(format==1?1:format==3?3:4);else throw new IOException("Unsupported Unity TextureFormat "+format);

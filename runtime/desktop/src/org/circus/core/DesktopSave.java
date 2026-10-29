@@ -15,9 +15,13 @@ public final class DesktopSave {
     public long created,textElapsed; public int icon=-1;
     public final String[] audio={"","","","","",""};
     public final long[] position=new long[6];
-    public static byte[] thumbnail(BufferedImage image,int width,int height)throws IOException{
+    public static BufferedImage scalePreview(BufferedImage image,int width,int height){
         BufferedImage scaled=new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);Graphics2D g=scaled.createGraphics();
         try{g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);g.drawImage(image,0,0,width,height,null);}finally{g.dispose();}
+        return scaled;
+    }
+    public static byte[] thumbnail(BufferedImage image,int width,int height)throws IOException{
+        BufferedImage scaled=scalePreview(image,width,height);
         ByteArrayOutputStream bytes=new ByteArrayOutputStream();try{ImageIO.write(scaled,"png",bytes);return bytes.toByteArray();}finally{scaled.flush();}
     }
     public byte[] encode()throws IOException{

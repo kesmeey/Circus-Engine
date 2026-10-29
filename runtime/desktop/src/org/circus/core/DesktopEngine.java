@@ -100,7 +100,7 @@ public abstract class DesktopEngine {
     public void choose(String action)throws Exception{for(Control b:controls())if(b.action.equalsIgnoreCase(action)){click((b.left+b.right)/2,(b.top+b.bottom)/2,false);return;}throw new IOException("Missing original action "+action+" in "+scriptName());}
     public void save(Path path)throws IOException{
         DesktopSave s=new DesktopSave();s.state=snapshot();s.textElapsed=playbackMillis();s.created=System.currentTimeMillis();s.icon=saveIcon();String caption=saveCaption();s.caption=caption.length()>200?caption.substring(0,200):caption;
-        s.preview=DesktopSave.thumbnail(preview(),256,256*height/width);for(int ch=0;ch<6;ch++){s.audio[ch]=systemAudio==null?audio(ch):systemAudio[ch];s.position[ch]=s.audio[ch].equals(mediaResource[ch])?mediaPosition[ch]:systemAudioPosition==null?0:systemAudioPosition[ch];}
+        BufferedImage image=preview();try{s.preview=DesktopSave.thumbnail(image,256,256*height/width);}finally{image.flush();}for(int ch=0;ch<6;ch++){s.audio[ch]=systemAudio==null?audio(ch):systemAudio[ch];s.position[ch]=s.audio[ch].equals(mediaResource[ch])?mediaPosition[ch]:systemAudioPosition==null?0:systemAudioPosition[ch];}
         atomic(path,s.encode());s.state=null;saveMetadata.put(path,s);
     }
     public void restore(Path path)throws IOException{DesktopSave s=DesktopSave.decode(Files.readAllBytes(path));restore(s.state);systemAudio=null;systemAudioPosition=null;playbackMillis(s.textElapsed);for(int ch=0;ch<6;ch++)resumePosition[ch]=s.audio[ch].equals(audio(ch))?s.position[ch]:0;}

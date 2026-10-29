@@ -27,10 +27,14 @@ public final class UnityResourceTests {
     private static byte[] serialized(String[] names,int[] classes,int gap,boolean container)throws Exception{
         List<byte[]> objects=new ArrayList<>();for(String name:names){Le object=new Le();object.string(name);object.i32(1);object.byteValue(42);objects.add(object.out.toByteArray());}
         if(container){Le object=new Le();object.string("bundle");object.i32(0);object.i32(1);object.string("assets/container_alias.txt");object.i32(0);object.i32(0);object.i32(0);object.i64(1);objects.add(object.out.toByteArray());}
+        int[] objectClasses=Arrays.copyOf(classes,objects.size());if(container)objectClasses[objectClasses.length-1]=142;
+        return serializedObjects(objects,objectClasses,gap);
+    }
+    private static byte[] serializedObjects(List<byte[]> objects,int[] classes,int gap)throws Exception{
         Le data=new Le();int[] offsets=new int[objects.size()];for(int i=0;i<objects.size();i++){data.align();offsets[i]=data.out.size();data.bytes(objects.get(i));if(i+1<objects.size())data.bytes(new byte[gap]);}
         Le metadata=new Le();metadata.bytes("5.5.0f3\0".getBytes(StandardCharsets.US_ASCII));metadata.i32(5);metadata.byteValue(0);metadata.i32(4);
         for(int type:new int[]{28,49,83,142}){metadata.i32(type);metadata.byteValue(0);metadata.byteValue(0);metadata.byteValue(0);metadata.bytes(new byte[16]);}
-        metadata.i32(objects.size());for(int i=0;i<objects.size();i++){metadata.align();metadata.i64(i+1);metadata.i32(offsets[i]);metadata.i32(objects.get(i).length);int type=i<names.length?classes[i]:142;metadata.i32(type==28?0:type==49?1:type==83?2:3);}
+        metadata.i32(objects.size());for(int i=0;i<objects.size();i++){metadata.align();metadata.i64(i+1);metadata.i32(offsets[i]);metadata.i32(objects.get(i).length);int type=classes[i];metadata.i32(type==28?0:type==49?1:type==83?2:3);}
         ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream header=new DataOutputStream(bytes);header.writeInt(metadata.out.size());header.writeInt(20+metadata.out.size()+data.out.size());header.writeInt(17);header.writeInt(20+metadata.out.size());header.writeInt(0);header.write(metadata.out.toByteArray());header.write(data.out.toByteArray());return bytes.toByteArray();
     }
     private static byte[] wrap(byte[] payload)throws Exception{
@@ -66,6 +70,38 @@ public final class UnityResourceTests {
         check(counts[0]==2&&counts[1]==2,"Failed index closes its source handle");bundle.read(30,4);
         check(counts[2]==direct+1,"Reads after failed batch use normal source rather than a closed handle");
     }
+    private static byte[] textureBundle(boolean streamed,byte[] pixels)throws Exception{
+        Le texture=new Le();texture.string("texture");texture.i32(16);texture.i32(16);texture.i32(pixels.length);texture.i32(4);texture.i32(1);texture.byteValue(1);texture.align();texture.bytes(new byte[32]);texture.i32(streamed?0:pixels.length);
+        if(streamed){texture.i32(0);texture.i32(pixels.length);texture.string("archive:/CAB-test.resS");}else texture.bytes(pixels);
+        byte[] serialized=serializedObjects(Collections.singletonList(texture.out.toByteArray()),new int[]{28},0);
+        ByteArrayOutputStream payload=new ByteArrayOutputStream();payload.write(serialized);if(streamed)payload.write(pixels);byte[] bytes=payload.toByteArray();
+        ByteArrayOutputStream index=new ByteArrayOutputStream();DataOutputStream d=new DataOutputStream(index);d.write(new byte[16]);int blockSize=128,blocks=(bytes.length+blockSize-1)/blockSize;d.writeInt(blocks);
+        for(int i=0;i<blocks;i++){int size=Math.min(blockSize,bytes.length-i*blockSize);d.writeInt(size);d.writeInt(size);d.writeShort(0);}
+        d.writeInt(streamed?2:1);d.writeLong(0);d.writeLong(serialized.length);d.writeInt(0);d.writeBytes("CAB-test\0");
+        if(streamed){d.writeLong(serialized.length);d.writeLong(pixels.length);d.writeInt(0);d.writeBytes("CAB-test.resS\0");}
+        ByteArrayOutputStream output=new ByteArrayOutputStream();DataOutputStream h=new DataOutputStream(output);h.writeBytes("UnityFS\0");h.writeInt(6);h.writeBytes("5.x.x\0");h.writeBytes("5.5.0f3\0");h.writeLong(46+index.size()+bytes.length);h.writeInt(index.size());h.writeInt(index.size());h.writeInt(64);h.write(index.toByteArray());h.write(bytes);return output.toByteArray();
+    }
+    private static void textureReaderTests()throws Exception{
+        byte[] pixels=new byte[16*16*4];for(int n=0;n<pixels.length;n++)pixels[n]=(byte)(n*31+7);
+        for(boolean streamed:new boolean[]{false,true}){
+            final Archive.Source memory=source(textureBundle(streamed,pixels));final int[] counts=new int[4],failures=new int[2];
+            Archive.Source tracked=new Archive.Source(){public long size()throws IOException{return memory.size();}public byte[] read(long at,int n)throws IOException{counts[2]++;return memory.read(at,n);}
+                public Archive.Reader openReader(){counts[0]++;return new Archive.Reader(){boolean closed;public long size()throws IOException{if(closed)throw new IOException("Closed texture reader");return memory.size();}
+                    public byte[] read(long at,int n)throws IOException{if(closed)throw new IOException("Closed texture reader");counts[3]++;if(failures[0]>0&&--failures[0]==0)throw new IOException("Injected texture read failure");return memory.read(at,n);}
+                    public void close()throws IOException{closed=true;counts[1]++;if(failures[1]>0){failures[1]--;throw new IOException("Injected texture close failure");}}};}};
+            GameResources.Storage storage=new GameResources.Storage(){public Set<String> paths(){return Collections.singleton("script0");}public byte[] read(String name,int limit)throws IOException{return tracked.read(0,(int)tracked.size());}public Archive.Source source(String name){return tracked;}};
+            UnityResources resources=new UnityResources(new GameResources(storage,"@none"));resources.names("script0",28);resources.clearCaches();Arrays.fill(counts,0);
+            UnityResources.Texture result=resources.texture("script0","texture");
+            check(Arrays.equals(result.data,pixels),"Multi-block "+(streamed?"streamed":"inline")+" texture retains exact pixel bytes");
+            check(Arrays.equals(result.image().pixels,new UnityResources.Texture("reference",16,16,4,1,pixels).image().pixels),"Scoped texture read preserves decoded pixels");
+            check(counts[0]==1&&counts[1]==1&&counts[2]==0&&counts[3]>2,"Texture header and pixel blocks share and close one reader");
+            resources.clearCaches();Arrays.fill(counts,0);failures[0]=2;
+            reject(()->resources.texture("script0","texture"),"Texture block failure propagates");check(counts[0]==1&&counts[1]==1,"Failed texture read closes its reader");
+            resources.clearCaches();check(Arrays.equals(resources.texture("script0","texture").data,pixels)&&counts[0]==2&&counts[1]==2,"Texture read recovers with a fresh reader after failure");
+            resources.clearCaches();failures[1]=1;reject(()->resources.texture("script0","texture"),"Texture reader close failure propagates");
+            resources.clearCaches();check(Arrays.equals(resources.texture("script0","texture").data,pixels)&&counts[0]==4&&counts[1]==4,"Texture scope resets after reader close failure");
+        }
+    }
     public static int run()throws Exception{
         assertions=0;
         check(Arrays.equals(UnityBundle.unpack(new byte[]{0x30,97,98,99},3,2),new byte[]{97,98,99}),"LZ4 literals");
@@ -78,6 +114,7 @@ public final class UnityResourceTests {
         byte[] dxt=new byte[16];dxt[0]=(byte)255;dxt[8]=0;dxt[9]=(byte)0xf8;check(new UnityResources.Texture("dxt",4,4,12,1,dxt).image().argb()[0]==0xffff0000,"DXT5 red with opaque alpha");
         nameIndexTests();
         readerScopeTests();
+        textureReaderTests();
         return assertions;
     }
     public static void main(String[] args)throws Exception{System.out.println("PASS Unity resource tests assertions="+run());}

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "created_utc": "2026-11-07T11:03:39.574595+00:00",
+  "created_utc": "2026-11-07T11:07:13.883384+00:00",
   "base_source_checkpoint": "cf912abd8c04974f265123d41f696f952d67cf75",
   "scope": "WY-specific compatible ending for the majority-workflow target. No full native frame scheduler claim; final input/tween/fade remain documented approximations.",
   "target_sha256": "2cb4b366b16b4492575f845b59d682743facedcff849c1f8ef54bcafbdf82f9a",
@@ -733,7 +733,16 @@
     "dd_compatibility_sequences_unchanged": 56
   },
   "android": {
-    "status": "pending final ART check"
+    "frozen_java": "build/native-rewrite/producer-integration-20261107T105329947102Z",
+    "apk_sha256": "f26cfca7a90fe14a0e980d8e63bded8811079010c63d66aacae7a75b497f7a34",
+    "emulator": "emulator-5586",
+    "install": "adb install -r; existing application data retained",
+    "core_assertions": 1108669,
+    "canvas_contracts": 7,
+    "transition_comparisons": 484,
+    "report": "PASS 1108669 assertions; self-authored fixtures; DD choices/flow/original UI/animation/macros, WY bindings, DM memory/control and collection detection; archives, CRX/CRXD, audio, save integrity; Android character map and tunnel rejection PASS; CAS2/CAS1 saves, atomic rollback and invalid envelope rejection PASS; persistent library, per-game choices and atomic rollback PASS; Android Canvas 7 pixel contracts PASS; Transition mask 484 pixel comparisons PASS",
+    "source_changes_during_build": [],
+    "scope": "Internal frozen source validation with tests; APK retains the existing development manifest version label and is not a newly published Android release."
   },
   "remaining": [
     "WY final input/phase99/100 and per-update fade are approximate in the elapsed-time adapter.",

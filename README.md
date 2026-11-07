@@ -87,7 +87,7 @@ python -m unittest discover -s tests
 python tools/build_windows_native.py --java-home <JDK21> --vcvars "<Visual Studio>\VC\Auxiliary\Build\vcvarsall.bat"
 ```
 
-每次原生构建冻结所用 C/header，记录源码与 DLL 哈希。实际审计必须搭配同次源码对应的 DLL；核心测试、真实 Win32 服务检查和真实游戏启动分别记录，不能相互替代。当前已验范围及剩余工作见 [重写状态](docs/NATIVE_REWRITE_STATUS.md)，本阶段源码哈希见 [验证摘要](docs/validation/majority-source-2026-11-07.json)。
+每次原生构建冻结所用 C/header，记录源码与 DLL 哈希。实际审计必须搭配同次源码对应的 DLL；核心测试、真实 Win32 服务检查和真实游戏启动分别记录，不能相互替代。当前已验范围及剩余工作见 [重写状态](docs/NATIVE_REWRITE_STATUS.md)，最新源码哈希见 [验证摘要](docs/validation/wy-credits-source-2026-11-07.json)，基础执行链记录见 [上一阶段](docs/validation/majority-source-2026-11-07.json)。
 
 ## 操作（Android）
 

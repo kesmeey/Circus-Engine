@@ -16,4 +16,4 @@
 
 剧情、分支变量、常见画面和转场、BGM/SE/语音、菜单、便携存读档、回看与鉴赏是本版的主要功能范围。PC1原生服务图仍与现有便携播放器并存，尚未整体替换WinMain/WndProc；原Windows槽位互通、少数版本和罕见平台状态可按当前目标延期。不能运行的版本继续明确拒绝。
 
-`cf912ab`的源码、JVM/ART和平台检查见[公共验证记录](validation/majority-source-2026-11-07.json)。完整取舍见[目标范围](ENGINE_SCOPE.md)，详细实现和历史证据见[重写状态](NATIVE_REWRITE_STATUS.md)。
+`cf912ab`的执行链、JVM/ART和平台检查见[基础验证记录](validation/majority-source-2026-11-07.json)，后续W.Y.修正及最新源码哈希见[当前验证记录](validation/wy-credits-source-2026-11-07.json)。完整取舍见[目标范围](ENGINE_SCOPE.md)，详细实现和历史证据见[重写状态](NATIVE_REWRITE_STATUS.md)。

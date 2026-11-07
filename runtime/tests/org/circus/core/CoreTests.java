@@ -275,7 +275,7 @@ public final class CoreTests {
         assertions+=Dc2ParticleHostTests.run()+Dc2MapTests.run()+Dc2MapHostTests.run();
         assertions+=DdBoundControlTests.run();
         assertions+=Pc1SystemContextTests.run();
-        assertions+=Pc1SaveContextTests.run()+Pc1PortableCandidateTests.run();
+        assertions+=Pc1SaveContextTests.run()+Pc1PortableCandidateTests.run()+Pc1QuickSaveTests.run()+Dc2BorrowedTests.run()+Dc2NativeSlotTests.run()+Dc2OriginalCreditsTests.run()+Dc2CharacterEndingTests.run()+Dc2CreditsHostTests.run()+Dc2EndingHostTests.run()+Dc2ActorMotionTests.run()+Dc2ActorChangeTests.run()+Dc2CompositionMotionTests.run()+Dc2RandomTests.run();
         assertions+=Pc1CandidateMemoryTests.run()+Pc1FixedFrameMemoryTests.run()+Pc1PhysicalMessageTests.run()+Pc1FrameInitTests.run()+Pc1PeDirectStorageTests.run()+Pc1InputTests.run()+Pc1GuestAddressTests.run()+Pc1GuestMachineTests.run()+Pc1ScriptLoaderTests.run()+Pc1ScriptIntegrationTests.run()+Pc1SystemNativeTests.run()+Pc1ModalTests.run()+Pc1SavePreparationTests.run()+Pc1StaticImageTests.run()+Pc1HistoryWaitTests.run()+Pc1InlineSourceTests.run()+Pc1AudioAliasTests.run()+Pc1UiServicesTests.run()+Pc1RawFrontTests.run();
         assertions+=Pc1SourceIdentityTests.run()+Pc1ScriptFlowTests.run();
         assertions+=Pc1ComMemoryTests.run()+Pc1ComMachineTests.run()+Pc1InstallKeyTests.run();

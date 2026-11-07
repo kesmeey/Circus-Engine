@@ -1,0 +1,123 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-07",
+  "feature": "Actual original DC2 character alpha and optional auxiliary-mask scope",
+  "target": {
+    "file": "dc2.exe",
+    "sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+    "original_executable_launched": false,
+    "original_game_directory_modified": false
+  },
+  "method": "Ordinary read-only file-header inventory and actual Crx decoder. Not new REA Evidence or execution of the original renderer. Each header read is20bytes; alpha samples are fully decoded using the selected dc2-3363 resources.",
+  "inventory": {
+    "crx_headers_scanned": 3922,
+    "header_bpp_by_directory": {
+      "BG": {
+        "24": 796,
+        "32": 1
+      },
+      "BST": {
+        "32": 2750
+      },
+      "ED": {
+        "24": 160
+      },
+      "MAP": {
+        "32": 6,
+        "24": 7
+      },
+      "SYSTEM": {
+        "24": 196,
+        "32": 6
+      }
+    },
+    "actor_files": 2750,
+    "actor_has_appended_m_sibling": 0,
+    "actor_name_ends_underscore_m": 1149,
+    "actor_depth_mode_counts": {
+      "(1, 0)": 2750
+    }
+  },
+  "samples": [
+    {
+      "resource": "bst/bst_otm00_b_00_m.crx",
+      "bpp": 32,
+      "width": 800,
+      "height": 600,
+      "transparent_pixels": 327561,
+      "opaque_pixels": 145761,
+      "partial_alpha_pixels": 6678,
+      "distinct_alpha_values": 256,
+      "decoded_bgra_sha256": "4a34c15c9e323c2a56865da6c75f7b6214630cd81a007d82a67c2adcab31911b"
+    },
+    {
+      "resource": "bst/bst_yme00_a_00_m.crx",
+      "bpp": 32,
+      "width": 800,
+      "height": 600,
+      "transparent_pixels": 388152,
+      "opaque_pixels": 86800,
+      "partial_alpha_pixels": 5048,
+      "distinct_alpha_values": 256,
+      "decoded_bgra_sha256": "a64b8fc89311928b9206e068e7d68ba80d328ec05c38107dbded9d7755cbe272"
+    },
+    {
+      "resource": "bst/bst_nnk00_a_00_m.crx",
+      "bpp": 32,
+      "width": 800,
+      "height": 600,
+      "transparent_pixels": 339824,
+      "opaque_pixels": 128286,
+      "partial_alpha_pixels": 11890,
+      "distinct_alpha_values": 256,
+      "decoded_bgra_sha256": "b7443c7aa93b6bec2f89dd4e627a823bca8b2e5bc50a0433e5501a2b0e270830"
+    },
+    {
+      "resource": "bst/bst_mnt00_a_00_m.crx",
+      "bpp": 32,
+      "width": 800,
+      "height": 600,
+      "transparent_pixels": 369446,
+      "opaque_pixels": 104691,
+      "partial_alpha_pixels": 5863,
+      "distinct_alpha_values": 256,
+      "decoded_bgra_sha256": "612c4496d89d2cea8e36337bf0d4f783602da29ee7aa96a4a4fc898b69ce5fcb"
+    },
+    {
+      "resource": "bst/bst_anz00_a_00_m.crx",
+      "bpp": 32,
+      "width": 800,
+      "height": 600,
+      "transparent_pixels": 376522,
+      "opaque_pixels": 98062,
+      "partial_alpha_pixels": 5416,
+      "distinct_alpha_values": 256,
+      "decoded_bgra_sha256": "bd5e0963daefc5ee2efc77dd17e87ffbc23d8b15b80477ed86edbbb5c28d4866"
+    },
+    {
+      "resource": "bst/bst_kko00_a1_00_m.crx",
+      "bpp": 32,
+      "width": 800,
+      "height": 600,
+      "transparent_pixels": 386875,
+      "opaque_pixels": 89195,
+      "partial_alpha_pixels": 3930,
+      "distinct_alpha_values": 256,
+      "decoded_bgra_sha256": "022133cb7ba4cb0b1bea8af51dd9f546325997fe1e1f20c576466c9c45a296f2"
+    }
+  ],
+  "conclusion": "All2750 actual BST character images are CRX depth1/mode0,32bpp with embedded alpha; there are no basename-plus-m actor siblings. Each of six main-role decoded samples contains transparent, opaque and partially transparent pixels and all256 alpha values. There is no evidence that the supplied major character images need an external24bit-plus-m mask renderer.",
+  "naming_boundary": "1149 filenames end in _m, but this is part of the selected image basename; it is not the separate auxiliary image that appending m to the complete basename would request. Do not count this suffix as a mask pair.",
+  "boundaries": [
+    "Inventory is specific to the supplied DC2 image corpus, not all CIRCUS games.",
+    "This establishes embedded-alpha resource admission; exact original32bit alpha-blitter rounding and GDI screenshot equivalence are separate.",
+    "The original optional24bit-plus-mask branch can remain a documented unexercised branch for this actor corpus."
+  ],
+  "private_metadata": {
+    "headers_path": "build/native-rewrite/dc2-character-ending-stage69/actor-mask-headers.json",
+    "headers_sha256": "5e355114f4c1a5eb4a27296715c65f62ad873279dbd45c765c3106724889e3fc",
+    "decoded_samples_path": "build/native-rewrite/dc2-character-ending-stage69/actor-alpha-samples.json",
+    "decoded_samples_sha256": "f884dc6a3e1af9740f9719c5749de8757c64ebf4da1adb78067c8d634e859877"
+  },
+  "public_artifact_contains_original_bytes": false
+}

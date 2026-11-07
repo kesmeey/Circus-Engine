@@ -1,0 +1,198 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-08",
+  "feature": "Actual first-play ADV4B pending1 preparation and937/5E message-window lifetime",
+  "target": {
+    "file": "dc2.exe",
+    "sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+    "original_executable_launched": false,
+    "original_game_directory_modified": false
+  },
+  "native_contract": {
+    "site": "fst_1216_e1_cmn: BG iv_yme01a and immediate origin setup8E1, original body8F0/wait8FE, body904/wait931, effect0@934, 5E(0,-600,0,0)@937, then checkpoint940/speaker943/body949/wait95F.",
+    "layers": "ADV4B supplies a real old displayed front including body glyphs; pending1 requires41C440 mask0F no-template/no-glyph scene preparation before moving. PREPARE must mix from that old front, not a newly reconstructed textless initial image.",
+    "full_window": "417FB0 FULL draws the scene and, under native pending gate, the primary current-mode window records. Native mode0 maps quadTemplates1 (mode1 maps4), capped10; type10 records update anchors but do not paint glyphs. The separate speaker/name templates2/5 and usual toolbar/prefix are not traversed here. Confirmation sprites have their separate native gate and are absent in this fixture.",
+    "actual_template": "Mode0 has9 records:7 source image records and2 type10 anchors, all pixel records use slot21 system/messwin. The actual source is800x538 CRX depth1/mode0, decoded32bpp. The resource exists, so missing-window fallback is not exercised.",
+    "weighted": "The first image record has flags149 (slot21 plus80) and uses native99:10 toggle and99:11 weight, here enabled and8. 408B80 ->4089A0 type1: decoded alpha0 skips; alpha1..255 only controls coverage, and each BGR=floor((dst*(16-w)+src*w)/16). Partial source alpha does not multiply the weight.",
+    "unweighted": "Other six image records have flags21. 4086A0 ->408450 type1 copies alpha255, skips alpha0, otherwise each BGR=floor((dst*(255-A)+src*A)/255), without round-to-nearest. The actual second record includes1057 partially transparent pixels, so this distinction is observed by the strict output oracle.",
+    "feedback": "The moving background feedback branch only places its raw24bit source at signed destination offsets and applies ordered integer/16 feedback. It must not overlay primary window or old glyphs after every feedback draw.",
+    "completion": "Final FULL restores the primary message window without reprinting old body glyphs; the logical old body may remain until original949 publishes its new speaker/body. A retained moving framebuffer must not suppress that subsequent normal text publication."
+  },
+  "implementation_scope": {
+    "owners": "Dc2Motion stores independent initial/prepared captures plus typed Dc2MessageWindow metadata for FULL. Each ordered window quad retains source/palette/visibility/weight rather than flattening many alpha draws into one transparent image.",
+    "renderer": "PREPARE and BACKGROUND replay the native integer journal. FULL draws the scene plus frozen primary window; normal ADV body/name windows use the same raw truecolor math. Ordinary body glyphs are not repainted over the active/retained non-prepareOnly motion.",
+    "persistence": "Current PCH16 snapshot contains DCM3 motion journal and typed fullTemplate, preserving captured old front and fractional clocks. Helper loader accepts DCM2 with no typed window; this is not a blanket claim that older profile identities or old whole-session snapshots are accepted."
+  },
+  "evidence_scopes": {
+    "native_bgr_core": {
+      "method": "Isolated original x86 type1 pixel-loop instruction interpretation by the Windows-scope audit, using synthetic one-pixel buffers and a stubbed dirty-region callback. No game process or GDI execution.",
+      "native_ranges": [
+        "4089A0 weighted type1",
+        "408450 unweighted type1"
+      ],
+      "cases": 162,
+      "instructions": 21031,
+      "decoded_alpha_values": [
+        0,
+        1,
+        2,
+        63,
+        127,
+        128,
+        129,
+        254,
+        255
+      ],
+      "weighted_values": "0..16",
+      "retained_path": "build/native-rewrite/dc2-system-effects-stage67/type1-native-pixel-vectors.json",
+      "sha256": "06eb634c46ee6c3e366929fa42ad3d11bf8baf335445457adf21b304cd95bd51",
+      "limits": "Interpret isolated native type1 pixel loops over synthetic one-pixel images;\nall clip/dirty reporting is stubbed; no game process, GDI, or original assets."
+    },
+    "actual_display_pipeline": {
+      "method": "Execute original START template producers, then the unmodified original selected script prefix in the rewritten VM; no manual game-variable writes. Capture portable prior body pixels, manually read actual decoded BGR/BGRA source rows, apply independent scalar integer feedback and ordered window quads. Compare rewritten DesktopLegacy output exactly.",
+      "direct_script_entry": true,
+      "native_running_original_screenshot": false,
+      "old_front_and_font_scope": "The initial old body is the rewritten player's visible text front and is preserved exactly. Its Java2D/font raster is not claimed pixel-identical to the original GDI glyph raster."
+    },
+    "native_static": {
+      "source": "Hash-locked original PE inspection retained by Windows-scope worker; ordinary static disassembly is not described as additional REA Evidence.",
+      "retained_files": [
+        "build/native-rewrite/dc2-system-effects-stage67/compose-and-present-middle.asm",
+        "build/native-rewrite/dc2-system-effects-stage67/weighted-type1.asm",
+        "build/native-rewrite/dc2-system-effects-stage67/unweighted-type1.asm",
+        "build/native-rewrite/effects-stage2/current-0x4089a0.c"
+      ]
+    }
+  },
+  "validation": {
+    "heap_mib": 192,
+    "actual_assertions": 47,
+    "strict_frame_pixels_compared": 2400000,
+    "maximum_rgb_difference": 0,
+    "original_mes_sha256": "889887f29c3c870504d695e63f5c495b99e80a78ad556c67de13d484eb57c34c",
+    "actual_result_path": "build/native-rewrite/dc2-adv-motion-stage72/actual2/result.json",
+    "actual_result_sha256": "f277f2f495ab667be4cce2d2bd769d1475c1612f970215015a522875050e4395",
+    "source_cg": {
+      "resource": "bg\\iv_yme01a",
+      "width": 800,
+      "height": 1200,
+      "decoded_sha256": "84bec912134dc9ce62c05f47a301fb56c36821f26043740f4ea61e25628dcd2c"
+    },
+    "body_frames": [
+      {
+        "name": "body-8f0",
+        "body_sha256": "0bd76f424153860a40c10db66e215d28482250a0f13d04de276176900ab3d6d2",
+        "frame_sha256": "b0e430b5f919073d4b006033605b261887eaedd58b4119b7e950128b6c11d326",
+        "wait_pc": 2302
+      },
+      {
+        "name": "body-904",
+        "body_sha256": "f3726a22a47131597797d640ffb70ed46b4b463efd5811cd2be282376401dce2",
+        "frame_sha256": "8ae6069a10568663b6335108ac6691da9c02423261e407f897cc9ae422ee89d1",
+        "wait_pc": 2353
+      }
+    ],
+    "strict_frames": [
+      {
+        "name": "prepare-first-native-blend",
+        "draws": 1,
+        "preparing": true,
+        "active": true,
+        "x": 0,
+        "y": 0,
+        "maximum_rgb_rounding": 0,
+        "rounded_pixels": 0,
+        "frame_sha256": "477293cb7f6e70ebf8a29e7ec9fdd4a6ee962b7c83be9c23e63366c1803f7011"
+      },
+      {
+        "name": "prepare-next-40ms-boundary",
+        "draws": 2,
+        "preparing": true,
+        "active": true,
+        "x": 0,
+        "y": 0,
+        "maximum_rgb_rounding": 0,
+        "rounded_pixels": 0,
+        "frame_sha256": "35964fe6832fdbb7604463ab34d894aeb298f6bae402cfb1eac2394438d3bc27"
+      },
+      {
+        "name": "first-pan-after-no-text-preparation",
+        "draws": 10,
+        "preparing": false,
+        "active": true,
+        "x": 0,
+        "y": -4,
+        "maximum_rgb_rounding": 0,
+        "rounded_pixels": 0,
+        "frame_sha256": "295dce1abfde14d1d0fda70c6ba450bed822172ad6e58f2a7548a870227290a1"
+      },
+      {
+        "name": "pan-feedback-clock37",
+        "draws": 13,
+        "preparing": false,
+        "active": true,
+        "x": 0,
+        "y": -16,
+        "maximum_rgb_rounding": 0,
+        "rounded_pixels": 0,
+        "frame_sha256": "29a61e240ffcdf8b89ea4d60645d2bf4803b7a423129215d0854c4798b06169c"
+      },
+      {
+        "name": "complete-window-without-old-glyphs",
+        "draws": 160,
+        "preparing": false,
+        "active": false,
+        "x": 0,
+        "y": -600,
+        "maximum_rgb_rounding": 0,
+        "rounded_pixels": 0,
+        "frame_sha256": "5b110a8da467b41bc47a5cb8895867a7a2a7676b525abda88eb543a53f771ba9"
+      }
+    ],
+    "covered": [
+      "Both actual preceding bodies and original937 instruction reached through original prefix, with no route variable edits",
+      "937 initial raster equals the preceding old body front pixel-for-pixel",
+      "Prepared0F scene and separate primary window exist, with no actors/effects/portraits or additional pending entries in this selected source",
+      "Repeated render cannot apply another feedback blend or mutate the saved VM",
+      "17ms preparation snapshot plus23 one-ms ticks reproduces next40ms integer blend",
+      "Moving37ms snapshot reproduces all intermediate frames under one-ms partition",
+      "Final y=-600 FULL has native primary window and no old glyphs, while logical body state remains intact",
+      "Completed snapshot retains textless window and original949/95F restore the next body normally"
+    ],
+    "negative_control": "First actual1 fresh build found the real prefix@53F failure: the new weighted-window renderer rejected actual32bpp messwin. The actual2 final source snapshot includes corrected32bit coverage and direct-floor math; no fallback skips the original prefix."
+  },
+  "exact_actual2_build": {
+    "all_current_core_desktop_tests_resources_captured": true,
+    "inputs_manifest_path": "build/native-rewrite/dc2-adv-motion-stage72/inputs-manifest.json",
+    "inputs_manifest_sha256": "380abc9d638a70e5a2dc4f399012a73deffdf5b54dbf53894a9059c7808dee20",
+    "relevant_frozen_source_sha256": {
+      "runtime/core/src/org/circus/core/Dc2Motion.java": "ad43dbcb5fe1617bbb5495b5b6ce026649e5b65cfb7cbe419473805f8e845ce5",
+      "runtime/core/src/org/circus/core/Dc2MessageWindow.java": "67aaa8efe6884e85bffd294d86aede821192b04f2af7f8577a56429311ea93bf",
+      "runtime/core/src/org/circus/core/PcHost.java": "98fb06215972d93ddc8abdef4e4c9a7ce4330beb9b9397d2584d61ef2cd50b35",
+      "runtime/core/src/org/circus/core/Dc2Session.java": "7c91673a65fa501385e95075e2950bcc81ba7a3d325c04cb06232b2cc240d03b",
+      "runtime/core/src/org/circus/core/Profile.java": "f9b357d8a29d500ac4da121b09c8e5b2e133dbcd30e28216cdbb8245161c315a",
+      "runtime/core/src/org/circus/core/Profiles.java": "ea942e7523deae200a4ccdd4ef779ea5d5c18eda89806aa03813c285b86202ba",
+      "runtime/core/src/org/circus/core/MesVm.java": "90528d2900a711ec9d45aba5bf8d4217b0024580d797c52941fc94fcf5d258f2",
+      "runtime/core/src/org/circus/core/Dc2Ui.java": "94b64001a03d5dcf663a7119702d4e650b652ece75bc2469f9064ba511830517",
+      "runtime/core/src/org/circus/core/SceneCaptures.java": "0ef698e6ed57b74c324f061e96218e7a54511b74db7d925ca55de68ac6f8ddd6",
+      "runtime/core/src/org/circus/core/UiCapture.java": "5e6b38832c5a2a8ede412af414600abd1da48b9266f7f456940575333dbaa357",
+      "runtime/desktop/src/org/circus/core/DesktopLegacy.java": "45ae8114d38a3cf39929ba89226d62198f73c34c72b1450475d2f4ddbf8aa51e",
+      "runtime/desktop/src/org/circus/core/Dc2AdvMotionOutputAudit.java": "a5a0fc382947d9cf6c92a842d32be3aea2facb70b5619b2361862df977f006c2"
+    },
+    "note": "These hashes identify the exact historical source inputs of this isolated actual2 run. Later host61/actor-change edits can have different source hashes without changing the checked937 message-window contract."
+  },
+  "boundaries": [
+    "Selected ADV mode0/937 site only; this is not a title-to-ending route coverage count or a general NVL body/log proof.",
+    "Actual resource exists, so the45E808==-1 fallback rectangle is not verified by this output fixture.",
+    "Confirmation-button gate, hidden-window contexts, other windows/sizes and every transition-interleaving combination are not claimed complete.",
+    "The native pixel-loop oracle establishes arithmetic only; actual PNG comparison establishes the portable data/journal/display path, not original GDI/font/video timing equivalence.",
+    "Assertion and vector counts overlap other regressions and do not imply a fidelity percentage."
+  ],
+  "source_sha256": {
+    "runtime/desktop/src/org/circus/core/Dc2AdvMotionOutputAudit.java": "a5a0fc382947d9cf6c92a842d32be3aea2facb70b5619b2361862df977f006c2"
+  },
+  "git_lf_source_sha256": {
+    "runtime/desktop/src/org/circus/core/Dc2AdvMotionOutputAudit.java": "a5a0fc382947d9cf6c92a842d32be3aea2facb70b5619b2361862df977f006c2"
+  },
+  "public_artifact_contains_original_bytes": false
+}

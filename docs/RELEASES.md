@@ -35,6 +35,13 @@
 
 ## PC
 
+### 0.14.7-common-workflows-dev（2026-11-08）
+
+修正DC2首次加载已读缓存，补齐常见角色淡化、平移和暂存坐标、正文后镜头/消息窗、闹钟存读上下文、六角色与通用片尾；真实杏/七夏路线分别经过片尾回标题。桌面新增普通ADV原Windows槽导入，遵守原LOAD十页的48个可见位置并拒绝覆盖已有槽。PC1补原:q候选策略、便携快速槽与失败重试。
+
+本包使用rev8及DC2单独的首次游玩宿主修订。旧错误DC2便携剧情快照明确拒绝并保留，独立系统进度不因此失效。JVM/ART、实际流程、原存档与实包验证见[源码检查](validation/first-play-workflows-source-2026-11-08.json)、[包收据](validation/windows-common-workflows-0.14.7.json)；当前范围见[常见流程](COMMON_WORKFLOWS.md)。0.14.6固定包保留。
+
+
 | 版本 | 内容 |
 |---|---|
 | 0.13.12-pc-dev | 与 Android 0.13.12 同核心，含 D.C.III With You 与 D.C.III P.P. 接入。产物 `build/distribution/dc-runtime-0.13.12-pc-dev-windows-x64/` |

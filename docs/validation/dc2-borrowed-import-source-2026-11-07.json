@@ -1,0 +1,232 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-07",
+  "feature": "Original DC2 independent borrowed save continuation, guarded native ADV slot import, first-play cached seen, actor32/61 presentation and ending host owners",
+  "target": {
+    "file": "dc2.exe",
+    "sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+    "profile": "dc2-3363",
+    "original_executable_launched": false,
+    "original_game_directory_modified": false
+  },
+  "native_contract": {
+    "service50": "405246..4052C4 copies2001 DWORDs liveA08D00 to borrowed9FE0E0 and normalizes filename. All8 admitted alarm programs execute it at85 and continue at88; the copied scene already owns alarm background/BGM.",
+    "flag": "BE8B94 is DC2-specific. Loader4139A7 clears0; native1A417608 copies and sets operand. Current admitted corpus does not execute that1A and portable nonzero provenance is rejected.",
+    "ordinary_auto": "416585 pushes slot0 into41CF70; persist4 arg1==1 refreshes borrowed current frame when the independent flag is0. Selected persist4 uses its selected slot.",
+    "external_menu": "Native save/load/option event refreshes flag0 caller after voice stop, before the menu. This suspended system caller and a prepared service50 leaf are represented separately.",
+    "quick": "Native41BD47 unconditionally refreshes current frame, retains voice, writes0 and notifies41C630. Portable:qsave aliases use0 for this profile.",
+    "metadata": "404E50 runs system1,1, copies9:2 and9:20, sets9:21..25 month/day/hour/minute/(year+30hex)&255 and9:26/27 scenario catalog digits. Patches a detached saved leaf, not the live menu continuation.",
+    "hour": "413B68->413A50 calls GetLocalTime via42907C and returns SYSTEMTIME.hour. Original99:21 is local hour; test clock is injectable and is not serialized.",
+    "native_load": "41CE10->41CA70 derives PC from checkpoint header table, not saved raw48C. Admitted34/4B voice/body checkpoint replays to its following07 after START global template bootstrap.",
+    "credits": "system12 wait1C/type2 uses the independent Dc2OriginalCredits owner. Host captures frozen underlay, serializes active journal, burns completing journal to scene @ui-capture and releases presenter lifetime before subsequent fade.",
+    "actor32": "416896/case32 peeks the following45 string for actor2;60 stagesXY then32 commits liveXY. Dirty32 first flushes413E70 and prepares mask0F with41C440.418A40 wait32 uses40ms phases, feedback6/10/12, FULL atphase5 and later free/release; first speed3/effective rapid paints directly then releases. ADV prior pending1 becomes2 and excludes retained body glyphs; the NVL pending1 old-glyph branch is explicitly rejected by this Host.",
+    "actor61": "416D03 selects actor0 for thirdword0 or actor1 otherwise; thirdword-1 swaps actor resource/mask handles without swapping coordinates/overlays.418CA0 changesXY by8/16/32/64 per10ms poll, independently clamps axes, draws at the target and releases on a later poll.41D3F0(FF) draws current scene/window without repainting old body glyphs.",
+    "adv_pending": "41A020 ordinary ADV calls418EA0(1), which setsBE8BC8=1.5E with nonzero pending prepares41D3F0(mask0F), excluding windows/glyphs.417FB0 FULL draws main-window templates when pending!=0 without reprinting old body.13 kind1/2 flush413E70 before fade; dirty cannot survive into the following actor32."
+  },
+  "portable_contract": {
+    "producer_boundary": "After the producer instruction commits its next PC, synchronously capture one CVS2 leaf plus paired opaque platform metadata before another MES instruction executes.",
+    "session": "D2CS-v1 stores active CVS2, optional independent borrowed leaf/provenance/platform metadata, and optional separate generic system caller CVS2/script. No session envelope recursively embeds another session envelope.",
+    "failure": "Validate detached checksummed source/SHA/producer/continuation before publish. Missing or mismatching sidecar cannot write a native-flow slot; failed replacement capture cannot use the previous unrelated leaf.",
+    "persistence": "Restores merge current persistent/account state and preserve platform capture callbacks. Current-auto leaf has its completed request normalized, preventing an immediate save loop.",
+    "credits_codec": "PCH17(50434841) retains fullPCH16 tail, then adds Dc2ActorChange(D2X1), including independent stage60 four words, frozen initial/target scenes, ordered window inputs and phase journal. PCH16 added actor61 owner; its internalD2A2 now retains drawn/sceneSerial/typed window and reads legacyD2A1. Type2/type1 ending owners use their internal50ms advance gates.",
+    "cached_read": "413A70 returns cachedA0AC20 for99:251. Native4137D0 calls41D340 before load and modes1/3 cache the previous bank98 seen byte; mode2 retains it. PcHost original now follows this owner instead of returning the unrelated scenario catalog index. Later first-body seen marking does not change cached value.",
+    "rapid40": "system40 resets BE8BA8 rapid input, not skipAllowed. Host immediately clears motionSkipPressed and issues a persisted out-of-band reset generation for platform rapid mode.",
+    "type1_host": "system10 copies24 duration bytes6:50..73, captures independent underlay and starts a nonmodal prepared clock.11 begins modalwait without clock reset. One poll per host elapsed call; exact route-clear-equals1 mouse skip; completion front burned before presenter release.",
+    "windows_import": "Dc2Session.importDc2NativeSlot constructs detached START templates and typed scene/ordinary/audio/effect owners, seeks plan.resumeFilePc, replays current ADV checkpoint through07, then atomically publishes. Import explicitly refuses prior NVL text.",
+    "motion_windows": "DCM3 independently serializes mask0F prepared scene and typed Dc2MessageWindow FULL-only template. Root DesktopLegacy paints ordered rawBGR /16 window operations, avoiding alpha-flatten rounding loss and old body glyph duplication.",
+    "first_play_compatibility": "DC2 Profile.executionIdentity has a reviewed first-play-host revision. Incorrect old99:251 execution snapshots cannot be faithfully migrated through a Host-tail layout change; earlier DC2 CVS2 is rejected while other profiles retain their identities. Host-only PCH codec migration tests remain separate.",
+    "actor_owner": "Dc2ActorChange owns stagedXY, generation, sceneSerial, phase and independent frozen scenes/window records. Scene publication supersedes the retained front. Actor61 also retains its no-glyph front across consecutive61 heads before a new timer draw. Persistent/account merge does not replace independent caller or render-owner state.",
+    "map_presenter_priority": "Desktop actor-change/motion journal presenters defer to an active originalDC2 map even when their sceneSerial/drawn state remains valid. Closing the map restores the retained actor front; active-map F5 preserves that ownership."
+  },
+  "validation": {
+    "self_authored_borrowed_assertions": 24,
+    "self_authored_credits_host_assertions": 16,
+    "self_authored_character_and_cached_read_host_assertions": 22,
+    "actual_alarm_assertions": 256,
+    "actual_alarm_scripts": 8,
+    "actual_alarm_fast_normal_slow_branches": 24,
+    "actual_alarm_inline_save_load_roundtrips": 8,
+    "actual_windows_import_assertions": 5080,
+    "actual_original_windows_slots": 5,
+    "cached_scenario_bug_evidence": {
+      "private_actual_trace": "build/native-rewrite/dc2-borrowed-stage64/ed-trace.log",
+      "before_fix": "The oldAnzu audit entered script137 with nonzero catalog index, failed bothnew guards and171 jumpedara, skipping the ed_anz transfer. That old abbreviated route is not evidence of complete first-play character endings.",
+      "native_static": "build/native-rewrite/dc2-borrowed-stage64/scenario-read-41d340.asm;41D340 matches catalog thenreturns byte47444C[index], missing0;413946 caches intoA0AC20."
+    },
+    "actual_import_checks": [
+      "all1000 ordinary bytes per slot",
+      "original START message/name/button templates",
+      "native scene coordinates, logical music, supported effect",
+      "actual rendered frame portable roundtrip pixel equality",
+      "following original story wait advances",
+      "bad signature/missing resource/NVL detached rejection",
+      "original slot SHA unchanged",
+      "allfour independent stage60 actor words per native slot; later32 must not substitute current liveXY"
+    ],
+    "actual_results": {
+      "alarm": {
+        "private_path": "build/native-rewrite/dc2-borrowed-stage64/actual-pch17/result.json",
+        "sha256": "85ef118437a1e42a7902ccf13cfc1d546f0b2e32de4d4a70a3a930de36ad51a8"
+      },
+      "native_import": {
+        "private_path": "build/native-rewrite/dc2-borrowed-stage64/import-pch17/result.json",
+        "sha256": "1c636c8a3d8b4db48b870105018eecf29ff00a58c66475945ecbea1c84dd2f9e"
+      },
+      "actor_presentation": {
+        "private_path": "build/native-rewrite/dc2-borrowed-stage64/actor-map-priority-after/result.json",
+        "sha256": "78542b3f40079ae50fe13e61cfc5df12d38392ced4db3bed832f3662143c515b"
+      }
+    },
+    "self_authored_actor_change_assertions": 34,
+    "self_authored_actor_motion_assertions": 37,
+    "self_authored_composition_motion_assertions": 22,
+    "existing_motion_assertions": 4419,
+    "particle_host_assertions": 39,
+    "actual_native_stage_words_checked": 20,
+    "actual_actor_presentation_assertions": 29,
+    "actor_change_original_instruction_cases": 48,
+    "actor_change_original_instruction_polls": 108,
+    "actor_change_original_instructions": 6000,
+    "actor_change_java_parity_assertions": 414,
+    "actor_motion_original_instruction_cases": 60,
+    "actor_motion_original_instruction_polls": 292,
+    "actor_motion_original_instructions": 13926,
+    "actor_motion_java_parity_assertions": 1460,
+    "actual_actor_map_priority": "Completed actual61 retains drawn/serial; actualsystem20 leaves serial intact. Six legal actors, visible original school map, native location/Yes clicks, active-map F5 pixels and return to the same no-glyph actor front all pass. The same audit fails against the old presenter guards before !dc2Map.active."
+  },
+  "evidence": {
+    "fresh_rea_evidence_ids": [
+      "ev_c797bb725b252260d495214418fe0cba047210c94b683d1417b2bd967ebcc7e6",
+      "ev_711da6dc7327f0c29a69e7d90a394ecdce0f3d936a72e0be0cb08c0531a9eba1",
+      "ev_84a78325edbf7c3c155375f4456110c18cca680e494437cb30e91744c31f6d51"
+    ],
+    "retained_private_native_scope": "build/native-rewrite/dc2-map-stage58/{system50-copy-normalize,system-context-copy,input-context-copy,input-system-context-copy,slot-prepare-reads-borrowed-filename}.asm and windows-slot-scope-stage64",
+    "fresh_disassembly_method": "Ordinary pefile/Capstone hash-locked static reads are not new REA Evidence records.",
+    "public_artifact_contains_original_bytes": false,
+    "actor_motion_and_change_scope": "build/native-rewrite/dc2-system-effects-stage67/{wait61-native-vectors,wait32-native-vectors}.json. Bounded original-instruction interpretation with controlled external timer/render/key calls, not a launched EXE process or native bitmap oracle."
+  },
+  "boundaries": [
+    "Portable CVS2/D2CS/DesktopSave continuation is not byte-identical native8004 output and does not claim native Windows writer compatibility.",
+    "Native1A nonzero BE8B94, selection/UI checkpoint imports, deferred drawing, rain2, prior NVL text and full prior Windows backlog are rejected or outside this import scope.",
+    "Original native log words are used only for seen-checkpoint identities; previous original backlog rows are not reconstructed.",
+    "Imported physical audio begins at new decoder cursor0; logical resource/loop state is restored, sample-identical native decoder/COM behavior is not claimed.",
+    "Headless credits without a raster callback finish with the admitted last Gend19 resource; desktop renderer captures the actual completing journal.",
+    "Parser/projection native instruction oracle and platform/CLI consumer validations are independently documented by their owning audits.",
+    "Actor32 retained NVL glyph/history composition remains explicit unsupported; ordinary ADV first-play paths, optional second actor45, stage60/liveXY, dirty prep and wait32 are exercised.",
+    "Actor32 and61 native-control parity suppresses actual native painting; actual portable pixel/F5 audits independently exercise presentation and do not prove native GDI/font/audio pixel equivalence.",
+    "The earlier short cached-seen-bug routes are historical failed coverage, not complete first-play route evidence. Parent final same-source route/package validations own current long-route claims."
+  ],
+  "source_sha256": [
+    {
+      "path": "runtime/core/src/org/circus/core/Dc2BorrowedState.java",
+      "raw": "dc1290af79aa9a4e511f70704b0423318722f60d942182edb459bf094624cfc4",
+      "lf": "ca95ec5dfda64f7d2d37d3f7d85b8751d961b4753b97666c435df2bde830314e"
+    },
+    {
+      "path": "runtime/core/src/org/circus/core/Dc2BorrowedLeaf.java",
+      "raw": "73787a76aa079361a921c7e7b587c2faecd39832b585a17f60ea9bd124289509",
+      "lf": "757d4a69d60840d1730849ee79a90be2635ca3ad21f664d82d63c30ec8575153"
+    },
+    {
+      "path": "runtime/core/src/org/circus/core/Dc2Session.java",
+      "raw": "7c91673a65fa501385e95075e2950bcc81ba7a3d325c04cb06232b2cc240d03b",
+      "lf": "aff8905c7c13fd6b6cdc2232c63594701da2a1f951d7970c067a999aa90e1fca"
+    },
+    {
+      "path": "runtime/core/src/org/circus/core/MesVm.java",
+      "raw": "90528d2900a711ec9d45aba5bf8d4217b0024580d797c52941fc94fcf5d258f2",
+      "lf": "477f0bdafba2d627f60c902564433b26dd8b49dca790722a0192840fdc0899c9"
+    },
+    {
+      "path": "runtime/core/src/org/circus/core/PcHost.java",
+      "raw": "4d689a3171d134e4c70eb76809024c392c5e9e4da5a96a3d8b5730c86b28cfd2",
+      "lf": "1cf4bc372bbc59279fd7f0e93cb499a97f7fa6d7520021950489741e3bd38e69"
+    },
+    {
+      "path": "runtime/core/src/org/circus/core/Dc2SystemCommands.java",
+      "raw": "26ca827c7543c7b18affc6f001e328392c54ce1f2b85fd6a37d507b6c186eef6",
+      "lf": "ba93ef2ad2196ba628570acf80ca8c8aaa8a4543ce4c624e41e9c6283456adcf"
+    },
+    {
+      "path": "runtime/tests/org/circus/core/Dc2BorrowedTests.java",
+      "raw": "3baa5ab8f4ed1a63db7652a4d9732531cd363903898dcf1a5c8122043514fc24",
+      "lf": "9b798331afb6ca08b7f234be667b06d76359c0e484913b1111fd776130e4d406"
+    },
+    {
+      "path": "runtime/tests/org/circus/core/Dc2CreditsHostTests.java",
+      "raw": "94e5de8e46152af92c99c3c8d8bfe4e19f4f5565f2601581a245d279c5dcd4fb",
+      "lf": "c9d3d736b3796e91ad1dbd3a0403f09a17f0d2cd24340c1b951aa58604924400"
+    },
+    {
+      "path": "runtime/tests/org/circus/core/Dc2EndingHostTests.java",
+      "raw": "4c81940a4294081f44ac4746c127d271bb1e02fac880fce7723e4a3c49747a9b",
+      "lf": "c46ea276974e1b00fb46855f729d672b40591f761f2d174b397905482b38ec3c"
+    },
+    {
+      "path": "runtime/desktop/src/org/circus/core/Dc2BorrowedAudit.java",
+      "raw": "f9f7543e62eb00f69c18c410b90e8beeff228927a16347a8e061240982196103",
+      "lf": "20634dcdbae82f2af33497a50fb8f252e25258a3166ce70bbed6697203e1418a"
+    },
+    {
+      "path": "runtime/desktop/src/org/circus/core/Dc2NativeImportAudit.java",
+      "raw": "547f3faa0fb18b7a6d5724e4a1b0df0cac55f104d4099c9882737bd99ffbf026",
+      "lf": "390ec5407c983e846377f4e7bb08f12592e49baf3ae7acbd2bda2db51ba47b69"
+    },
+    {
+      "path": "runtime/core/src/org/circus/core/Dc2ActorMotion.java",
+      "raw": "3dd1e854e1a27666b680b7ac11202a0a6c58d7cd7385c1798adf70ff533d71fc",
+      "lf": "3dd1e854e1a27666b680b7ac11202a0a6c58d7cd7385c1798adf70ff533d71fc"
+    },
+    {
+      "path": "runtime/core/src/org/circus/core/Dc2ActorChange.java",
+      "raw": "378c0ab3b9489fd32797667399b99ba25edc6199cca3ba9694b85946c17c531b",
+      "lf": "378c0ab3b9489fd32797667399b99ba25edc6199cca3ba9694b85946c17c531b"
+    },
+    {
+      "path": "runtime/core/src/org/circus/core/Dc2MessageWindow.java",
+      "raw": "67aaa8efe6884e85bffd294d86aede821192b04f2af7f8577a56429311ea93bf",
+      "lf": "67aaa8efe6884e85bffd294d86aede821192b04f2af7f8577a56429311ea93bf"
+    },
+    {
+      "path": "runtime/core/src/org/circus/core/Dc2Motion.java",
+      "raw": "67ce241f64771ec6304f873f01ffdf5a5373ae111cba8597f3c0cce26dc50573",
+      "lf": "67ce241f64771ec6304f873f01ffdf5a5373ae111cba8597f3c0cce26dc50573"
+    },
+    {
+      "path": "runtime/core/src/org/circus/core/Dc2NativeSlot.java",
+      "raw": "ef22a942d7b0455891a20edc7c8d60a0bf72a87c116859048e5045afa239254e",
+      "lf": "02ed7d2608beef0f764266080cc69415cb3fdcdfab235fa76ecbf6b1bfea09c7"
+    },
+    {
+      "path": "runtime/core/src/org/circus/core/Profile.java",
+      "raw": "f9b357d8a29d500ac4da121b09c8e5b2e133dbcd30e28216cdbb8245161c315a",
+      "lf": "f9b357d8a29d500ac4da121b09c8e5b2e133dbcd30e28216cdbb8245161c315a"
+    },
+    {
+      "path": "runtime/tests/org/circus/core/Dc2ActorMotionTests.java",
+      "raw": "3784bb61eedf6628c4d575253cb1c480661d2e6dcf18127cbf727af8851264ce",
+      "lf": "1a08c59ad911f17b03c551f762adb0549815ad40ada02d97c666ef6edb1d60ee"
+    },
+    {
+      "path": "runtime/tests/org/circus/core/Dc2ActorChangeTests.java",
+      "raw": "ee753aa71592faeb3b69f4dff3aaa4790bf13237c0a6639b29c90fed71150393",
+      "lf": "a5db09c7146297ce0fd14a0ef8b3307f9a9a108b8842bb0d751a73319e649e37"
+    },
+    {
+      "path": "runtime/tests/org/circus/core/Dc2CompositionMotionTests.java",
+      "raw": "6544649657cb3ca635c0e6f3fc75471553bdebdcd0fdf8675d21e3bf8054807e",
+      "lf": "acbb0572e2b8e764b2a6c79e9eed84469a9bdb833b29fe6d42876bdf2bac2d37"
+    },
+    {
+      "path": "runtime/desktop/src/org/circus/core/Dc2ActorPresentationAudit.java",
+      "raw": "1624b57c34b77c3f10fb69e8fceae6a71efc9de5a7a3e3a295ff0290ba4ecc8b",
+      "lf": "ee006069feddf29e677840dd6dcd6bb052a5a732c8a9ce9fed4af0d92f00cd6c"
+    },
+    {
+      "path": "runtime/desktop/src/org/circus/core/DesktopLegacy.java",
+      "raw": "71c7b14a7713b91fdec51fabdc889c0fdedd4592d0f21726d6b2c941f13fd054",
+      "lf": "71c7b14a7713b91fdec51fabdc889c0fdedd4592d0f21726d6b2c941f13fd054"
+    }
+  ],
+  "last_updated": "2026-11-08"
+}

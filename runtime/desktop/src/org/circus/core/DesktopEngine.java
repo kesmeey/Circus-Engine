@@ -21,6 +21,7 @@ public abstract class DesktopEngine {
     public final Set<String> missingImages=new TreeSet<>();
     public final Path saveDirectory;
     public boolean auto,rapid,hidden;
+    public void controlKey(boolean pressed){rapid=pressed;}
     public boolean fullscreenRequested,windowSizeReset;
     private final long[] mediaPosition=new long[6],resumePosition=new long[6];
     private final String[] mediaResource={"","","","","",""};
@@ -119,6 +120,7 @@ public abstract class DesktopEngine {
         return s;
     }
     protected final void writeSave(Path path,DesktopSave s)throws IOException{atomic(path,s.encode());s.state=null;saveMetadata.put(path,s);}
+    protected final void writeNewSave(Path path,DesktopSave s)throws IOException{atomicNew(path,s.encode());s.state=null;saveMetadata.put(path,s);}
     public void save(Path path)throws IOException{byte[] state=snapshot();DesktopSave s=captureSaveMetadata(true);s.state=state;writeSave(path,s);}
     public void restore(Path path)throws IOException{DesktopSave s=DesktopSave.decode(Files.readAllBytes(path));restore(s.state);systemAudio=null;systemAudioPosition=null;playbackMillis(s.textElapsed);for(int ch=0;ch<6;ch++)resumePosition[ch]=s.audio[ch].equals(audio(ch))?s.position[ch]:0;}
     public DesktopSave metadata(Path path)throws IOException{DesktopSave s=saveMetadata.get(path);if(s==null&&Files.exists(path)){s=DesktopSave.decode(Files.readAllBytes(path));s.state=null;saveMetadata.put(path,s);}return s;}
@@ -126,5 +128,10 @@ public abstract class DesktopEngine {
     public static void atomic(Path path,byte[] bytes)throws IOException{
         Files.createDirectories(path.toAbsolutePath().getParent());Path temp=Files.createTempFile(path.toAbsolutePath().getParent(),"dc-save-",".tmp");
         try{Files.write(temp,bytes);try{Files.move(temp,path,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);}catch(AtomicMoveNotSupportedException e){Files.move(temp,path,StandardCopyOption.REPLACE_EXISTING);}}finally{Files.deleteIfExists(temp);}
+    }
+    /** A converted import creates a new slot; an existing player save wins. */
+    public static void atomicNew(Path path,byte[] bytes)throws IOException{
+        Files.createDirectories(path.toAbsolutePath().getParent());Path temp=Files.createTempFile(path.toAbsolutePath().getParent(),"dc-import-",".tmp");
+        try{Files.write(temp,bytes);Files.move(temp,path);}finally{Files.deleteIfExists(temp);}
     }
 }

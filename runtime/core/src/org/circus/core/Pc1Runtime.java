@@ -469,6 +469,18 @@ public final class Pc1Runtime {
         requestedSave=selected.frame;requestedSlot=selected.slot;host.saveRequest=selected.slot;host.nextTicket();
         if(current!=null)pendingPortableCapture=2;
     }
+    /**4199DE..41AAD0(1): unlike menu entry, quick-save always refreshes its
+     *candidate and leaves the story wait/ticket and physical voice untouched.
+     *The platform consumes the pending request only after an atomic slot write. */
+    public void requestQuickSave(int eventVmPc)throws IOException{
+        if(system!=null||returning()||dispatching||pendingPortableCapture!=0||host.script==null||host.saveRequest>=0||host.loadRequest>=0||
+           !(waitKind()==7&&host.textWaiting||waitKind()==9&&host.ui.waiting)||host.presentationWaiting)
+            throw new IOException("PC1 quick-save requires a stable native story07/09 wait");
+        if(eventVmPc-host.script.versionOffset!=nativeFrame.dword(Pc1NativeSlot.Dword.RAW_CODE_PC))throw new IOException("PC1 quick-save caller PC is stale");
+        saves.captureQuickEvent(host,host.script,eventVmPc,packedSoundRequest());
+        if(portableCapture!=null)portableCapture.captured(3);
+        requestedSave=saves.candidate();requestedSlot=1;host.saveRequest=1;
+    }
     public void completeSave(){requestedSave=null;requestedSlot=-1;}
     void restored(MesScript active)throws IOException {
         if(system!=null)validate(system.returnPoint(),active);

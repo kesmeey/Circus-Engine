@@ -44,6 +44,11 @@ public final class Pc1SaveContext {
     public boolean captureNativeEvent(PcHost host,MesScript caller,int eventVmPc,int packedSound)throws IOException{
         if(flag!=0)return false;Pc1Frame next=Pc1Frame.captureEvent(host,caller,eventVmPc,packedSound);candidate(next);return true;
     }
+    /**4199E6: toolbar:q copies the current frame unconditionally, including
+     *when1B left a nonzeroBB8418. It does not clear that flag or stop voice. */
+    public void captureQuickEvent(PcHost host,MesScript caller,int eventVmPc,int packedSound)throws IOException{
+        candidate(Pc1Frame.captureEvent(host,caller,eventVmPc,packedSound));
+    }
     public boolean needsCurrentFrame(int persistArgument){return persistArgument==1&&flag==0;}
     /** persist4(a1==1) saves slot0, refreshing only when BB8418==0.
      * Other a1 values use selected native ID and never refresh the candidate. */

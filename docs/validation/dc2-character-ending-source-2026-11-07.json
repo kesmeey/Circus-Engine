@@ -1,0 +1,325 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-07",
+  "feature": "Original DC2 system10/11 per-character ending presentation",
+  "target": {
+    "file": "dc2.exe",
+    "sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+    "original_executable_launched": false,
+    "original_game_directory_modified": false
+  },
+  "native_contract": {
+    "entry": "404F50 service10 ->405340 preparation and return without a wait. Service11 only enters wait1C/type1. 41AE00/404780 then poll405530. Shared mouse handler405A20.",
+    "resource_tables": [
+      {
+        "variant": 0,
+        "actor": "otm",
+        "address": "0x433378",
+        "role_images": 24,
+        "last_resource": "BG/black"
+      },
+      {
+        "variant": 1,
+        "actor": "yme",
+        "address": "0x4333e0",
+        "role_images": 24,
+        "last_resource": "BG/black"
+      },
+      {
+        "variant": 2,
+        "actor": "nnk",
+        "address": "0x433448",
+        "role_images": 19,
+        "last_resource": "BG/black"
+      },
+      {
+        "variant": 3,
+        "actor": "mnt",
+        "address": "0x43349c",
+        "role_images": 18,
+        "last_resource": "BG/black"
+      },
+      {
+        "variant": 4,
+        "actor": "anz",
+        "address": "0x4334ec",
+        "role_images": 18,
+        "last_resource": "BG/black"
+      },
+      {
+        "variant": 5,
+        "actor": "kko",
+        "address": "0x43353c",
+        "role_images": 19,
+        "last_resource": "BG/black"
+      }
+    ],
+    "prepare": "Load full role table including trailingBG/black plusBG/white. Copy24 unsignedbyte values from ordinary6:50..73, multiply by1000. Snapshot baseTick now; index/alpha/skip=0 and whiteAlpha16.11 does not reset this clock.",
+    "draw": "405530 first restores native prepared background; decrement whiteAlpha before draw until0 (16polls). Draw current image opaque at(0,0), mix next image at oldalpha0..16, then white overlay if entry phase remains. All800x600 viewport, CRX origins ignored. Retain old draw before advancing time/index.",
+    "alpha": "408B80 skips24-bit magenta source, otherwise each BGR channel=floor((dst*(16-alpha)+src*alpha)/16). Current4058040 opaque blit does not color-key. Actual124 sources are24bpp.",
+    "clock": "Increment nextalpha by1 per poll only when unsigned elapsed > unsigned(duration-1000), cap16. Advance index only when elapsed>duration. A literal count-times lookahead accumulates next duration even when index stays unchanged; it skips an index only if elapsed>accumulated+200 and that index duration>=4000. Then reset baseTick/discard carry and alpha0.",
+    "completion": "Complete after update when index>=role count or sharedskip968EC4==1; last displayed journal is the old pair/alpha/white from that completing poll. No invented music stop; original ed_* following opcode owns BGM fade.",
+    "input": "Only mouse1/2 and the selected route clear flag exactly1 enable968EC4. variant0..5 maps bank100 indices1,2,3,6,5,4. Input enqueues, next timer poll draws then completes. The owner does not write any persistent clear flag.",
+    "timer_cadence": "Both poll routines set4514AC=50. Main iteration41AE00 wait1C calls404780 and returns1 while ongoing. WindowProc407162 records GetTickCount, calls41AE00, then4071A0 uses interval-minus-work SetTimer(id1). Ordinary PE IAT confirms GetTickCount/SetTimer/KillTimer/PostMessage, and Capstone excerpt is retained in poll-interval-xrefs.txt.",
+    "story_flow": "Normal main route transfers to ed_char10/checkpoint0/11, then original epilogue, then GEND12. For example anz_0129_f4_anz->ed_anz->anz_0216_b1_anz->gend, and ind_0213_b1_nnk->ed_nnk->ind_ep_nnk->gend. The six actual ed_* entry/epilogue links are verified below, independent of title-route policy."
+  },
+  "portable_implementation": {
+    "owner": "Dc2CharacterEnding, independent of Dc2OriginalCredits/GEND12, DM Dc2Credits and PC2 PcCredits",
+    "journal": "Layers(resource,alpha0..16,opaque,x/y/srcX/srcY=0,width800,height600), static blendRgb for exact keyed integer math. Root presenter uses raw BGR, not Java2D rounded source-over.",
+    "lifetime": "Host captures separate underlay at10, activates modal at11, burns completing old journal to independent@ui-capture, then releases underlay so original epilogue/transition can proceed. Host preserves prepared and active owners, underlay and copied duration table.",
+    "timer_cadence": "elapse(ms) remains explicit one-native-poll API for source vectors. advance(ms) accumulates native clock and a50ms timer phase, allows the first poll immediately, coalesces late timer delivery to at most one poll, and rejects repeated zero-time updates. Prepared10 time counts before11 without consuming modal phase. Sub50ms remainder is retained for a faster frontend; exact Windows scheduling latency is not claimed.",
+    "persistence": "D2E2 includes native phase plus timer phase/first; load accepts oldD2E1 and resumes an already-drawn state on next50ms timer. Append is self-tagged inside PCH15, without shifting older PCH14 layouts. Validate all state before publish. Final actual audit also passed PCH16 actor61 tail without changing ending layouts."
+  },
+  "method": {
+    "rea_evidence": [
+      {
+        "evidence_id": "ev_bba074154d0689b75930cf3b7e1c706ccc2d3896480cb7a7ac8789de6b2df125",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-character-initialize.json",
+        "sha256": "7f2a24f27792d6fd80a0a9df07b2d94ddb6c763490905b64ab11de0453fe599b"
+      },
+      {
+        "evidence_id": "ev_e4bca4d72e05593a5aaad3adc510de3e5086fea40b638f2916a1169c5af1a084",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-character-update-correct.json",
+        "sha256": "e5e2f14016ba2c4da05e9d36840978ee775a7d0f7abea1340135bc5e274a23a9"
+      },
+      {
+        "evidence_id": "ev_260e3ce0431c47ee37fb01b475b57bd363021e8c6e2b57465def806817c48418",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-character-alpha.json",
+        "sha256": "c19fdaa43f021380f50d716a2c03f12449deb555efe17b2696e6e1b71b80db27"
+      },
+      {
+        "evidence_id": "ev_40ec404490c5e0095dbb6d7cb05efa3c64065b5ae3336df4d5ac8c19e837e65b",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-credits-input.json",
+        "sha256": "bf1cce29ff3017b6e2e4957b672dac68d87cd07907778470800c96b0e5e8c3ea"
+      },
+      {
+        "evidence_id": "ev_ac5b8b25db5469cf17fde978dfe5526f544b2e920021dc2990b002d4ab5568fc",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-main-iteration.json",
+        "sha256": "8841f326e4fc6fa2780768212218cb36beea510e7eb9b7e109433cc9265399c5"
+      },
+      {
+        "evidence_id": "ev_387dbeb3278591e3811204d76a958c5ec0098975662f78232bbff71184cf0b03",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-poll-timer.json",
+        "sha256": "9737f92e7df04f68d10205841be7df16944fc8926ceb0c696d01176bbf36eba4"
+      }
+    ],
+    "fresh_static_inspection": "Hash-locked pefile pointer-table decoding, IAT names and Capstone branches/xrefs are ordinary static inspection, not new REA Evidence.",
+    "private_evidence": "build/native-rewrite/dc2-character-ending-stage69",
+    "inputs_manifest_sha256": "40f82a84ee5ff39de465af85591e099d18d4e0daa47858cefd1d10d1671ffc30",
+    "public_artifact_contains_original_bytes": false
+  },
+  "validation": {
+    "heap_mib": 192,
+    "core_assertions": 99,
+    "actual_platform_assertions": 253,
+    "actual_assets": 124,
+    "actual_pixels_compared": 9120000,
+    "actual_result_sha256": "ea02321220f7add389d9205923f4f906cf8a1570b37a05892ec774e510111978",
+    "routes": [
+      {
+        "variant": 0,
+        "script": "ed_otm",
+        "count": 24,
+        "epilogue": "ind_0401_a1_otm",
+        "normal_completion": true
+      },
+      {
+        "variant": 1,
+        "script": "ed_yme",
+        "count": 24,
+        "epilogue": "ind_0401_a1_yme",
+        "normal_completion": true
+      },
+      {
+        "variant": 2,
+        "script": "ed_nnk",
+        "count": 19,
+        "epilogue": "ind_ep_nnk",
+        "normal_completion": true
+      },
+      {
+        "variant": 3,
+        "script": "ed_mnt",
+        "count": 18,
+        "epilogue": "mnt_2058_a1_mnt",
+        "normal_completion": true
+      },
+      {
+        "variant": 4,
+        "script": "ed_anz",
+        "count": 18,
+        "epilogue": "anz_0216_b1_anz",
+        "normal_completion": true
+      },
+      {
+        "variant": 5,
+        "script": "ed_kko",
+        "count": 19,
+        "epilogue": "ind_ep_kko",
+        "normal_completion": true
+      }
+    ],
+    "frames": [
+      {
+        "name": "otm-entry-white15",
+        "draw_index": 0,
+        "draw_alpha": 0,
+        "draw_white_alpha": 15,
+        "sha256": "eef329c25715117bc122cc9aef9d3189a5c6940b01297206c8d01abdb8715950"
+      },
+      {
+        "name": "otm-crossfade-alpha8",
+        "draw_index": 0,
+        "draw_alpha": 8,
+        "draw_white_alpha": 0,
+        "sha256": "4c6347307cc818afb0cdef89e4933cdbaeab90ec7aa3029342b8098248560c8b"
+      },
+      {
+        "name": "otm-complete-front",
+        "draw_index": 23,
+        "draw_alpha": 16,
+        "draw_white_alpha": 0,
+        "sha256": "eda525bab6d74d439bd683b578242e87fd3146fc4d631b7c81d9f76dd4d47a2d"
+      },
+      {
+        "name": "yme-entry-white15",
+        "draw_index": 0,
+        "draw_alpha": 0,
+        "draw_white_alpha": 15,
+        "sha256": "0e95c146630ad923e614897e7d26af050a5cb89e13d62349fdef7129b60d5b05"
+      },
+      {
+        "name": "yme-crossfade-alpha8",
+        "draw_index": 0,
+        "draw_alpha": 8,
+        "draw_white_alpha": 0,
+        "sha256": "f77e21d70c3e1e355b7085b533137a048d34db6c4cde64e504e762308098fa73"
+      },
+      {
+        "name": "yme-complete-front",
+        "draw_index": 23,
+        "draw_alpha": 16,
+        "draw_white_alpha": 0,
+        "sha256": "eda525bab6d74d439bd683b578242e87fd3146fc4d631b7c81d9f76dd4d47a2d"
+      },
+      {
+        "name": "nnk-entry-white15",
+        "draw_index": 0,
+        "draw_alpha": 0,
+        "draw_white_alpha": 15,
+        "sha256": "8cfbf9a67a060a4905cab425d9fe31a440cb537330c87b55c27f1c7786c73ff7"
+      },
+      {
+        "name": "nnk-crossfade-alpha8",
+        "draw_index": 0,
+        "draw_alpha": 8,
+        "draw_white_alpha": 0,
+        "sha256": "f0007892528bfc9f43e7a29359eb97c4b4094d6379589e8fbc967e377aaadb70"
+      },
+      {
+        "name": "nnk-complete-front",
+        "draw_index": 18,
+        "draw_alpha": 16,
+        "draw_white_alpha": 0,
+        "sha256": "eda525bab6d74d439bd683b578242e87fd3146fc4d631b7c81d9f76dd4d47a2d"
+      },
+      {
+        "name": "mnt-entry-white15",
+        "draw_index": 0,
+        "draw_alpha": 0,
+        "draw_white_alpha": 15,
+        "sha256": "e5468cd8d86eb2c91776abf624ea6dc5fda72f6422ba5033d941baca0351d5f9"
+      },
+      {
+        "name": "mnt-crossfade-alpha8",
+        "draw_index": 0,
+        "draw_alpha": 8,
+        "draw_white_alpha": 0,
+        "sha256": "bbca656645ffbff9efbd5145330d445e2b337de55fd5314cefd85000a5420cf5"
+      },
+      {
+        "name": "mnt-complete-front",
+        "draw_index": 17,
+        "draw_alpha": 16,
+        "draw_white_alpha": 0,
+        "sha256": "eda525bab6d74d439bd683b578242e87fd3146fc4d631b7c81d9f76dd4d47a2d"
+      },
+      {
+        "name": "anz-entry-white15",
+        "draw_index": 0,
+        "draw_alpha": 0,
+        "draw_white_alpha": 15,
+        "sha256": "5aa26888dec175fcd9937d1d6fc9639bfa277dba9fc43e899a91a794187ebce6"
+      },
+      {
+        "name": "anz-crossfade-alpha8",
+        "draw_index": 0,
+        "draw_alpha": 8,
+        "draw_white_alpha": 0,
+        "sha256": "afdf8d3edb1eed367eeb6ddf87b07fc1ca3028d569f8caa635fd098b0432a1cb"
+      },
+      {
+        "name": "anz-complete-front",
+        "draw_index": 17,
+        "draw_alpha": 16,
+        "draw_white_alpha": 0,
+        "sha256": "eda525bab6d74d439bd683b578242e87fd3146fc4d631b7c81d9f76dd4d47a2d"
+      },
+      {
+        "name": "kko-entry-white15",
+        "draw_index": 0,
+        "draw_alpha": 0,
+        "draw_white_alpha": 15,
+        "sha256": "dce3cb16d9457d80899f6c2776c970fdcd15967c10a2eb0f8aa72744e260149a"
+      },
+      {
+        "name": "kko-crossfade-alpha8",
+        "draw_index": 0,
+        "draw_alpha": 8,
+        "draw_white_alpha": 0,
+        "sha256": "d331be3a6f1d41a5a238d6d47ffca6e3a6b38072e7a4eee7082a4437b6b38e5a"
+      },
+      {
+        "name": "kko-complete-front",
+        "draw_index": 18,
+        "draw_alpha": 16,
+        "draw_white_alpha": 0,
+        "sha256": "eda525bab6d74d439bd683b578242e87fd3146fc4d631b7c81d9f76dd4d47a2d"
+      },
+      {
+        "name": "already-clear-mouse-skip-front",
+        "draw_index": 0,
+        "draw_alpha": 0,
+        "draw_white_alpha": 0,
+        "sha256": "118f5c70467865d8effd8169fa3a715096f0ddffa9e6d0ee0e137ae7e8868e44"
+      }
+    ],
+    "covered": [
+      "All six actual ed_* scripts execute10/checkpoint/11, complete naturally and transfer to correct original epilogue",
+      "All122 distinct role pictures plus shared black/white decode to800x600 origin0 24bpp",
+      "19 actual frames compare all9,120,000 pixels exactly against independent rawBGR integer/16 color-key composition",
+      "First-entry white15, crossfade alpha8, natural completed front and replay-eligible mouse skip",
+      "50ms gate including actual49+1 frontend boundary and queued skip surviving0ms refresh",
+      "F5/session restores exact current and future frames for all six roles",
+      "Atomic malformed/truncated owner rejection, six clear-flag routes, prepare clock vs begin, unsigned duration underflow, native lookahead and oldE1 migration"
+    ],
+    "final_actual_result": "build/native-rewrite/dc2-character-ending-stage69/actual3-pch16/result.json"
+  },
+  "boundaries": [
+    "Actual audits enter original ed_* directly; they are integration fixtures, not a new title-to-ending coverage claim. Root complete-route audit separately follows original title/map/choices.",
+    "The single bank100:5=1 write is isolated replay-skip eligibility setup, not game-variable editing in a route strategy.",
+    "Frozen portable underlay approximates native prepared background; all reviewed role layers fully cover viewport and are checked exactly.",
+    "Exact Windows message latency/GDI output, duplicate native handle release and allocation identity are not claimed; the portable owner models visible output/control/persistent semantics.",
+    "Assertion counts overlap regressions and are not a fidelity percentage."
+  ],
+  "source_sha256": {
+    "runtime/core/src/org/circus/core/Dc2CharacterEnding.java": "0a312cc5299280cfd6aae007688abddd473880cd9f62497dc03e514ab886acde",
+    "runtime/tests/org/circus/core/Dc2CharacterEndingTests.java": "6085f65d507d2471fdd15fff6b79fb28a86703240c0e7b28fd2c067b0bdd9933",
+    "runtime/desktop/src/org/circus/core/Dc2CharacterEndingAudit.java": "b44c619def4631d955a3638fa28f735a4e00e77b9c8950e08b46f92d499759a4"
+  },
+  "git_lf_source_sha256": {
+    "runtime/core/src/org/circus/core/Dc2CharacterEnding.java": "0a312cc5299280cfd6aae007688abddd473880cd9f62497dc03e514ab886acde",
+    "runtime/tests/org/circus/core/Dc2CharacterEndingTests.java": "6085f65d507d2471fdd15fff6b79fb28a86703240c0e7b28fd2c067b0bdd9933",
+    "runtime/desktop/src/org/circus/core/Dc2CharacterEndingAudit.java": "b44c619def4631d955a3638fa28f735a4e00e77b9c8950e08b46f92d499759a4"
+  }
+}

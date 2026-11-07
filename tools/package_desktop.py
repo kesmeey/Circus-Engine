@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--jdk', type=Path, required=True)
     parser.add_argument('--ffmpeg', type=Path, required=True)
-    parser.add_argument('--version', default='0.14.6-common-workflows-dev')
+    parser.add_argument('--version', default='0.14.7-common-workflows-dev')
     args = parser.parse_args()
     if any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_' for c in args.version):
         raise SystemExit('Invalid version')
@@ -56,13 +56,16 @@ PC1 的 PgUp/PgDn、对话框上下箭头按原生日志回看，右键退出回
 A：切换自动；按住 Ctrl：快进；F5 / F9：独立快速保存 / 读取；F11：全屏。
 存档写入本包 saves，影片缓存写入 cache。
 PC1 原版存读菜单和剧情自动槽使用独立便携检查点；F5/F9 保留当前会话与先前候选。
-原Windows游戏剧情槽文件的8004字节互通、PC1工具栏快速保存事件仍未实现。
+PC1快速保存已接独立便携槽1；原Windows PC1剧情槽互通仍未实现。
+DC2闹钟存读上下文和自动/快速槽已接入；原生自动/快速槽均为0。
+DC2桌面菜单「存档 → 导入原版剧情存档…」可转换普通ADV文本等待槽到原读取菜单可见的空闲普通槽。
+已有目标槽拒绝覆盖，当前剧情保留；旧回看、NVL、选择/画面批次等待不在转换范围。
 不同游戏分开保存，不写原游戏目录。Windows 原游戏剧情槽尚未完整导入，系统进度按各版本另行迁移。
 
 本版本优先覆盖主要功能和大多数常见流程，允许延期少量难处理的版本或边界。
 当前不把约80%的工程目标当作精确完成率，实际范围见 COMMON_WORKFLOWS.md。
 已按各 EXE 独立证据重写脚本取指、变量布局及部分版本专属音频、UI、系统指令。
-PC1新剧情存档以P1CS封装CVS2/rev8当前会话与独立候选；其他家族继续使用CVS2/rev8。旧CVS1或不同执行合同的旧快照明确拒绝读取并保留旧文件。
+PC1新剧情存档以P1CS封装CVS2/rev8当前会话与独立候选；DC2用D2CS封装当前会话和独立闹钟/存档上下文；其他家族使用CVS2/rev8。旧CVS1或不同执行合同的旧快照明确拒绝读取并保留旧文件。
 独立系统进度使用自己的迁移规则，不能用旧剧情槽的限制推断系统进度也不可用。
 遇到未实现指令会停下并显示脚本位置，不会静默跳过。
 本次验证范围和缺口见随包 NATIVE_REWRITE_STATUS.md 与 NATIVE_FIDELITY_AUDIT.md。

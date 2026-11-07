@@ -21,6 +21,8 @@ public final class Dc2Motion {
     public boolean prepareOnly;
     /** Frozen mask0F composition; a later live particle tick must not change an earlier blend. */
     public UiCapture prepared;
+    /** Frozen ordered primary window draws, with no old glyphs or toolbar. */
+    public Dc2MessageWindow fullTemplate;
     public long clock;
     public Dc2Motion(Dc2Scene.Frame source,UiCapture initial,Dc2Motion previous,int targetX,int targetY,int alpha,boolean prepare,int speed,boolean skip){
         this.source=source;this.initial=initial;this.previous=previous;this.background=source.slots[1];
@@ -71,7 +73,7 @@ public final class Dc2Motion {
     }
     public void save(DataOutput out)throws IOException{save(out,0);}
     private void save(DataOutput out,int depth)throws IOException{
-        if(depth>256)throw new IOException("DC2 motion journal depth");out.writeInt(0x44434d32);out.writeBoolean(prepareOnly);UiCapture.save(out,prepared);out.writeBoolean(previous!=null);if(previous!=null)previous.save(out,depth+1);
+        if(depth>256)throw new IOException("DC2 motion journal depth");out.writeInt(0x44434d33);out.writeBoolean(prepareOnly);UiCapture.save(out,prepared);Dc2MessageWindow.save(out,fullTemplate);out.writeBoolean(previous!=null);if(previous!=null)previous.save(out,depth+1);
         UiCapture.save(out,initial);source.save(out);out.writeUTF(background);
         for(int value:new int[]{x,y,targetX,targetY,alpha,settled,prepareProgress})out.writeInt(value);
         out.writeBoolean(active);out.writeBoolean(preparing);out.writeLong(clock);out.writeInt(draws.size());
@@ -79,10 +81,10 @@ public final class Dc2Motion {
     }
     public static Dc2Motion load(DataInput in)throws IOException{return load(in,0);}
     private static Dc2Motion load(DataInput in,int depth)throws IOException{
-        if(depth>256)throw new IOException("DC2 motion journal depth");if(in.readInt()!=0x44434d32)throw new IOException("DC2 motion journal version");boolean prepareOnly=in.readBoolean();UiCapture prepared=UiCapture.load(in);Dc2Motion previous=in.readBoolean()?load(in,depth+1):null;UiCapture initial=UiCapture.load(in);
+        if(depth>256)throw new IOException("DC2 motion journal depth");int tag=in.readInt();if(tag!=0x44434d32&&tag!=0x44434d33)throw new IOException("DC2 motion journal version");boolean prepareOnly=in.readBoolean();UiCapture prepared=UiCapture.load(in);Dc2MessageWindow fullTemplate=tag==0x44434d33?Dc2MessageWindow.load(in):null;Dc2Motion previous=in.readBoolean()?load(in,depth+1):null;UiCapture initial=UiCapture.load(in);
         Dc2Scene.Frame source=new Dc2Scene.Frame();source.load(in);Dc2Motion result=new Dc2Motion(source,initial,previous,in.readUTF());
         result.x=in.readInt();result.y=in.readInt();result.targetX=in.readInt();result.targetY=in.readInt();result.alpha=in.readInt();result.settled=in.readInt();result.prepareProgress=in.readInt();
-        result.prepareOnly=prepareOnly;result.prepared=prepared;
+        result.prepareOnly=prepareOnly;result.prepared=prepared;result.fullTemplate=fullTemplate;
         result.active=in.readBoolean();result.preparing=in.readBoolean();result.clock=in.readLong();int count=in.readInt();
         if(count<0||count>131072||result.clock<0||result.clock>=(result.preparing?40:10)||result.prepareProgress<0||result.prepareProgress>16||previous==null&&initial==null||previous!=null&&initial!=null)throw new IOException("Invalid DC2 motion journal");
         while(count-->0){int kind=in.readUnsignedByte(),x=in.readInt(),y=in.readInt(),alpha=in.readInt();if(kind>PREPARE)throw new IOException("Invalid DC2 motion draw");result.draws.add(new Draw(kind,x,y,alpha));}

@@ -62,7 +62,7 @@ public final class Dc2SystemTests {
         check(h.unmodelled.isEmpty(),"native default services are proven returns, not unmodelled side effects");
         check(((PcHost)h).hasTimedInput(),"native default service cannot clear pending PC input state");
         check(!h.history.active&&!h.ui.waiting,"service 7 does not open DM history for DC2");
-        for(int service:new int[]{8,10,11,12,30,31,40,50})unresolved(h,service,0);
+        for(int service:new int[]{8,30,31})unresolved(h,service,0);
         unsupportedEffect(h,"native.unmodelled",new int[]{1,2});
         for(int kind:new int[]{5,6}){h.command("pc.effect",new int[]{kind,kind-5},new byte[0]);check(h.scene.nativeParticles.kind()==kind&&h.scene.nativeParticles.atlas().endsWith(kind==5?"SAKU_YUKI01":"SAKU_YUKI02"),"reviewed DC2 sprite effect binds its own native atlas");check(h.scene.particleKind==0&&h.unmodelled.isEmpty(),"reviewed native effect does not also enable the approximate DM renderer");}
         byte[] noEffect=snapshot(h);h.command("native.no_effect",new int[]{5,6},new byte[0]);check(Arrays.equals(noEffect,snapshot(h)),"proven native fallback remains a no-op");

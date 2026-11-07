@@ -1,0 +1,171 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-08",
+  "feature": "DC2 native system40 rapid-latch reset and shared CRT random opcode22",
+  "target": {
+    "file": "dc2.exe",
+    "profile": "dc2-3363",
+    "sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+    "original_executable_launched": false,
+    "original_game_directory_modified": false
+  },
+  "native_semantics": {
+    "service40": "405234 unconditionally writesBE8BA8=0. No wait, UI-mode, auto-mode, skip-permission or persistent variable change.",
+    "latch": "41BC68 :r input setsBE8BA8=1; cancellation41B629 and script-load4139B9 clear it.",
+    "effective_skip": "413A00 first returnsfalse if ordinary8:18/A09C9E==1; otherwise physical Ctrl high bit OR BE8BA8 latch.",
+    "consumers": "Text presentation, input wait, scene movement and transition speed read native latch/skip predicate.",
+    "unused_services": "8 calls40E410 thenwait1C/type0;30 initializes40B700;31 enterswait1C/type5. None appears as a physical system-command record in the selected938 MES corpus, so their effects remain explicit unsupported boundaries.",
+    "opcode22": {
+      "table_entry": "4179A8[22] =417025",
+      "zero_range": "arg0==0 writesBE8BA4=0 without a CRT RNG draw",
+      "nonzero_range": "422C72 rand()%arg0 using signed idiv remainder, storedBE8BA4; arg1 ignored",
+      "result_getter": "413AA2 native bank99:index2;255 is independent",
+      "crt_stream": "state=state*214013+2531011 with32-bit wrap, return(state>>>16)&7FFF; same existing state is used by original effects/voices",
+      "wait_or_resource_effects": false,
+      "implementation": "Original raw22 dispatch binds existing pc.random; no additional random owner or bonus subsystem."
+    }
+  },
+  "validation": {
+    "platform_assertions": 241,
+    "actual_mes_scripts": 938,
+    "actual_physical_records": 886542,
+    "system_call_counts": {
+      "6": 18,
+      "10": 6,
+      "11": 6,
+      "12": 2,
+      "20": 24,
+      "21": 24,
+      "40": 6,
+      "50": 8
+    },
+    "actual_service40_calls": 6,
+    "owned_control_fixture_at_six_original_records": true,
+    "same_tick_after_run_cancellation_before_ADVANCE": true,
+    "pending_pre_elapse_cancellation": true,
+    "event_not_repeated": true,
+    "physical_Ctrl_remains_effective_after_latch_reset": true,
+    "ordinary8_18_disables_physical_and_latched_skip": true,
+    "auto_and_skip_permission_preserved": true,
+    "fresh_session_generation_codec_roundtrip": true,
+    "source_hashes_unchanged": true,
+    "random_self_authored_core_assertions": 129,
+    "actual_sakura22_records": 1,
+    "actual_sakura22_native_seed_fixtures": 5,
+    "random_range0_no_rng_draw": true,
+    "random_result99_2_and_independent99_255": true,
+    "random_codec_future_stream": true
+  },
+  "separate_main_flow_finding": {
+    "opcode61": "880 physical sites in938 MES; independent bounded original-instruction wait61 interpretation established two-actor XY movement, step8/16/32/64,10ms native cadence and release on poll after arrival. Production implementation/evidence belongs to the actor-motion change.",
+    "native_instruction_cases": 60,
+    "native_polls": 292,
+    "native_instructions_interpreted": 13926,
+    "oracle_limit": "Only418CA0..418DA6 interpreted over private arrays.407800 timer,413A00 input,41D3F0 paint and4077C0 presentation are controlled stubs; no original process or Win32 calls.",
+    "rain_effect2_calls": 0,
+    "sole_opcode22": "Implemented through existing pc.random. Only physical site1ind_0124_f1_skr@4F07 args6,0 is in the Sakura/bonus chain and NAMES scenario catalog; five controlled native seeds execute this exact record without mutating route/source flags or claiming bonus completion.",
+    "wait32_independent_native_oracle": {
+      "cases": 48,
+      "polls": 108,
+      "interpreted_instructions": 6000,
+      "range": [
+        "418A40",
+        "418C95"
+      ],
+      "semantics": "40ms actor-composition phase0..5, speed0 alpha6/phases1,2,3,4,5;speed1 alpha10/phases2,4,5;speed2 alpha12/phases3,5. Phase5 is a full copy and a following poll releases. Speed3 or effective skip releases on the first poll. PendingBE8BC8==1 redraws existing text into the phase0 temporary frame;flag2 does not.",
+      "boundary": "Native image/timer/key/redraw callees are controlled stubs. Production actor producer implementation and pixel validation are separate."
+    },
+    "type1_window_pixels": {
+      "native_dispatch": "408B80 type1 dispatches4089A0 for weighted;4086A0 dispatches408450 for unweighted. Native memory is inverseAlpha,B,G,R.",
+      "weighted": "decoded alpha==0 preserves dst; all alpha1..255 use per-channel floor((dst*(16-weight)+src*weight)/16), regardless of partial alpha.",
+      "unweighted": "decoded alpha0 preserves dst,255 copies src; other alpha uses per-channel floor((dst*(255-alpha)+src*alpha)/255).",
+      "independent_original_instruction_pixel_cases": 162,
+      "native_instructions_interpreted": 21031,
+      "coverage": "Synthetic one-pixel type1 images; decoded alpha0,1,2,63,127,128,129,254,255; weighted weights0..16 plus unweighted.",
+      "boundary": "Only native pixel loops interpreted. Dirty-region407D40 callback is stubbed; no original image, GDI call, or game process is executed."
+    },
+    "opcode22_native_golden": {
+      "cases": 25,
+      "interpreted_original_instructions": 300,
+      "ranges": [
+        0,
+        1,
+        2,
+        6,
+        255
+      ],
+      "seeds_unsigned": [
+        0,
+        1,
+        7,
+        2147483648,
+        4294967295
+      ],
+      "ranges_interpreted": [
+        "417025..41704F",
+        "422C72..422C90"
+      ],
+      "boundary": "Original instructions interpreted only over private arrays. No original process, Win32, graphics, private saves or dialogue."
+    }
+  },
+  "scope_limit": "Six original service40 records and the single actual Sakura22 record are selected using owned CVS2 control-state fixtures. A controlled stable post-instruction wait isolates system40 platform consumption. Five fixed seeds isolate the actual Sakura RNG record. This is not natural main-route/bonus traversal or a running-original screenshot comparison; no route/source flag mutation or personal save data is published.",
+  "build": {
+    "isolated_compile": true,
+    "captured_input_files": 232,
+    "classpath": [
+      "dc2-sakura-random-stage71/classes",
+      "dc2-native-import-visible-stage70/classes",
+      "producer-integration-20261107T135331994699Z/classes"
+    ],
+    "input_manifest_sha256": "c19dde20607ce9745c69e39dcbbc3bf089d86aad7544e76f66ba91aa256b049e",
+    "java_release": 8,
+    "post_test_live_source_deltas": [
+      {
+        "path": "runtime/core/src/org/circus/core/Dc2Motion.java",
+        "tested_sha256": "ad43dbcb5fe1617bbb5495b5b6ce026649e5b65cfb7cbe419473805f8e845ce5",
+        "current_sha256": "67ce241f64771ec6304f873f01ffdf5a5373ae111cba8597f3c0cce26dc50573"
+      }
+    ]
+  },
+  "tested_source_sha256": {
+    "runtime/core/src/org/circus/core/Dc2NativeSlot.java": "ef22a942d7b0455891a20edc7c8d60a0bf72a87c116859048e5045afa239254e",
+    "runtime/core/src/org/circus/core/Dc2Session.java": "7c91673a65fa501385e95075e2950bcc81ba7a3d325c04cb06232b2cc240d03b",
+    "runtime/core/src/org/circus/core/Dc2SystemCommands.java": "26ca827c7543c7b18affc6f001e328392c54ce1f2b85fd6a37d507b6c186eef6",
+    "runtime/core/src/org/circus/core/MesVm.java": "90528d2900a711ec9d45aba5bf8d4217b0024580d797c52941fc94fcf5d258f2",
+    "runtime/core/src/org/circus/core/PcHost.java": "4d689a3171d134e4c70eb76809024c392c5e9e4da5a96a3d8b5730c86b28cfd2",
+    "runtime/core/src/org/circus/core/Profile.java": "f9b357d8a29d500ac4da121b09c8e5b2e133dbcd30e28216cdbb8245161c315a",
+    "runtime/tests/org/circus/core/Dc2RandomTests.java": "119b942ff4db3162f18ef9bad8a9c23f2ea41bcb49468c652bf376b9336942fd",
+    "runtime/desktop/src/org/circus/core/DesktopEngine.java": "caad458f1398edde3f4aca4de66b4c660b1151beae90ad6f18195ca931ea1366",
+    "runtime/desktop/src/org/circus/core/DesktopLegacy.java": "96f7b970c7a74c92cc3de00a32a889da0cd0836edcbdbff99bb7a5b01bd728f7",
+    "runtime/desktop/src/org/circus/core/Dc2SystemEffectAudit.java": "d7e49db55b9bcd1643a5a471c6ba28b509806a142c984876a18dc3d9e018e629"
+  },
+  "tested_git_lf_source_sha256": {
+    "runtime/core/src/org/circus/core/Dc2NativeSlot.java": "02ed7d2608beef0f764266080cc69415cb3fdcdfab235fa76ecbf6b1bfea09c7",
+    "runtime/core/src/org/circus/core/Dc2Session.java": "aff8905c7c13fd6b6cdc2232c63594701da2a1f951d7970c067a999aa90e1fca",
+    "runtime/core/src/org/circus/core/Dc2SystemCommands.java": "ba93ef2ad2196ba628570acf80ca8c8aaa8a4543ce4c624e41e9c6283456adcf",
+    "runtime/core/src/org/circus/core/MesVm.java": "477f0bdafba2d627f60c902564433b26dd8b49dca790722a0192840fdc0899c9",
+    "runtime/core/src/org/circus/core/PcHost.java": "1cf4bc372bbc59279fd7f0e93cb499a97f7fa6d7520021950489741e3bd38e69",
+    "runtime/core/src/org/circus/core/Profile.java": "f9b357d8a29d500ac4da121b09c8e5b2e133dbcd30e28216cdbb8245161c315a",
+    "runtime/tests/org/circus/core/Dc2RandomTests.java": "5ca0da9715871071d677a9177cb4c1bd495baca687894c46200c2b6341063d03",
+    "runtime/desktop/src/org/circus/core/DesktopEngine.java": "caad458f1398edde3f4aca4de66b4c660b1151beae90ad6f18195ca931ea1366",
+    "runtime/desktop/src/org/circus/core/DesktopLegacy.java": "96f7b970c7a74c92cc3de00a32a889da0cd0836edcbdbff99bb7a5b01bd728f7",
+    "runtime/desktop/src/org/circus/core/Dc2SystemEffectAudit.java": "311185aee11fde8423561ddb5e1023d0011164eb8975e70bbc296d0b7189725d"
+  },
+  "profile_native_unmodelled_tag_inventory": {
+    "22": 1,
+    "61": 880
+  },
+  "profile_tag_inventory_limit": "These are static profile semantic labels from the isolated corpus, not a runtime-failure count. Host opcode-specific handling can implement a record whose retained profile label is native.unmodelled;61 handling belongs to the separately validated actor-motion change.",
+  "additional_native_schema_observations": {
+    "DC2_actor_staged_XY": "Native60 writesA09E4C/50/54/58; native32 commits these toA09E3C/40/44/48. The original frame startA08D00/full8004 save/load includes both sets independently.",
+    "frame_signed_dword_offsets": {
+      "ACTOR1_STAGE_X": "0x114C",
+      "ACTOR1_STAGE_Y": "0x1150",
+      "ACTOR2_STAGE_X": "0x1154",
+      "ACTOR2_STAGE_Y": "0x1158"
+    },
+    "minimal_source_addition": "Dc2NativeSlot.Dword adds these four names only; admission/Plan remains unchanged. Native import must recover their saved values, not substitute active actorXY.",
+    "addition_source_sha256": "ef22a942d7b0455891a20edc7c8d60a0bf72a87c116859048e5045afa239254e",
+    "validation_scope": "The parser51/actual452 results and stage70 imported-slot proof identify their original frozen sources. This additional schema observation is static; final integration validates the new Host staged-state consumer."
+  }
+}

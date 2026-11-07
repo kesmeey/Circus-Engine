@@ -19,11 +19,14 @@ public final class DesktopLegacy extends DesktopEngine {
     private final DesktopImageCache<Picture> images=new DesktopImageCache<>(Picture::residentBytes);
     private final DesktopCaptures captures;private SceneCaptures.Legacy captureState;
     private static final class MotionRaster {int count,backgroundWidth,backgroundHeight;int[] pixels,prepared,background;boolean backgroundLoaded;BufferedImage image;}
+    private static final class ActorChangeRaster {Dc2ActorChange owner;long generation;int count;int[] pixels,target;BufferedImage image;}
+    private ActorChangeRaster actorChangeRaster;
     private final Map<Dc2Motion,MotionRaster> motionRasters=new LinkedHashMap<Dc2Motion,MotionRaster>(4,.75f,true){protected boolean removeEldestEntry(Map.Entry<Dc2Motion,MotionRaster> entry){return size()>4;}};
     private long textClock,textTicket=-1;
     /** Newest story line; the system menu clears {@code body}, so a save made from SAVE.mes still needs it. */
     private String lastLine="";
-    private int savedAutoGeneration;
+    private int savedAutoGeneration,seenDc2RapidReset;
+    private boolean originalControlPressed;
     public int hovered=-1;
     public String problem="";
     static final class Picture {final Crx.Image raw;final BufferedImage image;BufferedImage opaque;Picture(BufferedImage b){raw=new Crx.Image(0,0,b.getWidth(),b.getHeight(),32,new byte[0],null);image=b;}Picture(Crx.Image r){raw=r;image=new BufferedImage(r.width,r.height,BufferedImage.TYPE_INT_ARGB);image.setRGB(0,0,r.width,r.height,r.argb(true),0,r.width);}static long constructionBytes(Crx.Image r){return rawBytes(r)+8L*r.width*r.height;}private static long rawBytes(Crx.Image r){return 1024L+r.pixels.length+(r.palette==null?0:4L*r.palette.length);}long residentBytes(){return rawBytes(raw)+4L*image.getWidth()*image.getHeight()+(opaque==null?0:4L*opaque.getWidth()*opaque.getHeight());}}
@@ -37,6 +40,7 @@ public final class DesktopLegacy extends DesktopEngine {
         nativeFiles=data.profileId.equals("dcpc-2063")?new DesktopNativeFiles(saveDirectory):null;
         final Path progress=saveDirectory.resolve("progress.dat");
         session=new Dc2Session(data,codec,h->{
+            if(audit&&data.profileId.equals("dc2-3363")&&System.getProperty("dc.auditHour")!=null)((PcHost)h).dc2LocalHour=()->Integer.parseInt(System.getProperty("dc.auditHour"));
             if(nativeFiles!=null)((PcHost)h).bindNativeSettingsIo(nativeFiles,"system.dat");
             if(!audit&&Files.exists(progress))try(DataInputStream in=new DataInputStream(Files.newInputStream(progress))){h.loadPersistent(in);}
             // Native bank100 persists immediately. Its newest raw file takes
@@ -44,19 +48,23 @@ public final class DesktopLegacy extends DesktopEngine {
             if(nativeFiles!=null&&!audit&&Files.exists(nativeFiles.directory().resolve("system.dat")))((PcHost)h).reloadNativeSettingsFromBoundIo();
         });captures=new DesktopCaptures(width,height,this::drawCapture);host().captureRenderer=captures;nativeData=PcHost.supports(data.profile)?null:new Dc2NativeData(data,codec);
         if(data.profileId.equals("dc2-3363")||data.profileId.equals("dcpc-2063"))((PcHost)host()).nativeFrameCapture=this::captureFramebuffer;
+        if(originalDc2())((PcHost)host()).nativeMessageTemplateCapture=this::captureOriginalMessageTemplate;
         if(pc1()!=null)session.pc1CandidateCapture=()->captureSaveMetadata(false).encode();
+        if(originalDc2())session.dc2BorrowedCapture=()->captureSaveMetadata(false).encode();
         scanSaves();
     }
-    private UiCapture captureFramebuffer()throws IOException{BufferedImage front=render();try{return UiCapture.pixels(width,height,front.getRGB(0,0,width,height,null,0,width));}finally{front.flush();}}
+    private UiCapture captureFramebuffer()throws IOException{PcHost h=host() instanceof PcHost?(PcHost)host():null;BufferedImage front=originalDc2()&&h.dc2EndingUnderlay!=null?originalCharacterEndingFrame():originalDc2()&&h.dc2CreditsUnderlay!=null?originalCreditsFrame():render();try{return UiCapture.pixels(width,height,front.getRGB(0,0,width,height,null,0,width));}finally{front.flush();}}
+    private Dc2MessageWindow captureOriginalMessageTemplate()throws IOException{return Dc2MessageWindow.capture(host());}
     public Dc2Host host(){return session.host;}
     public MesVm vm(){return session.vm;}
     private Pc1Runtime pc1(){return host() instanceof PcHost?((PcHost)host()).pc1:null;}
+    private boolean originalDc2(){return resources.profileId.equals("dc2-3363");}
     private boolean timedInput(){return host() instanceof PcHost&&((PcHost)host()).hasTimedInput();}
     public void tick(long elapsed)throws Exception {
-        Dc2Host h=host();h.fullscreen=fullscreenRequested;if(h instanceof PcHost)((PcHost)h).motionSkipPressed=rapid;session.vm.elapse(elapsed);
+        Dc2Host h=host();consumeOriginalRapidReset();h.fullscreen=fullscreenRequested;if(h instanceof PcHost)((PcHost)h).motionSkipPressed=effectiveRapid();session.vm.elapse(elapsed);
         if(h.presentationWaiting||h.textWaiting){if(textTicket!=h.waitTicket()){textClock=0;textTicket=h.waitTicket();}textClock+=elapsed;if(textClock>=textDuration())session.vm.signalHost(h.waitTicket(),MesVm.HostSignal.TEXT_COMPLETE);}
         if(h.returnRequested){session.returnToStory();finishSystemAudio();h=host();}
-        MesVm.Status status=session.vm.run(1000);if(status==MesVm.Status.FAULT)throw new IOException(session.vm.error());session.observeTransfer();if(h.windowRequest>=0){fullscreenRequested=h.windowRequest!=0;h.windowRequest=-1;}
+        MesVm.Status status=session.vm.run(1000);if(status==MesVm.Status.FAULT)throw new IOException(session.vm.error());session.observeTransfer();consumeOriginalRapidReset();if(h.windowRequest>=0){fullscreenRequested=h.windowRequest!=0;h.windowRequest=-1;}
         session.captureHistory();
         if(!session.inSystem()&&!h.body.isEmpty())lastLine=h.body;
         if(!session.inSystem()&&(h.textWaiting||h.presentationWaiting)&&!h.history.entries.isEmpty()){Dc2History.Entry entry=h.history.entries.get(h.history.entries.size()-1);if(entry.scene.length==0){ByteArrayOutputStream b=new ByteArrayOutputStream();h.scene.shown.save(new DataOutputStream(b));entry.scene=b.toByteArray();}}
@@ -65,12 +73,17 @@ public final class DesktopLegacy extends DesktopEngine {
         if(h.saveRequest>=0){writeSlot(h.saveRequest);h.completeSave();session.vm.elapse(0);}
         if(h.loadRequest>=0){readSlot(h.loadRequest);return;}
         if(h.autosaveGeneration!=savedAutoGeneration&&!session.inSystem()&&h.textWaiting){savedAutoGeneration=h.autosaveGeneration;if(!audit)writeSlot(h instanceof PcHost?0:2);}
-        if(pendingSystemAction==null&&(pc1()==null||!pc1().historyActive())&&!h.ui.waiting&&(rapid&&h.skipAllowed||(auto||h instanceof PcHost&&h.read(99,13)>=2)&&textClock>autoDelay()&&!h.audioActive[5]))session.vm.signalHost(h.waitTicket(),MesVm.HostSignal.ADVANCE);
+        if(pendingSystemAction==null&&(pc1()==null||!pc1().historyActive())&&!h.ui.waiting&&(effectiveRapid()&&h.skipAllowed||(auto||h instanceof PcHost&&h.read(99,13)>=2)&&textClock>autoDelay()&&!h.audioActive[5]))session.vm.signalHost(h.waitTicket(),MesVm.HostSignal.ADVANCE);
     }
+    @Override public void controlKey(boolean pressed){if(originalDc2())originalControlPressed=pressed;else super.controlKey(pressed);}
+    private boolean effectiveRapid()throws IOException{return originalDc2()?vm().variables.read(8,18)!=1&&(rapid||originalControlPressed):rapid;}
+    private void consumeOriginalRapidReset()throws IOException{if(!originalDc2())return;PcHost h=(PcHost)host();int current=h.dc2RapidResetGeneration();if(current!=seenDc2RapidReset){seenDc2RapidReset=current;rapid=false;h.motionSkipPressed=effectiveRapid();}}
     public java.util.List<Dc2Ui.Button> buttons(){Dc2Host h=host();if(pc1()!=null&&pc1().historyActive())return hidden?Collections.<Dc2Ui.Button>emptyList():pc1().storyPrefix();if(h.ui.waiting){java.util.List<Dc2Ui.Button> bs=new ArrayList<>(h.ui.buttons);if(h.gridWaiting)for(int n=0;n<h.grid.size();n++)bs.add(h.gridControl(n));return bs;}return !h.body.isEmpty()&&!hidden?pc1()!=null?pc1().storyPrefix():h.ui.buttonTemplates.get(host() instanceof PcHost?(h.messageMode()==0?1:4):(toolbar?6:1)):Collections.emptyList();}
     public void scroll(int units)throws IOException{if(pc1()!=null&&pc1().returning())return;if(host().history.active&&!(host() instanceof PcHost)){host().history.scroll(units);host().historyButtons();return;}if(host() instanceof PcHost){PcHost h=(PcHost)host();if(h.gridWaiting&&h.list.active())h.listOffset(h.list.clamp(h.listOffset()+units*h.list.columns,h.grid.size()));}}
     public void click(int x,int y,boolean right)throws Exception {
         Dc2Host h=host();
+        if(originalDc2()&&((PcHost)h).dc2CharacterEnding.active){Dc2CharacterEnding ending=((PcHost)h).dc2CharacterEnding;ending.input(right?2:1,vm().variables.read(100,ending.clearIndex()));return;}
+        if(originalDc2()&&((PcHost)h).dc2Credits.active){((PcHost)h).dc2Credits.input(right?2:1,vm().variables.read(100,59));return;}
         if(pc1()!=null&&pc1().returning())return;
         if(h instanceof PcHost&&((PcHost)h).nameInput.active){PcHost p=(PcHost)h;if(right){p.nameAction("@name:cancel");return;}for(Control b:controls())if(b.contains(x,y)){p.nameAction(b.action);return;}return;}
         if(hidden){hidden=false;return;}
@@ -117,8 +130,13 @@ public final class DesktopLegacy extends DesktopEngine {
         if(key.equals(":n")){toolbar=!toolbar;host().write(99,227,toolbar?1:0);return;}
         if(key.equals(":auto")){auto=!auto;toolbar=false;return;}
         if(key.equals(":rapid")){rapid=!rapid;toolbar=false;return;}
-        if(key.equals(":qsave")||key.equals(":qs")){writeSlot(1);toolbar=false;return;}
-        if(key.equals(":qload")||key.equals(":ql")){if(Files.exists(slot(1)))readSlot(1);toolbar=false;return;}
+        if(key.equals(":qsave")||key.equals(":qs")||key.equals(":q")){
+            int slot=originalDc2()?0:1;
+            if(pc1()!=null){if(host().saveRequest<0)pc1().requestQuickSave(vm().offset());else if(host().saveRequest!=slot||pc1().inSystem())throw new IOException("Another PC1 native save already owns the pending request");}
+            else if(originalDc2()){if(host().saveRequest<0)session.requestDc2QuickSave();else if(host().saveRequest!=slot)throw new IOException("Another DC2 native save already owns the pending request");}
+            writeSlot(slot);if(pc1()!=null||originalDc2()){host().completeSave();vm().elapse(0);}toolbar=false;return;
+        }
+        if(key.equals(":qload")||key.equals(":ql")){int slot=originalDc2()?0:1;if(Files.exists(slot(slot)))readSlot(slot);toolbar=false;return;}
         String script=key.equals(":backlog")?"LOG":key.equals(":torisetu")?"MANUAL":key.equals(":option")&&host() instanceof PcHost?"OPTION":key.equals(":menu")||key.equals(":option")?"ADVMENU":null;
         if(script!=null){requestSystem(script);return;}
         throw new IOException("Unimplemented original system action "+a);
@@ -152,6 +170,7 @@ public final class DesktopLegacy extends DesktopEngine {
         toolbar=auto=rapid=false;return true;
     }
     @Override public boolean modalKey(int code)throws IOException{
+        if(originalDc2()&&(((PcHost)host()).dc2CharacterEnding.active||((PcHost)host()).dc2Credits.active)&&(code==KeyEvent.VK_ENTER||code==KeyEvent.VK_SPACE||code==KeyEvent.VK_ESCAPE))return true;
         Pc1Runtime nativeText=pc1();if(nativeText!=null&&nativeText.returning())return true;if(nativeText==null||nativeText.waitKind()!=7&&nativeText.waitKind()!=9)return false;
         if(code==KeyEvent.VK_PAGE_UP){nativeText.historyPrevious();auto=rapid=false;return true;}
         if(code==KeyEvent.VK_PAGE_DOWN){nativeText.historyNext();return true;}
@@ -184,22 +203,40 @@ public final class DesktopLegacy extends DesktopEngine {
     public void audioCompleted(int ch,int generation){host().audioCompleted(ch,generation);}
     public int pan(int ch){return ch==5?host().voicePan:0;}
     public float volume(int ch)throws IOException{if(ch==5&&resources.profileId.equals("dc2-3363"))return host().voiceGain();int enabled=ch==0?14:ch==5?5:15,level=ch==0?7:ch==5?9:8;return host().read(99,enabled)==0?0:(ch==0?host().musicFadeGain():ch==5?host().voiceGain():1)*Math.max(0,Math.min(1,host().read(99,level)/30f));}
-    public byte[] snapshot()throws IOException{return pc1()==null?session.storySnapshot():session.snapshot();}
+    public byte[] snapshot()throws IOException{return pc1()!=null||originalDc2()?session.snapshot():session.storySnapshot();}
     public void restore(byte[] bytes)throws IOException{cancelPointer();session.restore(bytes);host().ui.pressed=-1;savedAutoGeneration=host().autosaveGeneration;textTicket=-1;hidden=toolbar=auto=rapid=false;pendingSystemAction=null;scanSaves();}
     private Path slot(int n)throws IOException{if(n<0||n>255)throw new IOException("Invalid save slot "+n);return saveDirectory.resolve("slot-"+n+".sav");}
     private void writeSlot(int n)throws IOException{
-        if(pc1()==null)save(slot(n));
-        else{
-            if(host().saveRequest!=n)throw new IOException("PC1 quick-save input capture is not mapped; use the original Save menu or F5");
+        if(originalDc2()){
+            session.requireDc2SaveCaller();if(host().saveRequest!=n)throw new IOException("DC2 slot does not match its pending native selection");
+            byte[] metadata=session.dc2BorrowedMetadata();if(metadata.length==0)throw new IOException("DC2 caller has no platform preview/audio metadata");
+            DesktopSave s=DesktopSave.decode(metadata);if(s.state.length!=0)throw new IOException("DC2 caller metadata contains an unexpected VM");
+            Calendar now=new GregorianCalendar();Dc2BorrowedState.SaveMetadata local=new Dc2BorrowedState.SaveMetadata(now.get(Calendar.YEAR),now.get(Calendar.MONTH)+1,now.get(Calendar.DAY_OF_MONTH),now.get(Calendar.HOUR_OF_DAY),now.get(Calendar.MINUTE));
+            s.state=session.dc2BorrowedSnapshot(local);s.icon=vm().variables.read(9,20);s.created=System.currentTimeMillis();writeSave(slot(n),s);
+        }else if(pc1()!=null){
+            if(host().saveRequest!=n)throw new IOException("PC1 slot does not match its pending native selection");
             session.requirePc1SaveCandidate();byte[] metadata=session.pc1CandidateMetadata();
             if(metadata.length==0)throw new IOException("PC1 checkpoint has no platform preview/audio metadata");
             DesktopSave s=DesktopSave.decode(metadata);if(s.state.length!=0)throw new IOException("PC1 checkpoint metadata contains an unexpected VM");
             Calendar now=new GregorianCalendar();Pc1Frame.SaveMetadata local=new Pc1Frame.SaveMetadata(now.get(Calendar.YEAR),now.get(Calendar.MONTH)+1,now.get(Calendar.DAY_OF_MONTH),now.get(Calendar.HOUR_OF_DAY),now.get(Calendar.MINUTE));
             s.state=session.pc1CandidateSnapshot(local);s.icon=vm().variables.read(9,20);s.created=System.currentTimeMillis();writeSave(slot(n),s);
-        }
+        }else save(slot(n));
         scanSaves();persist();
     }
     private void readSlot(int n)throws IOException{restore(slot(n));}
+    /** Original LOAD has ten pages, five visible entries and an eight-slot stride. */
+    public static boolean dc2ImportableSlot(int slot){return slot>=2&&slot<=76&&(slot&7)<5;}
+    public int nextImportSlot()throws IOException{if(!originalDc2())throw new IOException("Windows story import is currently available for D.C.II (2006)");for(int n=2;n<=76;n++)if(dc2ImportableSlot(n)&&!Files.exists(slot(n)))return n;throw new IOException("No unused story slot is available");}
+    /** Convert in an independent interpreter, leaving the active story intact.
+     * The selected original file is never modified or used as an output path. */
+    public Path importNativeSlot(byte[] original,int destination)throws Exception{
+        if(!originalDc2())throw new IOException("Windows story import is currently available for D.C.II (2006)");
+        if(!dc2ImportableSlot(destination))throw new IOException("Choose a visible D.C.II ordinary slot: 2..4 or page*8+[0..4] for pages1..9");Path path=slot(destination);if(Files.exists(path))throw new IOException("Import destination already exists: "+path);
+        Dc2NativeSlot nativeSlot=Dc2NativeSlot.parse(original);DesktopLegacy imported=new DesktopLegacy(resources,codec,true);imported.host().copyPersistentFrom(host());imported.session.importDc2NativeSlot(nativeSlot);
+        DesktopSave converted=imported.captureSaveMetadata(false);converted.state=imported.snapshot();converted.icon=nativeSlot.ordinary(9,20);
+        try{Calendar date=new GregorianCalendar();date.clear();date.setLenient(false);date.set(2000+nativeSlot.ordinary(9,25),nativeSlot.ordinary(9,21)-1,nativeSlot.ordinary(9,22),nativeSlot.ordinary(9,23),nativeSlot.ordinary(9,24));converted.created=date.getTimeInMillis();}catch(IllegalArgumentException absentDate){converted.created=System.currentTimeMillis();}
+        writeNewSave(path,converted);scanSaves();return path;
+    }
     private void scanSaves()throws IOException{host().availableSaves.clear();host().saveLabels.clear();thumbnails.clear();for(int n=0;n<256;n++)if(Files.exists(slot(n))){host().availableSaves.add(n);host().saveLabels.put(n,new java.text.SimpleDateFormat("MM/dd HH:mm").format(new Date(Files.getLastModifiedTime(slot(n)).toMillis())));scanThumbnail(n,slot(n));}}
     public String saveCaption(){return host().checkpointLabel.isEmpty()?(body().isEmpty()?lastLine:body()):codec.apply(host().checkpointLabel);}
     public BufferedImage preview()throws IOException{BufferedImage image=new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);Graphics2D g=image.createGraphics();try{if(host().systemScene==null&&host().scene.nativeMotion!=null)g.drawImage(motion(host().scene.nativeMotion),0,0,null);else scene(g,host().systemScene!=null?host().systemScene:host().scene.shown);}finally{g.dispose();}return image;}
@@ -247,7 +284,7 @@ public final class DesktopLegacy extends DesktopEngine {
         g.setComposite(old);
     }
     private boolean visibleQuad(Dc2Ui.Quad q)throws IOException{
-        if(q.nativeCondition==0)return true;if(captureState!=null)throw new IOException("Frozen PC1 quad retains a live native condition");
+        if(q.nativeCondition==0)return true;if(originalDc2())return host().read(99,251)!=0;if(captureState!=null)throw new IOException("Frozen PC1 quad retains a live native condition");
         if(!(host() instanceof PcHost)||((PcHost)host()).pc1==null)throw new IOException("Native conditional quad requires PC1");return ((PcHost)host()).pc1.visible(q);
     }
     private void scene(Graphics2D g,Dc2Scene.Frame f)throws IOException {
@@ -276,6 +313,16 @@ public final class DesktopLegacy extends DesktopEngine {
             else{AffineTransform tr=g.getTransform();g.translate(a[0]+a[3],a[1]+a[4]);g.scale(a[2]/100.0,a[2]/100.0);g.drawImage(p.image,p.raw.x-a[3],p.raw.y-a[4],null);g.setTransform(tr);}
         }}
     }
+    private BufferedImage actorChange(Dc2ActorChange value)throws IOException{
+        ActorChangeRaster raster=actorChangeRaster;
+        if(raster==null||raster.owner!=value||raster.generation!=value.generation){
+            raster=new ActorChangeRaster();raster.owner=value;raster.generation=value.generation;raster.image=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
+            raster.pixels=captures.resolve(value.initial).getRGB(0,0,width,height,null,0,width);raster.image.setRGB(0,0,width,height,raster.pixels,0,width);drawOriginalMessageWindow(raster.image,value.initialTemplate);raster.pixels=raster.image.getRGB(0,0,width,height,null,0,width);
+            BufferedImage target=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);try{target.setRGB(0,0,width,height,captures.resolve(value.target).getRGB(0,0,width,height,null,0,width),0,width);drawOriginalMessageWindow(target,value.targetTemplate);raster.target=target.getRGB(0,0,width,height,null,0,width);}finally{target.flush();}actorChangeRaster=raster;
+        }
+        for(java.util.List<Dc2ActorChange.Draw> draws=value.draws();raster.count<draws.size();){Dc2ActorChange.Draw draw=draws.get(raster.count++);if(draw.kind==Dc2ActorChange.FULL)raster.pixels=raster.target.clone();else Dc2Motion.blit(raster.pixels,width,height,raster.target,width,height,0,0,draw.alpha);}
+        raster.image.setRGB(0,0,width,height,raster.pixels,0,width);return raster.image;
+    }
     private BufferedImage motion(Dc2Motion value)throws IOException {
         MotionRaster raster=motionRasters.get(value);
         if(raster==null){
@@ -285,13 +332,30 @@ public final class DesktopLegacy extends DesktopEngine {
         java.util.List<Dc2Motion.Draw> draws=value.draws();
         while(raster.count<draws.size()){
             Dc2Motion.Draw draw=draws.get(raster.count++);
-            if(draw.kind==Dc2Motion.FULL){while(raster.count<draws.size()&&draws.get(raster.count).kind==Dc2Motion.FULL)draw=draws.get(raster.count++);if(value.prepareOnly&&value.prepared!=null)raster.pixels=captures.resolve(value.prepared).getRGB(0,0,width,height,null,0,width);else{Graphics2D g=raster.image.createGraphics();try{scene(g,value.source,draw.x,draw.y);}finally{g.dispose();}raster.pixels=raster.image.getRGB(0,0,width,height,null,0,width);}}
+            if(draw.kind==Dc2Motion.FULL){while(raster.count<draws.size()&&draws.get(raster.count).kind==Dc2Motion.FULL)draw=draws.get(raster.count++);if(value.prepareOnly&&value.prepared!=null)raster.pixels=captures.resolve(value.prepared).getRGB(0,0,width,height,null,0,width);else{Graphics2D g=raster.image.createGraphics();try{scene(g,value.source,draw.x,draw.y);}finally{g.dispose();}if(value.fullTemplate!=null)drawOriginalMessageWindow(raster.image,value.fullTemplate);raster.pixels=raster.image.getRGB(0,0,width,height,null,0,width);}}
             else if(draw.kind==Dc2Motion.PREPARE){
                 if(raster.prepared==null){BufferedImage composed;if(value.prepared!=null)composed=captures.resolve(value.prepared);else{composed=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D g=composed.createGraphics();try{scene(g,value.source);}finally{g.dispose();}}raster.prepared=composed.getRGB(0,0,width,height,null,0,width);}
                 Dc2Motion.blit(raster.pixels,width,height,raster.prepared,width,height,0,0,draw.alpha);
             }else{if(!raster.backgroundLoaded){Picture background=picture(value.background);if(background!=null&&background.raw.bpp==24){raster.backgroundWidth=background.image.getWidth();raster.backgroundHeight=background.image.getHeight();raster.background=background.image.getRGB(0,0,raster.backgroundWidth,raster.backgroundHeight,null,0,raster.backgroundWidth);}raster.backgroundLoaded=true;}if(raster.background!=null)Dc2Motion.blit(raster.pixels,width,height,raster.background,raster.backgroundWidth,raster.backgroundHeight,draw.x,draw.y,draw.alpha);}
         }
         raster.image.setRGB(0,0,width,height,raster.pixels,0,width);return raster.image;
+    }
+    private static int blendWindowPixel(int old,int source,int weight){int inverse=16-weight,r=((old>>>16&255)*inverse+(source>>>16&255)*weight)>>4,g=((old>>>8&255)*inverse+(source>>>8&255)*weight)>>4,b=((old&255)*inverse+(source&255)*weight)>>4;return 0xff000000|r<<16|g<<8|b;}
+    private void drawOriginalMessageWindow(BufferedImage target,Dc2MessageWindow window)throws IOException{
+        if(window==null)return;int[] pixels=target.getRGB(0,0,width,height,null,0,width);
+        for(Dc2Ui.Quad q:window.quads){
+            boolean weighted=q.opaque()&&window.effects;int weight=weighted?window.weight:16;if(weight<0||weight>16)throw new IOException("Unsupported DC2 native message-window weight "+weight);
+            if(q.width<=0||q.height<=0)continue;Picture picture=q.type==0?picture(window.slots[q.slot()]):null;if(q.type==0&&picture==null)continue;Crx.Image raw=picture==null?null:picture.raw;
+            if(weighted&&raw!=null&&raw.bpp!=24&&raw.bpp!=32)throw new IOException("Unsupported DC2 native weighted-window bitmap layout "+raw.bpp);
+            int left=Math.max(0,q.x),top=Math.max(0,q.y),right=(int)Math.min((long)width,(long)q.x+q.width),bottom=(int)Math.min((long)height,(long)q.y+q.height);
+            if(raw!=null){left=Math.max(left,q.x-q.sx);top=Math.max(top,q.y-q.sy);right=Math.min(right,q.x+raw.width-q.sx);bottom=Math.min(bottom,q.y+raw.height-q.sy);}
+            for(int y=top;y<bottom;y++)for(int x=left;x<right;x++){
+                int color=window.palette[q.flags&63],alpha=255;
+                if(raw!=null){int sx=q.sx+x-q.x,sy=q.sy+y-q.y;if(raw.pixels.length==0){color=picture.image.getRGB(sx,sy);alpha=color>>>24;}else{int at=sy*raw.stride+sx*(raw.bpp/8);if(raw.bpp==8)color=raw.palette[raw.pixels[at]&255];else{color=((raw.pixels[at+2]&255)<<16)|((raw.pixels[at+1]&255)<<8)|(raw.pixels[at]&255);if(raw.bpp==32)alpha=raw.pixels[at+3]&255;}}if(raw.bpp!=32&&(color&0xffffff)==0xff00ff)continue;}
+                int at=y*width+x;if(weighted&&raw!=null&&raw.bpp==32&&alpha==0)continue;if(weighted)pixels[at]=blendWindowPixel(pixels[at],color,weight);else if(alpha==255)pixels[at]=0xff000000|color;else if(alpha>0){int old=pixels[at],inverse=255-alpha,r=((old>>>16&255)*inverse+(color>>>16&255)*alpha)/255,g=((old>>>8&255)*inverse+(color>>>8&255)*alpha)/255,b=((old&255)*inverse+(color&255)*alpha)/255;pixels[at]=0xff000000|r<<16|g<<8|b;}
+            }
+        }
+        target.setRGB(0,0,width,height,pixels,0,width);
     }
     private void drawEffects(Graphics2D g)throws IOException{
         Dc2Scene s=host().scene;SceneCaptures.Legacy frozen=captureState;
@@ -347,14 +411,18 @@ public final class DesktopLegacy extends DesktopEngine {
         if(pc1()!=null){UiCapture.Pixels front=pc1().returnPixels();if(front!=null){if(front.width!=width||front.height!=height)throw new IOException("PC1 return framebuffer canvas mismatch");BufferedImage copy=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);copy.setRGB(0,0,width,height,front.argb,0,width);return copy;}}
         BufferedImage result=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D g=result.createGraphics();try{
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);Dc2Host h=host();
+            if(originalDc2()&&((PcHost)h).dc2EndingUnderlay!=null){BufferedImage ending=originalCharacterEndingFrame();try{g.drawImage(ending,0,0,null);}finally{ending.flush();}return result;}
+            if(originalDc2()&&((PcHost)h).dc2CreditsUnderlay!=null){drawOriginalCredits(g);return result;}
+            if(originalDc2()&&!((PcHost)h).dc2Map.active&&((PcHost)h).actorChangeVisible()){g.drawImage(actorChange(((PcHost)h).dc2ActorChange),0,0,null);return result;}
+            if(originalDc2()&&!((PcHost)h).dc2Map.active&&((PcHost)h).actorMotionVisible()){scene(g,h.scene.shown);drawOriginalMessageWindow(result,((PcHost)h).dc2ActorMotion.template);return result;}
             boolean mapBackdrop=h instanceof PcHost&&((PcHost)h).dc2Map.backdrop;
             if(h instanceof PcHost&&(((PcHost)h).dc2Map.active||mapBackdrop)){drawDc2Map(g,(PcHost)h);if(((PcHost)h).dc2Map.active)return result;}
-            else{if(h instanceof PcHost&&((PcHost)h).frozenOriginalBatch()!=null){g.drawImage(captures.resolve(((PcHost)h).frozenOriginalBatch()),0,0,null);return result;}if(h instanceof PcHost&&((PcHost)h).map.active){drawMap(g,(PcHost)h);return result;}if(h.scene.nativeMotion!=null)g.drawImage(motion(h.scene.nativeMotion),0,0,null);else scene(g,h.scene.shown);if(h instanceof PcHost&&((PcHost)h).sceneCommandDeferred())return result;drawTransition(g);}
+            else{if(h instanceof PcHost&&((PcHost)h).frozenOriginalBatch()!=null){g.drawImage(captures.resolve(((PcHost)h).frozenOriginalBatch()),0,0,null);return result;}if(h instanceof PcHost&&((PcHost)h).map.active){drawMap(g,(PcHost)h);return result;}if(h.scene.nativeMotion!=null){g.drawImage(motion(h.scene.nativeMotion),0,0,null);if(originalDc2()&&!h.scene.nativeMotion.prepareOnly)return result;}else scene(g,h.scene.shown);if(h instanceof PcHost&&((PcHost)h).sceneCommandDeferred())return result;drawTransition(g);}
             if(h instanceof PcHost&&((PcHost)h).pcCredits.active){PcCredits c=((PcHost)h).pcCredits;int first=(int)c.scroll()/c.stripHeight();g.setColor(Color.BLACK);g.fillRect(0,0,width,height);for(int n=first;n<=Math.min(c.lastStrip(),first+1);n++)at(g,c.image(n),0,(int)(n*c.stripHeight()-c.scroll()));return result;}if(h.credits.active()){drawCredits(g);return result;}
             if(!mapBackdrop&&!h.body.isEmpty()&&!hidden){
                 boolean nativePc1=h instanceof PcHost&&((PcHost)h).pc1!=null;
-                Dc2Ui.Quad body=null,name=null;for(Dc2Ui.Quad q:h.ui.quadTemplates.get(h.messageMode()==0?1:4)){if(!nativePc1||q.type!=2)quad(g,q,h.scene.slots,false);if(visibleQuad(q)&&q.type==2&&q.width>2)body=q;}
-                if(!h.speaker.isEmpty())for(Dc2Ui.Quad q:h.ui.quadTemplates.get(h.messageMode()==0?2:5)){if(!nativePc1||q.type!=2)quad(g,q,h.scene.slots,false);if(visibleQuad(q)&&q.type==2&&q.width>2)name=q;}
+                Dc2Ui.Quad body=null,name=null;if(originalDc2())drawOriginalMessageWindow(result,Dc2MessageWindow.capture(h));for(Dc2Ui.Quad q:h.ui.quadTemplates.get(h.messageMode()==0?1:4)){if(!originalDc2()&&(!nativePc1||q.type!=2))quad(g,q,h.scene.slots,false);if(visibleQuad(q)&&q.type==2&&q.width>2)body=q;}
+                if(!h.speaker.isEmpty()){if(originalDc2())drawOriginalMessageWindow(result,Dc2MessageWindow.capture(h,h.messageMode()==0?2:5));}if(!h.speaker.isEmpty())for(Dc2Ui.Quad q:h.ui.quadTemplates.get(h.messageMode()==0?2:5)){if(!originalDc2()&&(!nativePc1||q.type!=2))quad(g,q,h.scene.slots,false);if(visibleQuad(q)&&q.type==2&&q.width>2)name=q;}
                 if(nativePc1){for(int n=18;n<=19;n++)at(g,h.scene.shown.slots[n],h.scene.portraitX,h.scene.portraitY);drawPc1Text(result,((PcHost)h).pc1);}
                 else{if(name!=null)text(g,h.speaker,name.x,name.y,name.width,name.height,700);if(body!=null)text(g,visibleBody(),body.x,body.y,body.width,body.height,width-40-body.x);for(int n=18;n<=19;n++)at(g,h.scene.shown.slots[n],h.scene.portraitX,h.scene.portraitY);}
             }
@@ -382,9 +450,30 @@ public final class DesktopLegacy extends DesktopEngine {
     private void drawDc2Map(Graphics2D g,PcHost h)throws IOException{
         for(Dc2Map.Sprite sprite:h.dc2Map.sprites(vm().variables)){
             Picture p=picture(sprite.resource);if(p==null)continue;BufferedImage image=p.image;
-            if(sprite.opaque){if(p.opaque==null){images.reserve(p.residentBytes()+8L*p.raw.width*p.raw.height);int[] pixels=p.raw.argb();for(int n=0;n<pixels.length;n++)pixels[n]|=0xff000000;p.opaque=new BufferedImage(p.raw.width,p.raw.height,BufferedImage.TYPE_INT_ARGB);p.opaque.setRGB(0,0,p.raw.width,p.raw.height,pixels,0,p.raw.width);images.put(sprite.resource,p);}image=p.opaque;}
+            if(sprite.opaque)image=opaqueImage(sprite.resource,p);
             g.drawImage(image,sprite.x,sprite.y,sprite.x+sprite.width,sprite.y+sprite.height,sprite.sx,sprite.sy,sprite.sx+sprite.width,sprite.sy+sprite.height,null);
         }
+    }
+    private BufferedImage opaqueImage(String resource,Picture p){if(p.opaque==null){images.reserve(p.residentBytes()+8L*p.raw.width*p.raw.height);int[] pixels=p.raw.argb();for(int n=0;n<pixels.length;n++)pixels[n]|=0xff000000;p.opaque=new BufferedImage(p.raw.width,p.raw.height,BufferedImage.TYPE_INT_ARGB);p.opaque.setRGB(0,0,p.raw.width,p.raw.height,pixels,0,p.raw.width);images.put(resource,p);}return p.opaque;}
+    private void drawOriginalCredits(Graphics2D g)throws IOException{
+        PcHost h=(PcHost)host();if(h.dc2CreditsUnderlay!=null)g.drawImage(captures.resolve(h.dc2CreditsUnderlay),0,0,null);else scene(g,h.scene.shown);
+        for(Dc2OriginalCredits.Strip strip:h.dc2Credits.frame()){Picture p=picture(strip.resource);if(p==null)throw new FileNotFoundException("D.C.II credits strip missing: "+strip.resource);g.drawImage(opaqueImage(strip.resource,p),strip.x,strip.y,strip.x+strip.width,strip.y+strip.height,strip.srcX,strip.srcY,strip.srcX+strip.width,strip.srcY+strip.height,null);}
+    }
+    private BufferedImage originalCreditsFrame()throws IOException{BufferedImage image=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D g=image.createGraphics();try{drawOriginalCredits(g);}finally{g.dispose();}return image;}
+    /** Native ending overlays use a magenta key and /16 channel floor. */
+    private BufferedImage originalCharacterEndingFrame()throws IOException{
+        PcHost h=(PcHost)host();BufferedImage front=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D background=front.createGraphics();try{if(h.dc2EndingUnderlay!=null)background.drawImage(captures.resolve(h.dc2EndingUnderlay),0,0,null);else scene(background,h.scene.shown);}finally{background.dispose();}
+        int[] pixels=front.getRGB(0,0,width,height,null,0,width);
+        for(Dc2CharacterEnding.Layer layer:h.dc2CharacterEnding.frame()){
+            Picture picture=picture(layer.resource);if(picture==null)throw new FileNotFoundException("D.C.II character ending image missing: "+layer.resource);Crx.Image raw=picture.raw;
+            int left=Math.max(0,Math.max(layer.x,layer.x-layer.srcX)),top=Math.max(0,Math.max(layer.y,layer.y-layer.srcY));int right=Math.min(width,Math.min(layer.x+layer.width,layer.x+raw.width-layer.srcX)),bottom=Math.min(height,Math.min(layer.y+layer.height,layer.y+raw.height-layer.srcY));
+            for(int y=top;y<bottom;y++)for(int x=left;x<right;x++){
+                int sx=layer.srcX+x-layer.x,sy=layer.srcY+y-layer.y,rgb;
+                if(raw.pixels.length==0)rgb=picture.image.getRGB(sx,sy);else{int at=sy*raw.stride+sx*(raw.bpp/8);rgb=raw.bpp==8?raw.palette[raw.pixels[at]&255]:((raw.pixels[at+2]&255)<<16)|((raw.pixels[at+1]&255)<<8)|(raw.pixels[at]&255);}
+                int at=y*width+x;pixels[at]=layer.opaque?0xff000000|rgb:Dc2CharacterEnding.blendRgb(pixels[at],rgb,layer.alpha);
+            }
+        }
+        front.setRGB(0,0,width,height,pixels,0,width);return front;
     }
     private void drawMap(Graphics2D g,PcHost h)throws IOException{
         Pc2Map m=h.map;at(g,m.background(),0,0);int hover=m.selected>=0?m.selected:m.hovered;

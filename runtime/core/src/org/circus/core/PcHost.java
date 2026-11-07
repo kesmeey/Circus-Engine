@@ -103,7 +103,7 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
     private byte[] encodeName(String value)throws IOException{
         if(value==null)throw new IOException("Native player name is unavailable");try{java.nio.ByteBuffer encoded=codec.charset.newEncoder().onMalformedInput(java.nio.charset.CodingErrorAction.REPORT).onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT).encode(java.nio.CharBuffer.wrap(value));byte[] raw=new byte[encoded.remaining()];encoded.get(raw);return raw;}catch(java.nio.charset.CharacterCodingException invalid){throw new IOException("Native player name cannot be represented by "+codec.charset.name(),invalid);}
     }
-    @Override public void loadedInitial(MesScript s,int nextOffset)throws IOException{script=s;pc=nextOffset;if(pc1!=null){ensureNativeSettings();pc1.bindInitial(s);}}
+    @Override public void loadedInitial(MesScript s,int nextOffset)throws IOException{script=s;pc=nextOffset;if(pc1!=null){ensureNativeSettings();pc1.bindInitial(s);}if(original)cacheOriginalScenarioRead(s.name);}
     @Override protected boolean nativeScalarFrame(){return pc1!=null;}
     @Override public void beforeNativeScriptLoad(int opcode,String target)throws IOException{if(pc1!=null&&opcode==0x36){pc1.markCurrentScenario();pc1.prepareScenarioLabel(target);}}
     @Override public void writeNativeArgument0(int value){if(pc1==null)throw new IllegalStateException("Native PC1 argument requires PC1");pc1.argument0(value);}
@@ -119,7 +119,7 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
     @Override public void messageMode(int value){if(pc1==null)super.messageMode(value);else pc1.nativeFrame().dword(Pc1NativeSlot.Dword.PARAGRAPH_MODE,value);}
     @Override public Variables.NativeByteMemory nativeByteMemory(){return pc1==null?null:pc1.nativeMemory();}
     @Override public boolean signedNativeIndex(int bank){return pc1!=null&&(bank==90||bank==97||bank==98||bank==99||bank==100);}
-    public final PcNameInput nameInput=new PcNameInput();public String familyName,givenName;public final boolean second;public final Pc2Map map=new Pc2Map();public final Dc2Map dc2Map=new Dc2Map();public final PcCredits pcCredits=new PcCredits();
+    public final PcNameInput nameInput=new PcNameInput();public String familyName,givenName;public final boolean second;public final Pc2Map map=new Pc2Map();public final Dc2Map dc2Map=new Dc2Map();public final Dc2BorrowedState dc2Borrowed=new Dc2BorrowedState();public final Dc2OriginalCredits dc2Credits=new Dc2OriginalCredits();public UiCapture dc2CreditsUnderlay;public final Dc2CharacterEnding dc2CharacterEnding=new Dc2CharacterEnding();public UiCapture dc2EndingUnderlay;public final Dc2ActorMotion dc2ActorMotion=new Dc2ActorMotion();public final Dc2ActorChange dc2ActorChange=new Dc2ActorChange();public final PcCredits pcCredits=new PcCredits();
     private final List<String> voiceGroup=new ArrayList<>();
     private final byte[] globals=new byte[100],cg=new byte[1600],seen=new byte[1600],voiceEnabled=new byte[128],scratch=new byte[100];
     public final ScriptList list=new ScriptList();private boolean gridTarget;private String musicEndAction="";
@@ -127,6 +127,8 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
     private boolean pendingRegionFlag;
     /** Original D.C.II (2006) shares the PC host but keeps its own draw-batch caps. */
     private final boolean original;
+    public interface LocalHour {int read();}
+    public LocalHour dc2LocalHour=()->new java.util.GregorianCalendar().get(java.util.Calendar.HOUR_OF_DAY);
     // 0 = proven clear; 1 = native pending composition; -1 = an unreviewed producer.
     // Character/text frame producers also depend on native batch/history fields.
     private int originalCompositePending;
@@ -142,13 +144,17 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
     private String originalNextSpeaker="";private int originalSpeakerEnd=-1;
     public interface NativeFrameCapture {UiCapture capture()throws IOException;}
     public NativeFrameCapture nativeFrameCapture;
+    public interface NativeMessageTemplateCapture {Dc2MessageWindow capture()throws IOException;}
+    public NativeMessageTemplateCapture nativeMessageTemplateCapture;
     private static final class DeferredScene {
         int kind,pc;String script="",body="",speaker="",voice="";
         void save(DataOutput out)throws IOException{out.writeInt(kind);out.writeInt(pc);out.writeUTF(script);out.writeUTF(body);out.writeUTF(speaker);out.writeUTF(voice);}
         static DeferredScene load(DataInput in)throws IOException{DeferredScene value=new DeferredScene();value.kind=in.readInt();value.pc=in.readInt();value.script=in.readUTF();value.body=in.readUTF();value.speaker=in.readUTF();value.voice=in.readUTF();if(value.kind!=1&&value.kind!=2)throw new IOException("DC2 deferred scene command");return value;}
     }
     private DeferredScene originalDeferred;
-    public boolean sceneCommandDeferred(){return original&&originalDeferred!=null;}
+    public boolean sceneCommandDeferred(){return original&&(originalDeferred!=null||dc2ActorChange.preparing);}
+    public boolean actorMotionVisible(){return original&&dc2ActorMotion.drawn&&dc2ActorMotion.sceneSerial==scene.transitionSerial&&scene.nativeMotion==null&&originalDrawDirty==0;}
+    public boolean actorChangeVisible(){return original&&!dc2ActorChange.preparing&&(dc2ActorChange.active||dc2ActorChange.drawn)&&dc2ActorChange.sceneSerial==scene.transitionSerial&&scene.nativeMotion==null&&originalDrawDirty==0;}
     @Override public void restored(MesScript s,int nextOffset)throws IOException{super.restored(s,nextOffset);if(pc1!=null)pc1.restored(s);}
     @Override public void fetched(MesScript.Instruction instruction)throws IOException{if(pc1!=null)pc1.fetched(instruction);}
     @Override public void dispatched(MesScript.Instruction instruction)throws IOException{if(pc1!=null)pc1.dispatched(instruction);}
@@ -200,15 +206,53 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
     private PcHost(CircusResources r,TextCodec c,int startupTick,boolean beforeWinMain){super(r,c);second=r.profile.id.equals("dc2pc-5769");original=r.profile.id.equals("dc2-3363");rawNativeSession=beforeWinMain;pc1Settings=!second&&!original?Pc1NativeSettings.initialZeroImage():null;pc1=!second&&!original?new Pc1Runtime(this,beforeWinMain):null;if(pc1!=null){ui.quadLimit=60;randomState=startupTick;}if(original){randomState=startupTick;scene.nativeParticles=new Dc2Particles(this::nextRandom);ui.quadLimit=60;int[] nativeDefaults={1,1,25,25,29,1,8,1,0,1,1,8,1,1};for(int n=0;n<nativeDefaults.length;n++)registers.put(5+n,nativeDefaults[n]);registers.put(20,1);}System.arraycopy(PC_PALETTE,0,ui.palette,0,PC_PALETTE.length);boolean cn=c.charset.name().equalsIgnoreCase("GBK");familyName=second?(cn?"樱内":"桜内"):(cn?"朝仓":"朝倉");givenName=second?(cn?"义之":"義之"):(cn?"纯一":"純一");gridHoverSound=gridClickSound=255;Arrays.fill(voiceEnabled,(byte)1);registers.put(13,0);registers.put(19,0);registers.put(25,0);registers.put(26,8);registers.put(27,8);if(pc1!=null)clearNativeSettingsRegisterMirrors();}
     @Override public void elapse(long ms){
         if(!original){if(pc1!=null)try{pc1.elapseReturn(ms);}catch(IOException failure){throw new IllegalStateException("PC1 native return transition: "+failure.getMessage(),failure);}super.elapse(ms);pcCredits.elapse(ms);if(map.active)map.elapsed+=Math.max(0,ms);return;}
-        if(dc2Map.active){super.elapse(ms);dc2Map.elapse(ms);return;}long left=Math.max(0,ms);do{long step=left;if(scene.nativeParticles.timerActive())step=Math.min(step,scene.nativeParticles.untilTick());if(scene.nativeMotion!=null&&scene.nativeMotion.active)step=Math.min(step,scene.nativeMotion.untilFrame());if(scene.transitionRemaining>0)step=Math.min(step,scene.transitionRemaining);
+        if(dc2ActorChange.active&&!dc2ActorChange.preparing){super.elapse(ms);dc2ActorChange.advance(ms,registers.getOrDefault(12,0),originalMotionSkip());return;}
+        if(dc2ActorMotion.active){super.elapse(ms);scene.nativeParticles.elapse(ms,registers.getOrDefault(20,0)!=0,false,originalDrawDirty!=0);Dc2ActorMotion.Step move=dc2ActorMotion.advance(ms,scene.character(dc2ActorMotion.actor,0),scene.character(dc2ActorMotion.actor,1),registers.getOrDefault(12,0),originalMotionSkip());if(move.drawn){scene.character(dc2ActorMotion.actor,0,move.x);scene.character(dc2ActorMotion.actor,1,move.y);try{dc2ActorMotion.template=originalCompositePending>0?actorWindow():null;scene.publish(ui,0,0);dc2ActorMotion.sceneSerial=scene.transitionSerial;}catch(IOException failure){throw new IllegalStateException("DC2 actor motion publish: "+failure.getMessage(),failure);}}return;}
+        boolean characterActive=dc2CharacterEnding.active;dc2CharacterEnding.advance(ms);if(characterActive){super.elapse(ms);if(!dc2CharacterEnding.active)try{finishOriginalCharacterEnding();}catch(IOException failure){throw new IllegalStateException("DC2 character ending front capture: "+failure.getMessage(),failure);}return;}
+        if(dc2Credits.active){super.elapse(ms);dc2Credits.advance(ms);if(!dc2Credits.active)try{finishOriginalCredits();}catch(IOException failure){throw new IllegalStateException("DC2 ending front capture: "+failure.getMessage(),failure);}return;}if(dc2Map.active){super.elapse(ms);dc2Map.elapse(ms);return;}long left=Math.max(0,ms);do{long step=left;if(scene.nativeParticles.timerActive())step=Math.min(step,scene.nativeParticles.untilTick());if(scene.nativeMotion!=null&&scene.nativeMotion.active)step=Math.min(step,scene.nativeMotion.untilFrame());if(scene.transitionRemaining>0)step=Math.min(step,scene.transitionRemaining);
             boolean busy=scene.transitionRemaining>0||scene.nativeMotion!=null&&scene.nativeMotion.preparing;
             super.elapse(step);pcCredits.elapse(step);if(scene.nativeMotion!=null&&scene.nativeMotion.active){int prior=scene.nativeMotion.draws().size();scene.nativeMotion.elapse(step,registers.getOrDefault(12,0),originalMotionSkip());if(prior!=scene.nativeMotion.draws().size())syncOriginalMotion();}
             if(originalDrawDirty<0&&scene.nativeParticles.kind()!=0)throw new IllegalStateException("DC2 particle timer: native9DA2D0 batch state unresolved at "+(script==null?"?":script.name)+"@0x"+Integer.toHexString(pc));
             scene.nativeParticles.elapse(step,registers.getOrDefault(20,0)!=0,busy,originalDrawDirty!=0);left-=step;
         }while(left>0);
+        if(dc2ActorChange.preparing&&scene.nativeMotion!=null&&!scene.nativeMotion.active)try{finishOriginalActorPreparation();}catch(IOException failure){throw new IllegalStateException("DC2 actor preparation: "+failure.getMessage(),failure);}
     }
-    @Override public boolean waiting(){return pc1!=null&&pc1.returning()||pcCredits.active||original&&scene.nativeMotion!=null&&scene.nativeMotion.active||super.waiting();}
+    @Override public boolean waiting(){return dc2ActorChange.active||dc2ActorMotion.active||dc2CharacterEnding.active||dc2Credits.active||pc1!=null&&pc1.returning()||pcCredits.active||original&&scene.nativeMotion!=null&&scene.nativeMotion.active||super.waiting();}
     private boolean originalMotionSkip(){try{return motionSkipPressed&&variables!=null&&variables.read(8,18)!=1;}catch(IOException impossible){throw new IllegalStateException(impossible);}}
+    private void originalActorMotion(int[] a)throws IOException{
+        if(a.length!=4)throw originalUnsupported("61 requires four native words");
+        if(a[2]==-1){String actor=scene.slots[2];scene.slots[2]=scene.slots[3];scene.slots[3]=actor;return;}
+        if(originalDrawDirty!=0)throw originalUnsupported("61 interleaved with a pending native draw batch");
+        boolean retained=actorMotionVisible();Dc2MessageWindow previousTemplate=dc2ActorMotion.template;dc2ActorMotion.start(a[2],a[0],a[1]);if(retained){dc2ActorMotion.drawn=true;dc2ActorMotion.sceneSerial=scene.transitionSerial;dc2ActorMotion.template=previousTemplate;}else if(originalCompositePending>0)dc2ActorMotion.template=actorWindow();remaining=0;timedInput=false;presentationWaiting=textWaiting=false;ui.waiting=false;originalWaitKind=-1;nextTicket();
+    }
+    private void commitOriginalActorPosition(){scene.character(0,0,dc2ActorChange.staged[0]);scene.character(0,1,dc2ActorChange.staged[1]);scene.character(1,0,dc2ActorChange.staged[2]);scene.character(1,1,dc2ActorChange.staged[3]);}
+    private UiCapture actorScene(Dc2Scene.Frame frame)throws IOException{return SceneCaptures.legacy(copyFrame(frame),scene,ui,variables,true,uiCapture);}
+    private Dc2MessageWindow actorWindow()throws IOException{return nativeMessageTemplateCapture==null?Dc2MessageWindow.capture(this):nativeMessageTemplateCapture.capture();}
+    /**32 peeks at the optional45 second actor, which is still fetched later
+     * as a native no-effect record. Only the following02 defers its wait. */
+    private boolean originalActorChange(byte[] first)throws IOException{
+        if(originalCompositePending<0||messageMode()!=0&&originalCompositePending!=0)throw originalUnsupported("32 retained NVL glyph/history composition is not reconstructed");
+        MesScript.Record following=script.fetchRecord(script.instruction(pc).next);byte[] secondActor=following.opcode==0x45?following.bytes:new byte[0];
+        boolean batch=originalDrawDirty!=0,wasVisible=!scene.slots[2].isEmpty()||!scene.slots[3].isEmpty();int prior=originalCompositePending;
+        UiCapture old=batch?originalBatchInitial:actorScene(scene.shown);Dc2MessageWindow oldWindow=!batch&&prior!=0?actorWindow():null;
+        boolean removeFirst=first.length==1&&first[0]=='-',removeSecond=secondActor.length==1&&secondActor[0]=='-';
+        super.command("dm.scene.character",new int[]{0},first);super.command("dm.scene.character",new int[]{1},secondActor);dc2ActorChange.clear();
+        if(removeFirst&&removeSecond&&!wasVisible)return true;
+        if(prior>0&&!batch)originalCompositePending=messageMode()==0?2:1;
+        if(following.opcode==2){commitOriginalActorPosition();return true;}
+        if(batch&&scene.slots[2].isEmpty()&&scene.slots[3].isEmpty())return true;
+        remaining=0;timedInput=false;presentationWaiting=textWaiting=false;ui.waiting=false;originalWaitKind=-1;originalResetBatch=true;
+        if(batch){
+            Dc2Scene.Frame source=originalFrame();UiCapture prepared=actorScene(source);Dc2Scene.Frame target=copyFrame(source);target.actors[0][0]=dc2ActorChange.staged[0];target.actors[0][1]=dc2ActorChange.staged[1];target.actors[1][0]=dc2ActorChange.staged[2];target.actors[1][1]=dc2ActorChange.staged[3];
+            dc2ActorChange.start(old,actorScene(target),null,null,scene.transitionSerial,true);clearOriginalDirty();originalCompositePending=0;scene.nativeMotion=Dc2Motion.preparation(source,old,prepared,read(99,12),originalMotionSkip());
+        }else{
+            commitOriginalActorPosition();scene.publish(ui,0,0);Dc2MessageWindow nextWindow=originalCompositePending!=0?actorWindow():null;dc2ActorChange.start(old,actorScene(scene.shown),oldWindow,nextWindow,scene.transitionSerial,false);
+        }
+        nextTicket();return true;
+    }
+    private void finishOriginalActorPreparation()throws IOException{
+        UiCapture initial=scene.nativeMotion.prepared;scene.nativeMotion=null;originalCompositePending=0;commitOriginalActorPosition();scene.publish(ui,0,0);dc2ActorChange.afterPreparation(initial,actorScene(scene.shown),scene.transitionSerial);
+    }
     private void syncOriginalMotion(){Dc2Motion motion=scene.nativeMotion;scene.backgroundX(motion.x);scene.backgroundY(motion.y);scene.shown.x=motion.x;scene.shown.y=motion.y;scene.revision++;}
     private static Dc2Scene.Frame copyFrame(Dc2Scene.Frame frame)throws IOException{ByteArrayOutputStream bytes=new ByteArrayOutputStream();frame.save(new DataOutputStream(bytes));Dc2Scene.Frame copy=new Dc2Scene.Frame();copy.load(new DataInputStream(new ByteArrayInputStream(bytes.toByteArray())));return copy;}
     private void originalMotion(int[] a)throws IOException{
@@ -218,8 +262,9 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
         if(originalCompositePending<0)throw new IOException("Unsupported D.C.II 5E at "+(script==null?"?":script.name)+"@0x"+Integer.toHexString(pc)+": native BE8BC8 pending composition is unresolved after a text/character frame producer (41A020/418EA0; batch/history fields required)");
         if(a[3]<0||a[3]>16)throw new IOException("Unsupported D.C.II 5E feedback weight "+a[3]+" at "+(script==null?"?":script.name)+"@0x"+Integer.toHexString(pc)+" (native 408160 packed over-range arithmetic)");
         Dc2Scene.Frame source=new Dc2Scene.Frame();source.slots=scene.slots.clone();for(int n=0;n<4;n++)source.actors[n]=scene.character(n);source.quads=Dc2Ui.copyQuads(ui.quads);source.x=scene.backgroundX();source.y=scene.backgroundY();
-        Dc2Motion previous=scene.nativeMotion;UiCapture initial=previous==null?SceneCaptures.legacy(copyFrame(scene.shown),scene,ui,variables,read(99,10)!=0,uiCapture):null;
+        Dc2Motion previous=scene.nativeMotion;UiCapture initial=previous==null?(nativeFrameCapture!=null?nativeFrameCapture.capture():SceneCaptures.legacy(copyFrame(scene.shown),scene,ui,variables,read(99,10)!=0,uiCapture)):null;
         scene.nativeMotion=new Dc2Motion(source,initial,previous,a[0],a[1],a[3],originalCompositePending!=0,read(99,12),originalMotionSkip());
+        if(originalCompositePending!=0){scene.nativeMotion.prepared=SceneCaptures.legacy(copyFrame(source),scene,ui,variables,true,uiCapture);if(nativeMessageTemplateCapture!=null)scene.nativeMotion.fullTemplate=nativeMessageTemplateCapture.capture();}
         syncOriginalMotion();nextTicket();
     }
     @Override public boolean internalMenuAction(long expected,int button)throws IOException{
@@ -268,6 +313,59 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
         if(originalDrawDirty==0){originalBatchInitial=nativeFrameCapture!=null?nativeFrameCapture.capture():SceneCaptures.legacy(copyFrame(scene.shown),scene,ui,variables,true,uiCapture);originalDrawDirty=1;}
     }
     private void clearOriginalDirty(){originalDrawDirty=0;originalBatchInitial=null;}
+    /** Typed normal-text import projection; raw Windows frame bytes remain
+     * with Dc2NativeSlot. Logical buffers restart through the real checkpoint. */
+    void applyDc2NativeSlot(Dc2NativeSlot slot,Dc2NativeSlot.Plan plan)throws IOException{
+        if(!original)throw new IOException("DC2 native slot profile required");
+        byte[] ordinary=slot.ordinaryBytes();for(int n=0;n<ordinary.length;n++)variables.write(n/100,n%100,ordinary[n]&255);
+        Dc2NativeSlot.StringField[] fields={Dc2NativeSlot.StringField.BACKGROUND,Dc2NativeSlot.StringField.ACTOR1,Dc2NativeSlot.StringField.ACTOR2,Dc2NativeSlot.StringField.OVERLAY1,Dc2NativeSlot.StringField.OVERLAY2,Dc2NativeSlot.StringField.RESOURCE3,Dc2NativeSlot.StringField.RESOURCE4,Dc2NativeSlot.StringField.RESOURCE5};
+        int[] target={1,2,3,6,7,10,11,12};for(int n=0;n<fields.length;n++){String resource=slot.resource(fields[n]);if(!resource.isEmpty())resources.image(resource);scene.slots[target[n]]=resource;}
+        scene.backgroundX(slot.dword(Dc2NativeSlot.Dword.BACKGROUND_X));scene.backgroundY(slot.dword(Dc2NativeSlot.Dword.BACKGROUND_Y));
+        scene.character(0,0,slot.dword(Dc2NativeSlot.Dword.ACTOR1_X));scene.character(0,1,slot.dword(Dc2NativeSlot.Dword.ACTOR1_Y));scene.character(1,0,slot.dword(Dc2NativeSlot.Dword.ACTOR2_X));scene.character(1,1,slot.dword(Dc2NativeSlot.Dword.ACTOR2_Y));
+        dc2ActorChange.staged[0]=slot.dword(Dc2NativeSlot.Dword.ACTOR1_STAGE_X);dc2ActorChange.staged[1]=slot.dword(Dc2NativeSlot.Dword.ACTOR1_STAGE_Y);dc2ActorChange.staged[2]=slot.dword(Dc2NativeSlot.Dword.ACTOR2_STAGE_X);dc2ActorChange.staged[3]=slot.dword(Dc2NativeSlot.Dword.ACTOR2_STAGE_Y);
+        messageMode(slot.dword(Dc2NativeSlot.Dword.PARAGRAPH_MODE));checkpoint=plan.checkpointIndex;int cachedRead=slot.dword(Dc2NativeSlot.Dword.CACHED_SCENARIO_READ);if(cachedRead<0||cachedRead>255)throw new IOException("DC2 native cached scenario read byte");registers.put(251,cachedRead);
+        ui.clearCurrent();grid.clear();gridWaiting=confirming=false;systemScene=null;remaining=0;audioMask=0;textWaiting=presentationWaiting=false;body=speaker="";speakerPending=false;lineVoice="";
+        originalDrawDirty=0;originalBatchInitial=null;originalResetBatch=false;originalDeferred=null;originalCompositePending=0;originalWaitKind=-1;originalInputMode=0;originalNextSpeaker="";originalSpeakerEnd=-1;scene.nativeMotion=null;dc2Map.reset();dc2Borrowed.reset();
+        ui.actions[0]=slot.text(Dc2NativeSlot.StringField.ACTION0);ui.actions[1]=slot.text(Dc2NativeSlot.StringField.ACTION1);scene.publish(ui,0,0);
+        int music=slot.dword(Dc2NativeSlot.Dword.LOGICAL_MUSIC);command("dm.audio.music",new int[]{music<0?255:music,1},new byte[0]);
+        int packed=slot.dword(Dc2NativeSlot.Dword.PACKED_SOUND),sound=packed&255,mode=packed>>>8&255;if(mode!=0)command("pc.sound8",new int[]{sound,1},new byte[0]);else play(1,"",false);
+        command("pc.effect",new int[]{slot.dword(Dc2NativeSlot.Dword.EFFECT_KIND),slot.dword(Dc2NativeSlot.Dword.EFFECT_STRENGTH)},new byte[0]);
+        for(int word:slot.activeLogWords())readCheckpoints.add(plan.script+":"+(word&0x7fff));
+    }
+    /** 41D340 samples the previous scene-read byte; loader413946 caches it.
+     * The value is not a catalog index and must not change when body marks seen. */
+    private void cacheOriginalScenarioRead(String name)throws IOException{int index=catalogIndex("scenario_scripts",name);registers.put(251,index>=0&&index<seen.length?seen[index]&255:0);}
+    // Out-of-band portable event key; it is not a native99 register address.
+    private static final int DC2_RAPID_RESET_EVENT=0x44435252;
+    public int dc2RapidResetGeneration(){return registers.getOrDefault(DC2_RAPID_RESET_EVENT,0);}
+    /** system40 writes BE8BA8=0: reset current rapid input, not skip permission. */
+    public void resetOriginalRapid()throws IOException{if(!original||dc2RapidResetGeneration()==Integer.MAX_VALUE)throw new IOException("DC2 rapid reset event counter");motionSkipPressed=false;registers.put(DC2_RAPID_RESET_EVENT,dc2RapidResetGeneration()+1);}
+    public void prepareOriginalCharacterEnding(int variant)throws IOException{
+        if(!original||variant<0||variant>5||dc2Credits.active)throw new IOException("DC2 character ending requires original profile and variant0..5");
+        int[] seconds=new int[24];for(int n=0;n<seconds.length;n++)seconds[n]=variables.read(6,50+n);
+        UiCapture front=nativeFrameCapture!=null?nativeFrameCapture.capture():SceneCaptures.legacy(scene.shown,scene,ui,variables,read(99,10)!=0,uiCapture);if(front==null)throw new IOException("DC2 character ending initial front missing");
+        dc2CharacterEnding.prepare(variant,seconds);dc2EndingUnderlay=front;
+    }
+    public void beginOriginalCharacterEnding()throws IOException{
+        if(!original||dc2EndingUnderlay==null||dc2Credits.active)throw new IOException("DC2 character ending11 requires its prepared front");dc2CharacterEnding.begin();remaining=0;timedInput=false;presentationWaiting=textWaiting=false;ui.waiting=false;originalWaitKind=-1;nextTicket();
+    }
+    private void finishOriginalCharacterEnding()throws IOException{
+        UiCapture front=nativeFrameCapture==null?null:nativeFrameCapture.capture();
+        Arrays.fill(scene.slots,0,21,"");ui.quads.clear();ui.buttons.clear();scene.backgroundX(0);scene.backgroundY(0);scene.scrollStep=0;scene.nativeMotion=null;scene.nativeParticles.command(0,0,true);
+        if(front!=null){uiCapture=front;scene.slots[1]="@ui-capture";}else scene.slots[1]="BG/black";
+        clearOriginalDirty();originalDeferred=null;originalResetBatch=false;scene.publish(ui,0,0);dc2EndingUnderlay=null;
+    }
+    public void openOriginalCredits(int variant)throws IOException{
+        if(!original||variant<0||variant>1)throw new IOException("DC2 credits require original profile and variant0/1");
+        UiCapture underlay=nativeFrameCapture!=null?nativeFrameCapture.capture():SceneCaptures.legacy(scene.shown,scene,ui,variables,read(99,10)!=0,uiCapture);if(underlay==null)throw new IOException("DC2 credits initial front missing");
+        dc2Credits.start(variant);dc2CreditsUnderlay=underlay;remaining=0;timedInput=false;presentationWaiting=textWaiting=false;ui.waiting=false;originalWaitKind=-1;nextTicket();
+    }
+    private void finishOriginalCredits()throws IOException{
+        UiCapture front=nativeFrameCapture==null?null:nativeFrameCapture.capture();
+        Arrays.fill(scene.slots,0,21,"");ui.quads.clear();ui.buttons.clear();scene.backgroundX(0);scene.backgroundY(0);scene.scrollStep=0;scene.nativeMotion=null;scene.nativeParticles.command(0,0,true);
+        if(front!=null){uiCapture=front;scene.slots[1]="@ui-capture";}else scene.slots[1]=dc2Credits.image(Dc2OriginalCredits.PAGES-1);
+        clearOriginalDirty();originalDeferred=null;originalResetBatch=false;scene.publish(ui,0,0);dc2CreditsUnderlay=null;
+    }
     public void openOriginalMap()throws IOException {if(!original)throw new IOException("DC2 map requires original profile");dc2Map.open(variables);clearOriginalDirty();originalDeferred=null;originalResetBatch=false;scene.nativeMotion=null;originalWaitKind=-1;originalInputMode=0;timedInput=false;remaining=0;presentationWaiting=textWaiting=gridWaiting=confirming=false;dc2Map.buttons(ui);nextTicket();}
     private IOException originalUnsupported(String detail){return new IOException("Unsupported D.C.II at "+(script==null?"?":script.name)+"@0x"+Integer.toHexString(pc)+": "+detail);}
     private DeferredScene originalCommand(int kind,String value){DeferredScene pending=new DeferredScene();pending.kind=kind;pending.pc=pc;pending.script=script==null?"":script.name;if(kind==1)pending.voice=value;else{pending.body=value;pending.speaker=originalSpeakerEnd==pc&&messageMode()==0?originalNextSpeaker:"";pending.voice=lineVoice;originalNextSpeaker="";originalSpeakerEnd=-1;}return pending;}
@@ -287,7 +385,7 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
         body=pending.body;speaker=pending.speaker;speakerPending=false;
         unlock("scenario_scripts",pending.script,98);
         if(!body.isEmpty())history.append(speaker,body,pending.voice,pending.script,pending.pc);
-        lineVoice="";presentationWaiting=true;textRendered=false;originalCompositePending=-1;
+        lineVoice="";presentationWaiting=true;textRendered=false;originalCompositePending=messageMode()==0?1:-1;
         originalResetBatch=true;pc=pending.pc;nextTicket();
     }
     @Override public byte[] menuAction(long expected,int button)throws IOException{
@@ -331,6 +429,8 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
         if(i<0)throw new IOException("Negative PC variable index");
         if(b==100)return at(globals,i);if(b==97)return at(cg,i);if(b==98)return at(seen,i);if(b==95)return second?at(voiceEnabled,i):1;if(b==90)return at(scratch,i);
         if(b!=99)return 0;
+        if(original&&i==251)return registers.getOrDefault(251,0);
+        if(original&&i==21){int hour=dc2LocalHour.read();if(hour<0||hour>23)throw new IOException("DC2 local hour outside native SYSTEMTIME range");return hour;}
         switch(i){case 3:return 1;case 4:return fullscreen?1:0;case 242:return 0;case 243:return pc1!=null?registers.getOrDefault(243,-1):catalogIndex("images",scene.slots[1]);case 244:return pc1!=null?0:logicalMusic();
         case 245:return pc1!=null?0:ui.hovered;case 246:return pc1!=null||original?0:list.active()?registers.getOrDefault(246,0):gridWaiting?2:0;case 247:return 0;case 248:return audioActive[1]?0:1;case 249:return audioActive[5]?0:1;case 250:return audioActive[0]?0:1;
         case 251:return pc1!=null?pc1.cachedScenarioRead():script==null?-1:catalogIndex("scenario_scripts",script.name);case 255:return pc1!=null?0:registers.getOrDefault(255,0);
@@ -359,9 +459,9 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
         if(mode<1||mode>3)throw new IOException("PC transfer mode "+mode);
         if(pc1!=null)pc1.scriptLoaded(mode,name);
         ui.clearCurrent();grid.clear();list.clear();gridTarget=false;musicEndAction="";gridWaiting=confirming=false;remaining=0;body=speaker="";textWaiting=presentationWaiting=false;
-        if(original){if(mode==1||mode==3)dc2Map.reset();originalWaitKind=-1;originalInputMode=0;clearOriginalDirty();originalResetBatch=false;originalDeferred=null;originalNextSpeaker="";originalSpeakerEnd=-1;}
+        if(original){dc2Borrowed.loaded(mode);if(mode==1||mode==3){dc2Map.reset();dc2Credits.clear();dc2CreditsUnderlay=null;dc2CharacterEnding.clear();dc2EndingUnderlay=null;dc2ActorMotion.clear();dc2ActorChange.clear();cacheOriginalScenarioRead(name);}originalWaitKind=-1;originalInputMode=0;clearOriginalDirty();originalResetBatch=false;originalDeferred=null;originalNextSpeaker="";originalSpeakerEnd=-1;}
         if(mode!=2){ui.actions[0]=ui.actions[1]="";}
-        if(mode==1){scene.reset();ui.quads.clear();}unlock("scenario_scripts",name,98);return true;
+        if(mode==1){scene.reset();ui.quads.clear();}if(!original)unlock("scenario_scripts",name,98);return true;
     }
     /** Resource selector codes are not texture slots; both generations use distinct maps. */
     private int slot(int value)throws IOException{
@@ -442,6 +542,7 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
         if(pc1!=null&&op.equals("audio.music")&&a.length>=2&&a[0]!=255){if(a[1]==0||a[1]==1&&logicalMusic()!=a[0])pc1BgmMode=0;else if(a[1]==2)pc1BgmMode=1;}
         // DC2's service default is an actual native return; do not clear generic PC
         // wait/input state before the version-specific dispatcher can classify it.
+        if(original&&op.equals("native.unmodelled")&&script!=null){int opcode=script.fetchRecord(pc).opcode;if(opcode==0x61){originalActorMotion(a);return true;}if(opcode==0x22)return command("pc.random",a,bytes);}
         if(original&&op.equals("dm.system.command")||op.equals("native.unmodelled")||op.equals("native.no_effect"))return super.command(op,a,bytes);
         if(original&&op.equals("pc.effect")){if(a[0]==2)throw originalUnsupported("2A kind2 rain kernel412380/4124C0 remains unreviewed");scene.nativeParticles.command(a[0],a[1],read(99,20)!=0);if(scene.nativeMotion!=null&&!scene.nativeMotion.active){scene.nativeMotion=null;if(originalDrawDirty==0)scene.publish(ui,0,0);}return true;}
         if(op.equals("pc.effect")&&(a[0]==5||a[0]==6))return super.command("dm.scene.effect",a,bytes);
@@ -529,10 +630,13 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
         // so 32h drives slot 0 and 33h drives the overlay slot.
         case "pc.character":case "pc.character_overlay":{
             boolean overlay=op.equals("pc.character_overlay");
-            if(original&&!overlay)originalCompositePending=-1;
+            if(original&&!overlay&&a.length==0)return originalActorChange(bytes);
+            int priorComposition=originalCompositePending;
             if(original&&!overlay&&originalDrawDirty!=0&&(script==null||script.instruction(pc).next>=script.length()||script.rawOpcode(script.instruction(pc).next)!=2))throw originalUnsupported("32 actor coroutine must flush native9DA2D0 through413E70/41C440; only its02 deferred batch producer is reviewed");
             int[] slot=a.length>0?a:new int[]{overlay?1:0};
-            return super.command(overlay?"dm.scene.character_overlay":"dm.scene.character",slot,bytes);
+            boolean loaded=super.command(overlay?"dm.scene.character_overlay":"dm.scene.character",slot,bytes);
+            if(original&&!overlay&&priorComposition>0&&originalDrawDirty==0)originalCompositePending=messageMode()==0?2:1;
+            return loaded;
         }
         case "pc.quad":if(pc1!=null&&pc1.dispatching()){int count=pc1.nativeFrame().dword(Pc1NativeSlot.Dword.PENDING_COUNT);pc1.produceQuad53(a[2],a[3]);if(count>=0&&count<60)projectProducedRecord(count);return true;}quad(a,false);return true;
         // Original D.C.II 416151 records the 51h companion as {sx, sy, right, bottom}: the unflagged
@@ -551,12 +655,12 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
             if(!second&&(a[0]==1||a[0]==3||a[0]==4)){scene.slots[16]="system/"+(a[0]==3?"YUKI01":a[0]==1?"SACRA01":"SACRA02");scene.effect(1,a[1]);return true;}
             if(second&&(a[0]==1||a[0]==3||a[0]==4||a[0]==11||a[0]==12)){scene.slots[16]="system/"+(a[0]==12?"SAKU_YUKI02":a[0]==11?"SAKU_YUKI01":a[0]==3?"YUKI01":a[0]==1?"SACRA01":"SACRA02");scene.effect(1,a[1]);return true;}
             return super.command("dm.scene.effect",a,bytes);
-        case "pc.transition":if(original&&(a[0]==0||a[0]==13)){originalCompositePending=0;clearOriginalDirty();originalResetBatch=true;}if(a[0]==13){if(a[1]!=0&&a[1]!=1&&a[1]!=2)throw new IOException("PC2 mask variant "+a[1]);int minimum=a[1]==0?0:a[1]==1?(second?-191:-199):(second?-340:-348);int gain=0,ticks=1;while(minimum+gain<16){ticks++;gain+=Math.min(16,ticks);}scene.publish(ui,130+a[1],ticks*40L);delay(scene.transitionDuration);return true;}if(a[0]==7){return true;} // Native creates/releases a temporary transition bitmap, not a timed transition.
+        case "pc.transition":if(original&&(a[0]==1||a[0]==2)){clearOriginalDirty();originalResetBatch=true;}if(original&&(a[0]==0||a[0]==13)){originalCompositePending=0;clearOriginalDirty();originalResetBatch=true;}if(a[0]==13){if(a[1]!=0&&a[1]!=1&&a[1]!=2)throw new IOException("PC2 mask variant "+a[1]);int minimum=a[1]==0?0:a[1]==1?(second?-191:-199):(second?-340:-348);int gain=0,ticks=1;while(minimum+gain<16){ticks++;gain+=Math.min(16,ticks);}scene.publish(ui,130+a[1],ticks*40L);delay(scene.transitionDuration);return true;}if(a[0]==7){return true;} // Native creates/releases a temporary transition bitmap, not a timed transition.
             if(second&&(a[0]==21||a[0]==22)){int[] rates={64,64,32,16,8,4,2,1};int duration=a[1]<8?40*(256+rates[a[1]]-1)/rates[a[1]]:(a[1]*5-35)*8*256;scene.publish(ui,200+a[0],duration);delay(duration);return true;}
             if(a[0]==9){captureUi();return true;} // Captured caller is a logical frame instead of a native render target.
             if(a[0]==10||a[0]==12||a[0]==14){scene.publish(ui,0,200L*Math.max(1,a[1]));delay(scene.transitionDuration);return true;}return super.command("dm.scene.transition",a,bytes);
         case "pc.scroll":if(a[2]==2){scene.portraitX=a[0];scene.portraitY=a[1];return true;}return super.command("dm.scene.scroll",a,bytes);
-        case "pc.actor_position":if(pc1!=null&&pc1.dispatching()){Pc1DrawProducer.stageActor60(pc1.nativeFrame(),a[2],a[3]);return true;}if(second){int n=a[2];if(n>=0&&n<4){scene.character(n,0,a[0]);scene.character(n,1,a[1]);scene.character(n,2,100);return true;}}else{scene.character(0,0,a[0]);scene.character(0,1,a[1]);scene.character(1,0,a[2]);scene.character(1,1,a[3]);return true;}throw new IOException("PC actor position "+Arrays.toString(a));
+        case "pc.actor_position":if(original){System.arraycopy(a,0,dc2ActorChange.staged,0,4);return true;}if(pc1!=null&&pc1.dispatching()){Pc1DrawProducer.stageActor60(pc1.nativeFrame(),a[2],a[3]);return true;}if(second){int n=a[2];if(n>=0&&n<4){scene.character(n,0,a[0]);scene.character(n,1,a[1]);scene.character(n,2,100);return true;}}else{scene.character(0,0,a[0]);scene.character(0,1,a[1]);scene.character(1,0,a[2]);scene.character(1,1,a[3]);return true;}throw new IOException("PC actor position "+Arrays.toString(a));
         case "pc.actor_transform":if(second&&(a[3]&16)!=0)return super.command("dm.scene.character_transform",a,bytes);if(second&&a[3]<4){int n=a[3];scene.character(n,0,a[0]);scene.character(n,1,a[1]);scene.character(n,2,a[2]);scene.publish(ui,0,200);delay(200);return true;}throw new IOException("PC actor transform "+Arrays.toString(a));
         case "pc.sound8":if(pc1!=null)pc1.soundRequest(a[0],a[1]);return super.command("dm.audio.sound",new int[]{a[0]==255?-1:a[0],a[1]},bytes);
         case "pc.save_caption":checkpointLabel=text;return true;
@@ -564,7 +668,7 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
             case 0:loadRequest=read(99,254);nextTicket();return true;
             case 8:windowRequest=a[1];fullscreen=a[1]!=0;return true;
             case 2:case 3:case 5:case 10:case 12:case 17:return true;
-            case 4:if(pc1!=null){pc1.requestSave(a[1]);return true;}if(a[1]==1)autosaveGeneration++;else{saveRequest=read(99,254);nextTicket();}return true;
+            case 4:if(pc1!=null){pc1.requestSave(a[1]);return true;}if(original){if(a[1]==1&&dc2Borrowed.flag==0)dc2Borrowed.produce(script,pc,script.fetchRecord(pc).end,2);saveRequest=a[1]==1?0:read(99,254);nextTicket();return true;}if(a[1]==1)autosaveGeneration++;else{saveRequest=read(99,254);nextTicket();}return true;
             case 6:if(pc1!=null)pc1.textLog.clearLog();else variables.clearHistory();return true;case 7:skipAllowed=a[1]!=0;return true;case 11:messageMode(a[1]);if(pc1!=null){pc1.textLog.clearLog();pc1.prepareGeometry();}return true;case 13:inputMode=a[1];return true;
             default:throw new IOException("Unimplemented PC persistence "+Arrays.toString(a));}
         case "pc.wait.media_mask":if((a[0]&~7)!=0)throw new IOException("PC native media timer mask "+a[0]);return super.command("wait.audio",a,bytes); // 41ED22 / 4230E0: music=1, voice=2, SE=4.
@@ -672,7 +776,7 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
     public int nativeCrtRandom()throws IOException{if(pc1==null)throw new IOException("PC1 CRT owner unavailable");return nextRandom();}
     private String prose(byte[] raw)throws IOException{return codec.decode(raw).replace("$n",pc1==null?givenName:codec.decode(nativeGivenName())).replace("$s",pc1==null?familyName:codec.decode(nativeFamilyName()));}
     @Override public void copyPersistentFrom(Dc2Host other)throws IOException{
-        PcHost p=(PcHost)other;nativeFrameCapture=p.nativeFrameCapture;
+        PcHost p=(PcHost)other;nativeFrameCapture=p.nativeFrameCapture;nativeMessageTemplateCapture=p.nativeMessageTemplateCapture;
         if(pc1!=null){
             if(p.pc1==null)throw new IOException("PC1 persistent owner/profile mismatch");
             p.ensureNativeSettings();pc1Settings=Pc1NativeSettings.parse(p.pc1Settings.originalBytes());pc1SettingsInitialized=true;
@@ -699,9 +803,9 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
         if(pc1!=null){if(format!=0x50435034)throw new IOException("PC1 pre-PCP4 state has no lossless native system.dat owner");Pc1NativeSettings next=readNativeSettingsImage(i);int mode=i.readInt(),sprites=i.readInt(),random=i.readInt();pc1Settings=next;pc1SettingsInitialized=true;pc1BgmMode=mode;spriteFlags=sprites;randomState=random;clearNativeSettingsRegisterMirrors();refreshNativeNameCache();return;}
         if(format!=0x50435031&&format!=0x50435032)throw new IOException("PC state format");i.readFully(globals);i.readFully(cg);i.readFully(seen);i.readFully(voiceEnabled);i.readFully(scratch);spriteFlags=i.readInt();randomState=i.readInt();if(format>=0x50435032){familyName=i.readUTF();givenName=i.readUTF();if(familyName.length()>4||givenName.length()>4)throw new IOException("Saved player name too long");}
     }
-    @Override public void save(DataOutput o)throws IOException{super.save(o);o.writeInt(original?0x5043483c:pc1!=null?0x5043483b:0x50434835);savePc(o);o.writeBoolean(timedInput);for(int n:gridBounds)o.writeInt(n);map.save(o);pcCredits.save(o);o.writeInt(voiceGroup.size());for(String voice:voiceGroup)o.writeUTF(voice);list.save(o);o.writeBoolean(gridTarget);o.writeUTF(musicEndAction);nameInput.save(o);if(original){o.writeInt(originalCompositePending);o.writeInt(originalVoiceEnabled);o.writeFloat(originalPlaybackGain);o.writeInt(originalWaitKind);o.writeInt(originalInputMode);o.writeBoolean(scene.nativeMotion!=null);if(scene.nativeMotion!=null)scene.nativeMotion.save(o);scene.nativeParticles.save(o);o.writeInt(originalDrawDirty);o.writeBoolean(originalResetBatch);UiCapture.save(o,originalBatchInitial);o.writeUTF(originalNextSpeaker);o.writeInt(originalSpeakerEnd);o.writeBoolean(originalDeferred!=null);if(originalDeferred!=null)originalDeferred.save(o);}if(original)dc2Map.save(o);if(pc1!=null)pc1.save(o);}
-    @Override public void load(DataInput i)throws IOException{super.load(i);int format=i.readInt();if(format!=0x50434832&&format!=0x50434833&&format!=0x50434834&&format!=0x50434835&&format!=0x50434836&&format!=0x50434837&&format!=0x50434838&&format!=0x50434839&&format!=0x5043483a&&format!=0x5043483b&&format!=0x5043483c)throw new IOException("PC host state version");if(original&&format!=0x50434837&&format!=0x5043483c)throw new IOException("D.C.II pre-PCH7 snapshot has no native particle/batch state; restore requires a PCH7 snapshot");if((format==0x50434836||format==0x50434837||format==0x5043483c)&&!original)throw new IOException("D.C.II motion state requires original profile");if(pc1!=null&&format!=0x5043483b)throw new IOException("PC1 pre-PCH11 snapshot has no canonical live scene coordinates");if((format==0x50434838||format==0x50434839||format==0x5043483a||format==0x5043483b)&&pc1==null)throw new IOException("PCH8/PCH9/PCH10/PCH11 requires PC1");loadPc(i);timedInput=i.readBoolean();for(int n=0;n<8;n++)gridBounds[n]=i.readInt();map.load(i);voiceGroup.clear();if(format>=0x50434833){pcCredits.load(i);int count=i.readInt();if(count<0||count>10)throw new IOException("PC voice group count");while(count-->0)voiceGroup.add(i.readUTF());}if(format>=0x50434834){list.load(i);gridTarget=i.readBoolean();musicEndAction=i.readUTF();}if(format>=0x50434835){nameInput.load(i);if(nameInput.active)nameInput.prepare(resources,codec);}originalCompositePending=0;scene.nativeMotion=null;motionSkipPressed=false;originalWaitKind=-1;originalInputMode=0;originalVoiceEnabled=1;originalPlaybackGain=Dc2Voice.gain(0,registers.getOrDefault(9,29));if(format==0x50434836||format==0x50434837||format==0x5043483c){originalCompositePending=i.readInt();originalVoiceEnabled=i.readInt();originalPlaybackGain=i.readFloat();originalWaitKind=i.readInt();originalInputMode=i.readInt();if(originalWaitKind!= -1&&originalWaitKind!=9&&originalWaitKind!=10&&originalWaitKind!=11&&originalWaitKind!=18)throw new IOException("D.C.II saved input wait");if(Float.isNaN(originalPlaybackGain)||originalPlaybackGain<0||originalPlaybackGain>1)throw new IOException("D.C.II saved voice gain");if(originalCompositePending< -1||originalCompositePending>1)throw new IOException("D.C.II pending composition state");if(i.readBoolean())scene.nativeMotion=Dc2Motion.load(i);}if(format==0x50434837||format==0x5043483c){scene.nativeParticles=Dc2Particles.load(i,this::nextRandom);originalDrawDirty=i.readInt();originalResetBatch=i.readBoolean();originalBatchInitial=UiCapture.load(i);originalNextSpeaker=i.readUTF();originalSpeakerEnd=i.readInt();originalDeferred=i.readBoolean()?DeferredScene.load(i):null;if(originalDrawDirty< -1||originalDrawDirty>1||originalDrawDirty==1&&originalBatchInitial==null||originalDrawDirty!=1&&originalBatchInitial!=null||originalDeferred!=null&&(scene.nativeMotion==null||!scene.nativeMotion.prepareOnly))throw new IOException("D.C.II saved batch/preparation state");}
-        if(original){if(format==0x5043483c)dc2Map.load(i);else dc2Map.reset();}if(pc1!=null)pc1.load(i);
+    @Override public void save(DataOutput o)throws IOException{super.save(o);o.writeInt(original?0x50434841:pc1!=null?0x5043483b:0x50434835);savePc(o);o.writeBoolean(timedInput);for(int n:gridBounds)o.writeInt(n);map.save(o);pcCredits.save(o);o.writeInt(voiceGroup.size());for(String voice:voiceGroup)o.writeUTF(voice);list.save(o);o.writeBoolean(gridTarget);o.writeUTF(musicEndAction);nameInput.save(o);if(original){o.writeInt(originalCompositePending);o.writeInt(originalVoiceEnabled);o.writeFloat(originalPlaybackGain);o.writeInt(originalWaitKind);o.writeInt(originalInputMode);o.writeBoolean(scene.nativeMotion!=null);if(scene.nativeMotion!=null)scene.nativeMotion.save(o);scene.nativeParticles.save(o);o.writeInt(originalDrawDirty);o.writeBoolean(originalResetBatch);UiCapture.save(o,originalBatchInitial);o.writeUTF(originalNextSpeaker);o.writeInt(originalSpeakerEnd);o.writeBoolean(originalDeferred!=null);if(originalDeferred!=null)originalDeferred.save(o);}if(original){dc2Map.save(o);dc2Borrowed.save(o);dc2Credits.save(o);UiCapture.save(o,dc2CreditsUnderlay);dc2CharacterEnding.save(o);UiCapture.save(o,dc2EndingUnderlay);dc2ActorMotion.save(o);dc2ActorChange.save(o);}if(pc1!=null)pc1.save(o);}
+    @Override public void load(DataInput i)throws IOException{super.load(i);int format=i.readInt();if(format!=0x50434832&&format!=0x50434833&&format!=0x50434834&&format!=0x50434835&&format!=0x50434836&&format!=0x50434837&&format!=0x50434838&&format!=0x50434839&&format!=0x5043483a&&format!=0x5043483b&&format!=0x5043483c&&format!=0x5043483d&&format!=0x5043483e&&format!=0x5043483f&&format!=0x50434840&&format!=0x50434841)throw new IOException("PC host state version");if(original&&format!=0x50434837&&format!=0x5043483c&&format!=0x5043483d&&format!=0x5043483e&&format!=0x5043483f&&format!=0x50434840&&format!=0x50434841)throw new IOException("D.C.II pre-PCH7 snapshot has no native particle/batch state; restore requires a PCH7 snapshot");if((format==0x50434836||format==0x50434837||(format==0x5043483c||format==0x5043483d||(format==0x5043483e||(format==0x5043483f||(format==0x50434840||format==0x50434841)))))&&!original)throw new IOException("D.C.II motion state requires original profile");if(pc1!=null&&format!=0x5043483b)throw new IOException("PC1 pre-PCH11 snapshot has no canonical live scene coordinates");if((format==0x50434838||format==0x50434839||format==0x5043483a||format==0x5043483b)&&pc1==null)throw new IOException("PCH8/PCH9/PCH10/PCH11 requires PC1");loadPc(i);timedInput=i.readBoolean();for(int n=0;n<8;n++)gridBounds[n]=i.readInt();map.load(i);voiceGroup.clear();if(format>=0x50434833){pcCredits.load(i);int count=i.readInt();if(count<0||count>10)throw new IOException("PC voice group count");while(count-->0)voiceGroup.add(i.readUTF());}if(format>=0x50434834){list.load(i);gridTarget=i.readBoolean();musicEndAction=i.readUTF();}if(format>=0x50434835){nameInput.load(i);if(nameInput.active)nameInput.prepare(resources,codec);}originalCompositePending=0;scene.nativeMotion=null;motionSkipPressed=false;originalWaitKind=-1;originalInputMode=0;originalVoiceEnabled=1;originalPlaybackGain=Dc2Voice.gain(0,registers.getOrDefault(9,29));if(format==0x50434836||format==0x50434837||(format==0x5043483c||format==0x5043483d||(format==0x5043483e||(format==0x5043483f||(format==0x50434840||format==0x50434841))))){originalCompositePending=i.readInt();originalVoiceEnabled=i.readInt();originalPlaybackGain=i.readFloat();originalWaitKind=i.readInt();originalInputMode=i.readInt();if(originalWaitKind!= -1&&originalWaitKind!=9&&originalWaitKind!=10&&originalWaitKind!=11&&originalWaitKind!=18)throw new IOException("D.C.II saved input wait");if(Float.isNaN(originalPlaybackGain)||originalPlaybackGain<0||originalPlaybackGain>1)throw new IOException("D.C.II saved voice gain");if(originalCompositePending< -1||originalCompositePending>2)throw new IOException("D.C.II pending composition state");if(i.readBoolean())scene.nativeMotion=Dc2Motion.load(i);}if(format==0x50434837||(format==0x5043483c||format==0x5043483d||(format==0x5043483e||(format==0x5043483f||(format==0x50434840||format==0x50434841))))){scene.nativeParticles=Dc2Particles.load(i,this::nextRandom);originalDrawDirty=i.readInt();originalResetBatch=i.readBoolean();originalBatchInitial=UiCapture.load(i);originalNextSpeaker=i.readUTF();originalSpeakerEnd=i.readInt();originalDeferred=i.readBoolean()?DeferredScene.load(i):null;if(originalDrawDirty< -1||originalDrawDirty>1||originalDrawDirty==1&&originalBatchInitial==null||originalDrawDirty!=1&&originalBatchInitial!=null||originalDeferred!=null&&(scene.nativeMotion==null||!scene.nativeMotion.prepareOnly))throw new IOException("D.C.II saved batch/preparation state");}
+        if(original){if(format==0x5043483c||format==0x5043483d||(format==0x5043483e||(format==0x5043483f||(format==0x50434840||format==0x50434841))))dc2Map.load(i);else dc2Map.reset();if(format==0x5043483d||(format==0x5043483e||(format==0x5043483f||(format==0x50434840||format==0x50434841))))dc2Borrowed.load(i);else dc2Borrowed.reset();if((format==0x5043483e||(format==0x5043483f||(format==0x50434840||format==0x50434841)))){dc2Credits.load(i);dc2CreditsUnderlay=UiCapture.load(i);if(dc2Credits.active&&dc2CreditsUnderlay==null)throw new IOException("DC2 credits front is absent");}else{dc2Credits.clear();dc2CreditsUnderlay=null;}if((format==0x5043483f||(format==0x50434840||format==0x50434841))){dc2CharacterEnding.load(i);dc2EndingUnderlay=UiCapture.load(i);if(dc2CharacterEnding.prepared&&dc2EndingUnderlay==null)throw new IOException("DC2 character ending front is absent");}else{dc2CharacterEnding.clear();dc2EndingUnderlay=null;}if((format==0x50434840||format==0x50434841))dc2ActorMotion.load(i);else dc2ActorMotion.clear();if(format==0x50434841)dc2ActorChange.load(i);else dc2ActorChange.clear();}if(pc1!=null)pc1.load(i);
         // Older phone snapshots contain the unconverted native text state in both the active menu and START templates.
         normalizeButtonText(ui.buttons);for(List<Dc2Ui.Button> template:ui.buttonTemplates)normalizeButtonText(template);
         // Before native defaults were initialized, all thirteen entries were white. Preserve any nondefault saved palette.

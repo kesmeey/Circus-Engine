@@ -7,7 +7,7 @@
 仓库：[kesmeey/Circus-Engine](https://github.com/kesmeey/Circus-Engine)。
 项目目录与命令行工具仍沿用 `circus-runtime`／`dc_runtime` 命名。
 
-本批 Windows 开发包为 **0.14.6-common-workflows-dev**，使用 rev8 执行契约，优先主要功能和常见流程；[包哈希与实包复查](docs/validation/windows-common-workflows-0.14.6.json)，见[各游戏实际检查范围](docs/COMMON_WORKFLOWS.md)、[重写状态与缺口](docs/NATIVE_REWRITE_STATUS.md)及下方存档边界。
+本批 Windows 开发包为 **0.14.7-common-workflows-dev**，使用 rev8 执行契约，优先主要功能和常见流程；[包哈希与实包复查](docs/validation/windows-common-workflows-0.14.7.json)，见[各游戏实际检查范围](docs/COMMON_WORKFLOWS.md)、[重写状态与缺口](docs/NATIVE_REWRITE_STATUS.md)及下方存档边界。
 
 当前目标已调整为约80%的主要功能与大多数常见游戏流程，允许延期少量难处理的版本和边缘行为；这是工程范围，尚不是完成率声明。见[当前交付目标](docs/ENGINE_SCOPE.md)。
 
@@ -28,7 +28,7 @@
 |---|---|---|
 | D.C. 〜ダ・カーポ〜 P.C. | `dcpc-2063` | 独立便携自动槽与原版存读菜单；两项合法选择调整后音梦10,358句经STAFF回标题；Windows槽文件互通仍未实现 |
 | D.C.II 〜ダ・カーポII〜 P.C. | `dc2pc-5769` | 启动／正文／选择／存读档／到片尾 |
-| D.C.II 〜ダ・カーポII〜（2006 原版） | `dc2-3363` | 重写开发中；未完成的原生系统服务会精确停止，部分剧情／片尾／闹钟流程尚不支持，暂不承诺整作可玩 |
+| D.C.II 〜ダ・カーポII〜（2006 原版） | `dc2-3363` | 首次剧情、角色移动、闹钟存读与片尾已补齐；实际杏/七夏路线经片尾回标题；桌面支持普通ADV原Windows槽转换，少数特殊合成与全部路线尚未穷举 |
 | D.C.II Dearest Marriage | `dc2dm-9d72` | 启动／正文／存读档／回看与语音重播／CG·场景·音乐鉴赏／到片尾 |
 | D.C.III DreamDays | `dc3dd-a5a8` | 七条剧情路线到片尾 |
 | D.C.III With You | `dc3wy-a09f` | 代表策略2,737句后经该版本片尾回标题；其他选择组合未穷举 |
@@ -66,10 +66,10 @@ SAF 只申请读取权限；存档和解码缓存写应用私有目录。
 ### Windows
 
 ```powershell
-python tools/package_desktop.py --jdk <JDK21> --ffmpeg <ffmpeg.exe> --version 0.14.6-common-workflows-dev
+python tools/package_desktop.py --jdk <JDK21> --ffmpeg <ffmpeg.exe> --version 0.14.7-common-workflows-dev
 ```
 
-产物 `build/distribution/dc-runtime-0.14.6-common-workflows-dev-windows-x64/`，双击 `DC Runtime.cmd`，
+产物 `build/distribution/dc-runtime-0.14.7-common-workflows-dev-windows-x64/`，双击 `DC Runtime.cmd`，
 再选游戏目录。包内自带 JRE 和 FFmpeg，不需要另装 Java；存档写在包目录的 `saves/`。
 
 用当前源码构建的播放器可在同一目录有多个补丁EXE时，明确选择用于读取静态数据表的文件：
@@ -95,7 +95,7 @@ python -m unittest discover -s tests
 python tools/build_windows_native.py --java-home <JDK21> --vcvars "<Visual Studio>\VC\Auxiliary\Build\vcvarsall.bat"
 ```
 
-每次原生构建冻结所用 C/header，记录源码与 DLL 哈希。实际审计必须搭配同次源码对应的 DLL；核心测试、真实 Win32 服务检查和真实游戏启动分别记录，不能相互替代。当前已验范围及剩余工作见 [重写状态](docs/NATIVE_REWRITE_STATUS.md)，最新源码哈希见 [验证摘要](docs/validation/wy-credits-source-2026-11-07.json)，基础执行链记录见 [上一阶段](docs/validation/majority-source-2026-11-07.json)。
+每次原生构建冻结所用 C/header，记录源码与 DLL 哈希。实际审计必须搭配同次源码对应的 DLL；核心测试、真实 Win32 服务检查和真实游戏启动分别记录，不能相互替代。当前已验范围及剩余工作见 [重写状态](docs/NATIVE_REWRITE_STATUS.md)，最新源码与同源平台检查见 [验证摘要](docs/validation/first-play-workflows-source-2026-11-08.json)，基础执行链记录见 [上一阶段](docs/validation/majority-source-2026-11-07.json)。
 
 ## 操作（Android）
 
@@ -110,13 +110,21 @@ python tools/build_windows_native.py --java-home <JDK21> --vcvars "<Visual Studi
 
 手机存档不是原 Windows 格式。原版的系统进度（通关、CG、场景解锁）可以导入：
 游戏卡片「更多 → 导入原版进度」，支持 DCPC／DC2（2006）／DC2PC／DC2DM／DC3DD／DC3WY／DC3PP／DC3R。
-原版剧情槽位目前只有 DC3R 能转换，其余版本只合并系统进度。
+Android 的原版剧情槽导入入口目前仅覆盖 DC3R；本轮桌面新增 DC2（2006）普通 ADV 剧情槽转换，范围见下文。
 
 本轮非 Unity 剧情快照使用 `CVS2`，保存执行规则身份；旧非示例 `CVS1` 剧情槽会明确拒绝，
 因为旧变量模型和取指规则已造成的执行差异不能仅凭存档长度证明可迁移。系统持久进度单独处理。
 
-PC1原版存读菜单和剧情自动槽已接入独立便携检查点，F5/F9会保留该候选。原Windows游戏槽文件的8004字节重建与互通、工具栏快速保存事件仍未接通；原文件保持不变。
-F5/F9使用的独立CVS2便携快照与原版菜单槽位不同，不能相互替代。当前执行合同rev8会拒绝不同执行身份的旧快照。
+PC1原版存读菜单、剧情自动槽和快速保存已接入独立便携检查点；快速保存按原生规则替换候选并写入槽1，F5/F9保留当前会话与候选。原Windows游戏槽文件的8004字节互通仍未完成。
+
+DC2（2006）的闹钟上下文、原版存读菜单及自动/快速槽使用独立D2CS候选，原生自动/快速槽均为0。桌面可从「存档 → 导入原版剧情存档…」转换普通ADV文本等待的原Windows槽，写入原读取菜单可见的空闲槽（2..4、8..12、16..20，依此至72..76）；当前剧情继续保留，已有目标槽拒绝覆盖。旧回看记录、NVL、选择等待及未完成画面批次不在转换范围内。
+
+```powershell
+java -jar dc-runtime.jar D:\gal\DC2 --exe dc2.exe --import-native-slot D:\gal\DC2\AdvData\SaveData\dc200.dat --slot 12
+```
+
+不指定`--slot`时选择空闲普通槽。转换读取原文件，输出写入本运行时存档目录。
+F5/F9使用的独立CVS2便携快照与原版菜单槽位不同，不能相互替代。当前执行合同rev8会拒绝不同执行身份的旧快照。DC2新增首次游玩宿主修订，旧版可能已误跳未读剧情，旧DC2便携剧情快照会明确拒绝并保留原文件；独立系统进度不受此限制。
 P.P. 重写已改用原生位图和持久变量别名，新版可迁移合法旧手机系统进度。
 新 P.P. 状态以版本前缀保存完整持久字节（含可读填充位），旧版程序不能读取；DD/WY 的系统进度格式不变。
 旧兼容层系统进度若含非布尔解锁标志或原生不可写的全局索引数据，会明确报出无法忠实迁移并保留原文件；

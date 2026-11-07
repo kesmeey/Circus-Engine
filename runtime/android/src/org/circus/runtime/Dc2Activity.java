@@ -17,7 +17,7 @@ public final class Dc2Activity extends Activity {
     private final Handler main=new Handler();private final ExecutorService worker=Executors.newSingleThreadExecutor();
     private Dc2NativeData nativeData;private Dc2Session session;private CircusResources data;private TextCodec codec;private Dc2Host host;private MesVm vm;private GameSaves saves;private DesktopNativeFiles nativeFiles;
     private int stageWidth=1024,stageHeight=576;private boolean pcHost;
-    private Stage stage;private boolean active,closed,failed,auto,rapid,toolbar,hidden;private int loading,generation,seenMovie=-1,seenSave;
+    private Stage stage;private boolean active,closed,failed,auto,rapid,toolbar,hidden;private int loading,generation,seenMovie=-1,seenSave,seenDc2RapidReset;
     private long tick,textAt,textTicket=-1,lastSave;private String tree;
     private final Map<String,Picture> images=new HashMap<>();private final Set<String> requested=new HashSet<>();
     private final MediaPlayer[] players=new MediaPlayer[6];private final boolean[] prepared=new boolean[6];private final int[] heard={-1,-1,-1,-1,-1,-1};
@@ -38,7 +38,7 @@ public final class Dc2Activity extends Activity {
     private final Runnable frame=new Runnable(){public void run(){if(!active||closed||failed)return;try{long now=SystemClock.uptimeMillis();if(vm!=null&&loading==0){
         vm.elapse(Math.min(100,Math.max(0,now-tick)));if(vm.status()==MesVm.Status.RUNNING)vm.run(1000);if(vm.status()==MesVm.Status.FAULT)throw new IOException(vm.error());
         if(vm.status()==MesVm.Status.HALTED){finish();return;}
-        session.observeTransfer();session.captureHistory();if(host.history.rewindRequest>=0){session.rewindHistory(host.history.rewindRequest);adopt();auto=rapid=false;if(!pcHost)host.write(99,13,0);}if(host.returnRequested){session.returnToStory();adopt(true);}if(host.saveRequest>=0){writeSave(host.saveRequest);host.completeSave();vm.elapse(0);}if(host.loadRequest>=0)loadSave(host.loadRequest);
+        session.observeTransfer();if(data.profileId.equals("dc2-3363")){PcHost original=(PcHost)host;int reset=original.dc2RapidResetGeneration();if(reset!=seenDc2RapidReset){seenDc2RapidReset=reset;rapid=false;original.motionSkipPressed=false;}}session.captureHistory();if(host.history.rewindRequest>=0){session.rewindHistory(host.history.rewindRequest);adopt();auto=rapid=false;if(!pcHost)host.write(99,13,0);}if(host.returnRequested){session.returnToStory();adopt(true);}if(host.saveRequest>=0){writeSave(host.saveRequest);host.completeSave();vm.elapse(0);}if(host.loadRequest>=0)loadSave(host.loadRequest);
         if(!pcHost)auto=host.read(99,13)!=0;refresh();for(int ch=0;ch<6;ch++)if(players[ch]!=null&&prepared[ch]){float gain=volume(ch);players[ch].setVolume(gain,gain);}
         if(host.presentationWaiting){if(textTicket!=host.waitTicket()){textTicket=host.waitTicket();textAt=now;}if(now-textAt>=Math.max(60,host.body.length()*textSpeed()))vm.signalHost(host.waitTicket(),MesVm.HostSignal.TEXT_COMPLETE);}
         if(rapid&&host.skipAllowed&&(host.textWaiting||host.presentationWaiting))vm.signalHost(host.waitTicket(),MesVm.HostSignal.ADVANCE);

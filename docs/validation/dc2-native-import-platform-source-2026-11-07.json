@@ -1,0 +1,106 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-07",
+  "feature": "DC2 Windows ordinary story slot import through shipping DesktopLegacy API and DesktopRuntime CLI",
+  "target": {
+    "file": "dc2.exe",
+    "profile": "dc2-3363",
+    "sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+    "original_executable_launched": false,
+    "original_game_directory_modified": false
+  },
+  "consumer": [
+    "DesktopLegacy.importNativeSlot(byte[], int)",
+    "DesktopLegacy.nextImportSlot()",
+    "DesktopRuntime GAME --import-native-slot FILE [--slot N] --exe dc2.exe"
+  ],
+  "scope": "Five actual Windows ordinary wait7 ADV slots convert to portable runtime slots2,3,4,8,9. Each loads and advances; two later-page imports additionally load through original LOAD page1 mouse rectangles, original doload confirmation action and runtime restore.",
+  "validation": {
+    "assertions": 5298,
+    "actual_windows_slots": 5,
+    "runtime_destination_slots": [
+      2,
+      3,
+      4,
+      8,
+      9
+    ],
+    "ordinary_variable_bytes_checked_per_slot": 1000,
+    "resource_mappings_checked_per_slot": 8,
+    "original_windows_source_hashes_unchanged": true,
+    "active_vm_identity_snapshot_and_pixels_unchanged": true,
+    "preview_caption_icon_and_original_date_retained": true,
+    "portable_snapshot_pixel_roundtrip": true,
+    "five_restored_slots_advance": true,
+    "existing_target_bytes_metadata_cache_and_thumbnail_preserved": true,
+    "reserved_or_invalid_targets_rejected": 10,
+    "malformed_or_unsupported_inputs_without_slot_writes": 7,
+    "cli_explicit_auto_collision_and_bad_input": true,
+    "cli_outputs_reloaded_to_playable_text": 2,
+    "cli_wrong_profile_guard_reached": true,
+    "cli_wrong_profile_has_no_story_slot": true,
+    "original_LOAD_pages_checked": 10,
+    "original_LOAD_visible_cells_per_page": 5,
+    "original_LOAD_binding_stride": 8,
+    "original_LOAD_importable_ordinary_slots": 48,
+    "original_LOAD_page9_next_wraps_to0": true,
+    "original_LOAD_mouse_and_doload_restores": 2,
+    "original_LOAD_restored_script_cursor_text_and_pixels": true,
+    "cli_hidden_slot5_rejected": true
+  },
+  "admission": "Independent DC2 parser/schema, exact3363 script identity and ordinary wait7/header34 or4B; paragraph0, no pending batch, valid checkpoint/log/resources and reviewed non-rain effect. Destinations are original LOAD-visible ordinary slots2..76 with (slot&7)<5;0/1 are reserved.",
+  "boundaries": [
+    "Original Windows story slot bytes and decoded dialogue remain outside repository source and public evidence. Inputs are read directly from selected SaveData because LocalGameStorage intentionally filters user-save data.",
+    "No original Windows save writer is added; output uses runtime portable slots. Native original history words are not claimed as reconstructed backlog.",
+    "NVL, choice waits, pending draw batches, rain effect2 and other unsupported checkpoint classes fail explicitly without creating a target slot.",
+    "The original format has no physical media position; imported logical BGM/SE/voice restart at zero.",
+    "Original LOAD is exercised through the shipping controller and hit rectangles; opening LOAD uses the public native system-call entry from a real restored ordinary caller. This is not a title-to-ending route playthrough.",
+    "Fingerprints identify the exact isolated build; post-test parallel production changes are listed separately and require final integration rerun."
+  ],
+  "build": {
+    "isolated_compile": true,
+    "captured_input_files": 231,
+    "classpath": [
+      "dc2-native-import-visible-stage70/classes",
+      "dc2-native-import-platform-stage65/classes",
+      "producer-integration-20261107T135331994699Z/classes"
+    ],
+    "input_manifest_sha256": "c2c6d54bf0c278c4f996e5d66a135f504b50fd871b7e3504ebda321b08b37d1b",
+    "java_release": 8,
+    "post_test_live_source_deltas": [
+      {
+        "path": "runtime/core/src/org/circus/core/PcHost.java",
+        "tested_sha256": "39b38622aae54c23b6f857d162bfc5e918ef8624903a28221fb6e524e9742483",
+        "current_sha256": "6b4f796ea88267241e01051c3babc722a01c61115bfed1722d654a00a0b2bc77"
+      }
+    ]
+  },
+  "tested_source_sha256": {
+    "runtime/core/src/org/circus/core/Profile.java": "f9b357d8a29d500ac4da121b09c8e5b2e133dbcd30e28216cdbb8245161c315a",
+    "runtime/core/src/org/circus/core/Dc2NativeSlot.java": "0e61a1f1a5be3d567f8a36f98eadbaf953167da3a25129f5372d6a5957667d89",
+    "runtime/core/src/org/circus/core/Dc2Session.java": "7c91673a65fa501385e95075e2950bcc81ba7a3d325c04cb06232b2cc240d03b",
+    "runtime/core/src/org/circus/core/Dc2SystemCommands.java": "26ca827c7543c7b18affc6f001e328392c54ce1f2b85fd6a37d507b6c186eef6",
+    "runtime/core/src/org/circus/core/PcHost.java": "39b38622aae54c23b6f857d162bfc5e918ef8624903a28221fb6e524e9742483",
+    "runtime/core/src/org/circus/core/MesVm.java": "90528d2900a711ec9d45aba5bf8d4217b0024580d797c52941fc94fcf5d258f2",
+    "runtime/desktop/src/org/circus/core/DesktopEngine.java": "caad458f1398edde3f4aca4de66b4c660b1151beae90ad6f18195ca931ea1366",
+    "runtime/desktop/src/org/circus/core/DesktopLegacy.java": "0bf25b0ff469ffe8cf8fb485c173b30b250d51949f246b431fe4175b626f94a5",
+    "runtime/desktop/src/org/circus/core/DesktopRuntime.java": "bb12240e8bf9b0d1688db1c1d81950e7c19a81c6117fbc2a3a93f8ef2bbb9cb3",
+    "runtime/desktop/src/org/circus/core/Dc2NativeImportPlatformAudit.java": "e9f870a9ea5e77ef620d1d381c2ef19699b8c6d6b683cd8ec45eb5f0d2912786",
+    "runtime/desktop/src/org/circus/core/Dc2SystemEffectAudit.java": "a962ef19f3886f9f4ed46defd9959eba46726cb141b081a1176abbf4604fc348"
+  },
+  "tested_git_lf_source_sha256": {
+    "runtime/core/src/org/circus/core/Profile.java": "f9b357d8a29d500ac4da121b09c8e5b2e133dbcd30e28216cdbb8245161c315a",
+    "runtime/core/src/org/circus/core/Dc2NativeSlot.java": "819d0c88c484205b90314e4dbaaa93c3608f21e82c4fbc8cda3fe0996303978f",
+    "runtime/core/src/org/circus/core/Dc2Session.java": "aff8905c7c13fd6b6cdc2232c63594701da2a1f951d7970c067a999aa90e1fca",
+    "runtime/core/src/org/circus/core/Dc2SystemCommands.java": "ba93ef2ad2196ba628570acf80ca8c8aaa8a4543ce4c624e41e9c6283456adcf",
+    "runtime/core/src/org/circus/core/PcHost.java": "903f431c3faf4edefb52c5c0cd6f1368fede5cc87f8be3420297af2ec654f59e",
+    "runtime/core/src/org/circus/core/MesVm.java": "477f0bdafba2d627f60c902564433b26dd8b49dca790722a0192840fdc0899c9",
+    "runtime/desktop/src/org/circus/core/DesktopEngine.java": "caad458f1398edde3f4aca4de66b4c660b1151beae90ad6f18195ca931ea1366",
+    "runtime/desktop/src/org/circus/core/DesktopLegacy.java": "0bf25b0ff469ffe8cf8fb485c173b30b250d51949f246b431fe4175b626f94a5",
+    "runtime/desktop/src/org/circus/core/DesktopRuntime.java": "bb12240e8bf9b0d1688db1c1d81950e7c19a81c6117fbc2a3a93f8ef2bbb9cb3",
+    "runtime/desktop/src/org/circus/core/Dc2NativeImportPlatformAudit.java": "763f53ae83cfdcc87eb1fd2781e284e52214d4f94aa6ada9a3f575874d4edb0a",
+    "runtime/desktop/src/org/circus/core/Dc2SystemEffectAudit.java": "2a1b55f4b92f9115289ffcd4135c68a77f8a0d1aaae1b67d835a25b7547a43f5"
+  },
+  "updated": "2026-11-08",
+  "diagnosis_and_fix": "The earlier isolated platform audit converted into2..6 and checked metadata but did not exercise original LOAD. Actual LOAD shows10 pages of5 entries with stride8:5..7 and77+ have no visible control. The runtime now rejects these hidden destinations and automatic selection enumerates2,3,4,8,9,...,76. This5298 audit supersedes the earlier metadata-only visibility claim."
+}

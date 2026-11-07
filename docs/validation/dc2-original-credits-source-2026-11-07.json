@@ -1,0 +1,183 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-07",
+  "feature": "Original DC2 system12/type2 normal ending roll",
+  "target": {
+    "file": "dc2.exe",
+    "sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+    "original_executable_launched": false,
+    "original_game_directory_modified": false
+  },
+  "native_contract": {
+    "dispatcher": "00404F50 service12 -> 004057B0(mode), wait1C/type2; its poll is00405890 and mouse input00405A20",
+    "resource_tables": {
+      "0": "004332D8: ed/Gend_01..19",
+      "1": "00433328: ed/Gend_skr_01..19",
+      "count": 19
+    },
+    "initializer": "page=row=skip=0, baseTick=timeGetTime; rate=float32(19*600*float32(bits366DF986)) = float32(bits3D25953E)",
+    "draw_order": "Restore native prepared background, then opaque blit OLD page at(0,-row) and next page at(0,600-row), each clipped to800x600. Page18 always draws its entire last image at(0,0). Draw occurs before page/row update.",
+    "clock": "If oldrow>600 (or page>=18 and oldrow>400), increment only one page, reset baseTick and discard elapsed carry. Then row=trunc(unsigned32(now-baseTick)*rate). x87 exact56-bit product is represented by unsignedMillis*10851646 >>28, without double rounding.",
+    "completion": "After update complete when page>=19, skipFlag2, or skipFlag1 with variant0; releases19 image handles without an added music stop, fade or fixed generic post-roll hold.",
+    "input": "Only mouse codes1/2. Persisted100:59==1 sets skipFlag1; value2 sets skipFlag2. Unrecognized values do not clear a previously queued request. Input only enqueues; next native poll draws before completing.",
+    "persistent_write": "GEND first disables story skip, then system12(0). Only its following variable opcode at0xF writes100:59=1; owner/input do not write it. Subsequent original GEND transitions, black wait, restores story skip and transfers title_main.",
+    "shared_input_auxiliary": "405A20 also writes968EC4 for already-cleared current-route flags100:[1,2,3,6,5,4]. Ordinary PE xrefs show only the other405340/4054xx credits type reads this global; type2 never reads it. That other ending type is outside this helper.",
+    "timer_cadence": "Both poll routines set4514AC=50. Main iteration41AE00 wait1C calls404780 and returns1 while ongoing. WindowProc407162 records GetTickCount, calls41AE00, then4071A0 uses interval-minus-work SetTimer(id1). Ordinary PE IAT confirms GetTickCount/SetTimer/KillTimer/PostMessage, and Capstone excerpt is retained in poll-interval-xrefs.txt."
+  },
+  "portable_implementation": {
+    "owner": "Dc2OriginalCredits, separate from existing DM Dc2Credits and PC2 PcCredits",
+    "journal": "Viewport-clipped opaque Strip(resource,x,y,srcX,srcY,width,height) ignores CRX origin. Old draw journal survives completion for front capture.",
+    "lifetime": "PcHost captures an independent initial underlay. Desktop uses the credits journal while that underlay exists, including the completing callback. Host then burns actual front into @ui-capture and releases underlay, so the following MES can transition and transfer normally.",
+    "input": "Desktop click sends only left/right mouse1/2 and100:59. Enter/Space/Esc are consumed; generic ADVANCE from auto/rapid is not a skip event.",
+    "persistence": "D2C2 saves native page/row, previous draw, skip, unsigned32clock/base and timer phase/first. Validates before publication; accepts oldD2C1, resuming an already-drawn old state at its next50ms timer. Host PCH15/PCH16/D2CS preserve owner and independent underlay.",
+    "timer_cadence": "elapse(ms) remains explicit one-native-poll API for source vectors. advance(ms) accumulates native clock and a50ms timer phase, allows the first poll immediately, coalesces late timer delivery to at most one poll, and rejects repeated zero-time updates. Prepared10 time counts before11 without consuming modal phase. Sub50ms remainder is retained for a faster frontend; exact Windows scheduling latency is not claimed."
+  },
+  "method": {
+    "rea_evidence": [
+      {
+        "function": "initialize",
+        "evidence_id": "ev_287abd66d6267d1161eb63e5bb116cfc7a7883ba2a35b6c5685034d5945bc190",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-credits-initialize.json",
+        "sha256": "79721626f68091bc840d9ec548d5ef9bdd0e57cbf393a0b0c94ac6afffa7a3c6"
+      },
+      {
+        "function": "update",
+        "evidence_id": "ev_70d3670fea93774d0e8aac02ee09b69785110c5d9f3fb7878b65e9612dffafcc",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-credits-update.json",
+        "sha256": "fa8a0a71e9fb38414674af61e0ce783071800bdeaf3031b69e280d8433400231"
+      },
+      {
+        "function": "input",
+        "evidence_id": "ev_40ec404490c5e0095dbb6d7cb05efa3c64065b5ae3336df4d5ac8c19e837e65b",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-credits-input.json",
+        "sha256": "bf1cce29ff3017b6e2e4957b672dac68d87cd07907778470800c96b0e5e8c3ea"
+      },
+      {
+        "function": "clear",
+        "evidence_id": "ev_75e2e50c81fb3c2605090c646e36bd2d1854c5adff524b0694beee6e1e22c1a7",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-credits-clear.json",
+        "sha256": "75e161517e16fabb53a72185c2bdd3e0b26cbbf48864ab8f89d3bb5805570d2d"
+      },
+      {
+        "function": "clip",
+        "evidence_id": "ev_1156478c0b9d5fce3504cd9f391e84722db93563e730ac5f36675654ccc9d3c8",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-credits-clip.json",
+        "sha256": "9dfdb88b8a41ce509c8b8636b260df68f833f2e91fa382a113e82273d8144086"
+      },
+      {
+        "function": "blit",
+        "evidence_id": "ev_99d3facbe2a9a30408dda352849f637c967ae206aac45ffd6ed2ec1ff0db6f0f",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-credits-blit.json",
+        "sha256": "f3622787952e28fbfb75535ad4fa3f33ff5ccaaeb77ee5bc923dd035801695aa"
+      },
+      {
+        "function": "underlay-restore",
+        "evidence_id": "ev_359ce1c355252d54d1febcdf39f113f87e6a1ff7813d772dba61505c407907c7",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-credits-underlay-restore.json",
+        "sha256": "cc886a5f301047ceaf2d638eccd049d7caed4b7838c47376247ba552c034851b"
+      },
+      {
+        "evidence_id": "ev_ac5b8b25db5469cf17fde978dfe5526f544b2e920021dc2990b002d4ab5568fc",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-main-iteration.json",
+        "sha256": "8841f326e4fc6fa2780768212218cb36beea510e7eb9b7e109433cc9265399c5"
+      },
+      {
+        "evidence_id": "ev_387dbeb3278591e3811204d76a958c5ec0098975662f78232bbff71184cf0b03",
+        "retained_path": "build/native-rewrite/dc2-ending-scope-stage67/rea-poll-timer.json",
+        "sha256": "9737f92e7df04f68d10205841be7df16944fc8926ceb0c696d01176bbf36eba4"
+      }
+    ],
+    "fresh_static_inspection": "Hash-locked PE pointer/float decoding and Capstone xrefs are ordinary static inspection, not additional REA Evidence.",
+    "private_evidence": "build/native-rewrite/dc2-character-ending-stage69",
+    "public_artifact_contains_original_bytes": false,
+    "inputs_manifest_sha256": "40f82a84ee5ff39de465af85591e099d18d4e0daa47858cefd1d10d1671ffc30"
+  },
+  "validation": {
+    "heap_mib": 192,
+    "core_assertions": 123,
+    "actual_platform_assertions": 86,
+    "actual_assets": 38,
+    "actual_pixels_compared": 3840000,
+    "actual_result_sha256": "7f6bb2d46ff0b9aaa12a35b80b935dc2be9d2dfabff91491bcdc3010162edd61",
+    "actual_title_script": "title_02",
+    "frames": [
+      {
+        "name": "first-poll-old-row0",
+        "draw_page": 0,
+        "draw_row": 0,
+        "sha256": "eda525bab6d74d439bd683b578242e87fd3146fc4d631b7c81d9f76dd4d47a2d"
+      },
+      {
+        "name": "two-pages-row300",
+        "draw_page": 0,
+        "draw_row": 300,
+        "sha256": "0d0c7802dfff34cee6555f176cdacf813fb559c29ac627d789c563efd906774f"
+      },
+      {
+        "name": "last-page-fixed",
+        "draw_page": 18,
+        "draw_row": 0,
+        "sha256": "59533df56ddb37d07817ed37a8e63a09d2e14731e3bd322ab771c194d60f21bd"
+      },
+      {
+        "name": "natural-complete-front-retained",
+        "draw_page": 18,
+        "draw_row": 401,
+        "sha256": "59533df56ddb37d07817ed37a8e63a09d2e14731e3bd322ab771c194d60f21bd"
+      },
+      {
+        "name": "post-flag-front-retained",
+        "draw_page": 18,
+        "draw_row": 401,
+        "sha256": "59533df56ddb37d07817ed37a8e63a09d2e14731e3bd322ab771c194d60f21bd"
+      },
+      {
+        "name": "eligible-skip-current-front",
+        "draw_page": 0,
+        "draw_row": 302,
+        "sha256": "61fd7d50da4788dc50e9606fab330e6afe0ccb7430085f8abba47ff8ca1f5eeb"
+      },
+      {
+        "name": "sakura-pages4-5-row300",
+        "draw_page": 3,
+        "draw_row": 300,
+        "sha256": "95972a33e221419497d2b9f7cda8a20b8d41ef947bdf9abde3d4034d65f6758a"
+      },
+      {
+        "name": "sakura-eligible-skip-front",
+        "draw_page": 3,
+        "draw_row": 304,
+        "sha256": "48d59d0f249e993b0a12d3d5a4563c6d46fbdd3374a5481ae8a64dd9a7d5c36f"
+      }
+    ],
+    "covered": [
+      "Exact strict600/400-row boundaries, one-page-per-poll, old draw order, clock wrap and x87-vs-double integer edge",
+      "Native default/Sakura19-page reference tables; all38 original resources decode to800x600 origin0 24bpp",
+      "Actual original GEND system12 wait, first-clear mouse cannot skip; genericADVANCE/keys cannot impersonate native mouse",
+      "Exact manual BGR crop oracle for both tables, including distinct Sakura pages4/5; independent future snapshot pixels",
+      "Eligible ordinary left-mouse skip and Sakura right-mouse flag1 rejection/flag2 acceptance only on followingpoll",
+      "Natural Gend19 front retained through completing callback and originalflagwrite; originalblack/wait visible and title_02 transfer reached",
+      "Shipping Host uses50ms native timer gate; zero-time refresh cannot poll twice or prematurely complete a queued mouse skip; oldD2C1 state migrates to timer owner."
+    ],
+    "negative_control": "build/native-rewrite/dc2-credits-stage68/actual2 compiled the old presenter and reproduced credits journal obscuring GEND black/wait. Final generic-timer1 verifies released underlay and visible black/title transfer. Earlier type12 actual3/5 also exposed a too-narrow audit title_main assertion; original title_main immediately transfers title_02.",
+    "final_timer_result": "build/native-rewrite/dc2-character-ending-stage69/generic-timer1/result.json"
+  },
+  "boundaries": [
+    "Not a running-original screenshot/GDI timing equivalence claim.",
+    "The frozen portable underlay approximates native4141E0/413E70 background preparation and its retained clip for abnormal oversized time jumps. Normal adjacent strips and the fixed last page cover the viewport; their actual pixels are checked exactly.",
+    "The direct variant1 host start and bank100 flag1/2 writes in skip tests are isolated fixtures, not legal story-route policy. Root route audits separately follow original map and choice branches without game-variable edits.",
+    "Services8/10/11 and other ending types are not silently mapped to ordinary12.",
+    "General existing transition effects are not newly claimed pixel-identical; this validation establishes the correct source front, black wait and title handoff.",
+    "Assertion counts overlap regression suites and are not a fidelity percentage."
+  ],
+  "source_sha256": {
+    "runtime/core/src/org/circus/core/Dc2OriginalCredits.java": "9f573c08aa486ce06b7bc7470d20cb93691735f35eef39d81e0f0fedd75664fc",
+    "runtime/tests/org/circus/core/Dc2OriginalCreditsTests.java": "40135fc920a04fbcb6153afb18a5d49c63051af0aecb699bb5c1d4355a7c37f0",
+    "runtime/desktop/src/org/circus/core/Dc2OriginalCreditsAudit.java": "7a380f322298c353ba30e650b462a7d79016f899803a67ffe7dcc1fbe931a297"
+  },
+  "git_lf_source_sha256": {
+    "runtime/core/src/org/circus/core/Dc2OriginalCredits.java": "9f573c08aa486ce06b7bc7470d20cb93691735f35eef39d81e0f0fedd75664fc",
+    "runtime/tests/org/circus/core/Dc2OriginalCreditsTests.java": "40135fc920a04fbcb6153afb18a5d49c63051af0aecb699bb5c1d4355a7c37f0",
+    "runtime/desktop/src/org/circus/core/Dc2OriginalCreditsAudit.java": "7a380f322298c353ba30e650b462a7d79016f899803a67ffe7dcc1fbe931a297"
+  }
+}

@@ -124,6 +124,13 @@ public final class MesVm {
         script=activateScript(target);commitCursor(target.firstOffset);pendingLabel=new byte[0];remainingMs=0;status=Status.RUNNING;
         if(host instanceof ContextHost)((ContextHost)host).restored(script,pc);
     }
+    /** Narrow entry for a validated DC2 Windows ordinary-text slot. This new
+     * detached VM has not executed story instructions. Native raw48C is never
+     * accepted as an execution cursor;41CA70's header projection is authority. */
+    public void beginDc2NativeImport(Dc2NativeSlot.Plan plan)throws IOException{
+        if(plan==null||!script.profile.id.equals("dc2-3363")||!script.name.equals(plan.script)||!script.sha256.equals(plan.sha256)||status!=Status.RUNNING||pc!=script.firstOffset||pendingLabel.length!=0||host instanceof FlowHost&&((FlowHost)host).waiting()||plan.savedWaitKind!=7||plan.nativeWaitKind!=-1||plan.checkpointOpcode!=0x34&&plan.checkpointOpcode!=0x4b||plan.resumeFilePc!=plan.checkpointFilePc||!script.boundary(plan.resumeFilePc))throw new IOException("DC2 native import requires a validated ordinary-text checkpoint in a new VM");
+        commitCursor(plan.resumeFilePc);if(host instanceof ContextHost)((ContextHost)host).position(script,pc);
+    }
     /** Native input has its own candidate/voice order; its cursor is this VM's
      * already-consumed PC, not ContextHost's last dispatched command address. */
     public void enterNativeSystem(String name,int eventKind)throws IOException {

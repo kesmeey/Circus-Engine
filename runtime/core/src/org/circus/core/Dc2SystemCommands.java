@@ -42,14 +42,14 @@ public final class Dc2SystemCommands {
             }
             return true;
         case 8:throw missing(host,service,mode,"0040E410 and native wait 1C/type 0");
-        case 10:throw missing(host,service,mode,"00405340");
-        case 11:throw missing(host,service,mode,"native wait 1C/type 1");
-        case 12:throw missing(host,service,mode,"004057B0 and native wait 1C/type 2");
+        case 10:if(!(host instanceof PcHost))throw new IOException("DC2 character ending requires original PC host");((PcHost)host).prepareOriginalCharacterEnding(mode);return true;
+        case 11:if(!(host instanceof PcHost))throw new IOException("DC2 character ending requires original PC host");((PcHost)host).beginOriginalCharacterEnding();return true;
+        case 12:if(!(host instanceof PcHost))throw new IOException("DC2 credits require original PC host");((PcHost)host).openOriginalCredits(mode);return true;
         case 20:if(!(host instanceof PcHost))throw new IOException("DC2 map requires original PC host");((PcHost)host).openOriginalMap();return true;
         case 30:throw missing(host,service,mode,"0040B700");
         case 31:throw missing(host,service,mode,"native wait 1C/type 5");
-        case 40:throw missing(host,service,mode,"write 00BE8BA8 = 0; consumer not yet modelled");
-        case 50:throw missing(host,service,mode,"copy native script context 00A08D00 -> 009FE0E0");
+        case 40:if(!(host instanceof PcHost))throw new IOException("DC2 rapid reset requires original PC host");((PcHost)host).resetOriginalRapid();return true;
+        case 50:if(!(host instanceof PcHost))throw new IOException("DC2 borrowed context requires original PC host");((PcHost)host).dc2Borrowed.produce(host.script,host.pc,host.script.fetchRecord(host.pc).end,1);return true;
         // REA 00404F50's complete switch has no other cases. These are proven native returns,
         // including 7/18/19/21/207/213; applying the same-number DM service would be incorrect.
         default:return true;

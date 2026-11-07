@@ -1,0 +1,61 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-07",
+  "feature": "DC2 2006 original Windows slot parsing and guarded checkpoint load plan",
+  "target": {
+    "file": "dc2.exe",
+    "sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+    "profile": "dc2-3363",
+    "original_executable_launched": false,
+    "original_game_directory_modified": false
+  },
+  "scope": "Independent DC2 frame schema and plan intended for Session/platform consumers. This parser/resource audit does not by itself restore a running VM. Original Windows writes are not implemented by this module.",
+  "evidence": {
+    "fresh_rea_evidence_ids": [
+      "ev_c797bb725b252260d495214418fe0cba047210c94b683d1417b2bd967ebcc7e6",
+      "ev_711da6dc7327f0c29a69e7d90a394ecdce0f3d936a72e0be0cb08c0531a9eba1",
+      "ev_84a78325edbf7c3c155375f4456110c18cca680e494437cb30e91744c31f6d51"
+    ],
+    "native_reader": "41CE10 reads8004, requires count8004 and signature1, copies workingA04678 to suspendedA065C0 then41CA70.",
+    "native_projection": "41CB2E selects header[working.currentCheckpoint490]; native41CC36 publishes computed codePC after working-to-live8004 copy. Saved raw48C is not the resumedPC.",
+    "native_ordinary": "413A70/413C70 bind ordinary0..9/0..99 toA0996C, frame offsetC6C.",
+    "native_resource": "41C9C0 reloads background84/actors104,184/resources304,384,404;41CA70 copies overlay204,284 before these loads.",
+    "selected_x86_range": [
+      "0x41CB1A",
+      "0x41CC41"
+    ],
+    "oracle_limit": "Bounded original-instruction interpretation over private arrays, list-template globalBE8BE4 controlled0, original EXE process/Win32/GDI not executed. REP copy counts as one interpreted instruction.",
+    "public_artifact_contains_original_bytes": false
+  },
+  "validation": {
+    "self_authored_core_assertions": 51,
+    "actual_slot_parser_resource_assertions": 452,
+    "actual_slot_files": 5,
+    "actual_distinct_slot_images": 4,
+    "actual_referenced_image_decodes": 13,
+    "original_instruction_cases": 11,
+    "original_instructions_interpreted": 362,
+    "actual_java_native_pc_wait_argument_parity": 5
+  },
+  "supported_import_plan": "Saved ordinary wait7, current header34 voice or4B body, pending draw count0, valid log/header references, paragraph mode0/1, reviewed supported non-rain effects. Session consumer must reenter checkpoint and rebuild to its following07.",
+  "boundaries": [
+    "The same8004 byte size does not establish PC1/DC2 schema equivalence. No PC1 slot parser is called.",
+    "Native format has no profile or MES hash; selected game/caller identity, exact3363 version, safe resources and available checkpoint are independent admission requirements.",
+    "1A/1C/07 short checkpoint projections are available for inspection but normalTextPlan refuses their unreconstructed UI/history paths.",
+    "Selection waits, pending draw batches, rain effect2, other header classes and malformed strings/logs fail explicitly.",
+    "Parser preserves the full original input including trailing bytes; native frame consumers receive only8004.",
+    "Stored original history words remain available; full original backlog/GDI/COM reconstruction is not claimed.",
+    "Personal slot contents and decoded dialogue remain only in private build evidence; no original slot bytes are included in source/tests.",
+    "Checkpoint records must fit the original4137D0 code read limit100000; later full-file bytes are not substituted for unavailable native code backing."
+  ],
+  "source_sha256": {
+    "runtime/core/src/org/circus/core/Dc2NativeSlot.java": "0e61a1f1a5be3d567f8a36f98eadbaf953167da3a25129f5372d6a5957667d89",
+    "runtime/tests/org/circus/core/Dc2NativeSlotTests.java": "610ff63f4a564bee447b40ea6ab8099e8f97ba867994df46f12dfb176528e664",
+    "runtime/desktop/src/org/circus/core/Dc2NativeSlotAudit.java": "9d50e05f63f4bffbe4a2845a35c01d601e2b4d4cf43da004aea7731e4cc5240b"
+  },
+  "git_lf_source_sha256": {
+    "runtime/core/src/org/circus/core/Dc2NativeSlot.java": "819d0c88c484205b90314e4dbaaa93c3608f21e82c4fbc8cda3fe0996303978f",
+    "runtime/tests/org/circus/core/Dc2NativeSlotTests.java": "56bb34084f07d6e509694a9462056a1af4b6a4bc20caa1977ba5ed3a8976ea98",
+    "runtime/desktop/src/org/circus/core/Dc2NativeSlotAudit.java": "958fa602f31b96ebc32e7cfc848b80df95a6892d84ab9411e6e28d055b00d038"
+  }
+}

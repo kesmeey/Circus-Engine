@@ -1,0 +1,99 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-07",
+  "feature": "PC1 native toolbar:q forced candidate producer and portable quick slot1",
+  "target": {
+    "file": "DCPCDVD_CHS.exe",
+    "sha256": "7988971ff38f6b0fb2f21827b1ba38c3c7fe5cc824420b179ea9d9a838872057",
+    "original_executable_launched": false,
+    "original_game_directory_modified": false
+  },
+  "native_contract": {
+    "input": "419280 story07/09 toolbar dispatch tests only action second characterq",
+    "dispatch_address": "0x4199DE",
+    "unconditional_copy": "0x4199E6..0x4199F7 copies2001 DWORDs live9D8588 -> candidate9CDD28 regardlessBB8418",
+    "writer_call": "0x4199F9 ->41AAD0(1)",
+    "effects": [
+      "KeepBB8418 unchanged.",
+      "No41CBE0 voice-stop call in the:q branch.",
+      "The native input branch returns0 and keeps current wait/caller PC.",
+      "41AAD0 prepares native7-byte metadata, builds slot1 path, sets candidate signature1 and attempts8004-byte output. The portable player instead emits its separately identified P1CS/DesktopSave container."
+    ]
+  },
+  "portable_implementation": {
+    "api": "Pc1Runtime.requestQuickSave(int actualVmPc)",
+    "guard": "Non-system stable native07(textWaiting) or09(ui.waiting), no presentation/dispatch/pending; event PC must match canonicalRAW_CODE_PC.",
+    "producer": "Pc1SaveContext.captureQuickEvent force-captures typed event frame even if1B flag is nonzero; synchronous existing portable kind3 callback runs before pending slot1 publication.",
+    "ownership": "The session captures an independent CVS2 event leaf plus producer preview/caption/audio metadata; a later menu VM cannot replace it.",
+    "completion": "File replacement completes before completeSave/elapse0; failed write retains old slot and real pending selection for retry.",
+    "aliases": ":q/:qs/:qsave invoke this save; :ql/:qload load the existing portable slot1. The load aliases are not a claim about the native:q branch."
+  },
+  "method": {
+    "retained_rea_evidence": [
+      "ev_b546fe198852319549e50d8dc586c5c11e7397caa101e441bdf7e2c29f6f955f",
+      "ev_4e2843c522a8212b068caa9bd981161741cf832d1467135eb8a6f486f39b0b14"
+    ],
+    "fresh_static_inspection": "Ordinary pefile/Capstone hash-locked PE disassembly, not a new REA Evidence record.",
+    "private_evidence": "build/native-rewrite/pc1-quick-stage65",
+    "public_artifact_contains_original_bytes": false
+  },
+  "corpus": {
+    "actual_mes_parsed": 960,
+    "native_q_string_sites": 0,
+    "actual_start_story_prefix": [
+      ":close",
+      ":up",
+      ":down",
+      ":rapid"
+    ],
+    "note": "This current game has no:q string in its parsed MES corpus. The native engine branch exists; portable aliases are explicitly exercised rather than inventing a shipped button."
+  },
+  "validation": {
+    "heap_mib": 192,
+    "quick_core_assertions": 43,
+    "existing_candidate_assertions": 46,
+    "existing_runtime_owner_assertions": 86,
+    "actual_platform_assertions": 35,
+    "actual_script": "0224a_f00",
+    "quick_pc": 2328,
+    "old_prepared_script": "0224a_f00",
+    "old_prepared_pc": 2095,
+    "actual_flag": 0,
+    "actual_sampled_cursors": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "actual_result_sha256": "a8027e53dcdbd11fafd8e3a5f9cbecdc14e7ab32db8b62aaf82632a0961d3b95",
+    "covered": [
+      "flag0 and flag1 copy all8004 bytes from current native frame, voice/generation/wait/ticket unchanged",
+      "current91 replaces earlier prepared11 and survives F5/session plus fresh slot restore",
+      "canonicalPC rejection, pending reentry rejection, typed system-menu rejection and metadata-callback failure",
+      "actual original story07, current preview/audio and fresh load resume",
+      "actual original OPTION refuses quick-save; portable quick-load returns to the saved story",
+      "Windows share-delete file lock preserves old slot bytes and pending request, then unlock+tick retries successfully"
+    ]
+  },
+  "boundaries": [
+    "Original Windows8004 interchange and full41A620/GDI/COM rebuild remain separate from this portable slot.",
+    "The public input method admits reviewed stable story07/09 contexts; it does not reproduce every native WindowProc focus/hidden/rapid/hit-testing gate.",
+    "The file-lock failure injection is Windows-specific and is not an Android file-share claim.",
+    "Physical audio cursors here are supplied to the player API; actual DirectSound timing or playback-buffer identity is not established.",
+    "Counts are scoped, overlap existing regression suites and are not a fidelity percentage."
+  ],
+  "source_sha256": {
+    "runtime/core/src/org/circus/core/Pc1Runtime.java": "092e7de353806944ede6fe238c7aeedb76b63b96ff9aee403ccc86da75bcbe43",
+    "runtime/core/src/org/circus/core/Pc1SaveContext.java": "3ee018654aa91581d9bb32d0a4bbd463f047ed330dea58df042b40a603274d5f",
+    "runtime/tests/org/circus/core/Pc1QuickSaveTests.java": "8eb6a67b1fdfffee2b523f1f53afb458a46e45862362ecf37a820c316cd950f1",
+    "runtime/desktop/src/org/circus/core/Pc1QuickSlotAudit.java": "0b505fabde654b8b16900d41a8190c90f45197b6d97c6934a4b98c7157f4f833"
+  },
+  "git_lf_source_sha256": {
+    "runtime/core/src/org/circus/core/Pc1Runtime.java": "79235664a34e1e9b691cbf98cbed3f430d7a45c5842baaf4d376df5e6b4d0687",
+    "runtime/core/src/org/circus/core/Pc1SaveContext.java": "59d6d72398750669710c8dc1ab85915d125a0fd13495c726a2f820b1deba3643",
+    "runtime/tests/org/circus/core/Pc1QuickSaveTests.java": "8eb6a67b1fdfffee2b523f1f53afb458a46e45862362ecf37a820c316cd950f1",
+    "runtime/desktop/src/org/circus/core/Pc1QuickSlotAudit.java": "4e3a1453b73694df3422b78bd708c3de23f5d521d715e7fbb4bc00d90c58aedd"
+  }
+}

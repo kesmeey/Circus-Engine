@@ -25,9 +25,23 @@ public final class DesktopSave {
         ByteArrayOutputStream bytes=new ByteArrayOutputStream();try{ImageIO.write(scaled,"png",bytes);return bytes.toByteArray();}finally{scaled.flush();}
     }
     public byte[] encode()throws IOException{
+        encodedSize();
         ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream out=new DataOutputStream(bytes);
         out.writeInt(MAGIC);out.writeLong(created);out.writeInt(icon);out.writeUTF(caption);for(int n=0;n<6;n++){out.writeUTF(audio[n]);out.writeLong(position[n]);}
         blob(out,state);blob(out,preview);out.writeLong(textElapsed);out.flush();byte[] payload=bytes.toByteArray();out.write(digest(payload));return bytes.toByteArray();
+    }
+    /** Validate the same bounds as decode before allocating or replacing a
+     * slot. Session sidecars can make a small active VM substantially larger. */
+    private void encodedSize()throws IOException{
+        if(state==null||preview==null||preview.length>1024*1024||textElapsed<0)throw new IOException("Invalid desktop save payload");
+        long size=64L+state.length+preview.length+utfSize(caption);
+        for(int n=0;n<6;n++){if(position[n]<0)throw new IOException("Invalid audio cursor");size+=8L+utfSize(audio[n]);}
+        if(size>LIMIT)throw new IOException("Desktop save exceeds size limit");
+    }
+    private static int utfSize(String value)throws IOException{
+        if(value==null)throw new IOException("Missing desktop save text");int size=0;
+        for(int n=0;n<value.length();n++){int c=value.charAt(n);size+=c>=1&&c<=127?1:c<=2047?2:3;if(size>65535)throw new IOException("Desktop save text exceeds UTF limit");}
+        return size+2;
     }
     public static DesktopSave decode(byte[] bytes)throws IOException{
         DesktopSave save=new DesktopSave();if(bytes.length<4||new DataInputStream(new ByteArrayInputStream(bytes)).readInt()!=MAGIC){save.state=bytes;return save;}

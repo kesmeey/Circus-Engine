@@ -65,11 +65,13 @@ public final class Dc2MotionTests {
         check(!prepare.preparing&&prepare.x==8&&prepare.alpha==16&&prepare.draws().size()==6,"preparation ends with a full composition, replaces the requested weight by native sixteen, then enters the first movement tick immediately");
         prepare.elapse(10,2,false);check(prepare.alpha==0&&prepare.active,"prepared motion clears its overwritten weight on the first post-arrival tick");prepare.elapse(10,2,false);check(!prepare.active,"prepared motion releases on the next boundary");
         Fixture unresolved=new Fixture(8,0,0,2);unresolved.host.command("pc.character",new int[0],"actor".getBytes(Binary.SJIS));
-        check(unresolved.vm.run(1)==MesVm.Status.FAULT&&unresolved.vm.error().contains("BE8BC8")&&unresolved.host.scene.nativeMotion==null,"unreviewed character batch state cannot silently take the no-preparation path");
-        Fixture cleared=new Fixture(8,0,0,2);cleared.host.command("pc.character",new int[0],"actor".getBytes(Binary.SJIS));cleared.host.command("pc.background",new int[0],"background".getBytes(Binary.SJIS));cleared.start();
+        while(unresolved.host.dc2ActorChange.active)unresolved.host.elapse(40);
+        check(unresolved.vm.run(1)==MesVm.Status.WAIT_HOST&&unresolved.host.scene.nativeMotion!=null&&!unresolved.host.scene.nativeMotion.preparing,"native actor loaded with prior composition0 retains the no-preparation path");
+        Fixture cleared=new Fixture(8,0,0,2);cleared.host.command("pc.character",new int[0],"actor".getBytes(Binary.SJIS));while(cleared.host.dc2ActorChange.active)cleared.host.elapse(40);cleared.host.command("pc.background",new int[0],"background".getBytes(Binary.SJIS));cleared.start();
         check(!cleared.host.scene.nativeMotion.preparing,"native background producer proves the pending composition clear again");
-        Fixture persisted=new Fixture(8,0,0,2);persisted.host.command("pc.character",new int[0],"actor".getBytes(Binary.SJIS));byte[] unresolvedSave=persisted.vm.snapshot();Fixture persistedCopy=new Fixture(8,0,0,2);persistedCopy.vm.restore(unresolvedSave);
-        check(persistedCopy.vm.run(1)==MesVm.Status.FAULT&&persistedCopy.vm.error().contains("BE8BC8"),"a snapshot preserves unresolved producer state instead of inventing a clear native flag on restore");
+        Fixture persisted=new Fixture(8,0,0,2);persisted.host.command("pc.character",new int[0],"actor".getBytes(Binary.SJIS));persisted.vm.run(1);byte[] unresolvedSave=persisted.vm.snapshot();Fixture persistedCopy=new Fixture(8,0,0,2);persistedCopy.vm.restore(unresolvedSave);
+        while(persistedCopy.host.dc2ActorChange.active)persistedCopy.host.elapse(40);
+        check(persistedCopy.vm.run(1)==MesVm.Status.WAIT_HOST&&!persistedCopy.host.scene.nativeMotion.preparing,"a snapshot preserves the prior-clear actor producer composition state");
         return count;
     }
     public static void main(String[] args)throws Exception{System.out.println("PASS "+run()+" DC2 native motion assertions");}

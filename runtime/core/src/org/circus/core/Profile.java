@@ -89,6 +89,10 @@ public final class Profile {
             .append('\n').append(new TreeSet<>(extensionOwners)).append('\n').append(new TreeSet<>(stringPayloadOwners))
             .append('\n').append(new TreeMap<>(operations));
         int[] versions=accepted.clone();Arrays.sort(versions);contract.append('\n').append(Arrays.toString(versions));
+        // Previous DC2 snapshots may already have skipped unread story because
+        // 99:251 returned a catalog index. Host-tail migration cannot repair
+        // that execution history. Keep other families' reviewed identities.
+        if(id.equals("dc2-3363"))contract.append("\ndc2-first-play-host-1/2026-11-07");
         return Binary.sha256(contract.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
     public String operation(int opcode){

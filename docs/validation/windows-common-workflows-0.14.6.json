@@ -1,0 +1,107 @@
+{
+  "version": "0.14.6-common-workflows-dev",
+  "source_commit": "fdf192ff4b4befd9ec00f1fb51a1fba61ed73097",
+  "scope": "Local Windows development bundle without original game assets; source pushed to origin/main. No GitHub binary release published. Original EXEs not launched. Original game files read only.",
+  "archive": "build/distribution/dc-runtime-0.14.6-common-workflows-dev-windows-x64.zip",
+  "bytes": 68694392,
+  "archive_sha256": "d3543e634f4d388da27d822325dae71554419e09446b93ced75e0f139632990c",
+  "player_source_fingerprint": "2b0e1b5c50bf289d420ae7bdbab39d9417e74ab018098ca11de03bd318cffb02",
+  "player_build_manifest_sha256": "52defb5925ab0f783d6513ae7514185453b0f000afb940e8c8a77484dff566ae",
+  "production_input_count": 252,
+  "production_inputs_identical_to_final_jvm_freeze": true,
+  "source_validation": "docs/validation/common-gap-source-2026-11-07.json",
+  "packaged_validation": {
+    "version": "0.14.6-common-workflows-dev",
+    "scope": "Packaged JRE and player JAR first on classpath; audit entrypoints from frozen test classes. Real original files read only, no original EXE process; controlled time/media/choices.",
+    "heap_mib": 192,
+    "package_manifest_files_verified": 167,
+    "audit_or_test_classes_in_player_jar": [],
+    "player_source_changes_after_build": [],
+    "jar_sha256": "1b32c075a1f7a3f118e61017d0288fb3c9a0e25cac3c30087ac6a0c655a5ae93",
+    "package_build_sha256": "52defb5925ab0f783d6513ae7514185453b0f000afb940e8c8a77484dff566ae",
+    "checks": {
+      "startup-dc2-3363": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 2521,
+        "error": ""
+      },
+      "startup-dc2dm-9d72": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 861,
+        "error": ""
+      },
+      "startup-dc2pc-5769": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 665,
+        "error": ""
+      },
+      "startup-dc3dd-a5a8": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 1468,
+        "error": ""
+      },
+      "startup-dc3pp-9872": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 893,
+        "error": ""
+      },
+      "startup-dc3wy-a09f": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 1439,
+        "error": ""
+      },
+      "startup-dcpc-2063": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 560,
+        "error": ""
+      },
+      "wy-first": {
+        "exit_code": 0,
+        "dialogues": 2737,
+        "returned_to_title": true,
+        "media_completion_simulated": true,
+        "scripts": 29
+      },
+      "pc1-nemu": {
+        "exit_code": 0,
+        "dialogues": 10358,
+        "returned_to_title": true,
+        "media_completion_simulated": true,
+        "scripts": 211,
+        "staff_seen": true
+      },
+      "Pc1SlotPlatformAudit": {
+        "exit_code": 0,
+        "checks": 60
+      },
+      "Dc2MapAudit": {
+        "exit_code": 0,
+        "checks": 265
+      },
+      "Dc2MapRendererAudit": {
+        "exit_code": 0,
+        "checks": 232,
+        "pixels_compared": 7680000,
+        "maximum_alpha_rgb_rounding": 1
+      }
+    }
+  },
+  "remaining_limits": [
+    "Original Windows8004 slot interoperability and PC1 toolbar quick-save input are not implemented.",
+    "DC2 full routes still stop at alarm system50 borrowed-context service; map-only integration passes are not full route passes."
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "version": "0.14.4-common-workflows-dev",
+  "source_commit": "450987c82bcad7d4dcab1e87b5ae604cd63a7759",
+  "scope": "Local Windows development bundle, original game resources excluded; no GitHub binary release published. Original EXEs not executed.",
+  "archive": "build\\distribution\\dc-runtime-0.14.4-common-workflows-dev-windows-x64.zip",
+  "bytes": 68639599,
+  "archive_sha256": "0e5e054e7018dc2681f08963cd0a5f5805a5a8e509d2be97c3811ec59eb63b24",
+  "player_source_fingerprint": "63d3c483b77c2dda7c1d6fdd0f3fb10ad08f2f25c6561bbda4e2ab7a0e724aa0",
+  "player_build_manifest_sha256": "4c34fd4595874c3052da374e11d6869821eb7b6a4cf11224b48cb0936e207eb6",
+  "packaged_validation": {
+    "version": "0.14.4-common-workflows-dev",
+    "scope": "Packaged JRE and player JAR first on classpath; audit entrypoints from frozen test classes. Real original files read only, no original EXE process; controlled time/media/choices.",
+    "heap_mib": 192,
+    "package_manifest_files_verified": 157,
+    "audit_or_test_classes_in_player_jar": [],
+    "player_source_changes_after_build": [],
+    "jar_sha256": "7ec1be1c4c841f209b82f70cd827f079fcae4d3632b6d501f4d1c23006672b33",
+    "package_build_sha256": "4c34fd4595874c3052da374e11d6869821eb7b6a4cf11224b48cb0936e207eb6",
+    "checks": {
+      "startup-dc2-3363": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 2521,
+        "error": ""
+      },
+      "startup-dc2dm-9d72": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 861,
+        "error": ""
+      },
+      "startup-dc2pc-5769": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 665,
+        "error": ""
+      },
+      "startup-dc3dd-a5a8": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 1468,
+        "error": ""
+      },
+      "startup-dc3pp-9872": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 893,
+        "error": ""
+      },
+      "startup-dc3wy-a09f": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 1439,
+        "error": ""
+      },
+      "startup-dcpc-2063": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 560,
+        "error": ""
+      },
+      "wy-first": {
+        "exit_code": 0,
+        "dialogues": 2737,
+        "scripts": 29,
+        "returned_to_title": true,
+        "media_completion_simulated": true
+      }
+    }
+  },
+  "source_validation": "wy-credits-source-2026-11-07.json",
+  "record_note": "External artifact record created after the fixed archive; source validation documents are included inside the package."
+}

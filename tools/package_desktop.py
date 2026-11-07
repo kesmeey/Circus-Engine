@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--jdk', type=Path, required=True)
     parser.add_argument('--ffmpeg', type=Path, required=True)
-    parser.add_argument('--version', default='0.14.3-native-rewrite-dev')
+    parser.add_argument('--version', default='0.14.4-common-workflows-dev')
     args = parser.parse_args()
     if any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_' for c in args.version):
         raise SystemExit('Invalid version')
@@ -58,9 +58,10 @@ A：切换自动；按住 Ctrl：快进；F5 / F9：独立快速保存 / 读取�
 PC1 原版存/读/快速槽位尚未完成原生重建，现明确拒绝；F5/F9 仍是独立便携快照。
 不同游戏分开保存，不写原游戏目录。Windows 原游戏剧情槽尚未完整导入，系统进度按各版本另行迁移。
 
-本版本尚未完整复刻整个引擎，不承诺所有路线、鉴赏、设置及演出可用。
+本版本优先覆盖主要功能和大多数常见流程，允许延期少量难处理的版本或边界。
+当前不把约80%的工程目标当作精确完成率，实际范围见 COMMON_WORKFLOWS.md。
 已按各 EXE 独立证据重写脚本取指、变量布局及部分版本专属音频、UI、系统指令。
-新剧情存档为CVS2/rev7；旧CVS1或不同执行合同的旧快照明确拒绝读取并保留旧文件。
+新剧情存档为CVS2/rev8；旧CVS1或不同执行合同的旧快照明确拒绝读取并保留旧文件。
 独立系统进度使用自己的迁移规则，不能用旧剧情槽的限制推断系统进度也不可用。
 遇到未实现指令会停下并显示脚本位置，不会静默跳过。
 本次验证范围和缺口见随包 NATIVE_REWRITE_STATUS.md 与 NATIVE_FIDELITY_AUDIT.md。
@@ -68,8 +69,11 @@ PC_COMPATIBILITY.md 包含旧版兼容层记录，不是本次全引擎忠实度
 '''
     (package/'先读我.txt').write_text(readme, encoding='utf-8-sig')
     shutil.copy2(ROOT/'docs/PC_COMPATIBILITY.md', package/'PC_COMPATIBILITY.md')
-    for name in ['NATIVE_REWRITE_STATUS.md', 'NATIVE_FIDELITY_AUDIT.md', 'NATIVE_DECODER_CONTRACT.md']:
+    for name in ['NATIVE_REWRITE_STATUS.md', 'NATIVE_FIDELITY_AUDIT.md', 'NATIVE_DECODER_CONTRACT.md', 'ENGINE_SCOPE.md', 'COMMON_WORKFLOWS.md']:
         shutil.copy2(ROOT/'docs'/name, package/name)
+    (package/'validation').mkdir(exist_ok=True)
+    for path in sorted((ROOT/'docs/validation').glob('*.json')):
+        shutil.copy2(path, package/'validation'/path.name)
     ffmpeg_version = subprocess.run([str(args.ffmpeg), '-version'], capture_output=True, text=True, check=True).stdout
     (package/'FFMPEG-BUILD.txt').write_text(ffmpeg_version, encoding='utf-8')
     report = {'version': args.version, 'game_assets_included': False, 'source_sha256': (ROOT/'build/desktop/source.sha256').read_text(),

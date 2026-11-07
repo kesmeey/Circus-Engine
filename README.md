@@ -7,7 +7,7 @@
 仓库：[kesmeey/Circus-Engine](https://github.com/kesmeey/Circus-Engine)。
 项目目录与命令行工具仍沿用 `circus-runtime`／`dc_runtime` 命名。
 
-最后一批固定开发包为 **0.14.3-native-rewrite-dev**。当前源码继续按原生证据重写，已进入尚未发布的 rev8 执行契约，尚未完成整个引擎复刻；见 [重写状态与缺口](docs/NATIVE_REWRITE_STATUS.md)、[执行核心契约](docs/NATIVE_DECODER_CONTRACT.md)及下方存档边界。
+本批 Windows 开发包为 **0.14.4-common-workflows-dev**，使用 rev8 执行契约，优先主要功能和常见流程；见[各游戏实际检查范围](docs/COMMON_WORKFLOWS.md)、[重写状态与缺口](docs/NATIVE_REWRITE_STATUS.md)及下方存档边界。
 
 当前目标已调整为约80%的主要功能与大多数常见游戏流程，允许延期少量难处理的版本和边缘行为；这是工程范围，尚不是完成率声明。见[当前交付目标](docs/ENGINE_SCOPE.md)。
 
@@ -31,8 +31,8 @@
 | D.C.II 〜ダ・カーポII〜（2006 原版） | `dc2-3363` | 重写开发中；未完成的原生系统服务会精确停止，部分剧情／片尾／闹钟流程尚不支持，暂不承诺整作可玩 |
 | D.C.II Dearest Marriage | `dc2dm-9d72` | 启动／正文／存读档／回看与语音重播／CG·场景·音乐鉴赏／到片尾 |
 | D.C.III DreamDays | `dc3dd-a5a8` | 七条剧情路线到片尾 |
-| D.C.III With You | `dc3wy-a09f` | 启动／正文／选择／存读档；整条路线尚未验证 |
-| D.C.III P.P. | `dc3pp-9872` | 启动／正文／选择／存读档；整条路线尚未验证 |
+| D.C.III With You | `dc3wy-a09f` | 代表策略2,737句后经该版本片尾回标题；其他选择组合未穷举 |
+| D.C.III P.P. | `dc3pp-9872` | 已越过5,900句阻点，代表策略到第4章/MED；部分演出和system210仍会停止 |
 | D.C.III R（Unity 5.5 版） | `dc3r-unity-550` | 标题／章节选择／正文／系统菜单；全路线尚未验证 |
 
 「到片尾」指在本机完整跑通并返回标题；不等于原版所有演出时序和设置副作用都已复刻。
@@ -66,10 +66,10 @@ SAF 只申请读取权限；存档和解码缓存写应用私有目录。
 ### Windows
 
 ```powershell
-python tools/package_desktop.py --jdk <JDK21> --ffmpeg <ffmpeg.exe> --version 0.14.3-native-rewrite-dev
+python tools/package_desktop.py --jdk <JDK21> --ffmpeg <ffmpeg.exe> --version 0.14.4-common-workflows-dev
 ```
 
-产物 `build/distribution/dc-runtime-0.14.3-native-rewrite-dev-windows-x64/`，双击 `DC Runtime.cmd`，
+产物 `build/distribution/dc-runtime-0.14.4-common-workflows-dev-windows-x64/`，双击 `DC Runtime.cmd`，
 再选游戏目录。包内自带 JRE 和 FFmpeg，不需要另装 Java；存档写在包目录的 `saves/`。
 
 ### 验证当前源码
@@ -108,7 +108,7 @@ python tools/build_windows_native.py --java-home <JDK21> --vcvars "<Visual Studi
 因为旧变量模型和取指规则已造成的执行差异不能仅凭存档长度证明可迁移。系统持久进度单独处理。
 
 PC1的原版存/读/快速槽位依赖独立1B候选与完整41A620重建，本轮尚未接通，现明确报未实现。
-F5/F9使用的独立CVS2便携快照与原版菜单槽位不同，不能相互替代。当前执行合同rev5也会拒绝rev4等不同身份的旧快照。
+F5/F9使用的独立CVS2便携快照与原版菜单槽位不同，不能相互替代。当前执行合同rev8会拒绝不同执行身份的旧快照。
 P.P. 重写已改用原生位图和持久变量别名，新版可迁移合法旧手机系统进度。
 新 P.P. 状态以版本前缀保存完整持久字节（含可读填充位），旧版程序不能读取；DD/WY 的系统进度格式不变。
 旧兼容层系统进度若含非布尔解锁标志或原生不可写的全局索引数据，会明确报出无法忠实迁移并保留原文件；

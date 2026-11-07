@@ -21,7 +21,7 @@ def build(java_home=None, with_tests=False):
     else:
         # Physical audits borrow test fixtures and must not enter the player
         # package. The explicit test build below retains all audit entrypoints.
-        files += [p for p in desktop if not p.stem.endswith(('Audit','Tests','Test'))]
+        files += [p for p in desktop if not p.stem.endswith(('Audit','AuditFixtures','Tests','Test'))]
         files += [ROOT/'runtime/tests/org/circus/core/LocalGameStorage.java',ROOT/'runtime/tests/org/circus/core/RangeStorage.java']
     resources = sorted(p for p in (ROOT/'runtime/core/resources').rglob('*') if p.is_file())
     captured={p:p.read_bytes() for p in files+resources}

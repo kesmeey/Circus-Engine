@@ -42,7 +42,7 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
     public final Dc3Scene scene=new Dc3Scene();
     public final Dc3State state;
     public final Dc3Performance performance=new Dc3Performance();
-    public final Dc3Credits credits=new Dc3Credits();public boolean titleRequested,exitRequested;
+    public final Dc3Credits credits;public boolean titleRequested,exitRequested;
     public final CircusResources resources;
     public final Dc3Gallery gallery;
     public final String[] audio={"","","","","",""};
@@ -73,7 +73,7 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
     /** wait.message - the opcode that closes a line of dialogue. */
     public static int waitMessageOpcode(String id){return id.equals("dc3pp-9872")?0x07:0x06;}
     public Dc3Layout layout(){return scene.layout;}
-    public Dc3Host(CircusResources resources,TextCodec codec,boolean originalSystem){if(resources!=null&&!supports(resources.profile.id))throw new IllegalArgumentException("DD host cannot execute "+resources.profile.id);this.resources=resources;gallery=new Dc3Gallery(resources);this.originalSystem=originalSystem;state=new Dc3State(resources==null?"dc3dd-a5a8":resources.profile.id,originalSystem);dialogue=new DialogueHost(codec);dialogue.familyName="朝倉";dialogue.givenName="清隆";if(resources!=null)scene.layout=Dc3Layout.of(resources.profile.id);ui.exactCheckboxFlags(originalSystem&&isDd());}
+    public Dc3Host(CircusResources resources,TextCodec codec,boolean originalSystem){if(resources!=null&&!supports(resources.profile.id))throw new IllegalArgumentException("DD host cannot execute "+resources.profile.id);this.resources=resources;credits=new Dc3Credits(resources==null?"dc3dd-a5a8":resources.profile.id);gallery=new Dc3Gallery(resources);this.originalSystem=originalSystem;state=new Dc3State(resources==null?"dc3dd-a5a8":resources.profile.id,originalSystem);dialogue=new DialogueHost(codec);dialogue.familyName="朝倉";dialogue.givenName="清隆";if(resources!=null)scene.layout=Dc3Layout.of(resources.profile.id);ui.exactCheckboxFlags(originalSystem&&isDd());}
     public String checkpointLabel(){return checkpointLabel;}
     public void attach(Variables variables){this.variables=variables;ui.attach(variables);}
     public void position(MesScript script,int pc){activeScript=script;scriptName=script.name;scriptOffset=pc;}

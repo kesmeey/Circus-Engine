@@ -1,0 +1,104 @@
+{
+  "version": "0.14.5-common-workflows-dev",
+  "source_commit": "18ac2ef4839f95e9243f5a85810ec1e762ef0004",
+  "scope": "Local Windows development bundle, game assets excluded; source pushed to origin/main. No GitHub binary release published. Original game files read-only; original executable not launched.",
+  "archive": "build/distribution/dc-runtime-0.14.5-common-workflows-dev-windows-x64.zip",
+  "bytes": 68661424,
+  "archive_sha256": "9c1507fcc85823c639fbd036c655ac0d83a64d411982710ae7e963d6c3d692e9",
+  "player_source_fingerprint": "671aa9e16576f0da7d8622fc3092c28dadd911bdfd345c12dd89bff1ee0827d6",
+  "player_build_manifest_sha256": "2b31507f49f8fd4fb55165177fda23100e240cb33f68c9d42c34076d9143d135",
+  "player_input_count": 250,
+  "production_sources_identical_to_final_jvm_freeze": true,
+  "source_validation": "docs/validation/pp-workflows-source-2026-11-07.json",
+  "packaged_validation": {
+    "version": "0.14.5-common-workflows-dev",
+    "scope": "Packaged JRE and player JAR first on classpath; audit entrypoints from frozen test classes. Real original files read only, no original EXE process; controlled time/media/choices.",
+    "heap_mib": 192,
+    "package_manifest_files_verified": 162,
+    "audit_or_test_classes_in_player_jar": [],
+    "player_source_changes_after_build": [],
+    "jar_sha256": "77ce574d40960a2fb77bf9c743846369606091e34d091d396a4f12be48180813",
+    "package_build_sha256": "2b31507f49f8fd4fb55165177fda23100e240cb33f68c9d42c34076d9143d135",
+    "checks": {
+      "startup-dc2-3363": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 2521,
+        "error": ""
+      },
+      "startup-dc2dm-9d72": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 861,
+        "error": ""
+      },
+      "startup-dc2pc-5769": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 665,
+        "error": ""
+      },
+      "startup-dc3dd-a5a8": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 1468,
+        "error": ""
+      },
+      "startup-dc3pp-9872": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 893,
+        "error": ""
+      },
+      "startup-dc3wy-a09f": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 1439,
+        "error": ""
+      },
+      "startup-dcpc-2063": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 560,
+        "error": ""
+      },
+      "wy-first": {
+        "exit_code": 0,
+        "dialogues": 2737,
+        "returned_to_title": true,
+        "media_completion_simulated": true,
+        "scripts": 29
+      },
+      "pp-first": {
+        "exit_code": 0,
+        "dialogues": 15006,
+        "returned_to_title": true,
+        "media_completion_simulated": true,
+        "scripts": 109
+      },
+      "pp-last": {
+        "exit_code": 0,
+        "dialogues": 13362,
+        "returned_to_title": true,
+        "media_completion_simulated": true,
+        "scripts": 106
+      },
+      "PpParticlesAudit": {
+        "exit_code": 0,
+        "checks": 18
+      },
+      "PpScrollRendererAudit": {
+        "exit_code": 0,
+        "checks": 71,
+        "total_pixels_compared": 5898240
+      }
+    }
+  }
+}

@@ -1,0 +1,409 @@
+{
+  "schema": "circus-runtime.validation.pc2-sc-fl-native-contract.v1",
+  "date": "2026-11-08",
+  "scope": "Reviewed PC2/SC/FL variable banks, initial settings, cached scenario-read state, main actor geometry, and focused serialization/control-flow regressions. Metadata and hashes only; no original game assets.",
+  "original_executables_launched": false,
+  "original_game_files_written": false,
+  "targets": {
+    "pc2": {
+      "profile": "dc2pc-5769",
+      "pe_sha256": "f0b3be701f3c8c94dad143db927d824d398325be57a5da7514556f862f505e46",
+      "variable_model": "PC_WIDE",
+      "native_functions": {
+        "getter": "41A300",
+        "setter": "41A5C0",
+        "loader": "41A050",
+        "seen_lookup": "425810"
+      },
+      "cached_99_251_address": "B0CE10",
+      "reviewed_bank_extents": {
+        "100": 100,
+        "97": 1500,
+        "98": 1500,
+        "95": 100,
+        "90": 1500
+      },
+      "fallback_system_dat": {
+        "bytes": 3312,
+        "template_va": "0x437088",
+        "sha256": "b06889493ade7944fbff7e055e9d27fab32a125aea066576c0d45d2de50559cf",
+        "defaults99": {
+          "5": 1,
+          "6": 1,
+          "7": 25,
+          "8": 25,
+          "9": 29,
+          "10": 1,
+          "11": 8,
+          "12": 1,
+          "13": 0,
+          "14": 1,
+          "15": 1,
+          "16": 8,
+          "17": 0,
+          "18": 1,
+          "20": 1
+        },
+        "bank95_default": 0
+      }
+    },
+    "sc": {
+      "profile": "dc2sc-3b69",
+      "pe_sha256": "11f0507fd4e317ebf07a430eb221f4ecf4c7a1f1e27a4431d3ef9e5daef13abc",
+      "variable_model": "PC_BYTE",
+      "native_functions": {
+        "getter": "4181A0",
+        "setter": "418400",
+        "loader": "417F00",
+        "seen_lookup": "4230C0"
+      },
+      "cached_99_251_address": "A3F1CC",
+      "reviewed_bank_extents": {
+        "100": 100,
+        "97": 1024,
+        "98": 1024,
+        "95": 80,
+        "90": 1024
+      },
+      "fallback_system_dat": {
+        "bytes": 2340,
+        "template_va": "0x433088",
+        "sha256": "22e00ef2b14bea0c0ec41e480835e41210d07090e806d6660f0c4e28801115e1",
+        "defaults99": {
+          "5": 1,
+          "6": 1,
+          "7": 25,
+          "8": 25,
+          "9": 29,
+          "10": 1,
+          "11": 8,
+          "12": 1,
+          "13": 0,
+          "14": 1,
+          "15": 1,
+          "16": 8,
+          "17": 1,
+          "18": 1,
+          "20": 1
+        },
+        "bank95_default": 0
+      }
+    },
+    "fl": {
+      "profile": "dc2fl-9c69",
+      "pe_sha256": "3adf5db19bdc67cb8c90e666572ba53538462d8ef461a29dddaa46671f1867f2",
+      "variable_model": "PC_WIDE",
+      "native_functions": {
+        "getter": "419B10",
+        "setter": "419DC0",
+        "loader": "41CE20",
+        "seen_lookup": "41CD50"
+      },
+      "cached_99_251_address": "A98014",
+      "reviewed_bank_extents": {
+        "100": 100,
+        "97": 640,
+        "98": 1024,
+        "95": 152,
+        "90": 1024
+      },
+      "fallback_system_dat": {
+        "bytes": 2032,
+        "template_va": "0x46b018",
+        "sha256": "c700e29dcc9607e1a99559ff61e5085b38a2faad9f82687fc8a22b05fdd6dbe6",
+        "defaults99": {
+          "5": 1,
+          "6": 1,
+          "7": 25,
+          "8": 25,
+          "9": 29,
+          "10": 1,
+          "11": 8,
+          "12": 1,
+          "13": 0,
+          "14": 1,
+          "15": 1,
+          "16": 8,
+          "17": 0,
+          "18": 1,
+          "20": 1
+        },
+        "bank95_default": 0
+      }
+    }
+  },
+  "contracts": {
+    "ordinary": "Banks0..9 indices0..99; signed writes saturate0..255 and reads zero-extend. Bank10 is not a global100 mirror.",
+    "wide": "OnlyPC2/FL banks200..209 indices0..96 are signed BE32 views. SC has no wide view; none has a300 BE16 or400 persistent-word view.",
+    "special_byte_writes": "90/95/97/98/100 store the low8 bits. Native getters do not guard their raw array addresses; reviewed extents above describe established persisted/scratch ownership. Portable access outside those reviewed spans is rejected.",
+    "cached_99_251": {
+      "value": "Unsigned prior seen98[scenarioCatalogIndex], unknown scenario0; never the catalog index.",
+      "load_modes": "Initial load and modes1/3 sample before body marking; mode2 preserves the old cache.",
+      "later_writes": "Updating98 does not update the cache. Body processing writes1 to98 and90 at the current scenario index while retaining the cache."
+    },
+    "clock_99_21": "GetLocalTime SYSTEMTIME.wHour on each read; independent of the serialized register map.",
+    "actor_descriptors": "64 writes staged XY and zoom100.65 selectors16..19 write staged zoom and pivots; ordinary65 moves displayed XY and ignores its third word. Normal actor loading commits staged XYZ. Publish projects independent live XYZ before captureUi can freeze a frame.",
+    "geometry": "PC2/FL zoom100 apply native882x756 closeup anchor correction. SC zoom100 uses unchanged XY and native image dimensions. Other zooms use integer pivot compensation and one scaling pass.",
+    "scale_cache": "Native pre-scaled image handles store requested zoom in their metadata. The36-case geometry interpretation uses unscaled input handles; FL effective-loaded-width offsets and its float/time-based mover are separate contracts, not proved by those36 cases.",
+    "portable_wire": "PCP3 carries exact family bank lengths and opaque legacy tails. Imported PCP1/2 active bytes, zero extension and excess tail bytes are preserved without exposing a fabricated wider native bank."
+  },
+  "original_instruction_validation": {
+    "variable_getter_setter": {
+      "result": "PASS",
+      "cases": 147,
+      "interpreted_instructions": 4579,
+      "scope": "Bounded interpretation of original getter/setter bytes over private arrays: cached251 reads0/1/7/255, special low8 storage, ordinary saturation, wide/no-wide boundaries, aliases and physical hour. Loader modes and body-mark call sites were established separately through static REA evidence.",
+      "controlled_externals": [
+        "GetLocalTime fixed hours0/23",
+        "Persistent-save calls recorded as stubs; no disk I/O"
+      ],
+      "vectors": {
+        "private_path": "build/holdout-contract-20261108/native-variable-vectors.json",
+        "sha256": "562b0faaf3683187ad12f4640dd120a20c7fc9b2d601d827b5ae2ba7e868e640"
+      },
+      "driver": {
+        "private_path": "build/holdout-contract-20261108/native_variables_vectors.py",
+        "sha256": "264d6c6e4a4236fc5b4b2f978f1c4e552dd14fe99674fcf700fb2cfa01d087a7"
+      }
+    },
+    "actor_geometry": {
+      "result": "PASS",
+      "cases": 36,
+      "interpreted_instructions": 4268,
+      "scope": "PC2/SC/FL actor0 and3; six size/zoom/pivot cases each; final rectangle and draw-call arguments. Includes closeups, signed pivots and integer truncation; excludes pre-scaled-handle state and65 timing.",
+      "vectors": {
+        "private_path": "build/holdout-contract-20261108/actor-geometry-vectors.json",
+        "sha256": "ece5f37b9422cd281bd28232eff67c2688d91cc50f67e872cba733db866f3c85"
+      },
+      "driver": {
+        "private_path": "build/holdout-contract-20261108/actor_geometry_vectors.py",
+        "sha256": "5e5dde9898f7efacc39b03e9592c688af6a55663653592d25666c0cc6e8a8705"
+      }
+    },
+    "private_cpu_interpreter": {
+      "private_path": "build/native-rewrite/effects-stage2/native_particle_vectors.py",
+      "sha256": "ef6e631b218cace463f9951f8f0d88d29be80b4868d8e36e65623ffcb24b4ea1"
+    }
+  },
+  "focused_runtime_tests": [
+    {
+      "test": "PcNativeStateTests",
+      "result": "PASS",
+      "byte_and_semantic_assertions": 28419,
+      "source": "runtime/tests/org/circus/core/PcNativeStateTests.java",
+      "source_sha256": "b98ff51ee96892e960b671dedf028489ccfaec24071cc65a7d6552ce305b16d4",
+      "scope": "All3 fresh defaults, exact byte-bank boundaries,251 load/body semantics, full host roundtrip, PCP3 extents and independently constructed PCP1/2 migrations including every tail byte, persistent copy, PC_BYTE/PC_WIDE golden bytes."
+    },
+    {
+      "test": "PcNativeProgressTests",
+      "result": "PASS",
+      "assertions": 57,
+      "source": "runtime/tests/org/circus/core/PcNativeProgressTests.java",
+      "source_sha256": "36a9cbddfe40b9a9afca7ad397d65e28a44541372222666b325478802f197759"
+    },
+    {
+      "test": "NativeProgressTests",
+      "result": "PASS",
+      "assertions": 237,
+      "source": "runtime/tests/org/circus/core/NativeProgressTests.java",
+      "source_sha256": "873ebb76e77d69c9c81eab7e7d32c891261f42c73ede4b6fc1a08ff2b1ada86b"
+    },
+    {
+      "test": "Pc2ActorTests",
+      "result": "PASS",
+      "assertions": 35,
+      "source": "runtime/tests/org/circus/core/Pc2ActorTests.java",
+      "source_sha256": "12b4363e37b32b0ef9c1bde105f1b722701beef23bcfdaecae0e632dbddfde86"
+    }
+  ],
+  "focused_runtime_test_log": {
+    "private_path": "build/holdout-contract-20261108/native-state-tests/state-progress-tests.stdout",
+    "sha256": "409aadc2eaf7649f688439579f78a47f7580cc46250608ec348cbf0e401a199f"
+  },
+  "pc2_physical_geometry_regression": {
+    "result": "PASS",
+    "assertions": 9,
+    "scope": "Original START, reported85EC and reverse9ABF scenes, resource selection, native -310/-124 closeup, saved state, slot/accessory ordering. Media completion simulated.",
+    "stdout": {
+      "private_path": "build/holdout-contract-20261108/pc2-physical/actor-layout.stdout",
+      "sha256": "d80423dad3145af5e42f2beea066e4c3879623989ad3362c8e995829243db8d8"
+    },
+    "source_freeze": {
+      "private_path": "build/holdout-contract-20261108/pc2-physical/inputs-manifest.json",
+      "sha256": "875f38651b27977cabae1b244ebd4b8751f92ac9991e992dbdea0b3d3408e638"
+    }
+  },
+  "pc2_natural_routes": {
+    "source_files": 602,
+    "source_freeze": {
+      "private_path": "build/holdout-contract-20261108/pc2-natural-routes/inputs-manifest.json",
+      "sha256": "b6eea7a04662e50ccd95c25425c0bf0391df6fdc14758723408259c7b7748f55"
+    },
+    "frozen_source_sha256": {
+      "runtime/core/src/org/circus/core/PcHost.java": "ea5e04adb058b1aece5d075e69c3fb077b29b6b2b00d99e349b39e8900c9018b",
+      "runtime/core/src/org/circus/core/Pc2Host.java": "3df42087880d9c75f99067f52c52d5db468f6795f85fe56f14fcd2699df3427e",
+      "runtime/core/src/org/circus/core/Dc2Scene.java": "786e195e7e609cafdf497674a24f689965ed53f50125a98acb23dd39e412fc8f",
+      "runtime/core/src/org/circus/core/Dc2Host.java": "232fb0f85b763aecf49aec4ec0b863777504a3b8e401161da4a575004bb7dd3f",
+      "runtime/core/src/org/circus/core/Profiles.java": "5d65440fcbc3be78e5196a52124c0e46c23445548cbbfd8054f8f54874c81c53",
+      "runtime/desktop/src/org/circus/core/DesktopLegacy.java": "23250b6991ba3f5514bdd15fb3196572358049b486c09c5a8d7a6a4d4a71a68a",
+      "runtime/desktop/src/org/circus/core/DesktopRouteAudit.java": "06c0a80b1acd2965714c1abb4444b95966f291514dc83f5c6cc1e2fcdbf0e891"
+    },
+    "runs": [
+      {
+        "policy": "first",
+        "result": "PASS",
+        "dialogues": 5496,
+        "scripts": 76,
+        "choices": 33,
+        "ending_script": "fst_1224_f1_cm_ed1",
+        "returned_to_title": true,
+        "forced_progress_flags": false,
+        "choice_overrides": {},
+        "choice_loop_exits": [],
+        "media_completion_simulated": true,
+        "result_evidence": {
+          "private_path": "build/holdout-contract-20261108/pc2-natural-routes/first/result.json",
+          "sha256": "4ede0cf3182b8422b5a170981f2d240daccb8244ca4a21081fd40d5e46840cde"
+        },
+        "command_evidence": {
+          "private_path": "build/holdout-contract-20261108/pc2-natural-routes/first-command.json",
+          "sha256": "5498c73503665a63447bbc44b4eb6054a15cb05d7e5440b58d56e46261d05da1"
+        }
+      },
+      {
+        "policy": "last",
+        "result": "PASS",
+        "dialogues": 5115,
+        "scripts": 76,
+        "choices": 33,
+        "ending_script": "fst_1224_f1_cm_ed1",
+        "returned_to_title": true,
+        "forced_progress_flags": false,
+        "choice_overrides": {},
+        "choice_loop_exits": [],
+        "media_completion_simulated": true,
+        "result_evidence": {
+          "private_path": "build/holdout-contract-20261108/pc2-natural-routes/last/result.json",
+          "sha256": "e770cb5463e2b584c354fe8086fe4a526abc586f85ff3619d0fb987383681757"
+        },
+        "command_evidence": {
+          "private_path": "build/holdout-contract-20261108/pc2-natural-routes/last-command.json",
+          "sha256": "a2d62c22f28a56543fd10140f188d74ae815d67b529c4a3b39d1355c6fc88fb1"
+        }
+      }
+    ]
+  },
+  "private_static_evidence": [
+    {
+      "evidence_id": "ev_838787727f9ed117b7778b3abb98a7451cf344f0144c9ec2e22026a331740fd4",
+      "private_path": "build/holdout-contract-20261108/pc2-0x41a300.rea.json",
+      "sha256": "6c526d8deaecb91827851956c66fd90e7eb5f498a7df6e15aed85b41a3a510e5"
+    },
+    {
+      "evidence_id": "ev_7f903139bfac0488ef6343cdca0be9910bacce81cf9ab6a3de9394b04c0dcf4f",
+      "private_path": "build/holdout-contract-20261108/pc2-0x41a5c0.rea.json",
+      "sha256": "99444cdb381f9a0f846117897e1536cf47edf870b0842a1cc08a247123aec1d9"
+    },
+    {
+      "evidence_id": "ev_0f4de48d292309d9a8797a6c78a9eea551fa0e582c3bf82d22c00dd3e39e726e",
+      "private_path": "build/holdout-contract-20261108/pc2-0x425810.rea.json",
+      "sha256": "841f2be874dea5c116374e1dbaca7161949bdaeb94b3c5f188cdf727026682ed"
+    },
+    {
+      "evidence_id": "ev_8b06bab09d925fccb6ae53a0c1c10a357ff8df795d9929f012591f2d38f167f6",
+      "private_path": "build/holdout-fl-20261108/getter419b10.evidence.json",
+      "sha256": "f84704abf8d4d2088e0649439f43a6ca011b818b1ce1eeb7276d0d945378ae60"
+    },
+    {
+      "evidence_id": "ev_a8b7c3803e7b3dd4211ea63535ddc243b42e43c616976fa0dcf41114322b2554",
+      "private_path": "build/holdout-fl-20261108/setter419dc0.evidence.json",
+      "sha256": "4bc43d3970d4987731eb283a72761613a8f3fc4b5ccfd42f5f865fa462a4af6a"
+    },
+    {
+      "evidence_id": "ev_e5e8fe588e82096f9b4ffd158c201ac5304725f260942a0d1c63be9b5f7ab363",
+      "private_path": "build/holdout-fl-20261108/loader41ce20.evidence.json",
+      "sha256": "e0b63030cd1051a17538c617d0aa742f60f16830d2eee31c29ab6115d84698f1"
+    },
+    {
+      "evidence_id": "ev_41775e870f6360a067ec3c0ce062abe7c04b1c120f168a477996a3790d05fa91",
+      "private_path": "build/holdout-fl-20261108/loader-evidence.json",
+      "sha256": "73d0912cafc9f0d440b17e67823f3db462682fec997c10f9619a60660d6e0623"
+    },
+    {
+      "evidence_id": "ev_02f47de26d42948b1dcf63d00339965b9f7b0ec503a5f0e2e161828ff3ce5ae2",
+      "private_path": "build/holdout-contract-20261108/sc-render-functions.evidence.json",
+      "sha256": "f126d2d9572e354770579c839c9b6cbe7dfe8af96e89e3d1feee6bebed946b5f"
+    },
+    {
+      "evidence_id": "ev_b9b37b0b03bb4152167eb3a30f9e4e8348dc39cb00fce53e0b311e5bfd966c04",
+      "private_path": "build/holdout-contract-20261108/fl-render41a190.evidence.json",
+      "sha256": "80411f0859fc2919319cb4680bf4e21036f07843f8b7b2f2a6648c4da1811d88"
+    },
+    {
+      "evidence_id": "ev_8ceebf8e83de8e02ee584e06182e0e826faae341bc2feb02166a9a01264bf873",
+      "private_path": "build/holdout-contract-20261108/fl-wait4204c0.evidence.json",
+      "sha256": "fce5191472bbe4dfbf6462598a411ed8e893de7cb45cd649238820353a178f09"
+    },
+    {
+      "evidence_id": "ev_00b14491687049eb668072f99c6b5e8194b48f4dc2cf942df4725c1f53e4b9d1",
+      "private_path": "build/holdout-sc-20261108/native-core-functions/functions/0x4181a0.c",
+      "sha256": "ed4ae6d1470e27cdf221101fbc5de1db4cd08f434bd588e4426fb88ce15c8038"
+    },
+    {
+      "evidence_id": "ev_00b14491687049eb668072f99c6b5e8194b48f4dc2cf942df4725c1f53e4b9d1",
+      "private_path": "build/holdout-sc-20261108/native-core-functions/functions/0x418400.c",
+      "sha256": "373d36611bd57b3d692af5d514f82631647d4af3d3c6b6923ca7d550ca27e347"
+    },
+    {
+      "evidence_id": "ev_00b14491687049eb668072f99c6b5e8194b48f4dc2cf942df4725c1f53e4b9d1",
+      "private_path": "build/holdout-sc-20261108/native-core-functions/functions/0x417f00.c",
+      "sha256": "872a11c71861c546390c161cafc3685fbc3cd5225f9b186bb31d1f1363be1603"
+    },
+    {
+      "evidence_id": "ev_00b14491687049eb668072f99c6b5e8194b48f4dc2cf942df4725c1f53e4b9d1",
+      "private_path": "build/holdout-sc-20261108/native-core-functions/functions/0x418740.c",
+      "sha256": "3b6e998c5b368dcba10f1bd57eaae35453f8184d65f509a7dd53a229b60814a6"
+    }
+  ],
+  "private_metadata": [
+    {
+      "private_path": "build/holdout-contract-20261108/native-default-settings.json",
+      "sha256": "c2cc0f29542647dbcd77476c5b817100ced893cb26905996e16e6d2518d117dd"
+    },
+    {
+      "private_path": "build/holdout-contract-20261108/native-voice-default-tails.json",
+      "sha256": "1d4e8455bb9dcb5ee46e321d88117b6ed7bb0c0c74d718dbc4af946e00522e2c"
+    },
+    {
+      "private_path": "build/holdout-contract-20261108/native-palette-candidates.json",
+      "sha256": "3414251209764e2dbe31b4da83bbf155199c23f66d115dce4954d9308efdad4b"
+    },
+    {
+      "private_path": "build/holdout-contract-20261108/seen-byte-writers.json",
+      "sha256": "dc68dcc69a3be137a9953ca9803fcf584dcfa7a09df38dc0677e50b637c86e3a"
+    },
+    {
+      "private_path": "build/holdout-contract-20261108/markseen-calls.json",
+      "sha256": "d0e45d70c01e4ed69c663f09434238a41c8bf859c818fb58695d278857b05096"
+    },
+    {
+      "private_path": "build/holdout-contract-20261108/sc-prescale4048b0.asm",
+      "sha256": "269a616058564bea210eebcc2f64c1ea01adf477b30907ff4ebce405cf0c2a84"
+    },
+    {
+      "private_path": "build/holdout-contract-20261108/sc-prescale4048b0-tail.asm",
+      "sha256": "e80daca466eb8fb151f89af27c372182cdbe647b89b278a07604242d267a73e1"
+    },
+    {
+      "private_path": "build/holdout-contract-20261108/bank-boundary-test-scan.json",
+      "sha256": "35e1909e627fa2f65540b8a917e4363adafd42221c2351b8c7b939da3f240807"
+    }
+  ],
+  "limits": [
+    "Native special banks have raw unchecked addressing; the portable implementation only claims reviewed nonnegative spans. Full negative/native-memory alias behavior is outside this validation.",
+    "Original-instruction vectors interpret selected functions and stub platform effects; they do not launch the original EXEs.",
+    "The two PC2 natural policies both reach the common ending; they do not prove every heroine route or every gallery/system path.",
+    "The focused tests and source freezes here are specific validations, not a claim that the entire repository test suite has passed.",
+    "Private build evidence includes derived local analysis and is referenced by hash only; original PE bytes, scripts, images and audio are not included in this document."
+  ]
+}

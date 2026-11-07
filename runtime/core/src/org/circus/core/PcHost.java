@@ -5,7 +5,7 @@ import java.util.*;
 
 /** Earlier 800x600 CIRCUS host. Numeric opcodes stay in independently reviewed profiles.
  * It shares rendering primitives with DM, not DM's variable layout or system commands. */
-public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesVm.NativePcHost {
+public class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesVm.NativePcHost {
     public final Pc1Runtime pc1;
     private Pc1NativeSettings pc1Settings;
     private boolean pc1SettingsInitialized;
@@ -103,7 +103,7 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
     private byte[] encodeName(String value)throws IOException{
         if(value==null)throw new IOException("Native player name is unavailable");try{java.nio.ByteBuffer encoded=codec.charset.newEncoder().onMalformedInput(java.nio.charset.CodingErrorAction.REPORT).onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT).encode(java.nio.CharBuffer.wrap(value));byte[] raw=new byte[encoded.remaining()];encoded.get(raw);return raw;}catch(java.nio.charset.CharacterCodingException invalid){throw new IOException("Native player name cannot be represented by "+codec.charset.name(),invalid);}
     }
-    @Override public void loadedInitial(MesScript s,int nextOffset)throws IOException{script=s;pc=nextOffset;if(pc1!=null){ensureNativeSettings();pc1.bindInitial(s);}if(original)cacheOriginalScenarioRead(s.name);}
+    @Override public void loadedInitial(MesScript s,int nextOffset)throws IOException{script=s;pc=nextOffset;if(pc1!=null){ensureNativeSettings();pc1.bindInitial(s);}if(pc1==null)cacheOriginalScenarioRead(s.name);}
     @Override protected boolean nativeScalarFrame(){return pc1!=null;}
     @Override public void beforeNativeScriptLoad(int opcode,String target)throws IOException{if(pc1!=null&&opcode==0x36){pc1.markCurrentScenario();pc1.prepareScenarioLabel(target);}}
     @Override public void writeNativeArgument0(int value){if(pc1==null)throw new IllegalStateException("Native PC1 argument requires PC1");pc1.argument0(value);}
@@ -119,9 +119,10 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
     @Override public void messageMode(int value){if(pc1==null)super.messageMode(value);else pc1.nativeFrame().dword(Pc1NativeSlot.Dword.PARAGRAPH_MODE,value);}
     @Override public Variables.NativeByteMemory nativeByteMemory(){return pc1==null?null:pc1.nativeMemory();}
     @Override public boolean signedNativeIndex(int bank){return pc1!=null&&(bank==90||bank==97||bank==98||bank==99||bank==100);}
-    public final PcNameInput nameInput=new PcNameInput();public String familyName,givenName;public final boolean second;public final Pc2Map map=new Pc2Map();public final Dc2Map dc2Map=new Dc2Map();public final Dc2BorrowedState dc2Borrowed=new Dc2BorrowedState();public final Dc2OriginalCredits dc2Credits=new Dc2OriginalCredits();public UiCapture dc2CreditsUnderlay;public final Dc2CharacterEnding dc2CharacterEnding=new Dc2CharacterEnding();public UiCapture dc2EndingUnderlay;public final Dc2ActorMotion dc2ActorMotion=new Dc2ActorMotion();public final Dc2ActorChange dc2ActorChange=new Dc2ActorChange();public final PcCredits pcCredits=new PcCredits();
+    public final PcNameInput nameInput=new PcNameInput();public String familyName,givenName;public final boolean second,spring,fall;public final Pc2Map map=new Pc2Map();public final Dc2Map dc2Map=new Dc2Map();public final Dc2BorrowedState dc2Borrowed=new Dc2BorrowedState();public final Dc2OriginalCredits dc2Credits=new Dc2OriginalCredits();public UiCapture dc2CreditsUnderlay;public final Dc2CharacterEnding dc2CharacterEnding=new Dc2CharacterEnding();public UiCapture dc2EndingUnderlay;public final Dc2ActorMotion dc2ActorMotion=new Dc2ActorMotion();public final Dc2ActorChange dc2ActorChange=new Dc2ActorChange();public final PcCredits pcCredits=new PcCredits();
     private final List<String> voiceGroup=new ArrayList<>();
-    private final byte[] globals=new byte[100],cg=new byte[1600],seen=new byte[1600],voiceEnabled=new byte[128],scratch=new byte[100];
+    private final byte[] globals,cg,seen,voiceEnabled,scratch;
+    private final byte[][] legacyPcTails={new byte[0],new byte[0],new byte[0],new byte[0],new byte[0]};
     public final ScriptList list=new ScriptList();private boolean gridTarget;private String musicEndAction="";
     private int spriteFlags;private int randomState=0x63c25769;private boolean timedInput;
     private boolean pendingRegionFlag;
@@ -197,13 +198,22 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
     /** 4189D0 / 422DA0: older engines browse one message in the original message window. */
     public void openHistory()throws IOException{if(pc1!=null){pc1.historyPrevious();return;}history.active=true;history.selected=Math.max(0,history.entries.size()-2);ui.waiting=true;ui.buttons.clear();ui.buttons.addAll(Dc2Ui.copyButtons(ui.buttonTemplates.get(messageMode()==0?1:4)));showHistory();nextTicket();}
     private void showHistory(){if(history.entries.isEmpty())return;Dc2History.Entry e=history.entries.get(history.selected);speaker=e.speaker;body=e.body;}
-    public static boolean supports(Profile p){return p.id.equals("dc2pc-5769")||p.id.equals("dcpc-2063")||p.id.equals("dc2-3363");}
+    public static boolean supports(Profile p){return p.id.equals("dc2pc-5769")||p.id.equals("dcpc-2063")||p.id.equals("dc2-3363")||p.id.equals("dc2sc-3b69")||p.id.equals("dc2fl-9c69");}
     public PcHost(CircusResources r,TextCodec c){this(r,c,(int)(System.nanoTime()/1000000L));}
     /** Portable monotonic startup tick; explicit injection enables native seed-matched replays. */
     public PcHost(CircusResources r,TextCodec c,int startupTick){this(r,c,startupTick,false);}
     /**Explicit native process entry: frame PE/BSS and verified43E100=1 before WinMain.*/
     public static PcHost pc1BeforeWinMain(CircusResources r,TextCodec c)throws IOException{if(r==null||!r.profile.id.equals("dcpc-2063"))throw new IOException("PC1 native WinMain requires current verified PC1 profile");return new PcHost(r,c,1,true);}
-    private PcHost(CircusResources r,TextCodec c,int startupTick,boolean beforeWinMain){super(r,c);second=r.profile.id.equals("dc2pc-5769");original=r.profile.id.equals("dc2-3363");rawNativeSession=beforeWinMain;pc1Settings=!second&&!original?Pc1NativeSettings.initialZeroImage():null;pc1=!second&&!original?new Pc1Runtime(this,beforeWinMain):null;if(pc1!=null){ui.quadLimit=60;randomState=startupTick;}if(original){randomState=startupTick;scene.nativeParticles=new Dc2Particles(this::nextRandom);ui.quadLimit=60;int[] nativeDefaults={1,1,25,25,29,1,8,1,0,1,1,8,1,1};for(int n=0;n<nativeDefaults.length;n++)registers.put(5+n,nativeDefaults[n]);registers.put(20,1);}System.arraycopy(PC_PALETTE,0,ui.palette,0,PC_PALETTE.length);boolean cn=c.charset.name().equalsIgnoreCase("GBK");familyName=second?(cn?"樱内":"桜内"):(cn?"朝仓":"朝倉");givenName=second?(cn?"义之":"義之"):(cn?"纯一":"純一");gridHoverSound=gridClickSound=255;Arrays.fill(voiceEnabled,(byte)1);registers.put(13,0);registers.put(19,0);registers.put(25,0);registers.put(26,8);registers.put(27,8);if(pc1!=null)clearNativeSettingsRegisterMirrors();}
+    private PcHost(CircusResources r,TextCodec c,int startupTick,boolean beforeWinMain){
+        super(r,c);spring=r.profile.id.equals("dc2sc-3b69");fall=r.profile.id.equals("dc2fl-9c69");second=r.profile.id.equals("dc2pc-5769")||spring||fall;original=r.profile.id.equals("dc2-3363");
+        globals=new byte[100];cg=new byte[second?(spring?1024:fall?640:1500):1600];seen=new byte[second?(spring||fall?1024:1500):1600];voiceEnabled=new byte[second?(spring?80:fall?152:100):128];scratch=new byte[second?(spring||fall?1024:1500):100];
+        rawNativeSession=beforeWinMain;pc1Settings=!second&&!original?Pc1NativeSettings.initialZeroImage():null;pc1=!second&&!original?new Pc1Runtime(this,beforeWinMain):null;
+        if(pc1!=null){ui.quadLimit=60;randomState=startupTick;}
+        if(original){randomState=startupTick;scene.nativeParticles=new Dc2Particles(this::nextRandom);ui.quadLimit=60;int[] defaults={1,1,25,25,29,1,8,1,0,1,1,8,1,1};for(int n=0;n<defaults.length;n++)registers.put(5+n,defaults[n]);registers.put(20,1);}
+        if(second){int[] defaults={1,1,25,25,29,1,8,1,0,1,1,8,spring?1:0,1};for(int n=0;n<defaults.length;n++)registers.put(5+n,defaults[n]);registers.put(20,1);}
+        System.arraycopy(PC_PALETTE,0,ui.palette,0,PC_PALETTE.length);boolean cn=c.charset.name().equalsIgnoreCase("GBK");familyName=second?(cn?"樱内":"桜内"):(cn?"朝仓":"朝倉");givenName=second?(cn?"义之":"義之"):(cn?"纯一":"純一");gridHoverSound=gridClickSound=255;
+        if(!second)Arrays.fill(voiceEnabled,(byte)1);registers.put(13,0);registers.put(19,0);registers.put(25,0);registers.put(26,8);registers.put(27,8);if(pc1!=null)clearNativeSettingsRegisterMirrors();
+    }
     @Override public void elapse(long ms){
         if(!original){if(pc1!=null)try{pc1.elapseReturn(ms);}catch(IOException failure){throw new IllegalStateException("PC1 native return transition: "+failure.getMessage(),failure);}super.elapse(ms);pcCredits.elapse(ms);if(map.active)map.elapsed+=Math.max(0,ms);return;}
         if(dc2ActorChange.active&&!dc2ActorChange.preparing){super.elapse(ms);dc2ActorChange.advance(ms,registers.getOrDefault(12,0),originalMotionSkip());return;}
@@ -427,10 +437,11 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
         }
         if(pc1!=null&&b!=99)return 0;
         if(i<0)throw new IOException("Negative PC variable index");
+        if(second&&((b==100&&i>=globals.length)||(b==97&&i>=cg.length)||(b==98&&i>=seen.length)||(b==95&&i>=voiceEnabled.length)||(b==90&&i>=scratch.length)))throw new IOException("Unreviewed native byte-bank span "+b+":"+i);
         if(b==100)return at(globals,i);if(b==97)return at(cg,i);if(b==98)return at(seen,i);if(b==95)return second?at(voiceEnabled,i):1;if(b==90)return at(scratch,i);
         if(b!=99)return 0;
-        if(original&&i==251)return registers.getOrDefault(251,0);
-        if(original&&i==21){int hour=dc2LocalHour.read();if(hour<0||hour>23)throw new IOException("DC2 local hour outside native SYSTEMTIME range");return hour;}
+        if(pc1==null&&i==251)return registers.getOrDefault(251,0);
+        if(pc1==null&&i==21){int hour=dc2LocalHour.read();if(hour<0||hour>23)throw new IOException("PC local hour outside native SYSTEMTIME range");return hour;}
         switch(i){case 3:return 1;case 4:return fullscreen?1:0;case 242:return 0;case 243:return pc1!=null?registers.getOrDefault(243,-1):catalogIndex("images",scene.slots[1]);case 244:return pc1!=null?0:logicalMusic();
         case 245:return pc1!=null?0:ui.hovered;case 246:return pc1!=null||original?0:list.active()?registers.getOrDefault(246,0):gridWaiting?2:0;case 247:return 0;case 248:return audioActive[1]?0:1;case 249:return audioActive[5]?0:1;case 250:return audioActive[0]?0:1;
         case 251:return pc1!=null?pc1.cachedScenarioRead():script==null?-1:catalogIndex("scenario_scripts",script.name);case 255:return pc1!=null?0:registers.getOrDefault(255,0);
@@ -451,17 +462,18 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
         }
         if(i<0)throw new IOException("Negative PC variable index");
         byte[] target=b==100?globals:b==97?cg:b==98?seen:b==95&&second?voiceEnabled:b==90?scratch:null;
-        if(target!=null){if(i<target.length)target[i]=(byte)v;return;}
+        if(target!=null){if(second&&i>=target.length)throw new IOException("Unreviewed native byte-bank span "+b+":"+i);if(i<target.length)target[i]=(byte)v;return;}
         if(b==99&&i<256){registers.put(i,v);if(original&&i==7&&audioActive[5])originalPlaybackGain=Dc2Voice.gain(0,read(99,9));} // Native setters for unknown banks have no effect.
     }
-    @Override protected void unlock(String table,String name,int bank)throws IOException{int n=catalogIndex(table,name);if(n>=0&&(pc1==null||!table.equals("scenario_scripts")))write(bank,n,1);}
+    @Override protected void unlock(String table,String name,int bank)throws IOException{int n=catalogIndex(table,name);if(n>=0&&(pc1==null||!table.equals("scenario_scripts"))){write(bank,n,1);if(second&&table.equals("scenario_scripts"))write(90,n,1);}}
     @Override public boolean beforeTransfer(int mode,String name)throws IOException{
         if(mode<1||mode>3)throw new IOException("PC transfer mode "+mode);
         if(pc1!=null)pc1.scriptLoaded(mode,name);
         ui.clearCurrent();grid.clear();list.clear();gridTarget=false;musicEndAction="";gridWaiting=confirming=false;remaining=0;body=speaker="";textWaiting=presentationWaiting=false;
-        if(original){dc2Borrowed.loaded(mode);if(mode==1||mode==3){dc2Map.reset();dc2Credits.clear();dc2CreditsUnderlay=null;dc2CharacterEnding.clear();dc2EndingUnderlay=null;dc2ActorMotion.clear();dc2ActorChange.clear();cacheOriginalScenarioRead(name);}originalWaitKind=-1;originalInputMode=0;clearOriginalDirty();originalResetBatch=false;originalDeferred=null;originalNextSpeaker="";originalSpeakerEnd=-1;}
+        if(original){dc2Borrowed.loaded(mode);if(mode==1||mode==3){dc2Map.reset();dc2Credits.clear();dc2CreditsUnderlay=null;dc2CharacterEnding.clear();dc2EndingUnderlay=null;dc2ActorMotion.clear();dc2ActorChange.clear();}originalWaitKind=-1;originalInputMode=0;clearOriginalDirty();originalResetBatch=false;originalDeferred=null;originalNextSpeaker="";originalSpeakerEnd=-1;}
+        if(pc1==null&&(mode==1||mode==3))cacheOriginalScenarioRead(name);
         if(mode!=2){ui.actions[0]=ui.actions[1]="";}
-        if(mode==1){scene.reset();ui.quads.clear();}if(!original)unlock("scenario_scripts",name,98);return true;
+        if(mode==1){scene.reset();ui.quads.clear();}return true;
     }
     /** Resource selector codes are not texture slots; both generations use distinct maps. */
     private int slot(int value)throws IOException{
@@ -784,7 +796,7 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
             nativeSettingsSource=p.nativeSettingsSource;nativeSettingsRead=p.nativeSettingsRead;nativeSettingsWrite=p.nativeSettingsWrite;
             availableSaves.clear();availableSaves.addAll(p.availableSaves);saveLabels.clear();saveLabels.putAll(p.saveLabels);readCheckpoints.addAll(p.readCheckpoints);refreshNativeNameCache();return;
         }
-        super.copyPersistentFrom(other);familyName=p.familyName;givenName=p.givenName;System.arraycopy(p.globals,0,globals,0,globals.length);System.arraycopy(p.cg,0,cg,0,cg.length);System.arraycopy(p.seen,0,seen,0,seen.length);System.arraycopy(p.voiceEnabled,0,voiceEnabled,0,voiceEnabled.length);if(original)originalVoiceEnabled=p.originalVoiceEnabled;
+        super.copyPersistentFrom(other);familyName=p.familyName;givenName=p.givenName;System.arraycopy(p.globals,0,globals,0,globals.length);System.arraycopy(p.cg,0,cg,0,cg.length);System.arraycopy(p.seen,0,seen,0,seen.length);System.arraycopy(p.voiceEnabled,0,voiceEnabled,0,voiceEnabled.length);if(original)originalVoiceEnabled=p.originalVoiceEnabled;if(second)for(int n=0;n<legacyPcTails.length;n++)legacyPcTails[n]=p.legacyPcTails[n].clone();
     }
     /** Old register defaults are not another authority for PC1 system.dat. */
     private void clearNativeSettingsRegisterMirrors(){for(int index:Pc1NativeSettings.indices99())registers.remove(index);for(int index:new int[]{0,2,19,22,243,247,252,253,254})registers.remove(index);}
@@ -794,14 +806,18 @@ public final class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesV
     private static Pc1NativeSettings readNativeSettingsImage(DataInput in)throws IOException{
         int size=in.readInt();if(size<Pc1NativeSettings.SIZE||size>16*1024*1024)throw new IOException("PC1 portable native settings backing length");byte[] bytes=new byte[size];in.readFully(bytes);return Pc1NativeSettings.parse(bytes);
     }
+    private byte[][] pcBanks(){return new byte[][]{globals,cg,seen,voiceEnabled,scratch};}
     private void savePc(DataOutput o)throws IOException{
         if(pc1!=null){o.writeInt(0x50435034);saveNativeSettingsImage(o);o.writeInt(pc1BgmMode);o.writeInt(spriteFlags);o.writeInt(randomState);return;}
-        o.writeInt(0x50435032);o.write(globals);o.write(cg);o.write(seen);o.write(voiceEnabled);o.write(scratch);o.writeInt(spriteFlags);o.writeInt(randomState);o.writeUTF(familyName);o.writeUTF(givenName);
+        o.writeInt(second?0x50435033:0x50435032);if(second){for(byte[] bytes:pcBanks()){o.writeInt(bytes.length);o.write(bytes);}for(byte[] bytes:legacyPcTails){o.writeInt(bytes.length);o.write(bytes);}}else{o.write(globals);o.write(cg);o.write(seen);o.write(voiceEnabled);o.write(scratch);}o.writeInt(spriteFlags);o.writeInt(randomState);o.writeUTF(familyName);o.writeUTF(givenName);
     }
     private void loadPc(DataInput i)throws IOException{
         int format=i.readInt();
         if(pc1!=null){if(format!=0x50435034)throw new IOException("PC1 pre-PCP4 state has no lossless native system.dat owner");Pc1NativeSettings next=readNativeSettingsImage(i);int mode=i.readInt(),sprites=i.readInt(),random=i.readInt();pc1Settings=next;pc1SettingsInitialized=true;pc1BgmMode=mode;spriteFlags=sprites;randomState=random;clearNativeSettingsRegisterMirrors();refreshNativeNameCache();return;}
-        if(format!=0x50435031&&format!=0x50435032)throw new IOException("PC state format");i.readFully(globals);i.readFully(cg);i.readFully(seen);i.readFully(voiceEnabled);i.readFully(scratch);spriteFlags=i.readInt();randomState=i.readInt();if(format>=0x50435032){familyName=i.readUTF();givenName=i.readUTF();if(familyName.length()>4||givenName.length()>4)throw new IOException("Saved player name too long");}
+        if(format!=0x50435031&&format!=0x50435032&&format!=0x50435033)throw new IOException("PC state format");
+        if(format==0x50435033){if(!second)throw new IOException("PCP3 requires its reviewed PC2/SC/FL family");for(byte[] bytes:pcBanks()){int length=i.readInt();if(length!=bytes.length)throw new IOException("Native PC byte-bank layout mismatch");i.readFully(bytes);}for(int n=0;n<legacyPcTails.length;n++){int length=i.readInt();if(length<0||length>1600)throw new IOException("Legacy PC byte-bank tail limit");legacyPcTails[n]=new byte[length];i.readFully(legacyPcTails[n]);}}
+        else{int[] oldLengths={100,1600,1600,128,100};byte[][] banks=pcBanks();for(int n=0;n<banks.length;n++){byte[] old=new byte[oldLengths[n]];i.readFully(old);Arrays.fill(banks[n],(byte)0);System.arraycopy(old,0,banks[n],0,Math.min(old.length,banks[n].length));legacyPcTails[n]=old.length>banks[n].length?Arrays.copyOfRange(old,banks[n].length,old.length):new byte[0];}}
+        spriteFlags=i.readInt();randomState=i.readInt();if(format>=0x50435032){familyName=i.readUTF();givenName=i.readUTF();if(familyName.length()>4||givenName.length()>4)throw new IOException("Saved player name too long");}
     }
     @Override public void save(DataOutput o)throws IOException{super.save(o);o.writeInt(original?0x50434841:pc1!=null?0x5043483b:0x50434835);savePc(o);o.writeBoolean(timedInput);for(int n:gridBounds)o.writeInt(n);map.save(o);pcCredits.save(o);o.writeInt(voiceGroup.size());for(String voice:voiceGroup)o.writeUTF(voice);list.save(o);o.writeBoolean(gridTarget);o.writeUTF(musicEndAction);nameInput.save(o);if(original){o.writeInt(originalCompositePending);o.writeInt(originalVoiceEnabled);o.writeFloat(originalPlaybackGain);o.writeInt(originalWaitKind);o.writeInt(originalInputMode);o.writeBoolean(scene.nativeMotion!=null);if(scene.nativeMotion!=null)scene.nativeMotion.save(o);scene.nativeParticles.save(o);o.writeInt(originalDrawDirty);o.writeBoolean(originalResetBatch);UiCapture.save(o,originalBatchInitial);o.writeUTF(originalNextSpeaker);o.writeInt(originalSpeakerEnd);o.writeBoolean(originalDeferred!=null);if(originalDeferred!=null)originalDeferred.save(o);}if(original){dc2Map.save(o);dc2Borrowed.save(o);dc2Credits.save(o);UiCapture.save(o,dc2CreditsUnderlay);dc2CharacterEnding.save(o);UiCapture.save(o,dc2EndingUnderlay);dc2ActorMotion.save(o);dc2ActorChange.save(o);}if(pc1!=null)pc1.save(o);}
     @Override public void load(DataInput i)throws IOException{super.load(i);int format=i.readInt();if(format!=0x50434832&&format!=0x50434833&&format!=0x50434834&&format!=0x50434835&&format!=0x50434836&&format!=0x50434837&&format!=0x50434838&&format!=0x50434839&&format!=0x5043483a&&format!=0x5043483b&&format!=0x5043483c&&format!=0x5043483d&&format!=0x5043483e&&format!=0x5043483f&&format!=0x50434840&&format!=0x50434841)throw new IOException("PC host state version");if(original&&format!=0x50434837&&format!=0x5043483c&&format!=0x5043483d&&format!=0x5043483e&&format!=0x5043483f&&format!=0x50434840&&format!=0x50434841)throw new IOException("D.C.II pre-PCH7 snapshot has no native particle/batch state; restore requires a PCH7 snapshot");if((format==0x50434836||format==0x50434837||(format==0x5043483c||format==0x5043483d||(format==0x5043483e||(format==0x5043483f||(format==0x50434840||format==0x50434841)))))&&!original)throw new IOException("D.C.II motion state requires original profile");if(pc1!=null&&format!=0x5043483b)throw new IOException("PC1 pre-PCH11 snapshot has no canonical live scene coordinates");if((format==0x50434838||format==0x50434839||format==0x5043483a||format==0x5043483b)&&pc1==null)throw new IOException("PCH8/PCH9/PCH10/PCH11 requires PC1");loadPc(i);timedInput=i.readBoolean();for(int n=0;n<8;n++)gridBounds[n]=i.readInt();map.load(i);voiceGroup.clear();if(format>=0x50434833){pcCredits.load(i);int count=i.readInt();if(count<0||count>10)throw new IOException("PC voice group count");while(count-->0)voiceGroup.add(i.readUTF());}if(format>=0x50434834){list.load(i);gridTarget=i.readBoolean();musicEndAction=i.readUTF();}if(format>=0x50434835){nameInput.load(i);if(nameInput.active)nameInput.prepare(resources,codec);}originalCompositePending=0;scene.nativeMotion=null;motionSkipPressed=false;originalWaitKind=-1;originalInputMode=0;originalVoiceEnabled=1;originalPlaybackGain=Dc2Voice.gain(0,registers.getOrDefault(9,29));if(format==0x50434836||format==0x50434837||(format==0x5043483c||format==0x5043483d||(format==0x5043483e||(format==0x5043483f||(format==0x50434840||format==0x50434841))))){originalCompositePending=i.readInt();originalVoiceEnabled=i.readInt();originalPlaybackGain=i.readFloat();originalWaitKind=i.readInt();originalInputMode=i.readInt();if(originalWaitKind!= -1&&originalWaitKind!=9&&originalWaitKind!=10&&originalWaitKind!=11&&originalWaitKind!=18)throw new IOException("D.C.II saved input wait");if(Float.isNaN(originalPlaybackGain)||originalPlaybackGain<0||originalPlaybackGain>1)throw new IOException("D.C.II saved voice gain");if(originalCompositePending< -1||originalCompositePending>2)throw new IOException("D.C.II pending composition state");if(i.readBoolean())scene.nativeMotion=Dc2Motion.load(i);}if(format==0x50434837||(format==0x5043483c||format==0x5043483d||(format==0x5043483e||(format==0x5043483f||(format==0x50434840||format==0x50434841))))){scene.nativeParticles=Dc2Particles.load(i,this::nextRandom);originalDrawDirty=i.readInt();originalResetBatch=i.readBoolean();originalBatchInitial=UiCapture.load(i);originalNextSpeaker=i.readUTF();originalSpeakerEnd=i.readInt();originalDeferred=i.readBoolean()?DeferredScene.load(i):null;if(originalDrawDirty< -1||originalDrawDirty>1||originalDrawDirty==1&&originalBatchInitial==null||originalDrawDirty!=1&&originalBatchInitial!=null||originalDeferred!=null&&(scene.nativeMotion==null||!scene.nativeMotion.prepareOnly))throw new IOException("D.C.II saved batch/preparation state");}

@@ -93,6 +93,7 @@ public final class Profile {
         // 99:251 returned a catalog index. Host-tail migration cannot repair
         // that execution history. Keep other families' reviewed identities.
         if(id.equals("dc2-3363"))contract.append("\ndc2-first-play-host-1/2026-11-07");
+        if(id.equals("dc2pc-5769"))contract.append("\npc2-first-play-host-1/2026-11-08");
         return Binary.sha256(contract.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
     public String operation(int opcode){

@@ -7,6 +7,15 @@ import java.util.*;
 
 /** Runs original title-to-ending control flow. Media completion is explicitly simulated. */
 public final class DesktopRouteAudit {
+    private static String progress(DesktopEngine engine,String where){
+        if(engine instanceof DesktopLegacy&&((DesktopLegacy)engine).host() instanceof FlHost){
+            FlHost h=(FlHost)((DesktopLegacy)engine).host();FlCredits c=h.flCredits;
+            if(c.active){String key=where+":"+c.stage+":"+c.index+":"+c.alpha+":"+c.fading+":"+c.leadDone;for(FlCredits.Layer layer:c.frame().layers)key+=":"+layer.y;return key;}
+            if(h.flActorMotion.active){int n=h.flActorMotion.actor;return where+":actor:"+n+":"+h.liveActors[n][0]+":"+h.liveActors[n][1];}
+            if(h.flComposition.active)return where+":composition:"+h.flComposition.phase+":"+h.flComposition.progress+":"+h.flComposition.draws().size();
+        }
+        return where;
+    }
     static Path outputOutsideGame(Path game,String requested)throws IOException{
         Path destination=Paths.get(requested).toAbsolutePath().normalize(),existing=destination;
         while(!Files.exists(existing))existing=existing.getParent();
@@ -29,8 +38,13 @@ public final class DesktopRouteAudit {
             DesktopEngine e=app.engine;if(e instanceof DesktopUnity)throw new IOException("This route audit covers non-Unity engines");
             try{
                 for(int step=0;step<stepBudget;step++){
-                    e.tick(600000);MesVm m=e.vm();String where=m.scriptName()+"@"+Integer.toHexString(m.offset());
-                    if(where.equals(lastWhere)){if(++stuck>2000){String detail="";if(e instanceof DesktopLegacy){Dc2Host h=((DesktopLegacy)e).host();detail=" remaining="+h.remainingMillis()+" text="+h.textWaiting+" presentation="+h.presentationWaiting+" mask="+h.audioMask+" movie="+h.movie+" actions="+Arrays.toString(h.ui.actions);}throw new IOException("No progress "+where+" status="+m.status()+detail);}}else{stuck=0;lastWhere=where;}
+                    FlHost fl=e instanceof DesktopLegacy&&((DesktopLegacy)e).host() instanceof FlHost?(FlHost)((DesktopLegacy)e).host():null;
+                    // Native FL timers coalesce; a ten-minute jump can skip the
+                    // slideshow's indices. Use its actual poll interval here.
+                    // Other FL waits use bounded time as well: thousands of
+                    // ten-minute jumps would manufacture signed uptime wrap.
+                    e.tick(fl==null?600000:fl.flCredits.active?FlCredits.POLL_MS:fl.flActorMotion.active?16:fl.flComposition.active?40:1000);MesVm m=e.vm();String where=m.scriptName()+"@"+Integer.toHexString(m.offset()),progress=progress(e,where);
+                    if(progress.equals(lastWhere)){if(++stuck>2000){String detail="";if(e instanceof DesktopLegacy){Dc2Host h=((DesktopLegacy)e).host();detail=" remaining="+h.remainingMillis()+" text="+h.textWaiting+" presentation="+h.presentationWaiting+" mask="+h.audioMask+" movie="+h.movie+" actions="+Arrays.toString(h.ui.actions);}throw new IOException("No progress "+where+" status="+m.status()+detail);}}else{stuck=0;lastWhere=progress;}
                     if(scripts.add(m.scriptName())){System.out.println("SCRIPT "+m.scriptName()+" lines="+lines);e.render();}
                     if(e.menuWaiting()){
                         List<String> actions=new ArrayList<>();for(DesktopEngine.Control b:e.controls())actions.add(b.action);
@@ -66,6 +80,8 @@ public final class DesktopRouteAudit {
             }catch(Exception failure){Files.write(out.resolve("failure.txt"),(e.vm().scriptName()+"@"+Integer.toHexString(e.vm().offset())+"\n"+failure+"\n").getBytes(StandardCharsets.UTF_8));throw failure;}
             Map<String,Object> result=Json.obj("profile",e.resources.profile.id,"policy",last?"last":"first","choice_loop_exits",loopEscapes,"choice_overrides",overrides,"map_actor",Integer.getInteger("dc.mapCharacter",-1),"audit_hour",System.getProperty("dc.auditHour"),"dd_route",route,"startup_actions",startup,"static_executable_selection",executable,"step_budget",stepBudget,"dialogues",lines,"scripts",scripts,"choices",choices,"returned_to_title",ended,"media_completion_simulated",true,"original_exe_run",false);
             if(e.resources.profileId.equals("dc2-3363")){Map<String,Integer> clear=new LinkedHashMap<>();for(int index:new int[]{1,2,3,4,5,6,59})clear.put("100:"+index,e.vm().variables.read(100,index));result.put("dc2_clear_flags",clear);List<String> endingScripts=new ArrayList<>();for(String script:scripts)if(script.toLowerCase(Locale.ROOT).matches("ed_(anz|kko|mnt|nnk|otm|yme)|gend(_s)?|.*_ed[0-9]+"))endingScripts.add(script);result.put("dc2_ending_scripts",endingScripts);result.put("dialogue_count_scope","Observed stable text waits; original fast/automatic mode can release additional lines inside a tick.");}
+            if(e.resources.profileId.equals("dc2fl-9c69")){Map<String,Integer> clear=new LinkedHashMap<>();for(int index=1;index<=13;index++)clear.put("100:"+index,e.vm().variables.read(100,index));for(int index:new int[]{52,53})clear.put("100:"+index,e.vm().variables.read(100,index));result.put("fl_clear_flags",clear);result.put("ending_poll_millis",FlCredits.POLL_MS);}
+            result.put("dialogue_count_scope","Observed stable text waits; original fast/automatic mode can release additional lines inside a tick.");
             Files.write(out.resolve("result.json"),(Json.text(result)+"\n").getBytes(StandardCharsets.UTF_8));System.out.println("PASS lines="+lines+" scripts="+scripts.size()+" choices="+choices.size());
         }
     }

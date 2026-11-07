@@ -1,0 +1,595 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-08",
+  "feature": "Independent D.C.II Fall in Love holdout: native services, stage/live actors,15 ending tables and original Save/Load menu flow",
+  "target": {
+    "file": "DC2FL.exe",
+    "bytes": 1395200,
+    "sha256": "3adf5db19bdc67cb8c90e666572ba53538462d8ef461a29dddaa46671f1867f2",
+    "profile": "dc2fl-9c69",
+    "original_executable_launched": false,
+    "original_game_directory_modified": false
+  },
+  "baseline": {
+    "release": "0.14.7",
+    "source_commit": "9eb738e06c8068b2d39dba833f591e70c8191360",
+    "immutable_classes": "build/native-rewrite/producer-integration-20261107T164754329160Z/classes",
+    "result": "initialization failed",
+    "failure": "unrecognized MES version in advdata/mes/cg_etc.mes",
+    "receipt": {
+      "retained_path": "build/holdout-fl-20261108/baseline.json",
+      "sha256": "5c2b16c710eb7194a04de64b6ba8354290a87068d138a9a38b15a8655607d56b"
+    }
+  },
+  "admission": {
+    "mes_files": 390,
+    "native_9c69_files": 389,
+    "other_files": {
+      "name": "cg_etc.mes",
+      "marker": "6C69",
+      "sha256": "e96471deff5be68c5bc21a4dbd8a6254154aee2e13b8a9123a08ccf58cd292bd"
+    },
+    "native_checks": "0041CE20 requires code69 9C at0041CEDE/0041CF15",
+    "runtime_rule": "START determines profile; every actually loaded target still needs the native exact marker.6C69 has no alias or execution admission.",
+    "reference_search": "No other MES plaintext reference or raw NAMES entry for cg_etc. This does not prove it can never be reached dynamically.",
+    "framing": "389 native files structurally parse; framing alone is not a semantic execution claim.",
+    "inputs": {
+      "retained_path": "build/holdout-fl-20261108/inputs.json",
+      "sha256": "62617018c96adc23ff9723d9de48744cd3a0f2cba1a991f69b9e60dd7ab9824c"
+    },
+    "post_integrity": {
+      "retained_path": "build/holdout-fl-20261108/post-input-integrity.json",
+      "sha256": "ab8837922bee37da0d2e56483ce87c12375ddb2b94b61680fbb46c80ae777246"
+    },
+    "post_integrity_result": {
+      "schema": 1,
+      "mes_checked": 390,
+      "mes_unchanged": 390,
+      "executables_checked": 3,
+      "executables_unchanged": 3,
+      "original_executables_executed": false,
+      "original_game_directory_written": false
+    }
+  },
+  "native_contract": {
+    "dispatch": {
+      "function": "004228F0",
+      "table": "0042558C",
+      "entries": 105,
+      "distinct_targets": 93,
+      "fallback": "0042554C",
+      "method": "Independent native FL handler bodies and table, not a PC2 profile alias.",
+      "fetch": "signed opcode, ranges29/2F/4A/4E, max68; signed i16 reader00419AD0",
+      "extensions": "50/53/55/57 own four-word companions;58 owns a raw string record",
+      "strings": "byte+0x20, without dollar replacement"
+    },
+    "variables": {
+      "getter": "00419B10",
+      "setter": "00419DC0",
+      "model": "PC_WIDE",
+      "ordinary": "00A966E8",
+      "globals": "0055B9C4",
+      "wide_view": "200..209 big-endian32",
+      "99:251": "cached previous-read00A98014, not catalog index; modes1/3 update,2 retains"
+    },
+    "services_1c": {
+      "dispatcher": "00408E40",
+      "table": "004091E4",
+      "6": "00406D50 Save/Load renderer2; five rows/page, page*5+row,0/1 reserved for Save",
+      "7": "00406E60 Scene renderer4, second argument ignored",
+      "9": "00406E70 Music renderer3, second argument ignored",
+      "11": "00408210 starts both mode0 GED and nonzero slideshow, wait1C/type1",
+      "3,4,5,10": "native default return;10 does not reset a PC2 clock",
+      "unreviewed_services": [
+        1,
+        2,
+        8
+      ],
+      "unreviewed_policy": "Explicit failure for native calendar/rank/type0 coroutine; no borrowing PC2 map selector20."
+    },
+    "actors": {
+      "loader": "004220D0 accepts five owners",
+      "stage64": "00424A33 stages XY/zoom100 for0..4",
+      "transform65": "00424ACD:0..4 wait on XY, word2 unused;16..19 stage zoom/pivot;255 has a separate first-two zoom store",
+      "stage_and_display": "00A96BD4 stage versus00A96BC8 live triples; ActorProjection runs before publish/capture clone. Later text/commit neither commits64 early nor rolls65 back.",
+      "wait": "004204C0 timer1ms, coalesced, speeds8/16/32/64; arrival releases on next aligned poll.00419AA0 Ctrl helper is gated by99:25==0.",
+      "special_time": "3:52==1 uses signed delta>=36, first eligible timestamp only; timestamp remains fixed. Exact15339169/2^26 rate and float32 residual accumulation are retained.",
+      "width_correction": "-41 uses the current loaded handle width, potentially prezoomed by00403CC0; effective widths are saved separately from raw resource widths.",
+      "restore": "-- restores saved resource and first3 stage coordinates at00AF455C/00AF5928; display X then receives+1.",
+      "renderer": "0041A190 consumes first four actor owners and independent close-up/pivot calculations.",
+      "fifth": "Only corpus selector4 load is ADVMENU@3C --. Empty fifth saved-owner restoration is supported and serialized. Nonempty fifth centered rendering is not validated."
+    },
+    "advmenu": {
+      "persist18": "ADVMENU@58: native case16 default has no store/call; FL-local reviewed no-op.",
+      "transition15": "ADVMENU@5E: composes0041D710 and optional existing message, without transition wait/present timer; FL publishes without delay."
+    },
+    "credits": {
+      "initialize": "00408210",
+      "poll": "00409210",
+      "input": "00408410",
+      "release": "004083E0",
+      "timer": "00409855 writes005383A4=20ms; one poll per late event, alpha increments only once for signed delta>70.",
+      "table_base": "00470DF0",
+      "table_stride": "0x108",
+      "route_table": [
+        {
+          "index": 0,
+          "address": "0x470df0",
+          "prefix": "ged",
+          "count": 0,
+          "trailer": "0000000000000000"
+        },
+        {
+          "index": 1,
+          "address": "0x470ef8",
+          "prefix": "aft/ed_af_akn",
+          "count": 17,
+          "trailer": "0000000011000000"
+        },
+        {
+          "index": 2,
+          "address": "0x471000",
+          "prefix": "aft/ed_af_mya",
+          "count": 17,
+          "trailer": "0000000011000000"
+        },
+        {
+          "index": 3,
+          "address": "0x471108",
+          "prefix": "aft/ed_af_myk",
+          "count": 17,
+          "trailer": "0000000011000000"
+        },
+        {
+          "index": 4,
+          "address": "0x471210",
+          "prefix": "aft/ed_af_erk",
+          "count": 17,
+          "trailer": "0000000011000000"
+        },
+        {
+          "index": 5,
+          "address": "0x471318",
+          "prefix": "aft/ed_af_ais",
+          "count": 17,
+          "trailer": "0000000011000000"
+        },
+        {
+          "index": 6,
+          "address": "0x471420",
+          "prefix": "aft/ed_af_mhr",
+          "count": 17,
+          "trailer": "0000000011000000"
+        },
+        {
+          "index": 7,
+          "address": "0x471528",
+          "prefix": "drm/ed_dm_akn",
+          "count": 9,
+          "trailer": "0000000009000000"
+        },
+        {
+          "index": 8,
+          "address": "0x471630",
+          "prefix": "drm/ed_dm_mya",
+          "count": 9,
+          "trailer": "0000000009000000"
+        },
+        {
+          "index": 9,
+          "address": "0x471738",
+          "prefix": "drm/ed_dm_myk",
+          "count": 9,
+          "trailer": "0000000009000000"
+        },
+        {
+          "index": 10,
+          "address": "0x471840",
+          "prefix": "drm/ed_dm_erk",
+          "count": 9,
+          "trailer": "0000000009000000"
+        },
+        {
+          "index": 11,
+          "address": "0x471948",
+          "prefix": "etc/ed_au",
+          "count": 20,
+          "trailer": "0000000014000000"
+        },
+        {
+          "index": 12,
+          "address": "0x471a50",
+          "prefix": "koi/ed_ku",
+          "count": 20,
+          "trailer": "0000000014000000"
+        },
+        {
+          "index": 13,
+          "address": "0x471b58",
+          "prefix": "ask/ed_su",
+          "count": 20,
+          "trailer": "0000000014000000"
+        },
+        {
+          "index": 14,
+          "address": "0x471c60",
+          "prefix": "etc/ed_au",
+          "count": 20,
+          "trailer": "0000000014000000"
+        },
+        {
+          "index": 15,
+          "address": "0x471d68",
+          "prefix": "etc/ed_au",
+          "count": 20,
+          "trailer": "0000000014000000"
+        }
+      ],
+      "GED": "ed/ged is800x10190, logical height10188, rate bits3D6A7040. Signed lead>3000 resets clock without drawing;409289 stores the product to float32 before truncation. Final y=-10788 is fully offscreen and writes no pixels: the preceding visible GED front survives, then100:53 is written.",
+      "slides": "15 valid routes, mode nonzero. Draw old alpha before one strict>70 increment. Every ordered blit feeds back onto the existing physical front;40C220 changes clipping only. DRM7..10 explicitly copies final white; other categories final zero/unloaded handle adds no replacement image pixels, retaining the preceding accumulated front. Route0 zero-count/free-then-fallthrough is not aliased.",
+      "completion_and_input": "Slides write100:52. Only right button2 skips: exact persisted1 in52 for mode1 or53 for mode0. Skip releases and stops music without creating progress flags; keyboard/ADVANCE never impersonate right mouse.",
+      "pixel_kernels": "0040C3A0 direct and0040C4B0 weighted accept format0=BGR24 only. No magenta key.32bpp/indexed return without drawing. Each ordered layer floors(dst*(16-w)+src*w)/16 onto the preceding framebuffer, including preceding polls.40C220 is a clip setter, not a clear.",
+      "format_proof": "00401E80 makes format0 three-byte stride, format1 four-byte stride;00401F2B stores type at00A437AC.",
+      "memory": "Raw GED24,456,000 bytes is retained with viewport800x600 conversion; the complete long image is not converted to ARGB through the24MiB normal cache.",
+      "snapshot_and_lifetime": "FLH2/FLC2 retain complete ordered draw journals, generation, clock/phase, actual captured front, dirty/live actor metadata and source scene serial. Renderer caches consumed journal operations; repeated render does not apply feedback twice. A restored new owner replays from its independent captured front. Native offscreen/no-image final operations preserve existing pixels."
+    },
+    "composition255": {
+      "original_gap": "Final15-route holdout found9 legitimate story routes stopped at0D/255; these were not unused opcodes and were not replaced by a generic no-op.",
+      "corpus": {
+        "retained_path": "build/holdout-fl-20261108/transition255-corpus.json",
+        "sha256": "0ad13ede29a8d0e4f5c3ff6771be0c53163a5e6073a60a0dfbde188c0de97e5d",
+        "native_files": 389,
+        "occurrences": 46,
+        "second_argument_histogram": {
+          "0": 46
+        }
+      },
+      "failure_context": {
+        "retained_path": "build/holdout-fl-20261108/transition255-failure-context.json",
+        "sha256": "cabbb61825023aaa021fc718be38e0ca052568da6d497b3b3e32950cdedb6810"
+      },
+      "dispatch_gate": "004228F0 case0D/255: actorDirty00CD03B8 enters00421F60; otherwise pending00A7DFF8 prepares0041D0E0 then00421D80. Only a clean/no-pending state returns without presentation.",
+      "prepare_gate": "00421F60 consumes actorDirty; pending background/quads, or existing message-visible with nonzero messageMode, requires the prepared phase. It temporarily hides the first four actors. Successful prepare clears message-visible before actor phase.",
+      "prepare_surface": "0041D0E0 bakes pending background list/quads into the BG handle and clears00A7DFF8 without presenting.00421D80 composes mask0F scene-only target, excluding message/window/buttons; actorDirty case hides four actors. Initial capture is the preceding complete rendered front, never an empty allocation.",
+      "prepare_feedback": "00421D80:40ms coalesced native loop. Speed0/1/2/3-or-Ctrl progress1/2/4/8, each feedback weight3/6/8/10 on the existing front; progress reaches16 then copies the full prepared surface.",
+      "actor_wait": "00420A70 wait table maps2B to004202D0. First actor poll prepares the final FF target and preserves message text only if CD0410 remains set. Speed0/1/2 increments1/2/3 toward5 and feeds back weight6/10/12 inside the dirty clip. Progress5 copies FULL; following poll frees/releases. Speed3/Ctrl avoids temporary and directly presents FULL/releases.",
+      "clipping": "0040C220 stores clip bounds only. It never clears black. Dirty union0041A9D0 combines stored last-render actor bbox with new staged/prezoom-handle bbox, then00421F60 clips it to800x600. Pixels outside the union remain the preceding front.",
+      "message_flag": "Text presentation sets the portable message-visible state. Background/prepare and original0D0/13 shared00423D38 clear it even when old body bytes are nonempty; tests independently assert FF capture messageText=false after those transitions.",
+      "captures": "FlHost CompositionCapture(mask,messageText,hideActors) separates initial physical front, prepared0F and finalFF surfaces. Root renderer replays immutable FULL/FEEDBACK operations using their independent clips and BGR16 arithmetic; targets remain portable prepared/captured surfaces, not a claim about original glyph raster equivalence.",
+      "persistence": "FLH2 saves dirty union, last-render rects, effective loaded dimensions/prezoom, pending/message state and FCM1 composition captures/journal/timer. Active wait blocks ADVANCE; retained final journal stays visible until an actual newer presentation."
+    }
+  },
+  "method": {
+    "rea_evidence": [
+      {
+        "retained_path": "build/holdout-fl-20261108/loader-evidence.json",
+        "sha256": "73d0912cafc9f0d440b17e67823f3db462682fec997c10f9619a60660d6e0623",
+        "function": "cached previous-read sampler",
+        "address": "0041CD50",
+        "evidence_id": "ev_41775e870f6360a067ec3c0ce062abe7c04b1c120f168a477996a3790d05fa91"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/loader41ce20.evidence.json",
+        "sha256": "e0b63030cd1051a17538c617d0aa742f60f16830d2eee31c29ab6115d84698f1",
+        "function": "strict loader",
+        "address": "0041CE20",
+        "evidence_id": "ev_e5e8fe588e82096f9b4ffd158c201ac5304725f260942a0d1c63be9b5f7ab363"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/dispatch4228f0.evidence.json",
+        "sha256": "0756267ff43782d6f8ca4d0c3de2a75f52848c03170fd29db54747918ff0a829",
+        "function": "independent dispatcher",
+        "address": "004228F0",
+        "evidence_id": "ev_a0cf1bd01cf54b46aaa2ff6fd1c1f682637860e182ab6c0e637da3cdd2fa8854"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/getter419b10.evidence.json",
+        "sha256": "f84704abf8d4d2088e0649439f43a6ca011b818b1ce1eeb7276d0d945378ae60",
+        "function": "getter",
+        "address": "00419B10",
+        "evidence_id": "ev_8b06bab09d925fccb6ae53a0c1c10a357ff8df795d9929f012591f2d38f167f6"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/setter419dc0.evidence.json",
+        "sha256": "4bc43d3970d4987731eb283a72761613a8f3fc4b5ccfd42f5f865fa462a4af6a",
+        "function": "setter",
+        "address": "00419DC0",
+        "evidence_id": "ev_a8b7c3803e7b3dd4211ea63535ddc243b42e43c616976fa0dcf41114322b2554"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/credits-poll409210.evidence.json",
+        "sha256": "a8717bc37cc10e0ba8e7fb92c98d665e32fd7c970affb32af51eba3a083d5f08",
+        "function": "ending poll",
+        "address": "00409210",
+        "evidence_id": "ev_ac7d0802b4716f56c6a4d6151a28c3267bd90dd27d09b7e808d92d07a1244703"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/system408e40.evidence.json",
+        "sha256": "fadbca2c917e59479778a57183b927b12f96f1ce55d3e2d07f4b10379a3fbbd2",
+        "function": "service dispatcher",
+        "address": "00408E40",
+        "evidence_id": "ev_09474c174feeecdf15bd979cb2fcfb52045cf9131e42116e60867d2da56df9dc"
+      },
+      {
+        "retained_path": "build/holdout-contract-20261108/fl-render41a190.evidence.json",
+        "sha256": "80411f0859fc2919319cb4680bf4e21036f07843f8b7b2f2a6648c4da1811d88",
+        "function": "actor renderer",
+        "address": "0041A190",
+        "evidence_id": "ev_b9b37b0b03bb4152167eb3a30f9e4e8348dc39cb00fce53e0b311e5bfd966c04"
+      },
+      {
+        "retained_path": "build/holdout-contract-20261108/fl-wait4204c0.evidence.json",
+        "sha256": "fce5191472bbe4dfbf6462598a411ed8e893de7cb45cd649238820353a178f09",
+        "function": "actor wait65",
+        "address": "004204C0",
+        "evidence_id": "ev_8ceebf8e83de8e02ee584e06182e0e826faae341bc2feb02166a9a01264bf873"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/transition421f60.evidence.json",
+        "sha256": "97e72eb83afaee7aac0b4bf897b7c52f26dd3ca49ed1e2682baf38d4a7fd1ac0",
+        "function": "actor-dirty composition preparation",
+        "address": "00421F60",
+        "evidence_id": "ev_cf021f12088990528dc7bd19c48b5ae19132502599e18bc52d2a4398f658e3c9"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/transition421d80.evidence.json",
+        "sha256": "4265321c1753ed4ecea03338f5c5ed3dbe94a09c22a7ef056dc93c6cb922f072",
+        "function": "prepared-surface feedback loop",
+        "address": "00421D80",
+        "evidence_id": "ev_afa07b51214bcf3d5cca2ffa877cc3038a3c135b83eccc58f8fd3e7e50610a5f"
+      }
+    ],
+    "ordinary_static_receipts": [
+      {
+        "retained_path": "build/holdout-fl-20261108/dispatch-table.json",
+        "sha256": "ffa15adedd0c0374a1c22dd216127522ce69dc6c39f8ae8b7538a01ee877aa5c"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/dispatch-contract.json",
+        "sha256": "26e13c93f3ca4d1fd2de426d460ac25cb6e6959febdd4776682f7ef9dc9e5c96"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/fl-runtime-semantics.json",
+        "sha256": "6f516da6199be0d088cf198d6b55d99068c78d7a99be4860f1f24971c9791e95"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/native-case-slices.json",
+        "sha256": "745ba78eff8d3294ecab92b58545e37ba134041b3c7229597eacc3e0d48e8f50"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/actor64_65.asm",
+        "sha256": "5a0565b13cbb4708ada89f9a87e5141865552c9c1a3c2d5ce8429d082883caec"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/actor4220d0.asm",
+        "sha256": "27806da3cd7bbc515db05f500c163013e8573af801a20e5a39eb737990fd9e1a"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/credits408210.asm",
+        "sha256": "967fed89ac999d425b3c43e41f722689f979eff1af16d4523eed62da1ba3def9"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/credits-poll409210.asm",
+        "sha256": "1bef962338bedb02bc42b4c3f3b31e50e53a582dc479df4962599f084e733157"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/credits-route-table-extended.json",
+        "sha256": "2d28ffaf2080172bc40b16e949cf65be16d59e9e0f21916be94f0ee07542e178"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/blend40c4b0-full.asm",
+        "sha256": "683989b2a17256a16dcc37072fca2ad0af421ccfcaedaf62ae8fe2362c828ddc"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/blit40c3a0-full.asm",
+        "sha256": "2308d1422cea9efd166550101e7aee48874eda6386a48be2b59dbd50bd547352"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/image-create401e80.asm",
+        "sha256": "0d8b05f23a33f6c85cf9696a1faac81819ec66af55fa10294c48bad10d5ce3bc"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/image-format-stores.asm",
+        "sha256": "01e4d2af0fceb07ec2a4bed0874dbe8b2e82c368b12eddc81603153cd53a152e"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/persist-selectors.json",
+        "sha256": "fd235c5a99c0f08a8b497699d17eb12cab2810611bfe623473a42e5b1105d8c1"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/transition421f60.asm",
+        "sha256": "d34e167aa74171444bb5ad5d0c1602ce7833915f2085e662bf31cae85e6b3f23"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/transition421d80.asm",
+        "sha256": "9204d977251eaeb59aba450f053aa103d7549651ffc2fb31c9da7423763974e0"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/actor-flush4202d0.asm",
+        "sha256": "b7892d7adb8fc69736284bdd770bf8bc5d8261f55800dac01f82e2cbf6146641"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/prepare41d0e0.asm",
+        "sha256": "9197114d54b1dda159b783de0931bdce492e121d6c7d6adc49db84cbbcf46c97"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/transition255-corpus.json",
+        "sha256": "0ad13ede29a8d0e4f5c3ff6771be0c53163a5e6073a60a0dfbde188c0de97e5d"
+      },
+      {
+        "retained_path": "build/holdout-fl-20261108/transition255-failure-context.json",
+        "sha256": "cabbb61825023aaa021fc718be38e0ca052568da6d497b3b3e32950cdedb6810"
+      },
+      {
+        "retained_path": "build/holdout-contract-20261108/fl-composition-40c1d0.asm",
+        "sha256": "bd541f1fd754fc810ac606e6c3dfabd483f936df8b4df96ccf47430fcf52e33e"
+      },
+      {
+        "retained_path": "build/holdout-contract-20261108/fl-composition-41abb0.asm",
+        "sha256": "d6b24cb9a0da8c0390ee620561ad9b09ca72ad791c0bd5391a588a54d460b3ea"
+      },
+      {
+        "retained_path": "build/holdout-contract-20261108/fl-composition-41f170.asm",
+        "sha256": "c2c2e4874d2da146d09239fea7d758052ce8757f692c7593818d615106f3eb4d"
+      },
+      {
+        "retained_path": "build/holdout-contract-20261108/fl-credits-clear-audit.json",
+        "sha256": "727d69e79dc44c23b17f25ba3c8c6283f3ec811f3a3c737feb7efc9034f30a0e"
+      },
+      {
+        "retained_path": "build/holdout-contract-20261108/fl-credits-feedback-final-v3/prefix-optimization-compare.json",
+        "sha256": "acd4afcf93d0ff5076f24426ff19bf05b532445d10ea3f220c97bfc7035f81e2"
+      },
+      {
+        "retained_path": "build/holdout-contract-20261108/fl-41a9d0-41abb0.asm",
+        "sha256": "76f0574526db56dabdf0e0d4eab32fd980a167afbc3181d597fb3cfb55c214c8"
+      },
+      {
+        "retained_path": "build/holdout-contract-20261108/fl-prepared-tail41d309.asm",
+        "sha256": "5618fc4ebaec8d9fb1be585f27fdd0a84d452056b7e092f66fbeb7a0f864aefc"
+      },
+      {
+        "retained_path": "build/holdout-contract-20261108/fl-composition-403420.asm",
+        "sha256": "80f6d65aba4622267660384b43f281378aaf15e42c8577e55d2082cf8d2af62d"
+      },
+      {
+        "retained_path": "build/holdout-contract-20261108/fl-composition-403590.asm",
+        "sha256": "643835b4c8af62f680d4ef0fb938d1062b72d46b5d559ebf4ffc3fc9b300e20d"
+      },
+      {
+        "retained_path": "build/holdout-contract-20261108/fl-composition-40f010.asm",
+        "sha256": "faf2737baa60f0eb974d66b6ff98bced861eb6cbdb4c3fc4cf548a3a16123a87"
+      },
+      {
+        "retained_path": "build/holdout-contract-20261108/fl-composition-41e350.asm",
+        "sha256": "42be1fce13a3a7254305695e73a3acdbda421fdf30fe27532f3dd1cdc6a8808c"
+      },
+      {
+        "retained_path": "build/holdout-contract-20261108/fl-composition-423a70.asm",
+        "sha256": "fb81e4578193f9d5af3e9b7342dc98f1a340b7f25a48021f4808d61abdab3b67"
+      }
+    ],
+    "static_receipt_rule": "PE pointer/header parsing and Capstone excerpts are ordinary static inspection, not additional or fabricated REA Evidence.",
+    "public_artifact_contains_original_code_or_prose": false
+  },
+  "validation": {
+    "core_vectors": {
+      "FlCreditsTests": 177,
+      "FlActorMotionTests": 19,
+      "FlHostTests": 43,
+      "FlCompositionTests": 36
+    },
+    "credits": {
+      "retained_path": "build/holdout-contract-20261108/fl-credits-feedback-final-v3/audit/report.json",
+      "sha256": "89f95e33b371536b40c021496a873c0de1bda805fb1f816e06dca4955a51e04a",
+      "result": "PASS",
+      "checks": 575,
+      "compared_pixels": 37440000,
+      "decoded_resources": 204,
+      "png_frames": 47,
+      "slideshow_routes": 15,
+      "scope": "Prepared/service fixtures, original assets and ordered FLC2 journal; persistent physical-front BGR16 oracle plus actual desktop raster/new-host snapshot/future. No native executable run; not original native frame equivalence or a story-clear claim.",
+      "source_build": "Complete606-source compilation without overlays; per-producer source validation, with final release freeze recorded separately.",
+      "supersedes": {
+        "retained_path": "build/holdout-fl-20261108/credits-current-v3/report.json",
+        "sha256": "a68b7e1522f21d60c7b29939ad61159df2be484e9fe23f039dd98d96c3dfa653"
+      }
+    },
+    "original_save_load": {
+      "retained_path": "build/holdout-fl-20261108/native-save-load-v3/result.json",
+      "sha256": "a6f7d301bfd80ff595bae12a558557b2527c3563af4e4aa1107bdd388e29bdbe",
+      "result": "PASS",
+      "checks": 29,
+      "dialogue_waits": 20,
+      "flow": "03/start/sce01/sce01_set/sce01 to20 waits; original ADVMENU->SAVE five rows and reserved0/1; slot2->iconset00->dosave; return exact sentence/PC; advance once; original LOAD2->doload restores caller. File save also restores exact VM bytes and raster.",
+      "storage": "Runtime-owned portable slot-2.sav only; not original native SAV binary interoperability.",
+      "validation_stage": "Original flow verified before the later FLH2/FLC2 composition fix; final whole-release rerun is recorded by coordinating validation."
+    },
+    "original_ED_MED_entry": {
+      "retained_path": "build/holdout-fl-20261108/ending-native-entries-v3/report.json",
+      "sha256": "efc31e02e4dffc9d5e8be17f6fb50ce459aad4edbe3f8b8f18c877a625bff560",
+      "result": "PASS",
+      "entries": [
+        {
+          "source": "ed",
+          "outcome": "original13-clear gate returns to main",
+          "script": "main",
+          "pc": 4013,
+          "steps": 146,
+          "clear1": 1,
+          "all_clear": 0,
+          "GED_seen": 0
+        },
+        {
+          "script": "med",
+          "pc": 135,
+          "steps": 7,
+          "variant": 1,
+          "route": 1,
+          "active": true,
+          "snapshot": "PASS"
+        }
+      ],
+      "scope": "Original ED fresh13-clear gate returns main; original MED enters native wait with CVS2 restore. No seeded all-clear flags or story-clear claim."
+    },
+    "startup_smoke": {
+      "retained_path": "build/holdout-fl-20261108/startup-routes-summary.json",
+      "sha256": "219f15cc0b1b02cfd1fa67ece783160222da389cbf525fcd9beedebbab29d56c",
+      "routes": 15,
+      "waits_each": 20,
+      "scope": "Fresh original menu entries only. Final long-route runs and final release freeze are recorded separately by the coordinating validation."
+    },
+    "original_executable_run": false,
+    "original_progress_loaded": false,
+    "original_directory_written": false,
+    "media_completion_simulated": true,
+    "audio_hardware_output_or_BGM_playback_verified": false,
+    "superseded_credits_oracle": {
+      "retained_path": "build/holdout-fl-20261108/credits-current-v3/report.json",
+      "sha256": "a68b7e1522f21d60c7b29939ad61159df2be484e9fe23f039dd98d96c3dfa653",
+      "result": "PASS",
+      "checks": 384,
+      "compared_pixels": 22560000,
+      "decoded_resources": 204,
+      "png_frames": 47,
+      "slideshow_routes": 15,
+      "scope": "Actual DesktopLegacy raster against separate BGR16 oracle on original assets; GED+15 slideshow tables, natural finish and snapshot future pixels. No native-EXE captured-output equivalence claim.",
+      "status": "SUPERSEDED_INVALID",
+      "reason": "The old oracle wrongly interpreted40C220 as a black clear. Complete native call/store inspection proves it is only clipping.384 checks/22.56M pixels demonstrated consistency with that wrong assumption, not native behavior."
+    },
+    "composition255": {
+      "retained_path": "build/holdout-fl-composition-audit-20261108/audit-v2/report.json",
+      "sha256": "38051a0a62f26d161e5470cef2dfb95992936f0bf47607e337ba50a20cfe5e15",
+      "result": "PASS",
+      "checks": 1131,
+      "compared_pixels": 47040000,
+      "states": 98,
+      "scope": "Original BGR24 prepared/captured surfaces and independent ordered clipped feedback oracle; actor/prepare/both native schedules, all speeds and Ctrl gate, same-generation repeated renders, new-owner snapshot/future, actual VM0D255->marker continuation. Not captured original-EXE screen equivalence."
+    }
+  },
+  "remaining_boundaries": {
+    "unmodelled_native_opcodes": [
+      "10",
+      "1D",
+      "27",
+      "34",
+      "39",
+      "41",
+      "48",
+      "5A",
+      "63",
+      "67",
+      "68"
+    ],
+    "opcode_policy": "These real native handlers have no reference-corpus use and remain native.unmodelled failure, distinct from the proven shared native fallback.",
+    "unreviewed_services": [
+      1,
+      2,
+      8
+    ],
+    "fifth_character": "Saved owner and empty ADVMENU restore are implemented; nonempty fifth centered rendering remains outside the four-actor raster audit.",
+    "aliases": "FL65 selectors5..15 touch unreviewed descriptor aliases and fail. Route0 zero-count ending is not aliased. An actually requested illegal6C69 MES remains rejected.",
+    "claim": "Source-backed coverage of listed native consumers and portable flows; no100% reconstruction, original SAV compatibility, native audio comparison or native frame-by-frame whole-game equivalence claim.",
+    "composition_scope": "Independent original pixels validate prepared/captured-surface feedback. Full original text/glyph/window output and all unrelated legacy transition families are not claimed to match native screens frame by frame."
+  }
+}

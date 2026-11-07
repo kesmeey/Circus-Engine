@@ -1,0 +1,1275 @@
+{
+  "schema_version": 1,
+  "kind": "original-data-holdout-validation-metadata",
+  "validation_date": "2026-11-08",
+  "profile": "dc2sc-3b69",
+  "game": "D.C.II Spring Celebration",
+  "local_game_directory": "D:\\gal\\D.C.II Spring Celebration\\D.C.II S.C",
+  "status": "three_representative_categories_complete_with_one_reproduced_original_input_fault",
+  "original_executables_run": false,
+  "original_game_directory_written": false,
+  "public_document_contains_original_prose_or_assets": false,
+  "baseline": {
+    "version": "0.14.7",
+    "class_output": "build/native-rewrite/producer-integration-20261107T164754329160Z/classes",
+    "result": "SC profile rejected before startup",
+    "runs": [
+      {
+        "executable": "dc2sc_CHS.exe",
+        "status": "failed",
+        "stage": "initialization",
+        "error": "IOException: 尚未实现此脚本版本的指令语义：dc2sc-3b69",
+        "report": {
+          "path": "build/holdout-sc-20261108/dc2sc_CHS.exe.stdout.json",
+          "bytes": 242,
+          "sha256": "90af99d2817f520da415e59b9c5f6d837485af4cccf203e5dc6618f14c6c7fc8"
+        }
+      },
+      {
+        "executable": "dc2sc.EXE",
+        "status": "failed",
+        "stage": "initialization",
+        "error": "IOException: 尚未实现此脚本版本的指令语义：dc2sc-3b69",
+        "report": {
+          "path": "build/holdout-sc-20261108/dc2sc.EXE.stdout.json",
+          "bytes": 238,
+          "sha256": "f07f3e2bf6fc3a027c61ecda4c95bf04a97ba414a64a18e907678229570b1973"
+        }
+      }
+    ]
+  },
+  "subjects": [
+    {
+      "executable": "dc2sc_CHS.exe",
+      "bytes": 450560,
+      "sha256": "11f0507fd4e317ebf07a430eb221f4ecf4c7a1f1e27a4431d3ef9e5daef13abc"
+    },
+    {
+      "executable": "dc2sc.EXE",
+      "bytes": 450560,
+      "sha256": "201a1262724125c373d809b69b01b8593cb2431a9a32e6fb5fd6e3f0bd4b051f"
+    }
+  ],
+  "mes_structural_inventory": {
+    "total": 415,
+    "strict_framing_pass": 414,
+    "strict_framing_fail": 1,
+    "largest_mes_bytes": 102335,
+    "all_mes_below_observed_native_code_read_limit": true,
+    "scope": "Structural inventory is not an execution-coverage percentage.",
+    "inventory": {
+      "path": "build/holdout-sc-20261108/inventory.json",
+      "bytes": 1528656,
+      "sha256": "de3585cc24c5fbab66c2c6bf535b5655f4e063dd560d96d1b8bb6875535e7562"
+    },
+    "production_binding_recheck": {
+      "path": "build/holdout-sc-20261108/production-structural-recheck.json",
+      "bytes": 168,
+      "sha256": "4133f6e0a40f588ae280a44ff80e8fe1b1153efda31502e8aee86270e81e7c03"
+    }
+  },
+  "runtime_acquisition": {
+    "unit_overlay": false,
+    "runtime_build": "build/holdout-sc-20261108/host-build-20261107T184838795509Z",
+    "build_result": {
+      "path": "build/holdout-sc-20261108/host-build-20261107T184838795509Z/result.json",
+      "bytes": 329,
+      "sha256": "c3e76d1261604086e30bff52682e4f892d9fd65575b655dfdc87115e298d06c9"
+    },
+    "inputs_manifest": {
+      "path": "build/holdout-sc-20261108/host-build-20261107T184838795509Z/inputs-manifest.json",
+      "bytes": 75803,
+      "sha256": "d7ad0f69d1fe5f6ec90665788c1a8a8a2eb8b7c4be2598d5075e37b8ab1fd7e7"
+    },
+    "source_files_compiled": 603,
+    "ScHostTests_checks": 62,
+    "ScHostTests_pass": true,
+    "SC_host_snapshot_tag": "0x53434833 (SCH3)",
+    "physical_audit_build": {
+      "path": "build/holdout-sc-20261108/host-build-20261107T184838795509Z/result.json",
+      "bytes": 329,
+      "sha256": "c3e76d1261604086e30bff52682e4f892d9fd65575b655dfdc87115e298d06c9"
+    },
+    "physical_audit_frozen_source": {
+      "path": "build/holdout-sc-20261108/host-build-20261107T184838795509Z/src/desktop/src/org/circus/core/ScDesktopHoldoutAudit.java",
+      "bytes": 8256,
+      "sha256": "bec2f531945770a3f49e9eb45542e193f795ff1cbfbb894ff81588862b1bb052"
+    },
+    "full_route_audit_build": {
+      "path": "build/holdout-sc-20261108/audit-build-20261107T183844231243Z/result.json",
+      "bytes": 495,
+      "sha256": "7a8fe987e443cbefd3bfc511f14decd71659a9733e83448011b587d751c28ea4"
+    },
+    "full_route_audit_source": {
+      "path": "build/holdout-sc-20261108/audit-build-20261107T183844231243Z/ScRouteAudit.java",
+      "bytes": 5783,
+      "sha256": "643d4e489b23028b144f0a34b7f582c1368745bdc284766074c913914721ac6d"
+    },
+    "public_reproducer_sources": [
+      {
+        "path": "runtime/core/src/org/circus/core/ScHost.java",
+        "bytes": 11829,
+        "sha256": "0fcbac87525869dfb58e92795cc4bea4d70cf3088fd08b4b395ffe5a674c28be"
+      },
+      {
+        "path": "runtime/tests/org/circus/core/ScHostTests.java",
+        "bytes": 16317,
+        "sha256": "e5dab2d674386eeffcd4739a2a6960d8ce5b3fac5a8c963524ce06949951350f"
+      },
+      {
+        "path": "runtime/desktop/src/org/circus/core/ScDesktopHoldoutAudit.java",
+        "bytes": 8256,
+        "sha256": "bec2f531945770a3f49e9eb45542e193f795ff1cbfbb894ff81588862b1bb052"
+      }
+    ]
+  },
+  "strict_startup20": [
+    {
+      "category": "after_story",
+      "status": "passed",
+      "dialogue_waits": 20,
+      "snapshot_roundtrips": 7,
+      "ending_script": "aft_0314_a1_otm",
+      "ending_pc": 8829,
+      "encoding": "GBK",
+      "image_resources_decoded": 23,
+      "audio_resources_decoded": 12,
+      "requested_native_actions": [
+        "03",
+        "start",
+        "after_story",
+        "after_otm",
+        "read_after"
+      ],
+      "native_menus": [
+        {
+          "script": "START",
+          "pc": 3967,
+          "actions": [
+            "02",
+            "03"
+          ]
+        },
+        {
+          "script": "title_01",
+          "pc": 4465,
+          "actions": [
+            "start",
+            "load",
+            "extra",
+            "config",
+            "end"
+          ]
+        },
+        {
+          "script": "story_select",
+          "pc": 2392,
+          "actions": [
+            "after_story",
+            "geki_story",
+            "ultimate_story",
+            "return_title"
+          ]
+        },
+        {
+          "script": "story_select",
+          "pc": 3277,
+          "actions": [
+            "after_otm",
+            "after_yme",
+            "after_kko",
+            "after_nnk",
+            "after_anz",
+            "after_mnt",
+            "return_main",
+            "read_after"
+          ]
+        },
+        {
+          "script": "story_select",
+          "pc": 3277,
+          "actions": [
+            "after_otm",
+            "after_yme",
+            "after_kko",
+            "after_nnk",
+            "after_anz",
+            "after_mnt",
+            "return_main",
+            "read_after"
+          ]
+        }
+      ],
+      "report": {
+        "path": "build/holdout-sc-20261108/production-startup20-v4-SCH3/result.json",
+        "bytes": 7989,
+        "sha256": "30ad2caee000a828628ec2fd6b9f633d1bcaadcca897248410bb7977708586f3"
+      },
+      "command": {
+        "path": "build/holdout-sc-20261108/production-startup20-v4-SCH3/command.json",
+        "bytes": 658,
+        "sha256": "795d17073bb5db7dc2bebd4995ec3fc5c05527f7413bad2836cd62b1a8bd01c7"
+      },
+      "scope": "Actual native-menu input; CRX pixels and XPCM/container data decoded; fresh new-owner CVS2 byte roundtrips; media completion simulated."
+    },
+    {
+      "category": "geki_story",
+      "status": "passed",
+      "dialogue_waits": 20,
+      "snapshot_roundtrips": 7,
+      "ending_script": "drm_pro_otm",
+      "ending_pc": 2095,
+      "encoding": "GBK",
+      "image_resources_decoded": 17,
+      "audio_resources_decoded": 12,
+      "requested_native_actions": [
+        "03",
+        "start",
+        "geki_story",
+        "geki_otm",
+        "read_geki"
+      ],
+      "native_menus": [
+        {
+          "script": "START",
+          "pc": 3967,
+          "actions": [
+            "02",
+            "03"
+          ]
+        },
+        {
+          "script": "title_01",
+          "pc": 4465,
+          "actions": [
+            "start",
+            "load",
+            "extra",
+            "config",
+            "end"
+          ]
+        },
+        {
+          "script": "story_select",
+          "pc": 2392,
+          "actions": [
+            "after_story",
+            "geki_story",
+            "ultimate_story",
+            "return_title"
+          ]
+        },
+        {
+          "script": "story_select",
+          "pc": 9664,
+          "actions": [
+            "geki_otm",
+            "geki_yme",
+            "geki_kko",
+            "geki_nnk",
+            "geki_anz",
+            "geki_mnt",
+            "return_main",
+            "read_geki"
+          ]
+        },
+        {
+          "script": "story_select",
+          "pc": 9664,
+          "actions": [
+            "geki_otm",
+            "geki_yme",
+            "geki_kko",
+            "geki_nnk",
+            "geki_anz",
+            "geki_mnt",
+            "return_main",
+            "read_geki"
+          ]
+        }
+      ],
+      "report": {
+        "path": "build/holdout-sc-20261108/production-startup20-geki-SCH3/result.json",
+        "bytes": 7235,
+        "sha256": "dd6583ff9d71de6cdcc6cceb6c91576fdb9526a839e8e285877c91f4f2153d24"
+      },
+      "command": {
+        "path": "build/holdout-sc-20261108/production-startup20-geki-SCH3/command.json",
+        "bytes": 657,
+        "sha256": "63249beb77fccd4161461b0edc8377f85f8ca092159fb549a1a3390890a560a4"
+      },
+      "scope": "Actual native-menu input; CRX pixels and XPCM/container data decoded; fresh new-owner CVS2 byte roundtrips; media completion simulated."
+    },
+    {
+      "category": "ultimate_story",
+      "status": "passed",
+      "dialogue_waits": 20,
+      "snapshot_roundtrips": 7,
+      "ending_script": "snk_0315_a1_opn",
+      "ending_pc": 1173,
+      "encoding": "GBK",
+      "image_resources_decoded": 16,
+      "audio_resources_decoded": 8,
+      "requested_native_actions": [
+        "03",
+        "start",
+        "ultimate_story",
+        "ultimate_haru",
+        "read_ultimate"
+      ],
+      "native_menus": [
+        {
+          "script": "START",
+          "pc": 3967,
+          "actions": [
+            "02",
+            "03"
+          ]
+        },
+        {
+          "script": "title_01",
+          "pc": 4465,
+          "actions": [
+            "start",
+            "load",
+            "extra",
+            "config",
+            "end"
+          ]
+        },
+        {
+          "script": "story_select",
+          "pc": 2392,
+          "actions": [
+            "after_story",
+            "geki_story",
+            "ultimate_story",
+            "return_title"
+          ]
+        },
+        {
+          "script": "story_select",
+          "pc": 15584,
+          "actions": [
+            "ultimate_haru",
+            "ultimate_kun",
+            "return_main",
+            "read_ultimate"
+          ]
+        },
+        {
+          "script": "story_select",
+          "pc": 15584,
+          "actions": [
+            "ultimate_haru",
+            "ultimate_kun",
+            "return_main",
+            "read_ultimate"
+          ]
+        }
+      ],
+      "report": {
+        "path": "build/holdout-sc-20261108/production-startup20-ultimate-SCH3/result.json",
+        "bytes": 6188,
+        "sha256": "622dc7d3ea9f4fc8e71fd0b7993abd7bc036726c321d5eb6d33278c77a2bf7e2"
+      },
+      "command": {
+        "path": "build/holdout-sc-20261108/production-startup20-ultimate-SCH3/command.json",
+        "bytes": 674,
+        "sha256": "79edc4ef62426f6929f95fa3caf60f4290d18234255e02a2810897c22ac93049"
+      },
+      "scope": "Actual native-menu input; CRX pixels and XPCM/container data decoded; fresh new-owner CVS2 byte roundtrips; media completion simulated."
+    }
+  ],
+  "representative_complete_routes": [
+    {
+      "category": "after_story",
+      "character": "after_otm",
+      "pass": true,
+      "returned_to_original_title": true,
+      "dialogue_waits": 2938,
+      "script_count": 22,
+      "scripts": [
+        "START",
+        "title_01",
+        "story_select",
+        "aft_0314_a1_otm",
+        "aft_0314_e1_otm",
+        "aft_0314_e2_otm",
+        "aft_0314_e3_otm",
+        "aft_0314_e4_otm",
+        "aft_0314_e5_otm",
+        "aft_0314_f1_otm",
+        "aft_0314_f2_otm",
+        "aft_0315_a1_otm",
+        "aft_0315_b1_otm",
+        "aft_0315_b2_otm",
+        "aft_0315_b3_otm",
+        "aft_0315_d1_otm",
+        "aft_0315_f1_otm",
+        "aft_0315_f2_otm",
+        "aft_0315_f3_otm",
+        "aft_0315_f4_otm",
+        "aft_0315_f5_otm",
+        "aft_0316_ep_otm"
+      ],
+      "native_menu_actions": [
+        {
+          "at": "START@f7f",
+          "selected": "03",
+          "actions": [
+            "02",
+            "03"
+          ]
+        },
+        {
+          "at": "title_01@1171",
+          "selected": "start",
+          "actions": [
+            "start",
+            "load",
+            "extra",
+            "config",
+            "end"
+          ]
+        },
+        {
+          "at": "story_select@958",
+          "selected": "after_story",
+          "actions": [
+            "after_story",
+            "geki_story",
+            "ultimate_story",
+            "return_title"
+          ]
+        },
+        {
+          "at": "story_select@ccd",
+          "selected": "after_otm",
+          "actions": [
+            "after_otm",
+            "after_yme",
+            "after_kko",
+            "after_nnk",
+            "after_anz",
+            "after_mnt",
+            "return_main",
+            "read_after"
+          ]
+        },
+        {
+          "at": "story_select@ccd",
+          "selected": "read_after",
+          "actions": [
+            "after_otm",
+            "after_yme",
+            "after_kko",
+            "after_nnk",
+            "after_anz",
+            "after_mnt",
+            "return_main",
+            "read_after"
+          ]
+        },
+        {
+          "at": "aft_0314_e5_otm@23b3",
+          "selected": "01",
+          "actions": [
+            "01",
+            "02",
+            "03"
+          ]
+        },
+        {
+          "at": "aft_0315_a1_otm@21d5",
+          "selected": "01",
+          "actions": [
+            "01",
+            "02"
+          ]
+        }
+      ],
+      "snapshot_roundtrips": 2,
+      "actor_visible": true,
+      "result": {
+        "path": "build/holdout-sc-20261108/production-route10-after-SCH3/result.json",
+        "bytes": 1485,
+        "sha256": "11ea6d155d6c4db9562ac5e31582f73da2548947aaf2c09d5a5f90c5eb63ae8a"
+      },
+      "trace": {
+        "path": "build/holdout-sc-20261108/production-route10-after-SCH3/trace.jsonl",
+        "bytes": 740,
+        "sha256": "7e291784bf1fdf20c3102db01041f8450af6e4875b79f22692e37459255e2d09"
+      },
+      "process": {
+        "path": "build/holdout-sc-20261108/production-route10-after-SCH3/process-result.json",
+        "bytes": 3576,
+        "sha256": "cdd224352af2f7c7ea8bc451d4f77e650d6c0cad736c071da4a30ea39e40a8b5"
+      },
+      "command": {
+        "path": "build/holdout-sc-20261108/production-route10-after-SCH3/command.json",
+        "bytes": 534,
+        "sha256": "d12e0306e571690f82a468d2dfa3772fb748f2aecf2444bffae9b98282b8e66b"
+      },
+      "media_completion_simulated": true,
+      "audio_decode_scope": "strict NativeStartupAudit20 separately; route completes media explicitly"
+    },
+    {
+      "category": "geki_story",
+      "character": "geki_otm",
+      "pass": true,
+      "returned_to_original_title": true,
+      "dialogue_waits": 3509,
+      "script_count": 31,
+      "scripts": [
+        "START",
+        "title_01",
+        "story_select",
+        "drm_pro_otm",
+        "drm_0705_d1_otm",
+        "drm_0705_d2_otm",
+        "drm_0705_d3_otm",
+        "drm_0705_f1_otm",
+        "drm_0706_b1_otm",
+        "drm_0706_d1_otm",
+        "drm_0707_a1_otm",
+        "drm_0707_c1_otm",
+        "drm_0707_e1_otm",
+        "drm_0708_b1_otm",
+        "drm_0709_d1_otm",
+        "drm_0710_d1_otm",
+        "drm_0710_d2_otm",
+        "drm_0711_d1_otm",
+        "drm_0711_f1_otm",
+        "drm_0712_d1_otm",
+        "drm_0713_d1_otm",
+        "drm_0713_d2_otm",
+        "drm_0714_d1_otm",
+        "drm_0715_d1_otm",
+        "drm_0716_b1_otm",
+        "drm_0716_d1_otm",
+        "drm_0717_d1_otm",
+        "drm_0718_b1_otm",
+        "drm_0718_d1_otm",
+        "drm_9999_a1_otm",
+        "drm_epi_otm"
+      ],
+      "native_menu_actions": [
+        {
+          "at": "START@f7f",
+          "selected": "03",
+          "actions": [
+            "02",
+            "03"
+          ]
+        },
+        {
+          "at": "title_01@1171",
+          "selected": "start",
+          "actions": [
+            "start",
+            "load",
+            "extra",
+            "config",
+            "end"
+          ]
+        },
+        {
+          "at": "story_select@958",
+          "selected": "geki_story",
+          "actions": [
+            "after_story",
+            "geki_story",
+            "ultimate_story",
+            "return_title"
+          ]
+        },
+        {
+          "at": "story_select@25c0",
+          "selected": "geki_otm",
+          "actions": [
+            "geki_otm",
+            "geki_yme",
+            "geki_kko",
+            "geki_nnk",
+            "geki_anz",
+            "geki_mnt",
+            "return_main",
+            "read_geki"
+          ]
+        },
+        {
+          "at": "story_select@25c0",
+          "selected": "read_geki",
+          "actions": [
+            "geki_otm",
+            "geki_yme",
+            "geki_kko",
+            "geki_nnk",
+            "geki_anz",
+            "geki_mnt",
+            "return_main",
+            "read_geki"
+          ]
+        }
+      ],
+      "snapshot_roundtrips": 3,
+      "actor_visible": true,
+      "result": {
+        "path": "build/holdout-sc-20261108/production-route11-geki-SCH3/result.json",
+        "bytes": 1483,
+        "sha256": "ede0d922c6e8b6ea15fbb4792e1a2bde2297d5334a70b8f886733dc0c32cc6fd"
+      },
+      "trace": {
+        "path": "build/holdout-sc-20261108/production-route11-geki-SCH3/trace.jsonl",
+        "bytes": 582,
+        "sha256": "0ec3bae65e086442e845993d6adc1135b9477d9dc51c9ddca0e6caaaac18cc1d"
+      },
+      "process": {
+        "path": "build/holdout-sc-20261108/production-route11-geki-SCH3/process-result.json",
+        "bytes": 3807,
+        "sha256": "2690e4b0bd8dc3b96814a592bcafaafb3e950f5affd419bd36a74ca699197dfc"
+      },
+      "command": {
+        "path": "build/holdout-sc-20261108/production-route11-geki-SCH3/command.json",
+        "bytes": 531,
+        "sha256": "e124008a1d5b1165af5ae56289d2bcab8aa477ea722d902d1556c0f39080b983"
+      },
+      "media_completion_simulated": true,
+      "audio_decode_scope": "strict NativeStartupAudit20 separately; route completes media explicitly"
+    },
+    {
+      "category": "ultimate_story",
+      "character": "ultimate_haru",
+      "pass": true,
+      "returned_to_original_title": true,
+      "dialogue_waits": 1795,
+      "script_count": 20,
+      "scripts": [
+        "START",
+        "title_01",
+        "story_select",
+        "snk_0315_a1_opn",
+        "snk_0315_a2_cmn",
+        "snk_0315_a3_cmn",
+        "snk_0315_a4_cmn",
+        "snk_0315_a5_cmn",
+        "snk_0315_a6_cmn",
+        "snk_0315_a7_cmn",
+        "snk_0315_b1_cmn",
+        "snk_0315_b11_nnk",
+        "snk_0315_d1_cmn",
+        "snk_0315_d2_cmn",
+        "snk_0315_d21_nnk",
+        "snk_0315_e1_cmn",
+        "snk_0315_e2_cmn",
+        "snk_0315_f1_cmn",
+        "snk_0315_f2_end",
+        "snk_mnt_a"
+      ],
+      "native_menu_actions": [
+        {
+          "at": "START@f7f",
+          "selected": "03",
+          "actions": [
+            "02",
+            "03"
+          ]
+        },
+        {
+          "at": "title_01@1171",
+          "selected": "start",
+          "actions": [
+            "start",
+            "load",
+            "extra",
+            "config",
+            "end"
+          ]
+        },
+        {
+          "at": "story_select@958",
+          "selected": "ultimate_story",
+          "actions": [
+            "after_story",
+            "geki_story",
+            "ultimate_story",
+            "return_title"
+          ]
+        },
+        {
+          "at": "story_select@3ce0",
+          "selected": "ultimate_haru",
+          "actions": [
+            "ultimate_haru",
+            "ultimate_kun",
+            "return_main",
+            "read_ultimate"
+          ]
+        },
+        {
+          "at": "story_select@3ce0",
+          "selected": "read_ultimate",
+          "actions": [
+            "ultimate_haru",
+            "ultimate_kun",
+            "return_main",
+            "read_ultimate"
+          ]
+        },
+        {
+          "at": "snk_0315_b1_cmn@ed2",
+          "selected": "01",
+          "actions": [
+            "01",
+            "02",
+            "03"
+          ]
+        },
+        {
+          "at": "snk_0315_d2_cmn@b8f",
+          "selected": "01",
+          "actions": [
+            "01",
+            "02",
+            "03"
+          ]
+        }
+      ],
+      "snapshot_roundtrips": 1,
+      "actor_visible": true,
+      "result": {
+        "path": "build/holdout-sc-20261108/production-route12-ultimate-SCH3/result.json",
+        "bytes": 1384,
+        "sha256": "8062f817ca2e5b0dde7590ece71b1de9def3a9492cd2c6b91cddb480b420a3fc"
+      },
+      "trace": {
+        "path": "build/holdout-sc-20261108/production-route12-ultimate-SCH3/trace.jsonl",
+        "bytes": 679,
+        "sha256": "8e8a3baf0185b3131402ba75830aaea6a15a9679d337700c7b24b095ba8aeaef"
+      },
+      "process": {
+        "path": "build/holdout-sc-20261108/production-route12-ultimate-SCH3/process-result.json",
+        "bytes": 3263,
+        "sha256": "b8e44766d7ab3cba28c6c015e48f2672bdc60d1f7aadb5c72540a5d4b21a557f"
+      },
+      "command": {
+        "path": "build/holdout-sc-20261108/production-route12-ultimate-SCH3/command.json",
+        "bytes": 544,
+        "sha256": "6fee0317e8915a794c891571937264920e5e1e04eb8e956affb7efc3c085706b"
+      },
+      "media_completion_simulated": true,
+      "audio_decode_scope": "strict NativeStartupAudit20 separately; route completes media explicitly"
+    }
+  ],
+  "physical_save_load": {
+    "pass": true,
+    "checks": 29,
+    "dialogue_waits": 20,
+    "story_location": "aft_0314_a1_otm@227d",
+    "story_body_sha256": "7ac5eab99f6e59662cb1158ee52f8a4eb49fc2f0fe070c703c632aed5f89477d",
+    "checks_scope": [
+      "Factory admits actual SC profile and instantiates ScHost.",
+      "Original window/title/category/character/read buttons reach 20 dialogue waits.",
+      "Runtime-owned file save thumbnail decodes; sentence and PC restore exactly.",
+      "File save restores identical VM bytes and rendered pixels.",
+      "Original ADVMENU Save uses actual five native hit rows and service6 slot bindings.",
+      "Native Save reserves0/1, then slot2/iconset00/dosave writes runtime-owned slot2.",
+      "Original Return restores caller sentence/PC and story can advance.",
+      "Original ADVMENU Load/slot2/doload restores the earlier saved caller sentence/PC."
+    ],
+    "native_menus": [
+      {
+        "at": "START@f7f",
+        "actions": [
+          "02",
+          "03"
+        ]
+      },
+      {
+        "at": "title_01@1171",
+        "actions": [
+          "start",
+          "load",
+          "extra",
+          "config",
+          "end"
+        ]
+      },
+      {
+        "at": "story_select@958",
+        "actions": [
+          "after_story",
+          "geki_story",
+          "ultimate_story",
+          "return_title"
+        ]
+      },
+      {
+        "at": "story_select@ccd",
+        "actions": [
+          "after_otm",
+          "after_yme",
+          "after_kko",
+          "after_nnk",
+          "after_anz",
+          "after_mnt",
+          "return_main",
+          "read_after"
+        ]
+      },
+      {
+        "at": "story_select@ccd",
+        "actions": [
+          "after_otm",
+          "after_yme",
+          "after_kko",
+          "after_nnk",
+          "after_anz",
+          "after_mnt",
+          "return_main",
+          "read_after"
+        ]
+      },
+      {
+        "at": "ADVMENU@2fe",
+        "actions": [
+          "screenChange",
+          "save",
+          "load",
+          "config",
+          "title",
+          "return"
+        ]
+      },
+      {
+        "at": "SAVE@3d7",
+        "actions": [
+          "prev1",
+          "next1",
+          "return",
+          "@slot:0",
+          "@slot:1",
+          "@slot:2",
+          "@slot:3",
+          "@slot:4"
+        ]
+      },
+      {
+        "at": "SAVE@93c",
+        "actions": [
+          "iconset00",
+          "iconset01",
+          "iconset02",
+          "iconset03",
+          "iconset04",
+          "iconset05",
+          "iconset06",
+          "iconset07",
+          "iconset08",
+          "iconset09",
+          "iconset10",
+          "iconset11",
+          "iconset12",
+          "iconset13",
+          "iconset14",
+          "iconset15"
+        ]
+      },
+      {
+        "at": "SAVE@c1d",
+        "actions": [
+          "dosave",
+          "pagechg"
+        ]
+      },
+      {
+        "at": "SAVE@3d7",
+        "actions": [
+          "prev1",
+          "next1",
+          "return",
+          "@slot:0",
+          "@slot:1",
+          "@slot:2",
+          "@slot:3",
+          "@slot:4"
+        ]
+      },
+      {
+        "at": "advmenu@2fe",
+        "actions": [
+          "screenChange",
+          "save",
+          "load",
+          "config",
+          "title",
+          "return"
+        ]
+      },
+      {
+        "at": "ADVMENU@2fe",
+        "actions": [
+          "screenChange",
+          "save",
+          "load",
+          "config",
+          "title",
+          "return"
+        ]
+      },
+      {
+        "at": "LOAD@3da",
+        "actions": [
+          "prev1",
+          "next1",
+          "return",
+          "@slot:0",
+          "@slot:1",
+          "@slot:2",
+          "@slot:3",
+          "@slot:4"
+        ]
+      },
+      {
+        "at": "LOAD@51f",
+        "actions": [
+          "doload",
+          "pagechg"
+        ]
+      }
+    ],
+    "result": {
+      "path": "build/holdout-sc-20261108/production-desktop20-v3-SCH3-public/result.json",
+      "bytes": 1865,
+      "sha256": "c16b1f7a3f6d6e062cc20607289030af39c53b826d425659d5e58575c8d768ad"
+    },
+    "command": {
+      "path": "build/holdout-sc-20261108/production-desktop20-v3-SCH3-public/command.json",
+      "bytes": 416,
+      "sha256": "c20d52b7ed478ec60d9e69869283b1e4cf8d4fee5b1642d8d65e4773e770c4d8"
+    },
+    "runtime_owned_native_menu_slot": {
+      "path": "build/holdout-sc-20261108/production-desktop20-v3-SCH3-public/saves/dc2sc-3b69-3bc3c0cdbf7618f0/slot-2.sav",
+      "bytes": 530795,
+      "sha256": "d11aa897e81080f423d40ebd01f4c1d16b4c092261741fc708dd82cc25120e01"
+    },
+    "before_save_render": {
+      "path": "build/holdout-sc-20261108/production-desktop20-v3-SCH3-public/05-text20.png",
+      "bytes": 1111249,
+      "sha256": "1cb32f76356f06800160daeb634b966821c5ae47bb2687feb70884135f119668"
+    },
+    "restored_render": {
+      "path": "build/holdout-sc-20261108/production-desktop20-v3-SCH3-public/06-restored.png",
+      "bytes": 1111249,
+      "sha256": "1cb32f76356f06800160daeb634b966821c5ae47bb2687feb70884135f119668"
+    },
+    "media_completion_simulated": true
+  },
+  "known_original_input_fault": {
+    "classification": "original_input_truncation",
+    "original_menu_path": [
+      "03",
+      "start",
+      "geki_story",
+      "geki_kko",
+      "read_geki"
+    ],
+    "dialogue_waits_before_failure": 162,
+    "caller_script": "drm_pro_kko",
+    "caller_instruction_pc": "0x356F",
+    "caller_record_hex": "2e0164726d5f303632315f62315f6b6b6f00",
+    "operation": "pc.script.transfer",
+    "mode": 1,
+    "target_script": "drm_0621_b1_kko",
+    "target_file": "D:\\gal\\D.C.II Spring Celebration\\D.C.II S.C\\AdvData\\MES\\drm_0621_b1_kko.mes",
+    "target_bytes": 7719,
+    "target_sha256": "6564d6634b86ac874b9ea2e6d59543a6d710bd98b916e55a5197986400c4bb96",
+    "target_parse_failure": "unterminated string at0x1E26 (lone opcode4C at EOF)",
+    "target_header_max_offset": "0x41BF",
+    "runtime_error": "drm_pro_kko @0x356f: Unterminated string",
+    "padding_or_fault_bypass": false,
+    "result": {
+      "path": "build/holdout-sc-20261108/production-route13-geki-kko-SCH3-fault/result.json",
+      "bytes": 1080,
+      "sha256": "d946d6740be9b9efa0c32ebfa81344d9ed35a483df8f5360c648e61ecd2fd95e"
+    },
+    "trace": {
+      "path": "build/holdout-sc-20261108/production-route13-geki-kko-SCH3-fault/trace.jsonl",
+      "bytes": 582,
+      "sha256": "d39f05acea0c647ac5ab6c96622a911c6ed7e6c7a25f4524f2a4acf96d8a6e3a"
+    },
+    "command": {
+      "path": "build/holdout-sc-20261108/production-route13-geki-kko-SCH3-fault/command.json",
+      "bytes": 541,
+      "sha256": "ada5f9e9aa359ef4b317d20f1cf847768492a1875072ae460e8390b64bf1ad3c"
+    },
+    "data_fault_evidence": {
+      "path": "build/holdout-sc-20261108/production-route13-geki-kko-SCH3-fault/data-fault-evidence.json",
+      "bytes": 875,
+      "sha256": "6dbb520be0d6fbe4b616a0313240c49582cd4b41d9908b55541665fd9c949f30"
+    },
+    "source_repair_or_padding_applied": false,
+    "runtime_fault_bypassed": false,
+    "backup_search": {
+      "readable_same_filename_matches_under_D_gal": 1,
+      "generic_root_zip_matches": 0,
+      "encrypted_archive_not_inspected": "D:\\gal\\202610302352.rar",
+      "listing_failure": "Encryption is not supported",
+      "artifact": {
+        "path": "build/holdout-sc-20261108/backup-archive-listing.json",
+        "bytes": 707,
+        "sha256": "872830f9f3fc755e9cf43bc666ef51895889c8b0d6701bc1a181ae1aefaac5bd"
+      }
+    }
+  },
+  "independent_native_bindings": {
+    "source_subject": "dc2sc_CHS.exe SHA-256 11f0507fd4e317ebf07a430eb221f4ecf4c7a1f1e27a4431d3ef9e5daef13abc",
+    "not_admitted_as_another_game": true,
+    "dispatch_function": "0x419E00",
+    "dispatch_jump": "0x419F10",
+    "table": "0x41CCF0",
+    "slot_count": 105,
+    "native_default_handler": "0x41CCA7",
+    "decoder": {
+      "version": "0x3B69",
+      "version_bytes_hex": "693b",
+      "version_length": 2,
+      "exact_native_stamp": true,
+      "native_code_pc_start": 2,
+      "native_loader": "0x417F00",
+      "native_code_buffer": "0x9E2990",
+      "native_code_read_limit_bytes": 150000,
+      "signed_opcode_fetch": true,
+      "signed_word_operands": true,
+      "signed_block_scan": true,
+      "encoded_byte_add": 32,
+      "dollar_to_space": false,
+      "unconditional_nine_byte_extension_owners": [
+        "0x50",
+        "0x53",
+        "0x55",
+        "0x57"
+      ],
+      "extension_marker_required": false,
+      "raw_string_payload_owners": [
+        "0x51",
+        "0x58",
+        "0x60"
+      ],
+      "opcode_4F": "Optional following raw string or companion marker2; not unconditional words extension."
+    },
+    "variables": {
+      "model": "PC_BYTE",
+      "getter": "0x4181A0",
+      "setter": "0x418400",
+      "wide_bank200_aliases": false,
+      "99:251": "Cached prior scene-seen byte A3F1CC, sampled at native mode1/3 load, preserved by mode2; not a catalog index.",
+      "ordinary_base": "0xA3D8A0",
+      "global_base": "0x480A20",
+      "CG_base": "0x480A84",
+      "seen_base": "0x480E84",
+      "persistent_array_bytes": {
+        "100": 100,
+        "97": 1024,
+        "98": 1024,
+        "90": 1024,
+        "95": 80
+      }
+    },
+    "SC_host_operations": {
+      "0x1C": {
+        "name": "sc.command",
+        "handler": "0x41a0de",
+        "native_service_dispatcher": "0x407760",
+        "reviewed_implemented_service": 6,
+        "save_load_helper": "0x4074C0",
+        "native_action_label_both_modes": "selsave",
+        "active_rows": 5,
+        "page_stride": 8,
+        "save_reserved_slots": [
+          0,
+          1
+        ]
+      },
+      "0x64": {
+        "name": "sc.actor_position",
+        "handler": "0x41C15A",
+        "staged_descriptor_base": "0xA3DD8C",
+        "stride": 52,
+        "sets": [
+          "stagedX",
+          "stagedY",
+          "stagedZoom=100"
+        ],
+        "selector255": "Swap first two resource filenames/handles."
+      },
+      "0x65": {
+        "name": "sc.actor_transform",
+        "handler": "0x41C228",
+        "wait_function": "0x41E490",
+        "displayed_descriptor_base": "0xA3DD80",
+        "staged_descriptor_base": "0xA3DD8C",
+        "modal_selectors": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "modal_arg2_ignored": true,
+        "modal_changes": "Displayed XY only; preserve staged XY/zoom.",
+        "timer_ms": 10,
+        "speed_steps": [
+          8,
+          16,
+          32,
+          64
+        ],
+        "delayed_timer_policy": "One coalesced poll; reaching target draws, a later matching poll releases.",
+        "nonmodal_selectors": [
+          16,
+          17,
+          18,
+          19
+        ],
+        "nonmodal_changes": "Staged zoom/pivotX/pivotY; actor resource load commits staged XYZ to live.",
+        "selector255": "Assign first two staged scales, keeping any arg value -1 unchanged.",
+        "publish_ownership": "ScHost owns live XYZ; Dc2Scene.ActorProjection applies live XYZ and staged pivots before any frame/capture consumer."
+      }
+    },
+    "actor_system_restore": {
+      "opcode": "0x2B",
+      "native_loader": "0x419960",
+      "token": "--",
+      "saved_stage_XYZ_base": "0xA3AC30",
+      "descriptor_stride": 52,
+      "native_function": {
+        "path": "build/holdout-sc-20261108/native-core-functions/functions/0x419960.c",
+        "bytes": 6382,
+        "sha256": "07e6f3259f807e364797f350fe4e1a39d6bf607f8feeb025f53591ae52088d70"
+      },
+      "saved_filename_base": "0xA39864",
+      "filename_stride": 128,
+      "entry_capture": "ScHost.enterSystem captures four stage XYZ triples independently of systemScene displayed coordinates.",
+      "restore_scope": "Restore saved stage XYZ only, preserve current staged pivot and later fields, then commit restored XYZ into live owner.",
+      "missing_saved_stage": "Explicit error, never substitute displayed systemScene coordinates.",
+      "snapshot": "SCH3 carries saved-stage validity, twelve saved-stage dwords and twelve live dwords; signed-word descriptor bounds validated.",
+      "regression": "Start with stage11/22 and moved live75/86; enter system; change current pivot700/800 and later field19 plus temporary actor; snapshot/reload; -- must restore saved11/22/80 and preserve current700/800/19. Missing backup and out-of-range saved state are rejected."
+    },
+    "audio_path_contract": {
+      "chain": [
+        "0x4248E0",
+        "0x424010",
+        "0x4139D0",
+        "0x425150",
+        "0x425110"
+      ],
+      "extension_constant_va": "0x464680",
+      "extension_constant_hex": "2e70636d00",
+      "behavior": "Non-VOICE filename extension is replaced with .pcm, rather than appended; SE/241.wav resolves to AdvData/SE/241.pcm.",
+      "metadata": {
+        "path": "build/holdout-sc-20261108/native-audio-path-contract.json",
+        "bytes": 484,
+        "sha256": "20e33a9108604358eb7934c81c032f07ce17a7e137e2bd75892d4be4106c6661"
+      }
+    },
+    "localized_prose_binding": {
+      "script": "aft_0314_a1_otm",
+      "sha256": "d9448ae50a86cc176701ca115eeb1f1b98704d6dae059fd7015773e7f9b0223e",
+      "codec": "GBK",
+      "strict_GBK_text_records": 131,
+      "strict_cp932_invalid_text_records": 35,
+      "scope": "Exact translated MES fingerprint, not executable name or all SC editions.",
+      "metadata": {
+        "path": "build/holdout-sc-20261108/sc-prose-encoding-evidence.json",
+        "bytes": 585,
+        "sha256": "c619b78715966aec5b8ab2c5c98dca450e658056201eaaf5659f35e04eee0ea6"
+      }
+    },
+    "mapping_proposal": {
+      "path": "build/holdout-sc-20261108/sc-semantic-proposal.json",
+      "bytes": 59541,
+      "sha256": "f5ea08e469229fe3c3ff7e2bb3b05cf0e367f52c0a00119952d966399f47e255"
+    },
+    "REA_evidence": {
+      "rea-dispatch.json": {
+        "path": "build/holdout-sc-20261108/rea-dispatch.json",
+        "bytes": 125359,
+        "sha256": "00290c0f958986a5513ee5c531d180b5d2da9d75cfbe1d5bdbfef5567a541809",
+        "evidence_id": "ev_78828a904e8fd8d34e1010d2046a60ed2227b91e43d116e5665613a29d85088a",
+        "provider": "Ghidra 12.1.4 via REA source-immutable workflow",
+        "subject_sha256": "11f0507fd4e317ebf07a430eb221f4ecf4c7a1f1e27a4431d3ef9e5daef13abc"
+      },
+      "rea-core-functions.json": {
+        "path": "build/holdout-sc-20261108/rea-core-functions.json",
+        "bytes": 6323,
+        "sha256": "e8cdfb69381a7c129c4c70b4b7084b485f8313a2bc0e70f0a8c189d8693e8dd4",
+        "evidence_id": "ev_00b14491687049eb668072f99c6b5e8194b48f4dc2cf942df4725c1f53e4b9d1",
+        "provider": "Ghidra 12.1.4 via REA source-immutable workflow",
+        "subject_sha256": "11f0507fd4e317ebf07a430eb221f4ecf4c7a1f1e27a4431d3ef9e5daef13abc"
+      },
+      "rea-services-functions.json": {
+        "path": "build/holdout-sc-20261108/rea-services-functions.json",
+        "bytes": 6339,
+        "sha256": "7c467a30ddc7711839727e7dd8661437653bb5731de8902e2b342b0fdaff8ceb",
+        "evidence_id": "ev_f98398f0a30ca3c4ac120af3eb6ebdf939b38978826fc4234f60380d5b529623",
+        "provider": "Ghidra 12.1.4 via REA source-immutable workflow",
+        "subject_sha256": "11f0507fd4e317ebf07a430eb221f4ecf4c7a1f1e27a4431d3ef9e5daef13abc"
+      },
+      "rea-frame-functions.json": {
+        "path": "build/holdout-sc-20261108/rea-frame-functions.json",
+        "bytes": 6326,
+        "sha256": "bcacbedecd6d40f66b96eaa3ab1e1c229023413fe8676a7627be42e49bbd7dc3",
+        "evidence_id": "ev_f60fcc7479bec3b7a06306f7c7278bbe643942f945707d7dff9e37d30b43f9b4",
+        "provider": "Ghidra 12.1.4 via REA source-immutable workflow",
+        "subject_sha256": "11f0507fd4e317ebf07a430eb221f4ecf4c7a1f1e27a4431d3ef9e5daef13abc"
+      },
+      "rea-audio-functions.json": {
+        "path": "build/holdout-sc-20261108/rea-audio-functions.json",
+        "bytes": 6326,
+        "sha256": "b76783af358ee7ccf4151c9204bb955faff5d98c244bd07b3df4c6bc63cf4261",
+        "evidence_id": "ev_8898219837644025f7593a17386ac96bc63d47ccefbb220b1b6efe74fed2a35e",
+        "provider": "Ghidra 12.1.4 via REA source-immutable workflow",
+        "subject_sha256": "11f0507fd4e317ebf07a430eb221f4ecf4c7a1f1e27a4431d3ef9e5daef13abc"
+      }
+    }
+  },
+  "explicit_limits": {
+    "unmodelled_opcodes": [
+      "0x10",
+      "0x18",
+      "0x1D",
+      "0x27",
+      "0x2D",
+      "0x34",
+      "0x41",
+      "0x48",
+      "0x54",
+      "0x5A",
+      "0x63",
+      "0x67",
+      "0x68"
+    ],
+    "unmodelled_behavior": "Execution raises a precise unsupported-operation error; never succeeds as a no-op.",
+    "system_1C_services_implemented": [
+      6
+    ],
+    "other_system_1C_services": "Explicitly rejected by ScHost, including unimplemented debug subsystems.",
+    "debug_67_68": "Native modal effect services416390/416790; legitimate corpus use is confined to debug scripts and remains unimplemented.",
+    "native_actor_descriptors": 5,
+    "portable_actor_descriptors": 4,
+    "actor4_or_negative_selector": "Explicit unsupported bounds error; no real 2B/64 actor4 call found in this holdout.",
+    "coverage": "Three complete representative first-choice routes and three strict20 openings; not every branch or opcode path.",
+    "media": "Completion signals simulated; strict startup validates resource/container decoding, not DirectSound/MCI playback fidelity.",
+    "visual_comparison": "Save/restore pixels compared within the portable runtime; original executable frame-by-frame comparison was not performed."
+  },
+  "excluded_audit_bug": {
+    "case": {
+      "path": "build/holdout-sc-20261108/production-route05-otm-complete/audit-invalid.json",
+      "bytes": 295,
+      "sha256": "beafa19ec35a174b32f430ae75857637801b643987c3a771679755f0ee9264aa"
+    },
+    "counted_as_runtime_fault": false,
+    "counted_as_complete_route": false
+  }
+}

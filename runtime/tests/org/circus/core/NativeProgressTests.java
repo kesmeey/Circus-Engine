@@ -108,7 +108,14 @@ public final class NativeProgressTests {
         if(t.dd!=null){t.dd.musicFavorites[12]=1;t.write(94,50,41);t.write(95,50,0);t.write(93,3,1);}
         else{
             t.legacy.readCheckpoints.add("phone_only:42");t.legacy.availableSaves.add(6);t.legacy.variables.write(3,4,123);
-            if(t.legacy instanceof PcHost){PcHost pc=(PcHost)t.legacy;pc.setNativeNames("Own","Name");pc.write(100,60,1);pc.write(97,cgCount,1);if(pc.pc1==null)pc.write(98,sceneCount,1);else reject(()->pc.write(98,sceneCount,1),"PC1 byte bank cannot write beyond its actual1748-byte owner");}
+            if(t.legacy instanceof PcHost){
+                PcHost pc=(PcHost)t.legacy;pc.setNativeNames("Own","Name");pc.write(100,60,1);
+                if(pc.pc1==null){
+                    check(pc.read(95,0)==0&&pc.read(95,99)==0,"PC2 native95 template is zero");pc.write(95,99,37);
+                    pc.write(97,cgCount-2,1);pc.write(98,sceneCount-2,1);
+                    reject(()->pc.write(97,cgCount,1),"PC2 CG native byte bank ends at1499");reject(()->pc.write(98,sceneCount,1),"PC2 seen native byte bank ends at1499");
+                }else{pc.write(97,cgCount,1);reject(()->pc.write(98,sceneCount,1),"PC1 byte bank cannot write beyond its actual1748-byte owner");}
+            }
             else{t.write(94,50,41);t.write(95,50,0);}
         }
         byte[] before=t.save(),nativeBefore=bytes.clone();NativeProgress.Summary preview=p.preview(t);
@@ -123,7 +130,11 @@ public final class NativeProgressTests {
         if(t.dd!=null){if(id.equals("dc3pp-9872"))check(t.dd.musicFavorites[12]==1&&t.read(94,50)==0&&t.read(95,50)==0&&t.read(93,3)==0,"PP keeps host metadata but nonexistent native banks stay zero");else check(t.dd.musicFavorites[12]==1&&t.read(94,50)==41&&t.read(95,50)==0&&t.read(93,3)==1,"DD favorites, voice levels and confirmations retained");}
         else{
             check(t.legacy.readCheckpoints.contains("phone_only:42")&&t.legacy.availableSaves.equals(Collections.singleton(6))&&t.legacy.variables.read(3,4)==123,"Read history, story variables and phone slot availability retained: "+id);
-            if(t.legacy instanceof PcHost){PcHost pc=(PcHost)t.legacy;check(pc.familyName.equals("Own")&&pc.givenName.equals("Name")&&pc.read(100,60)==1&&pc.read(97,cgCount)==1,"PC names/mute and known adjacent native byte retained: "+id);if(pc.pc1==null)check(pc.read(98,sceneCount)==1,"Wider non-PC1 host tail retained: "+id);else{check(pc.read(98,0)==1,"PC1 CG512 aliases scene0 instead of a fabricated gallery tail");reject(()->pc.read(98,sceneCount),"PC1 last scene byte has no fabricated following memory");}}
+            if(t.legacy instanceof PcHost){
+                PcHost pc=(PcHost)t.legacy;check(pc.familyName.equals("Own")&&pc.givenName.equals("Name")&&pc.read(100,60)==1,"PC names and mute retained: "+id);
+                if(pc.pc1==null){check(pc.read(97,cgCount-2)==1&&pc.read(98,sceneCount-2)==1&&pc.read(95,99)==37,"PC2 in-range unlocks and native preference tail retained: "+id);reject(()->pc.read(97,cgCount),"PC2 CG has no fabricated host tail");reject(()->pc.read(98,sceneCount),"PC2 seen has no fabricated host tail");}
+                else{check(pc.read(97,cgCount)==1&&pc.read(98,0)==1,"PC1 CG512 aliases scene0 instead of a fabricated gallery tail");reject(()->pc.read(98,sceneCount),"PC1 last scene byte has no fabricated following memory");}
+            }
             else check(t.read(94,50)==41&&t.read(95,50)==0,"DM voice preferences retained");
         }
         byte[] merged=t.save();check(p.apply(t).total==0&&Arrays.equals(merged,t.save()),"Repeated merge makes no persistent change: "+id);

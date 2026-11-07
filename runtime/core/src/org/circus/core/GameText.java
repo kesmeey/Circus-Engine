@@ -8,6 +8,7 @@ public final class GameText {
         if(profile.id.equals("dc2pc-5769")){name="fst_1216_a1_cmn";hash="7fbc02bc2b9634d376c7771c43c2d7c8e12ce46311347316353b5db7f87feabd";}
         // D.C.II (2006) ships Shift_JIS prose; the 蘑菇 V9.9 patch rewrites the same script verbatim in GBK.
         else if(profile.id.equals("dc2-3363")){name="fst_1216_a1_cmn";hash="780e8c2ec5fadae3c9cc61364e92aad7cc14d8d50c1d9cd23f187ae86f613e46";}
+        else if(profile.id.equals("dc2sc-3b69")){name="aft_0314_a1_otm";hash="d9448ae50a86cc176701ca115eeb1f1b98704d6dae059fd7015773e7f9b0223e";}
         else if(profile.id.equals("dcpc-2063")){name="0223A_F01";hash="69b250bc06c5150cba7d925920523adb14124d95d41f5dc2407d500d45036df1";}
         else if(profile.id.equals("dc3wy-a09f")){name="cn_Data/wy_1_0706_a1_rcc";hash="f6b0cbf77be63924c2170b8d56f360cdba4961e4640726613fcb16f874eb4dc0";}
         else if(profile.id.equals("dc3pp-9872")){name="cn_Data/dc3pp_0518_free_aoi";hash="273132e95d6cd6a3e73aad0fae11dac7cd71df6d27d44315c3ec67501c268aa4";}

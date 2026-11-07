@@ -1,4 +1,5 @@
 """Build a versioned opcode/handler specification from locked PE tables and REA evidence."""
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -14,7 +15,9 @@ PC={
  'dcpc-2063':dict(exe=Path('D:/gal/D.C.P.C【无密码】/D.C.P.C/DCPCDVD.EXE'),key='dcpc',sha='5f84e2fdd6f442509fd0e6a00ff8aa20f5c23b0afc43c811bb615598d4c8b67a',entry=0x4125b0,fetch=0x4125f4,site=0x412654,table=0x415754,count=99,loader=0x411670,read=0x411910,write=0x411b10,fallback=0x41570f),
  'dc2pc-5769':dict(exe=Path('D:/gal/D.C.II P.C/dc2pc.EXE'),key='dc2pc',sha='f0b3be701f3c8c94dad143db927d824d398325be57a5da7514556f862f505e46',entry=0x41c530,fetch=0x41c57b,site=0x41c640,table=0x41f480,count=105,loader=0x41a050,read=0x41a300,write=0x41a5c0,fallback=0x41f434),
 }
-EXES={'dc3dd-a5a8':Path('D:/gal/DC3DD/DC3DD.EXE'),'dc2dm-9d72':Path('D:/gal/DC2DM/DC2DM.EXE')}
+EXES={'dc3dd-a5a8':Path('D:/gal/DC3DD/DC3DD.EXE'),'dc2dm-9d72':Path('D:/gal/DC2DM/DC2DM.EXE'),
+      'dc2sc-3b69':Path('D:/gal/D.C.II Spring Celebration/D.C.II S.C/dc2sc_CHS.exe'),
+      'dc2fl-9c69':Path('D:/gal/DC2FIL/DC2FL.exe')}
 
 NOTES={
  'dm.scene.character_overlay':'DM 42FAEE 设置/清除角色附属图。412504、432488、432699 调用 428990：先移除附属图的 _B 和色调标记，再继承人物资源的 _B 近景后缀及 @/* 色调，保留附属图归档名；更换人物而保留附属图时也重新匹配。',
@@ -98,9 +101,15 @@ LOGICAL={
 }
 
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--profile',action='append',help='Regenerate only these profiles, preserving previously generated entries for the others')
+    args=parser.parse_args();wanted=set(args.profile or [])
+    if wanted-set(PC)-set(EXES):parser.error('No locked native table source for '+', '.join(sorted(wanted-set(PC)-set(EXES))))
     sem=json.loads((ROOT/'profiles/mes-semantics.json').read_text(encoding='utf-8'))
     framing={p['id']:p for p in profiles()};result={'schema':1,'title':'D.C. Engine VM Specification','scope':'DC1/2/3; version-specific native evidence, not one universal opcode numbering','profiles':{}}
+    if wanted:result=json.loads((ROOT/'profiles/vm-specification.json').read_text(encoding='utf-8'))
     for pid,p in sem['profiles'].items():
+        if wanted and pid not in wanted:continue
         if pid in PC:
             cfg=PC[pid];exe=cfg['exe'];sha=cfg['sha'];count=cfg['count'];table=cfg['table'];fallback=cfg['fallback'];indices=list(range(count))
             ev=json.loads((ROOT/f"build/pc-port/rea-{cfg['key']}-function.json").read_text(encoding='utf-8-sig'))
@@ -114,7 +123,7 @@ def main():
             if loader['subject']['digest']['sha256']!=sha or f"FUN_{cfg['loader']:08x}(" not in loader['normalized_result']:raise ValueError('REA loader mismatch')
             evidence['loader_evidence_id']=loader['evidence_id']
         elif pid in EXES:
-            exe=EXES[pid];sha=p['native_sha256'];count=p['dispatch_count'];table=int(p['addresses']['dispatch_table'],16);fallback=int(p['addresses']['fallback'],16);indices=list(range(count));evidence={'provider':'pefile + Capstone, previous static evidence','addresses':p['addresses']}
+            exe=EXES[pid];sha=p['native_sha256'];count=p['dispatch_count'];table=int(p['addresses']['dispatch_table'],16);fallback=int(p['addresses']['fallback'],16);indices=list(range(count));evidence={'provider':'pefile + Capstone, version-scoped static evidence','addresses':p['addresses'],'semantic_evidence':p.get('source_evidence')}
         else:continue
         raw=exe.read_bytes()
         if hashlib.sha256(raw).hexdigest()!=sha:raise ValueError('Source SHA mismatch '+pid)
@@ -125,7 +134,7 @@ def main():
             operation=p['opcodes'].get(f'0x{op:02X}','unknown')
             shape=next((kind for kind,lo,hi in framing[pid]['ranges'] if lo<=op<=hi),'unknown')
             description=NOTES.get(operation,sem['operations'].get(operation,{}).get('description','需继续核对参数及宿主副作用。'))
-            status='unknown' if operation=='unknown' else 'unimplemented' if operation in ['pc.external'] else 'partial_binding'
+            status='unknown' if operation in ['unknown','native.unmodelled'] else 'unimplemented' if operation in ['pc.external'] else 'partial_binding'
             if operation in ['variable.update','variable.copy','variable.sum_list','variable.add_variable','branch.compare','arguments.extend','label.named','block.marker']:status='reviewed_primitive'
             logical=LOGICAL.get(operation)
             rows.append({'opcode':f'0x{op:02X}','handler_va':f'0x{handler:08X}','args':shape,'logical_operands':logical,'operation':operation,'behavior':description,'semantic_status':status,'shared_fallback':handler==fallback})
@@ -136,7 +145,8 @@ def main():
       '这是工作规范，分发表已定位不等于所有 handler 已完整实现。原 EXE 没有运行。`reviewed_primitive` 表示已核对的基本子规则；`partial_binding` 仍可能缺少宿主副作用；`unknown` 和 `unimplemented` 不得按 NOP 执行。',
       '', '## 证据与坐标','',
       'PC1/2 使用 REA 6.8.0 + Ghidra 12.1.4 静态分析；表中每一个 handler 地址又与原 PE 的 u32 跳转表以及 REA 恢复出的 switch 后继集合交叉核对。REA 原始报告在 `build/pc-port/rea-*.json`，不属于游戏源码。DD/DM 沿用之前已锁定哈希的静态证据，不伪称本轮 REA 重新验证。',
-      '', 'PC1/2 MES 头是 u32 count + count 个 u32 + 两字节版本；文件代码起点=4+4*count+2。原 EXE 的 PC 是从版本标记所在缓冲区开始的偏移，故文件偏移=4+4*count+原生 PC。地址均为相应 SHA-256 对应 EXE 的首选 VA，不能直接套在汉化 EXE 或其他版本上。',
+      '', 'SC/FL 的新增条目使用各自已锁定哈希的 EXE、REA 静态分派证据和原 PE 表。`--profile` 仅重建指定条目，其他已生成条目保留；不会把本次未重新读取的 EXE 说成本次重新验证。',
+      '', 'PC1/2、SC/FL MES 头是 u32 count + count 个 u32 + 两字节版本；文件代码起点=4+4*count+2。原 EXE 的 PC 是从版本标记所在缓冲区开始的偏移，故文件偏移=4+4*count+原生 PC。地址均为相应 SHA-256 对应 EXE 的首选 VA，不能直接套在汉化 EXE 或其他版本上。',
       '', '## 取指与复合记录','',
       '- `u8x2`: opcode + 两个字节；`u8str`: opcode + u8 + NUL 字符串；`string`: opcode + NUL 字符串；`encoded_string`: 字符串每字节加 0x20 后按版本后处理；`u16x4`: opcode + 四个 LE 16 位字，数值指令按 i16 解释。',
       '- PC1 004125F4 使用 MOVSX，00412618 有符号比较把 0x80..0xFF 按三字节记录取出；0041264A 无符号越界分发到 0041570F，继续执行下一记录。此行为已复现；没有将任意未知指令当 NOP。PC2 高位字节仍未开放。PC1 首个 STOP 后不再解码；本地 PC2 两个脚本有 STOP 后的 `ad` 尾巴。',

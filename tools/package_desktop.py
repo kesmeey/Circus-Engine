@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--jdk', type=Path, required=True)
     parser.add_argument('--ffmpeg', type=Path, required=True)
-    parser.add_argument('--version', default='0.14.7-common-workflows-dev')
+    parser.add_argument('--version', default='0.14.8-sc-fl-dev')
     args = parser.parse_args()
     if any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_' for c in args.version):
         raise SystemExit('Invalid version')
@@ -47,7 +47,7 @@ start "DC Runtime" "%~dp0jre\bin\javaw.exe" -Xmx1536m "-Ddc.ffmpeg=%~dp0bin\ffmp
 
 双击 DC Runtime.cmd，选择包含 AdvData 的游戏目录。
 也可以把游戏目录拖到 DC Runtime.cmd 上。无需安装 Python、Java 或 Android SDK。
-非 Unity 入口包括 DCPC、DC2PC、DC2、DC2DM、DD、WY、PP。
+非 Unity 入口包括 DCPC、DC2PC、DC2、DC2SC、DC2FL、DC2DM、DD、WY、PP。
 读取原版 START/MES，使用原版标题、系统脚本、图片和声音；包内不含游戏数据。
 
 左键 / Enter：推进；右键 / Esc：原版菜单或返回。PC1 空格：隐藏/显示正文；选择画面请用鼠标点选。
@@ -64,6 +64,9 @@ DC2桌面菜单「存档 → 导入原版剧情存档…」可转换普通ADV文
 
 本版本优先覆盖主要功能和大多数常见流程，允许延期少量难处理的版本或边界。
 当前不把约80%的工程目标当作精确完成率，实际范围见 COMMON_WORKFLOWS.md。
+SC/FL采用各自原生证据和独立宿主；SC本地Coco剧本有一份截断文件，对应分支仍会明确报错。
+FL目录遗留cg_etc.mes的6C69标记不被本作原生loader接受，运行时也不会将它别名为9C69。
+PC2首次已读缓存和角色坐标修正后，拒绝旧执行身份的PC2剧情快照；独立系统进度保留另行迁移。
 已按各 EXE 独立证据重写脚本取指、变量布局及部分版本专属音频、UI、系统指令。
 PC1新剧情存档以P1CS封装CVS2/rev8当前会话与独立候选；DC2用D2CS封装当前会话和独立闹钟/存档上下文；其他家族使用CVS2/rev8。旧CVS1或不同执行合同的旧快照明确拒绝读取并保留旧文件。
 独立系统进度使用自己的迁移规则，不能用旧剧情槽的限制推断系统进度也不可用。

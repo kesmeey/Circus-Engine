@@ -256,6 +256,7 @@ public final class CoreTests {
         assertions+=Dc2SystemTests.run();
         assertions+=NativeVariableTests.run();
         assertions+=NativeGameVersionTests.run();
+        assertions+=ScHostTests.run()+FlHostTests.run()+FlCreditsTests.run()+FlActorMotionTests.run()+FlCompositionTests.run()+Pc2ActorTests.run()+PcNativeStateTests.run();
         assertions+=PpStateTests.run()+PpSystem206Tests.run();
         assertions+=NativeCursorTests.run();
         assertions+=SnapshotContractTests.run();

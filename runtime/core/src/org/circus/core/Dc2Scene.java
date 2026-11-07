@@ -47,9 +47,14 @@ public final class Dc2Scene {
         void save(DataOutput o)throws IOException{for(String s:slots)o.writeUTF(s);for(int[] a:actors)for(int v:a)o.writeInt(v);Dc2Ui.saveQuads(o,quads);o.writeInt(x);o.writeInt(y);}
         void load(DataInput i)throws IOException{for(int n=0;n<28;n++)slots[n]=i.readUTF();for(int[] a:actors)for(int n=0;n<6;n++)a[n]=i.readInt();quads=Dc2Ui.loadQuads(i,2048);x=i.readInt();y=i.readInt();}
     }
+    /** Native PC2-family stage coordinates are not the displayed actor state.
+     * Project the host-owned live fields before any capture can observe a frame. */
+    public interface ActorProjection {void project(Frame frame);}
+    private ActorProjection actorProjection;
+    public void bindActorProjection(ActorProjection projection){if(projection==null||actorProjection!=null&&actorProjection!=projection)throw new IllegalArgumentException("Actor projection owner already bound");actorProjection=projection;}
     public void publish(Dc2Ui ui,int kind,long duration)throws IOException {
         nativeMotion=null;
-        previous=shown;Frame f=new Frame();f.slots=slots.clone();for(int n=0;n<4;n++)f.actors[n]=character(n);f.quads=Dc2Ui.copyQuads(ui.quads);f.x=backgroundX();f.y=backgroundY();shown=f;mode=0;
+        previous=shown;Frame f=new Frame();f.slots=slots.clone();for(int n=0;n<4;n++)f.actors[n]=character(n);f.quads=Dc2Ui.copyQuads(ui.quads);f.x=backgroundX();f.y=backgroundY();if(actorProjection!=null)actorProjection.project(f);shown=f;mode=0;
         transitionKind=kind;transitionDuration=transitionRemaining=duration;transitionSerial++;revision++;
     }
     public long scrollClock;

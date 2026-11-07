@@ -100,10 +100,10 @@ public final class CompatibilityTests {
         MesVm highBlock=machine(script(0x9d72,new byte[]{0x1d,0,(byte)200},new byte[]{0x1d,1,(byte)200}),new Host());check(highBlock.run(100)==MesVm.Status.FAULT,"DM unconditional block operand is unsigned but scanner marker is signed");
         MesVm unknown=machine(script(0x9d72,word(0x70,0,0,0,0)),new Host());check(unknown.run(100)==MesVm.Status.FAULT&&unknown.offset()==7,"unknown DM instructions stop at original PC");
         Storage files=new Storage();files.files.put("AdvData/MES/START.MES",script(0x9d72));files.files.put("AdvData/MES/main.mes",script(0x9d72));
-        GameVersion version=GameVersion.detect(new GameResources(files));check(version.profileId.equals(dm.id)&&version.scriptCount==2&&files.maxRead<=8&&files.wholeReads==0,"collection detection uses small reads and ignores path case");
+        GameVersion version=GameVersion.inspectCollection(new GameResources(files));check(version.profileId.equals(dm.id)&&version.scriptCount==2&&files.maxRead<=8&&files.wholeReads==0,"collection detection uses small reads and ignores path case");
         check(files.readersOpened==2&&files.readersClosed==2,"Collection admission opens and closes one reader per script");
-        files.files.put("AdvData/MES/third.mes",script(0xa5a8));reject(()->GameVersion.detect(new GameResources(files)),"mixed collection rejected even with a DM majority");files.files.remove("AdvData/MES/third.mes");
-        files.files.put("AdvData/MES/main.mes",script(0x1111));reject(()->GameVersion.detect(new GameResources(files)),"unknown member is not silently ignored");
+        files.files.put("AdvData/MES/third.mes",script(0xa5a8));reject(()->GameVersion.inspectCollection(new GameResources(files)),"mixed collection rejected even with a DM majority");files.files.remove("AdvData/MES/third.mes");
+        files.files.put("AdvData/MES/main.mes",script(0x1111));reject(()->GameVersion.inspectCollection(new GameResources(files)),"unknown member is not silently ignored");
         files.files.remove("AdvData/MES/main.mes");files.files.put("AdvData/MES/START.MES",new byte[]{0,0,0,0,0x5d,0,0,0});
         GameVersion early=GameVersion.detect(new GameResources(files));check(early.profileId.equals("dcxx-005d"),"early single-byte framing can be identified separately");reject(()->early.profile(),"framing knowledge does not grant runtime compatibility");
         files.files.put("AdvData/MES/START.MES",new byte[]{1,0,0,0,0,0,0,0,0x69,0x6e,0x72,(byte)0x9d,0,0,0,0});

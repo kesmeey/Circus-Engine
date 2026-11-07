@@ -15,8 +15,8 @@ public final class PcNativeProgressTests {
             public byte[] read(String path,int limit){return new byte[20];}
             public Archive.Source source(String path){return new Archive.Source(){public long size(){return 20;}public byte[] read(long at,int n)throws IOException{Binary.range(at,n,20);return new byte[n];}};}
         });
-        PcHost result=Pc1TestDefaults.bind(new PcHost(new CircusResources(files,Profiles.get(profile)),TextCodec.identity()));
-        result.attach(new Variables(result,result.second?Variables.Model.PC_WIDE:Variables.Model.PC_BYTE));return result;
+        PcHost result=Pc1TestDefaults.bind((PcHost)Dc2Host.create(new CircusResources(files,Profiles.get(profile)),TextCodec.identity()));
+        result.attach(new Variables(result,result.resources.profile.variableModel));return result;
     }
     private static byte[] persistent(PcHost host)throws IOException{ByteArrayOutputStream bytes=new ByteArrayOutputStream();host.savePersistent(new DataOutputStream(bytes));return bytes.toByteArray();}
     public static int run()throws Exception{
@@ -43,8 +43,9 @@ public final class PcNativeProgressTests {
         check(progress.profileId.equals(id)&&progress.sourceSummary.contains("3312"),"Parsed source identifies supported layout");
         PcHost target=host(id);target.setNativeNames("Own","Name");target.write(99,8,4);target.write(99,13,3);
         target.write(100,1,1);target.write(100,20,7);target.write(100,56,9);target.write(100,57,5);target.write(100,60,1);target.write(100,99,17);
-        target.write(97,45,1);target.write(97,46,1);target.write(97,1500,1);target.write(98,88,1);target.write(98,89,1);target.write(98,1500,1);
-        target.write(95,1,0);target.write(90,7,90);target.variables.write(3,4,123);target.readCheckpoints.add("local:42");target.availableSaves.add(6);
+        target.write(97,45,1);target.write(97,46,1);target.write(97,1498,1);target.write(98,88,1);target.write(98,89,1);target.write(98,1498,1);
+        reject(()->target.write(97,1500,1),"PC2 native CG extent rejects index1500");reject(()->target.read(98,1500),"PC2 native seen extent rejects index1500");
+        target.write(95,1,37);target.write(95,99,55);reject(()->target.write(95,100,1),"PC2 native95 tail has exactly100 reviewed bytes");target.write(90,7,90);target.variables.write(3,4,123);target.readCheckpoints.add("local:42");target.availableSaves.add(6);
         byte[] before=persistent(target);NativeProgress.Summary preview=progress.preview(target);
         check(preview.completion==22&&preview.cg==2&&preview.scenes==2&&preview.total==26,"Preview reports only additions, not existing unlocks");
         check(Arrays.equals(before,persistent(target)),"Preview leaves persistent data byte-for-byte unchanged");
@@ -52,9 +53,9 @@ public final class PcNativeProgressTests {
         check(applied.total==preview.total&&progress.preview(target).total==0,"Apply matches preview and records progress despite caller modifying source bytes");
         for(int n:completion)check(target.read(100,n)==1,"Reviewed completion flag imported: "+n);
         check(target.read(97,0)==1&&target.read(97,1499)==1&&target.read(98,0)==1&&target.read(98,1499)==1,"First and last native CG/scene entries use independent exact offsets");
-        check(target.read(97,46)==1&&target.read(98,89)==1&&target.read(97,1500)==1&&target.read(98,1500)==1,"Existing phone-only unlocks and wider host tail survive import");
+        check(target.read(97,46)==1&&target.read(98,89)==1&&target.read(97,1498)==1&&target.read(98,1498)==1,"Existing native unlocks absent from imported source survive import");
         check(target.read(100,20)==7&&target.read(100,56)==9&&target.read(100,57)==5&&target.read(100,60)==1&&target.read(100,99)==17,"Unreviewed globals, title setting, temporary state and voice mute are preserved");
-        check(target.familyName.equals("Own")&&target.givenName.equals("Name")&&target.read(99,8)==4&&target.read(99,13)==3&&target.read(95,1)==0&&target.read(90,7)==90,"Phone names, settings, voice flags and scratch are preserved");
+        check(target.familyName.equals("Own")&&target.givenName.equals("Name")&&target.read(99,8)==4&&target.read(99,13)==3&&target.read(95,1)==37&&target.read(95,99)==55&&target.read(90,7)==90,"Phone names, settings, native95 bytes and scratch are preserved");
         check(target.variables.read(3,4)==123&&target.readCheckpoints.contains("local:42")&&target.availableSaves.equals(Collections.singleton(6)),"Import does not replace story variables, read text or slot availability");
         byte[] merged=persistent(target);check(progress.apply(target).total==0&&Arrays.equals(merged,persistent(target)),"Repeated import is byte-for-byte idempotent");
         PcHost reloaded=host(id);reloaded.loadPersistent(new DataInputStream(new ByteArrayInputStream(merged)));

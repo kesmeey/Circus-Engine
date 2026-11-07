@@ -4,6 +4,13 @@ package org.circus.core;
 public final class PcActorLayout {
     public final int x,y,width,height;
     private PcActorLayout(int x,int y,int width,int height){this.x=x;this.y=y;this.width=width;this.height=height;}
+    /** SC418740 has no 100% close-up anchor correction. Raw source images
+     * are scaled once; the original pre-scaled-handle cache is not a second zoom. */
+    public static PcActorLayout spring(int[] actor,int width,int height){
+        int zoom=actor[2],x=actor[0],y=actor[1];
+        if(zoom!=100){x+=actor[3]-(int)((long)actor[3]*zoom/100);y+=actor[4]-(int)((long)actor[4]*zoom/100);width=(int)((long)width*zoom/100);height=(int)((long)height*zoom/100);}
+        return new PcActorLayout(x,y,width,height);
+    }
     public static PcActorLayout dc2pc(int[] actor,int width,int height){
         int zoom=actor[2],x=actor[0],y=actor[1];
         if(zoom==100){

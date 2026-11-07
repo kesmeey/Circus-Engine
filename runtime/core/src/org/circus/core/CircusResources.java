@@ -84,6 +84,11 @@ public class CircusResources {
         }
         return new Crx.Image(source.x,source.y,source.width,source.height,source.bpp,pixels,source.palette);
     }
+    /** SC4139D0/425150 replaces the last filename extension with pcm. */
+    private String looseAudioPath(String path){
+        if(profile.id.equals("dc2sc-3b69")){int dot=path.lastIndexOf('.'),slash=path.lastIndexOf('/');return "AdvData/"+(dot>slash?path.substring(0,dot):path)+".PCM";}
+        return "AdvData/"+extension(path,".PCM");
+    }
     public Xpcm audio(String reference)throws IOException {
         if(reference.startsWith("mix:"))return MixedVoice.decode(this,reference);
         String path=Binary.nativeResourcePath(reference);
@@ -95,7 +100,7 @@ public class CircusResources {
             }
             Archive a=files.archive(archive);return Xpcm.decode(a.read(archiveEntry(archive,entry)));
         }
-        return files.audio("AdvData/"+extension(path,".PCM"));
+        return files.audio(looseAudioPath(path));
     }
     /** Playback export keeps long native PCM tracks out of the Java heap. */
     public void writeAudio(String reference,OutputStream out)throws IOException {
@@ -113,7 +118,7 @@ public class CircusResources {
             }
             Archive a=files.archive(archive);Xpcm.write(a.source(archiveEntry(archive,extension(raw,".PCM"))),out);return;
         }
-        Xpcm.write(files.source("AdvData/"+extension(path,".PCM")),out);
+        Xpcm.write(files.source(looseAudioPath(path)),out);
     }
     public MesVm.Library scripts()throws IOException{
         MesVm.Library original=files.scripts("AdvData/MES",profile);

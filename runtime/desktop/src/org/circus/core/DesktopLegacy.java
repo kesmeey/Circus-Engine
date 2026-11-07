@@ -21,6 +21,13 @@ public final class DesktopLegacy extends DesktopEngine {
     private static final class MotionRaster {int count,backgroundWidth,backgroundHeight;int[] pixels,prepared,background;boolean backgroundLoaded;BufferedImage image;}
     private static final class ActorChangeRaster {Dc2ActorChange owner;long generation;int count;int[] pixels,target;BufferedImage image;}
     private ActorChangeRaster actorChangeRaster;
+    private static final class FlCreditsRaster {FlCredits owner;long generation;int consumed;int[] pixels;}
+    private FlCreditsRaster flCreditsRaster;
+    private static final class FlCompositionRaster {FlComposition owner;long generation;int consumed;int[] pixels,target,prepared;}
+    private FlCompositionRaster flCompositionRaster;
+    private int flCaptureMask=-1;
+    private boolean flCaptureMessageText=true,flCaptureHideActors;
+    private Crx.Image flLongCredits;private String flLongCreditsName="";
     private final Map<Dc2Motion,MotionRaster> motionRasters=new LinkedHashMap<Dc2Motion,MotionRaster>(4,.75f,true){protected boolean removeEldestEntry(Map.Entry<Dc2Motion,MotionRaster> entry){return size()>4;}};
     private long textClock,textTicket=-1;
     /** Newest story line; the system menu clears {@code body}, so a save made from SAVE.mes still needs it. */
@@ -40,20 +47,27 @@ public final class DesktopLegacy extends DesktopEngine {
         nativeFiles=data.profileId.equals("dcpc-2063")?new DesktopNativeFiles(saveDirectory):null;
         final Path progress=saveDirectory.resolve("progress.dat");
         session=new Dc2Session(data,codec,h->{
-            if(audit&&data.profileId.equals("dc2-3363")&&System.getProperty("dc.auditHour")!=null)((PcHost)h).dc2LocalHour=()->Integer.parseInt(System.getProperty("dc.auditHour"));
+            if(audit&&PcHost.supports(data.profile)&&!data.profileId.equals("dcpc-2063")&&System.getProperty("dc.auditHour")!=null)((PcHost)h).dc2LocalHour=()->Integer.parseInt(System.getProperty("dc.auditHour"));
             if(nativeFiles!=null)((PcHost)h).bindNativeSettingsIo(nativeFiles,"system.dat");
             if(!audit&&Files.exists(progress))try(DataInputStream in=new DataInputStream(Files.newInputStream(progress))){h.loadPersistent(in);}
             // Native bank100 persists immediately. Its newest raw file takes
             // precedence over an older portable account saved at another time.
             if(nativeFiles!=null&&!audit&&Files.exists(nativeFiles.directory().resolve("system.dat")))((PcHost)h).reloadNativeSettingsFromBoundIo();
         });captures=new DesktopCaptures(width,height,this::drawCapture);host().captureRenderer=captures;nativeData=PcHost.supports(data.profile)?null:new Dc2NativeData(data,codec);
-        if(data.profileId.equals("dc2-3363")||data.profileId.equals("dcpc-2063"))((PcHost)host()).nativeFrameCapture=this::captureFramebuffer;
+        if(data.profileId.equals("dc2-3363")||data.profileId.equals("dcpc-2063")||data.profileId.equals("dc2fl-9c69"))((PcHost)host()).nativeFrameCapture=this::captureFramebuffer;
+        if(host() instanceof FlHost)((FlHost)host()).compositionCapture=this::captureFlCompositionFrame;
         if(originalDc2())((PcHost)host()).nativeMessageTemplateCapture=this::captureOriginalMessageTemplate;
         if(pc1()!=null)session.pc1CandidateCapture=()->captureSaveMetadata(false).encode();
         if(originalDc2())session.dc2BorrowedCapture=()->captureSaveMetadata(false).encode();
         scanSaves();
     }
     private UiCapture captureFramebuffer()throws IOException{PcHost h=host() instanceof PcHost?(PcHost)host():null;BufferedImage front=originalDc2()&&h.dc2EndingUnderlay!=null?originalCharacterEndingFrame():originalDc2()&&h.dc2CreditsUnderlay!=null?originalCreditsFrame():render();try{return UiCapture.pixels(width,height,front.getRGB(0,0,width,height,null,0,width));}finally{front.flush();}}
+    private UiCapture captureFlCompositionFrame(int mask,boolean messageText,boolean hideActors)throws IOException{
+        int previousMask=flCaptureMask;boolean previousText=flCaptureMessageText,previousActors=flCaptureHideActors;
+        flCaptureMask=mask;flCaptureMessageText=messageText;flCaptureHideActors=hideActors;
+        BufferedImage front=null;try{front=render();return UiCapture.pixels(width,height,front.getRGB(0,0,width,height,null,0,width));}
+        finally{if(front!=null)front.flush();flCaptureMask=previousMask;flCaptureMessageText=previousText;flCaptureHideActors=previousActors;}
+    }
     private Dc2MessageWindow captureOriginalMessageTemplate()throws IOException{return Dc2MessageWindow.capture(host());}
     public Dc2Host host(){return session.host;}
     public MesVm vm(){return session.vm;}
@@ -82,6 +96,8 @@ public final class DesktopLegacy extends DesktopEngine {
     public void scroll(int units)throws IOException{if(pc1()!=null&&pc1().returning())return;if(host().history.active&&!(host() instanceof PcHost)){host().history.scroll(units);host().historyButtons();return;}if(host() instanceof PcHost){PcHost h=(PcHost)host();if(h.gridWaiting&&h.list.active())h.listOffset(h.list.clamp(h.listOffset()+units*h.list.columns,h.grid.size()));}}
     public void click(int x,int y,boolean right)throws Exception {
         Dc2Host h=host();
+        if(h instanceof FlHost&&((FlHost)h).flCredits.active){((FlHost)h).endingInput(right?2:1);return;}
+        if(h instanceof FlHost&&((FlHost)h).flComposition.active)return;
         if(originalDc2()&&((PcHost)h).dc2CharacterEnding.active){Dc2CharacterEnding ending=((PcHost)h).dc2CharacterEnding;ending.input(right?2:1,vm().variables.read(100,ending.clearIndex()));return;}
         if(originalDc2()&&((PcHost)h).dc2Credits.active){((PcHost)h).dc2Credits.input(right?2:1,vm().variables.read(100,59));return;}
         if(pc1()!=null&&pc1().returning())return;
@@ -170,6 +186,7 @@ public final class DesktopLegacy extends DesktopEngine {
         toolbar=auto=rapid=false;return true;
     }
     @Override public boolean modalKey(int code)throws IOException{
+        if(host() instanceof FlHost&&(((FlHost)host()).flCredits.active||((FlHost)host()).flComposition.active)&&(code==KeyEvent.VK_ENTER||code==KeyEvent.VK_SPACE||code==KeyEvent.VK_ESCAPE))return true;
         if(originalDc2()&&(((PcHost)host()).dc2CharacterEnding.active||((PcHost)host()).dc2Credits.active)&&(code==KeyEvent.VK_ENTER||code==KeyEvent.VK_SPACE||code==KeyEvent.VK_ESCAPE))return true;
         Pc1Runtime nativeText=pc1();if(nativeText!=null&&nativeText.returning())return true;if(nativeText==null||nativeText.waitKind()!=7&&nativeText.waitKind()!=9)return false;
         if(code==KeyEvent.VK_PAGE_UP){nativeText.historyPrevious();auto=rapid=false;return true;}
@@ -291,6 +308,7 @@ public final class DesktopLegacy extends DesktopEngine {
         scene(g,f,f.x,f.y);
     }
     private void scene(Graphics2D g,Dc2Scene.Frame f,int x,int y)throws IOException {
+        if(host() instanceof FlHost&&!((FlHost)host()).fifthCharacter.isEmpty())throw new IOException("Unimplemented nonempty FL fifth actor renderer");
         boolean original=resources.profileId.equals("dc2-3363");
         if(original){
             BufferedImage composed=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D cg=composed.createGraphics();
@@ -298,7 +316,7 @@ public final class DesktopLegacy extends DesktopEngine {
             g.drawImage(composed,0,0,null);return;
         }
         g.setColor(Color.BLACK);g.fillRect(0,0,width,height);at(g,f.slots[1],original?x:-x,original?y:-y);
-        boolean pc2=resources.profileId.equals("dc2pc-5769");
+        boolean pc2=host() instanceof PcHost&&((PcHost)host()).second;
         actors(g,f,pc2);drawEffects(g);for(Dc2Ui.Quad q:f.quads)quad(g,q,f.slots,false);
     }
     private void nativeParticles(BufferedImage canvas,int layer)throws IOException{
@@ -307,9 +325,10 @@ public final class DesktopLegacy extends DesktopEngine {
         int[] pixels=canvas.getRGB(0,0,width,height,null,0,width);value.paint(pixels,width,height,atlas.raw.argb(),atlas.raw.width,atlas.raw.height,atlas.raw.bpp,layer);canvas.setRGB(0,0,width,height,pixels,0,width);
     }
     private void actors(Graphics2D g,Dc2Scene.Frame f,boolean pc2)throws IOException{
+        if(flCaptureHideActors)return;
         // PC2 41A950 visits actor slots 0..3, so a later close-up covers earlier actors.
         for(int order=0;order<4;order++){int n=pc2?order:3-order;int[] a=f.actors[n];for(int slot:new int[]{n+2,n+6}){String name=slot==n+6?resources.characterOverlay(f.slots[n+2],f.slots[slot]):f.slots[slot];Picture p=picture(name);if(p==null)continue;
-            if(pc2){PcActorLayout r=PcActorLayout.dc2pc(a,p.raw.width,p.raw.height);g.drawImage(p.image,r.x,r.y,r.x+r.width,r.y+r.height,0,0,p.raw.width,p.raw.height,null);}
+            if(pc2){PcActorLayout r=resources.profileId.equals("dc2sc-3b69")?PcActorLayout.spring(a,p.raw.width,p.raw.height):PcActorLayout.dc2pc(a,p.raw.width,p.raw.height);g.drawImage(p.image,r.x,r.y,r.x+r.width,r.y+r.height,0,0,p.raw.width,p.raw.height,null);}
             else{AffineTransform tr=g.getTransform();g.translate(a[0]+a[3],a[1]+a[4]);g.scale(a[2]/100.0,a[2]/100.0);g.drawImage(p.image,p.raw.x-a[3],p.raw.y-a[4],null);g.setTransform(tr);}
         }}
     }
@@ -411,6 +430,8 @@ public final class DesktopLegacy extends DesktopEngine {
         if(pc1()!=null){UiCapture.Pixels front=pc1().returnPixels();if(front!=null){if(front.width!=width||front.height!=height)throw new IOException("PC1 return framebuffer canvas mismatch");BufferedImage copy=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);copy.setRGB(0,0,width,height,front.argb,0,width);return copy;}}
         BufferedImage result=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D g=result.createGraphics();try{
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);Dc2Host h=host();
+            if(flCaptureMask<0&&h instanceof FlHost&&((FlHost)h).endingVisible()){drawFlCredits(result,(FlHost)h);return result;}else if(flCaptureMask<0){flCreditsRaster=null;if(flLongCredits!=null){flLongCredits=null;flLongCreditsName="";}}
+            if(flCaptureMask<0&&h instanceof FlHost&&((FlHost)h).compositionVisible()){drawFlComposition(result,((FlHost)h).flComposition);return result;}else if(flCaptureMask<0)flCompositionRaster=null;
             if(originalDc2()&&((PcHost)h).dc2EndingUnderlay!=null){BufferedImage ending=originalCharacterEndingFrame();try{g.drawImage(ending,0,0,null);}finally{ending.flush();}return result;}
             if(originalDc2()&&((PcHost)h).dc2CreditsUnderlay!=null){drawOriginalCredits(g);return result;}
             if(originalDc2()&&!((PcHost)h).dc2Map.active&&((PcHost)h).actorChangeVisible()){g.drawImage(actorChange(((PcHost)h).dc2ActorChange),0,0,null);return result;}
@@ -419,7 +440,7 @@ public final class DesktopLegacy extends DesktopEngine {
             if(h instanceof PcHost&&(((PcHost)h).dc2Map.active||mapBackdrop)){drawDc2Map(g,(PcHost)h);if(((PcHost)h).dc2Map.active)return result;}
             else{if(h instanceof PcHost&&((PcHost)h).frozenOriginalBatch()!=null){g.drawImage(captures.resolve(((PcHost)h).frozenOriginalBatch()),0,0,null);return result;}if(h instanceof PcHost&&((PcHost)h).map.active){drawMap(g,(PcHost)h);return result;}if(h.scene.nativeMotion!=null){g.drawImage(motion(h.scene.nativeMotion),0,0,null);if(originalDc2()&&!h.scene.nativeMotion.prepareOnly)return result;}else scene(g,h.scene.shown);if(h instanceof PcHost&&((PcHost)h).sceneCommandDeferred())return result;drawTransition(g);}
             if(h instanceof PcHost&&((PcHost)h).pcCredits.active){PcCredits c=((PcHost)h).pcCredits;int first=(int)c.scroll()/c.stripHeight();g.setColor(Color.BLACK);g.fillRect(0,0,width,height);for(int n=first;n<=Math.min(c.lastStrip(),first+1);n++)at(g,c.image(n),0,(int)(n*c.stripHeight()-c.scroll()));return result;}if(h.credits.active()){drawCredits(g);return result;}
-            if(!mapBackdrop&&!h.body.isEmpty()&&!hidden){
+            if(!mapBackdrop&&!h.body.isEmpty()&&!hidden&&(flCaptureMask<0||(flCaptureMask&16)!=0&&flCaptureMessageText)){
                 boolean nativePc1=h instanceof PcHost&&((PcHost)h).pc1!=null;
                 Dc2Ui.Quad body=null,name=null;if(originalDc2())drawOriginalMessageWindow(result,Dc2MessageWindow.capture(h));for(Dc2Ui.Quad q:h.ui.quadTemplates.get(h.messageMode()==0?1:4)){if(!originalDc2()&&(!nativePc1||q.type!=2))quad(g,q,h.scene.slots,false);if(visibleQuad(q)&&q.type==2&&q.width>2)body=q;}
                 if(!h.speaker.isEmpty()){if(originalDc2())drawOriginalMessageWindow(result,Dc2MessageWindow.capture(h,h.messageMode()==0?2:5));}if(!h.speaker.isEmpty())for(Dc2Ui.Quad q:h.ui.quadTemplates.get(h.messageMode()==0?2:5)){if(!originalDc2()&&(!nativePc1||q.type!=2))quad(g,q,h.scene.slots,false);if(visibleQuad(q)&&q.type==2&&q.width>2)name=q;}
@@ -427,11 +448,9 @@ public final class DesktopLegacy extends DesktopEngine {
                 else{if(name!=null)text(g,h.speaker,name.x,name.y,name.width,name.height,700);if(body!=null)text(g,visibleBody(),body.x,body.y,body.width,body.height,width-40-body.x);for(int n=18;n<=19;n++)at(g,h.scene.shown.slots[n],h.scene.portraitX,h.scene.portraitY);}
             }
             if(h instanceof PcHost&&((PcHost)h).nameInput.active)drawName(g,((PcHost)h).nameInput);
-            java.util.List<Dc2Ui.Button> bs=buttons();int buttonHover=pc1()!=null?h.ui.hovered:hovered,buttonPress=pc1()!=null?h.ui.pressed:pressedButton;for(int n=0;n<bs.size();n++){Dc2Ui.Button b=bs.get(n);boolean slider=false;for(Dc2Ui.Quad q:b.sprites)if(q.state==5)slider=true;for(Dc2Ui.Quad q:b.sprites)if(q.state==0||q.state==99||(q.state==1&&n==buttonHover)||(q.state==2&&!slider&&(b.action.equals(":c")?h.confirmationChecked():n==buttonPress)))quad(g,q,h.scene.slots,true);}
+            java.util.List<Dc2Ui.Button> bs=flCaptureMask>=0&&(flCaptureMask&32)==0?Collections.<Dc2Ui.Button>emptyList():buttons();int buttonHover=pc1()!=null?h.ui.hovered:hovered,buttonPress=pc1()!=null?h.ui.pressed:pressedButton;for(int n=0;n<bs.size();n++){Dc2Ui.Button b=bs.get(n);boolean slider=false;for(Dc2Ui.Quad q:b.sprites)if(q.state==5)slider=true;for(Dc2Ui.Quad q:b.sprites)if(q.state==0||q.state==99||(q.state==1&&n==buttonHover)||(q.state==2&&!slider&&(b.action.equals(":c")?h.confirmationChecked():n==buttonPress)))quad(g,q,h.scene.slots,true);}
             for(Dc2Ui.Button b:bs)drawSlider(g,b);
-            if(h.gridWaiting)drawGrid(g);
-            if(h.history.active&&!(h instanceof PcHost))drawHistory(g);
-            if(h.musicRoom.active)drawMusicRoom(g);
+            if(flCaptureMask<0||(flCaptureMask&32)!=0){if(h.gridWaiting)drawGrid(g);if(h.history.active&&!(h instanceof PcHost))drawHistory(g);if(h.musicRoom.active)drawMusicRoom(g);}
         }finally{g.dispose();}return result;
     }
     private void drawName(Graphics2D g,PcNameInput name)throws IOException{
@@ -455,6 +474,65 @@ public final class DesktopLegacy extends DesktopEngine {
         }
     }
     private BufferedImage opaqueImage(String resource,Picture p){if(p.opaque==null){images.reserve(p.residentBytes()+8L*p.raw.width*p.raw.height);int[] pixels=p.raw.argb();for(int n=0;n<pixels.length;n++)pixels[n]|=0xff000000;p.opaque=new BufferedImage(p.raw.width,p.raw.height,BufferedImage.TYPE_INT_ARGB);p.opaque.setRGB(0,0,p.raw.width,p.raw.height,pixels,0,p.raw.width);images.put(resource,p);}return p.opaque;}
+    private void drawFlCredits(BufferedImage target,FlHost h)throws IOException{
+        FlCredits owner=h.flCredits;FlCreditsRaster raster=flCreditsRaster;
+        if(raster==null||raster.owner!=owner||raster.generation!=owner.generation){
+            if(h.flCreditsUnderlay==null)throw new IOException("FL ending captured front is absent");
+            raster=new FlCreditsRaster();raster.owner=owner;raster.generation=owner.generation;raster.pixels=captures.resolve(h.flCreditsUnderlay).getRGB(0,0,width,height,null,0,width);flCreditsRaster=raster;
+        }
+        java.util.List<FlCredits.Frame> journal=owner.draws();
+        // An opaque full-canvas native write overwrites every earlier pixel.
+        // Skip only that mathematically dead prefix when many timer polls ran
+        // before a repaint; partial/offscreen/unloaded images never qualify.
+        outer:for(int n=journal.size()-1;n>raster.consumed;n--)for(FlCredits.Layer layer:journal.get(n).layers){
+            if(layer.image.isEmpty()||layer.weight16!=16||layer.x>0||layer.y>0)continue;
+            Crx.Image raw=flCreditsImage(layer);
+            if(raw.bpp==24&&(long)layer.x+raw.width>=width&&(long)layer.y+raw.height>=height){raster.consumed=n;break outer;}
+        }
+        while(raster.consumed<journal.size())applyFlCreditsFrame(raster.pixels,journal.get(raster.consumed++));
+        target.setRGB(0,0,width,height,raster.pixels,0,width);
+    }
+    private void drawFlComposition(BufferedImage target,FlComposition owner)throws IOException{
+        FlCompositionRaster raster=flCompositionRaster;
+        if(raster==null||raster.owner!=owner||raster.generation!=owner.generation){
+            if(owner.initial==null||owner.target==null)throw new IOException("FL composition captured surfaces absent");
+            raster=new FlCompositionRaster();raster.owner=owner;raster.generation=owner.generation;
+            raster.pixels=captures.resolve(owner.initial).getRGB(0,0,width,height,null,0,width);
+            raster.target=captures.resolve(owner.target).getRGB(0,0,width,height,null,0,width);
+            if(owner.prepared!=null)raster.prepared=captures.resolve(owner.prepared).getRGB(0,0,width,height,null,0,width);
+            flCompositionRaster=raster;
+        }
+        java.util.List<FlComposition.Draw> journal=owner.draws();
+        while(raster.consumed<journal.size()){
+            FlComposition.Draw draw=journal.get(raster.consumed);int[] source=draw.prepared?raster.prepared:raster.target;
+            if(source==null)throw new IOException("FL composition prepared surface absent");
+            for(int y=draw.top;y<draw.bottom;y++){
+                int start=y*width+draw.left,end=y*width+draw.right;
+                if(draw.kind==FlComposition.FULL)System.arraycopy(source,start,raster.pixels,start,end-start);
+                else for(int at=start;at<end;at++)raster.pixels[at]=blendWindowPixel(raster.pixels[at],source[at],draw.alpha);
+            }
+            raster.consumed++;
+        }
+        target.setRGB(0,0,width,height,raster.pixels,0,width);
+    }
+    /** Native clip setters do not clear the destination. Replay every ordered
+     * BGR draw against the previously produced front, including skipped polls. */
+    private void applyFlCreditsFrame(int[] pixels,FlCredits.Frame frame)throws IOException{
+        for(FlCredits.Layer layer:frame.layers){
+            if(layer.image.isEmpty()||layer.weight16==0)continue;Crx.Image raw=flCreditsImage(layer);
+            if(raw.bpp!=24)continue; // Native40C3A0/40C4B0 only draw format0 BGR.
+            int left=Math.max(0,layer.x),top=Math.max(0,layer.y),right=(int)Math.min((long)width,(long)layer.x+raw.width),bottom=(int)Math.min((long)height,(long)layer.y+raw.height);
+            for(int y=top;y<bottom;y++)for(int x=left;x<right;x++){
+                int at=(y-layer.y)*raw.stride+(x-layer.x)*(raw.bpp/8),color;
+                if(raw.bpp==8)color=raw.palette[raw.pixels[at]&255];else color=((raw.pixels[at+2]&255)<<16)|((raw.pixels[at+1]&255)<<8)|(raw.pixels[at]&255);
+                pixels[y*width+x]=blendWindowPixel(pixels[y*width+x],color,layer.weight16);
+            }
+        }
+    }
+    private Crx.Image flCreditsImage(FlCredits.Layer layer)throws IOException{
+        if(layer.rawClip){if(flLongCredits==null||!flLongCreditsName.equals(layer.image)){flLongCredits=resources.image(layer.image);flLongCreditsName=layer.image;}return flLongCredits;}
+        Picture picture=picture(layer.image);if(picture==null)throw new FileNotFoundException("FL ending image missing: "+layer.image);return picture.raw;
+    }
     private void drawOriginalCredits(Graphics2D g)throws IOException{
         PcHost h=(PcHost)host();if(h.dc2CreditsUnderlay!=null)g.drawImage(captures.resolve(h.dc2CreditsUnderlay),0,0,null);else scene(g,h.scene.shown);
         for(Dc2OriginalCredits.Strip strip:h.dc2Credits.frame()){Picture p=picture(strip.resource);if(p==null)throw new FileNotFoundException("D.C.II credits strip missing: "+strip.resource);g.drawImage(opaqueImage(strip.resource,p),strip.x,strip.y,strip.x+strip.width,strip.y+strip.height,strip.srcX,strip.srcY,strip.srcX+strip.width,strip.srcY+strip.height,null);}

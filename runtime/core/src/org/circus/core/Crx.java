@@ -54,7 +54,7 @@ public final class Crx {
             if(size!=data.length)Binary.range(p,size,data.length);
         }
         byte[] output=new byte[h*stride];
-        if(comp==1)unpackLz(data,p,output);
+        if(comp==1)unpackLz(data,p,output,w*ps,stride,h);
         else try(DataInputStream in=new DataInputStream(new BufferedInputStream(new InflaterInputStream(new ByteArrayInputStream(data,p,data.length-p)),65536))){
             for(int row=0;row<h;row++){
                 int dst=row*stride,previous=dst-stride,line=w*ps;
@@ -79,17 +79,21 @@ public final class Crx {
         if(bpp==32&&mode!=1){int flip=mode==2?0:255;for(int row=0;row<h;row++)for(int col=0;col<w;col++){int q=row*stride+4*col;byte a=output[q],b=output[q+1],g=output[q+2],r=output[q+3];output[q]=b;output[q+1]=g;output[q+2]=r;output[q+3]=(byte)(a^flip);}}
         return new Image(x,y,w,h,bpp,output,palette);
     }
-    private static void unpackLz(byte[] data,int p,byte[] out)throws IOException {
-        byte[] window=new byte[65536];int flags=0,win=0,dst=0;
-        while(dst<out.length){flags>>=1;if((flags&256)==0)flags=Binary.u8(data,p++)|0xff00;
-            if((flags&1)!=0){byte value=(byte)Binary.u8(data,p++);out[dst++]=window[win]=value;win=(win+1)&65535;}
-            else {int control=Binary.u8(data,p++),count,offset;
+    private static void unpackLz(byte[] data,int p,byte[] out,int line,int stride,int height)throws IOException {
+        // PC1 4012E0 flushes width*pixelBytes, then skips bitmap alignment.
+        // Padding is storage, never a decoded byte or part of the LZ history.
+        byte[] window=new byte[65536];int flags=0,win=0,dst=0,total=line*height;
+        while(dst<total){flags>>=1;if((flags&256)==0)flags=Binary.u8(data,p++)|0xff00;
+            boolean literal=(flags&1)!=0;int count=1,src=0;byte value=0;
+            if(literal)value=(byte)Binary.u8(data,p++);
+            else {int control=Binary.u8(data,p++),offset;
                 if(control>=192){offset=((control&3)<<8)|Binary.u8(data,p++);count=4+((control>>2)&15);}
                 else if((control&128)!=0){offset=control&31;count=2+((control>>5)&3);if(offset==0)offset=Binary.u8(data,p++);}
                 else if(control==127){count=2+Binary.u16(data,p);offset=Binary.u16(data,p+2);p+=4;}
                 else {offset=Binary.u16(data,p);p+=2;count=control+4;}
-                int src=win-offset;for(int i=0;i<count&&dst<out.length;i++){byte value=window[src++&65535];out[dst++]=window[win]=value;win=(win+1)&65535;}
+                src=win-offset;
             }
+            for(int i=0;i<count&&dst<total;i++){if(!literal)value=window[src++&65535];out[(dst/line)*stride+dst%line]=value;dst++;window[win]=value;win=(win+1)&65535;}
         }
     }
 }

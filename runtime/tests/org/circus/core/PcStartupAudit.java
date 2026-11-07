@@ -20,7 +20,7 @@ public final class PcStartupAudit {
             if(!h.body.isEmpty())for(int t=1;t<=3;t++)for(Dc2Ui.Quad q:h.ui.quadTemplates.get(t))if(q.type==0)needed.add(h.scene.slots[q.slot()]);
             for(String name:needed)if(!name.isEmpty()&&decoded.add(name)){Crx.Image image=data.image(name);image.argb();System.out.println("IMAGE "+name+" "+image.width+"x"+image.height);}
             if(h.ui.waiting){List<String> choices=new ArrayList<>();for(Dc2Ui.Button b:h.ui.buttons)choices.add(b.action);System.out.println("MENU "+m.scriptName()+" @"+Integer.toHexString(m.offset())+" "+choices);
-                String target=m.scriptName().equalsIgnoreCase("START")?(((PcHost)h).second?"03":"window"):action<args.length?args[action++]:null;
+                String target=m.scriptName().equalsIgnoreCase("START")?(choices.contains("03")?"03":"window"):action<args.length?args[action++]:null;
                 if(target==null&&lines>0&&!choices.isEmpty())target=choices.get(0);
                 if(target==null){System.out.println("PASS original title/menu; decoded="+decoded.size());return;}
                 int index=choices.indexOf(target);if(index<0)throw new IOException("Missing requested menu action "+target);m.activateMenu(h.waitTicket(),index);continue;

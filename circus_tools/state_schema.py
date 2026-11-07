@@ -15,9 +15,35 @@ def state_profile(profile_id):
 
 def describe_access(profile_id, semantic, bank, index, direction):
     result = {'bank': bank, 'index': index, 'direction': direction}
-    if semantic.get('runtime_variable_model') == 'DC2_PACKED':
+    model = semantic.get('runtime_variable_model')
+    if model in ('PC_BYTE', 'PC_WIDE'):
         if bank < 0 or index < 0:
             return {**result, 'kind':'unsafe_native_index', 'rule':'reject_in_runtime'}
+        if model == 'PC_WIDE' and bank >= 200:
+            if bank > 209 or index > 96:
+                return {**result, 'kind':'out_of_range_native_view',
+                        'rule':'read_zero' if direction=='read' else 'write_ignored'}
+            return {**result, 'kind':'packed_view', 'width':32, 'byte_order':'big',
+                    'signed':True, 'base_bank':bank-200, 'max_index':96,
+                    'rule':'read_signed' if direction=='read' else 'store_i32_bytes'}
+        if bank < 10:
+            if index >= 100:
+                return {**result, 'kind':'ordinary_out_of_range',
+                        'rule':'read_zero' if direction=='read' else 'write_ignored'}
+            return {**result, 'kind':'ordinary_u8', 'width':8,
+                    'rule':'zero_extend' if direction=='read' else 'clamp_0_255'}
+        # In particular, PC bank 10 is not an eleventh ordinary array, and
+        # PC_BYTE has no inferred PC_WIDE view or another game's special state.
+        return {**result, 'kind':'unmapped', 'rule':'no_cross_version_guess'}
+    if model == 'DC2_PACKED':
+        if bank < 0 or index < 0:
+            return {**result, 'kind':'unsafe_native_index', 'rule':'reject_in_runtime'}
+        if bank < 10:
+            if index >= 100:
+                return {**result, 'kind':'ordinary_out_of_range',
+                        'rule':'read_zero' if direction=='read' else 'write_ignored'}
+            return {**result, 'kind':'ordinary_u8', 'width':8,
+                    'rule':'zero_extend' if direction=='read' else 'clamp_0_255'}
         if bank == 10:
             return {**result, 'kind':'persistent_alias', 'width':8,
                     'rule':'read_ordinary_byte' if direction=='read' else 'clamp_0_255_mirror_100' if index<=20 else 'write_ignored'}
@@ -29,10 +55,14 @@ def describe_access(profile_id, semantic, bank, index, direction):
             return {**result, 'kind':'packed_view', 'width':width, 'byte_order':'big', 'signed':True,
                     'rule':'read_signed' if direction=='read' else 'clamp_i16' if width==16 else 'store_i32_bytes',
                     'base_bank':100 if bank==400 else bank-(300 if width==16 else 200),
-                    'max_index':99 if bank==400 else 98 if width==16 else 96}
+                    'max_index':(None if direction=='read' else 99) if bank==400 else 98 if width==16 else 96,
+                    **({'read_bounds':'verified_contiguous_persistent_owner'} if bank==400 and direction=='read' else {})}
         if bank in (96,97,98):
             return {**result,'kind':'persistent_bit','width':1,'rule':'lsb_first_read' if direction=='read' else 'set_if_nonzero'}
-    ordinary = semantic['variables']['ordinary']
+    ordinary = semantic.get('variables', {}).get('ordinary')
+    if ordinary is None:
+        return {**result, 'kind':'unmapped', 'rule':'no_cross_version_guess',
+                'status':'native_schema_unavailable'}
     if 0 <= bank <= ordinary['banks'][1] and 0 <= index <= ordinary['indices'][1]:
         return {**result, 'kind': 'ordinary_u8', 'width': 8,
                 'rule': ordinary[direction]}

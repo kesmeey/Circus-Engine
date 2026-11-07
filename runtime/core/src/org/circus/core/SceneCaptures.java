@@ -6,19 +6,31 @@ import java.util.*;
 /** Frozen inputs needed by renderers; no graphics toolkit belongs in the VM. */
 public final class SceneCaptures {
     private SceneCaptures(){}
+    public interface LegacyTextResolver {String resolve(Dc2Ui.Quad quad)throws IOException;}
     public static final class Legacy {
         public final Dc2Scene.Frame frame=new Dc2Scene.Frame();public final int[] palette=new int[64];
         public int particleKind,particleStrength,overlayKind;public long clock;public boolean effects;
-        public Legacy(DataInput in)throws IOException{frame.load(in);for(int n=0;n<64;n++)palette[n]=in.readInt();particleKind=in.readInt();particleStrength=in.readInt();overlayKind=in.readInt();clock=in.readLong();effects=in.readBoolean();}
+        public Dc2Particles particles;
+        public Legacy(DataInput in)throws IOException{frame.load(in);for(int n=0;n<64;n++)palette[n]=in.readInt();particleKind=in.readInt();particleStrength=in.readInt();overlayKind=in.readInt();clock=in.readLong();effects=in.readBoolean();
+            if(in instanceof DataInputStream&&((DataInputStream)in).available()>0){if(in.readInt()!=0x44435043)throw new IOException("Unknown legacy capture extension");particles=Dc2Particles.load(in,null);}
+        }
     }
     public static UiCapture legacy(Dc2Scene.Frame frame,Dc2Scene scene,Dc2Ui ui,Variables variables,boolean effects,UiCapture previous)throws IOException {
+        return legacy(frame,scene,ui,variables,effects,previous,null);
+    }
+    public static UiCapture legacy(Dc2Scene.Frame frame,Dc2Scene scene,Dc2Ui ui,Variables variables,boolean effects,UiCapture previous,LegacyTextResolver textResolver)throws IOException {
+        // A capture owns its normalized draw entries; never clear bindings or
+        // conditions on the live frame while freezing it.
+        ByteArrayOutputStream copied=new ByteArrayOutputStream();frame.save(new DataOutputStream(copied));Dc2Scene.Frame frozen=new Dc2Scene.Frame();frozen.load(new DataInputStream(new ByteArrayInputStream(copied.toByteArray())));frame=frozen;
         boolean depends=false;for(String resource:frame.slots)depends|=resource.equals("@ui-capture");
         // Bindings and sprite animation must not follow later settings/clock changes.
-        for(Iterator<Dc2Ui.Quad> it=frame.quads.iterator();it.hasNext();){Dc2Ui.Quad q=it.next();if(q.binding!=0&&variables!=null&&variables.read(q.binding>>8,q.binding&255)==0){it.remove();continue;}q.binding=0;
+        for(Iterator<Dc2Ui.Quad> it=frame.quads.iterator();it.hasNext();){Dc2Ui.Quad q=it.next();if(q.nativeCondition!=0){if(variables==null)throw new IOException("PC1 conditional capture requires its cached scene-read owner");if(variables.read(99,251)==0){it.remove();continue;}q.nativeCondition=0;}if(q.binding!=0&&variables!=null&&variables.read(q.binding>>8,q.binding&255)==0){it.remove();continue;}q.binding=0;
+            if(q.nativeTextOffset!=-1){if(textResolver==null)throw new IOException("PC1 type10 capture requires its loaded-code text owner");q.text=textResolver.resolve(q);q.nativeTextOffset=-1;}
             if(q.animation!=0&&q.frames>0&&q.period>0)q.sx+=(int)(scene.effectClock/(34L*q.period)%q.frames)*q.step;q.animation=0;
         }
         ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream out=new DataOutputStream(bytes);frame.save(out);for(int color:ui.palette)out.writeInt(color);
         out.writeInt(scene.particleKind);out.writeInt(scene.particleStrength);out.writeInt(scene.overlayKind);out.writeLong(scene.effectClock);out.writeBoolean(effects);
+        if(scene.nativeParticles!=null){out.writeInt(0x44435043);scene.nativeParticles.save(out);}
         return UiCapture.logical(UiCapture.LEGACY,bytes.toByteArray(),depends,previous);
     }
     static void legacySliders(Dc2Scene.Frame frame,Dc2Ui ui,Variables variables)throws IOException {
@@ -45,14 +57,17 @@ public final class SceneCaptures {
         return UiCapture.logical(UiCapture.DD,bytes.toByteArray(),depends,previous);
     }
     public static Dc3Ui.Panel ddPanel(Dc3Ui ui,Variables variables)throws IOException {
-        Dc3Ui.Panel result=new Dc3Ui.Panel();
-        if(ui.underlay!=null)append(result,ui.underlay,-1,-1,false,false,variables);
-        append(result,ui.current,ui.hovered,ui.pressed,ui.activeConfirmation>=0,ui.confirmChecked,variables);
+        ui.checkBounds();Dc3Ui.Panel result=new Dc3Ui.Panel();
+        if(ui.underlay!=null)append(result,ui.underlay,-1,-1,false,false,false,variables);
+        if(ui.noticeActive()||ui.exactCheckboxFlags()&&ui.activeConfirmation>=0){
+            if(!ui.current.hidden){Dc3Ui.Panel p=Dc3Ui.copy(ui.current);DdModalNotice.visible(p,ui.hovered,ui.pressed,ui.confirmChecked,result.quads);for(Dc3Ui.Text t:p.texts){t.args[3]=t.args[2];result.texts.add(t);}}
+        }else append(result,ui.current,ui.hovered,ui.pressed,ui.activeConfirmation>=0,ui.confirmChecked,ui.exactCheckboxFlags(),variables);
+        if(ui.noticeOverlay()!=null){Dc3Ui.Panel p=Dc3Ui.copy(ui.noticeOverlay());for(Dc3Scene.Quad q:ui.visibleNoticeOverlay())result.quads.add(q.copy());for(Dc3Ui.Text t:p.texts){t.args[3]=t.args[2];result.texts.add(t);}}
         return result;
     }
-    private static void append(Dc3Ui.Panel result,Dc3Ui.Panel source,int hovered,int pressed,boolean modal,boolean checked,Variables variables)throws IOException {
+    private static void append(Dc3Ui.Panel result,Dc3Ui.Panel source,int hovered,int pressed,boolean modal,boolean checked,boolean exactCheckboxFlags,Variables variables)throws IOException {
         if(source.hidden)return;Dc3Ui.Panel p=Dc3Ui.copy(source);result.quads.addAll(p.quads);for(Dc3Ui.Text t:p.texts){t.args[3]=t.args[2];result.texts.add(t);}
-        for(int n=0;n<p.buttons.size();n++){Dc3Ui.Button b=p.buttons.get(n);int state=n==pressed?2:n==hovered?1:99;boolean checkbox=modal&&b.action.equals(":c");if(checkbox&&state==2)state=1;
+        for(int n=0;n<p.buttons.size();n++){Dc3Ui.Button b=p.buttons.get(n);int state=n==pressed?2:n==hovered?1:99;boolean checkbox=modal&&(exactCheckboxFlags?b.checkbox:b.action.equals(":c"));if(checkbox&&state==2)state=1;
             boolean found=false;Dc3Scene.Quad config=null;for(Dc3Ui.Sprite s:b.sprites){found|=s.state==state;if(s.state==5)config=s.quad;}
             for(Dc3Ui.Sprite s:b.sprites)if(s.state==(found?state:99)||checkbox&&checked&&s.state==2)result.quads.add(s.quad);
             if(config!=null&&variables!=null){int value=variables.read(config.sy,config.width),offset=(config.y-config.x)*Math.max(0,Math.min(config.sx-1,value))/Math.max(1,config.sx-1);

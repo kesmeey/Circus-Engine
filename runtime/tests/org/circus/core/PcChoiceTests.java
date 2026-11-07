@@ -13,7 +13,7 @@ public final class PcChoiceTests {
             public byte[] read(String path,int limit){return new byte[20];}
             public Archive.Source source(String path){return new Archive.Source(){public long size(){return 20;}public byte[] read(long at,int n)throws IOException{Binary.range(at,n,20);return new byte[n];}};}
         });
-        PcHost h=new PcHost(new CircusResources(files,Profiles.get(profile)),TextCodec.identity());h.attach(new Variables(h,h.second?Variables.Model.PC_WIDE:Variables.Model.PC_BYTE));return h;
+        PcHost h=Pc1TestDefaults.bind(new PcHost(new CircusResources(files,Profiles.get(profile)),TextCodec.identity()));h.attach(new Variables(h,h.second?Variables.Model.PC_WIDE:Variables.Model.PC_BYTE));return h;
     }
     private static void bytes(ByteArrayOutputStream out,int...values){for(int value:values)out.write(value);}
     private static void words(ByteArrayOutputStream out,int op,int...values){out.write(op);for(int value:values)bytes(out,value,value>>8);}

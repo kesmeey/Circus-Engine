@@ -1,0 +1,52 @@
+package org.circus.core;
+
+import java.io.*;
+import java.nio.*;
+import java.nio.channels.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.*;
+
+/** Read-only actual assets plus runtime-owned counterexamples. Only our new
+ *JNI/runtime runs; no target EXE, original-file write, or audible dialogue. */
+public final class Pc1DirectSoundSourceAudit {
+    private static int checks;
+    private static void check(boolean ok,String message){checks++;if(!ok)throw new AssertionError(message);}
+    private static void put16(byte[] b,int at,int n){b[at]=(byte)n;b[at+1]=(byte)(n>>>8);}
+    private static void put32(byte[] b,int at,int n){for(int k=0;k<4;k++)b[at+k]=(byte)(n>>>(k*8));}
+    private static byte[] container(int declared,byte[] pcm){byte[] data=new byte[28+pcm.length];data[0]='X';data[1]='P';data[2]='C';data[3]='M';put32(data,4,declared);put16(data,12,1);put16(data,14,1);put32(data,16,22050);put32(data,20,44100);put16(data,24,2);put16(data,26,16);System.arraycopy(pcm,0,data,28,pcm.length);return data;}
+    private static Archive.Source file(Path path){return new Archive.Source(){
+        public long size()throws IOException{return Files.size(path);}
+        public byte[] read(long at,int size)throws IOException{try(Archive.Reader reader=openReader()){return reader.read(at,size);}}
+        public Archive.Reader openReader()throws IOException{FileChannel channel=FileChannel.open(path,StandardOpenOption.READ);return new Archive.Reader(){public long size()throws IOException{return channel.size();}public byte[] read(long at,int size)throws IOException{Binary.range(at,size,channel.size());ByteBuffer b=ByteBuffer.allocate(size);while(b.hasRemaining()){int n=channel.read(b,at+b.position());if(n<0)break;}return Arrays.copyOf(b.array(),b.position());}public void close()throws IOException{channel.close();}};}
+    };}
+    private static Pc1DirectSound.Source source(Path path,long offset)throws IOException{return new Pc1DirectSound.Source(file(path),offset,path,path.toAbsolutePath().toString());}
+    public static void main(String[] args)throws Exception{
+        if(args.length!=4)throw new IOException("Expected JNI DLL, explicit original MUSIC file, original VOICE.DAT and runtime-owned output directory");
+        Path dll=Paths.get(args[0]),music=Paths.get(args[1]),voice=Paths.get(args[2]),out=Paths.get(args[3]).toAbsolutePath().normalize();Path allowed=Paths.get("build/native-rewrite").toAbsolutePath().normalize();if(!out.startsWith(allowed.resolve("pc1-directsound-stage7"))&&!out.startsWith(allowed.resolve("pc1-directsound-staged-stage26"))&&!out.startsWith(allowed.resolve("pc1-audio-alias-stage28")))throw new IOException("Audit output must remain inside its runtime-owned build directory");Files.createDirectories(out);
+        byte[] payload=new byte[100000];for(int n=0;n<payload.length;n++)payload[n]=(byte)(n*19+(n>>>5));Path generated=out.resolve("counter.pcm"),shortFile=out.resolve("short.pcm");Files.write(generated,container(payload.length,payload));Files.write(shortFile,container(500000,Arrays.copyOf(payload,32768)));
+        int voiceIndex=-1;long selectedOffset=0;byte[] selectedHeader=null;for(int n=0;n<128;n++){byte[] row=file(voice).read(4+n*64,64);long offset=Binary.u32(row,60);byte[] header=file(voice).read(offset,32);if((header[8]&255)==3&&Binary.u32(header,28)>4096){voiceIndex=n;selectedOffset=offset;selectedHeader=header;break;}}if(voiceIndex<0)throw new IOException("No nontrivial mode3 voice among explicitly bounded first128 rows");final long voiceOffset=selectedOffset;byte[] voiceHeader=selectedHeader;System.out.println("selectedVoiceIndex="+voiceIndex+";offset="+voiceOffset);long voiceEncoded=32+Binary.u32(voiceHeader,28);String voiceBefore=Binary.sha256(file(voice).read(voiceOffset,(int)voiceEncoded));String musicBefore=Binary.sha256(Files.readAllBytes(music));
+        Pc1DirectSound.Resources resources=new Pc1DirectSound.Resources(){
+            public Pc1DirectSound.Source open(byte[] raw)throws IOException{String key=new String(raw,StandardCharsets.US_ASCII);switch(key){case "STATIC":return source(generated,0);case "MUSIC":return source(music,0);case "VOICE":return source(voice,voiceOffset);case "SHORT":return source(shortFile,0);default:throw new FileNotFoundException(key);}}
+            public byte[] midiPath(byte[] raw)throws IOException{throw new IOException("Audit supplies resolved PCM source endpoints only; no invented MIDI roots");}
+        };
+        Pc1Audio.Catalog catalog=new Pc1Audio.Catalog(){public int musicCount(){return 1;}public Pc1Audio.Entry music(int n)throws IOException{return new Pc1Audio.Entry("MUSIC".getBytes(StandardCharsets.US_ASCII),0);}public int soundCount(){return 0;}public Pc1Audio.Entry sound(int n)throws IOException{throw new IOException("none");}};
+        byte[] preferences=Pc1NativeSettings.currentChsDefaults().nativeBytes();Arrays.fill(preferences,0x2c,0x30,(byte)0);Pc1NativeSettings settings=Pc1NativeSettings.parse(preferences);Pc1DirectSound.Snapshot musicSaved;Pc1Audio.State musicControl;
+        try(Pc1DirectSound output=new Pc1DirectSound(dll,0,resources)){
+            if(!output.pcmInitialized())throw new IOException("Actual DirectSound device unavailable:"+Arrays.toString(output.initialization()));
+            Pc1Audio.Loaded sample=output.loadPcm(1,"STATIC".getBytes(StandardCharsets.US_ASCII),false);check(sample!=null&&sample.successful&&sample.bytes==payload.length,"Native static source admission and physical buffer creation");check(Arrays.equals(payload,output.bufferBytes(1)),"Entire self-authored file payload transferred to DirectSound without a Clip");
+            List<Pc1DirectSound.Result> events=output.journal();int close=-1,create=-1;for(int n=0;n<events.size();n++){if(events.get(n).operation.equals("CloseHandle"))close=n;if(events.get(n).operation.equals("CreateSoundBuffer"))create=n;}check(close>=0&&close<create&&events.get(close).result!=0,"Static original read closes its actual file before CreateSoundBuffer");output.release(1);
+            Pc1Audio control=new Pc1Audio(output,catalog);control.adoptAlreadyInitialized();control.requestMusic(0,0,settings);check(control.loaded(0),"Actual original mode0 BGM source/control/buffer load");long[] initial=output.streamState();check(initial[5]>=0x20000&&initial[5]<0x20000+0x4000,"Native full-song initial fill maintains the128KiB lead");check(initial[15]==28+initial[6],"Actual source file cursor tracks its28-byte container data offset");
+            byte[] first=output.bufferBytes(0);check(Arrays.equals(Arrays.copyOf(first,(int)initial[5]),file(music).read(28,(int)initial[5])),"Initial original PCM prefix is byte-exact in the actual DS buffer");output.setVolume(0,-10000);check(output.play(0,1)==0,"Muted actual BGM buffer starts");Thread.sleep(900);
+            long[] after=output.streamState();check(after[5]>initial[5]&&after[2]==0,"Original200ms MM callback fills native-private PCM while Java/VM is blocked");check(Arrays.equals(Arrays.copyOf(output.bufferBytes(0),(int)after[5]),file(music).read(28,(int)after[5])),"Background native fills preserve exact original PCM bytes");
+            for(int n=0;n<12;n++){Pc1DirectSound.Snapshot consistent=output.capture(control);check(consistent.control().words()[13]==0,"Snapshot locks canonical shared channel and MM packet together:"+n);Thread.sleep(4);}
+            List<Pc1DirectSound.Event> service=output.drainServiceEvents();check(service.stream().anyMatch(e->e.kind==2),"MM service results become explicit drain events without modifying VM state");System.out.println("music="+output.describeChannel(0));System.out.println("streamInitial="+Arrays.toString(initial));System.out.println("streamAfterJavaBlocked="+Arrays.toString(after));musicSaved=output.capture(control);musicControl=musicSaved.control();output.stop(0);output.closeStream();output.release(0);
+            Pc1Audio.Loaded spoken=output.loadPcm(2,"VOICE".getBytes(StandardCharsets.US_ASCII),false);check(spoken!=null&&spoken.successful&&spoken.bytes==(int)Binary.u32(voiceHeader,4),"Actual compressed mode3 voice source is decoded then loaded into DS");check(output.bufferBytes(2).length==spoken.bytes,"Actual voice buffer output length");System.out.println("voice="+output.describeChannel(2));System.out.println("voiceDecodedBufferSha256="+Binary.sha256(output.bufferBytes(2)));output.setVolume(2,-10000);output.play(2,0);Thread.sleep(25);check(output.query(2,0,0)[0]==0,"Actual muted voice driver cursor is queryable");output.stop(2);output.release(2);
+            boolean rejected=false;try{output.loadPcm(0,"SHORT".getBytes(StandardCharsets.US_ASCII),true);}catch(IOException error){rejected=error.getMessage().contains("unmodelled read/Lock");}check(rejected,"Short stream is a precise stalled/unsafe native boundary, not invented EOF");long[] partial=output.streamState();check(partial[2]==1&&partial[5]==32768&&partial[4]>0,"Short-file failure keeps the allocated buffer and already-consumed prefix");output.closeStream();output.release(0);
+        }
+        try(Pc1DirectSound staged=Pc1DirectSound.stage(dll,0,resources,musicSaved)){
+            check(staged.query(0,1,0)[1]==0,"Actual original BGM stage stays stopped");long[] before=staged.streamState();check(Arrays.equals(Arrays.copyOf(staged.bufferBytes(0),(int)before[5]),file(music).read(28,(int)before[5])),"Actual restored filled BGM prefix retains original bytes");Pc1Audio restored=Pc1Audio.restore(staged,catalog,musicControl);check(restored.loaded(0)&&(staged.status(0)&1)!=0,"Actual BGM resumes only on matching control adoption");Thread.sleep(500);long[] after=staged.streamState();check(after[5]>=before[5]&&after[2]==0,"Actual original stream remains valid after backend reconstruction");check(Arrays.equals(Arrays.copyOf(staged.bufferBytes(0),(int)after[5]),file(music).read(28,(int)after[5])),"Resumed original BGM native fills remain byte-exact");System.out.println("restoredMusic="+staged.describeChannel(0));staged.stop(0);staged.closeStream();
+        }
+        check(musicBefore.equals(Binary.sha256(Files.readAllBytes(music))),"Original MUSIC file remains byte-identical");check(voiceBefore.equals(Binary.sha256(file(voice).read(voiceOffset,(int)voiceEncoded))),"Original selected encoded VOICE frame remains byte-identical");System.out.println("Pc1DirectSoundSourceAudit PASS "+checks+"; original sources read-only; actual DirectSound; mode3 uses existing Java Xpcm decoder, not a new native-transform equivalence claim");
+    }
+}

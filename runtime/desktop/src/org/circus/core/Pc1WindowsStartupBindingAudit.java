@@ -1,0 +1,31 @@
+package org.circus.core;
+import java.io.*;
+import java.nio.file.*;
+/** Self-owned hidden USER/GDI objects with actual Runtime header/pool and
+ *startup consumer wiring. No original game process is launched. */
+public final class Pc1WindowsStartupBindingAudit {
+    private static int checks;
+    private static void check(boolean yes,String why){checks++;if(!yes)throw new AssertionError(why);}
+    private static byte[] raw(String value)throws IOException{return value.getBytes("US-ASCII");}
+    private static Pc1WindowsWindow window(Path dll,Pc1OsWords words,String name)throws Exception{
+        Pc1WindowsWindow out=Pc1WindowsWindow.deferred(dll,new Pc1WindowsWindow.NativeDispatcher(){public Pc1WindowsWindow.Dispatch dispatch(long h,int m,long w,long l){return Pc1WindowsWindow.Dispatch.unhandled();}public int quitFlag(){return 0;}});out.bindOsWords(words);long instance=out.moduleInstance();check(out.registerClass(instance,raw(name),0,out.loadCursor(0,32512))!=0,"explicit self-owned class");check(out.createWindow(0,raw(name),raw(name),0x80000000,0,0,800,600,instance)!=0,"self-owned hidden HWND");return out;
+    }
+    public static void main(String[] args)throws Exception{
+        if(args.length!=1)throw new IOException("Expected matching new window DLL");PcHost host=Pc1SaveContextTests.fixture(0);Pc1Runtime runtime=host.pc1;Pc1GuestAddressSpace space=new Pc1GuestAddressSpace(Pc1GuestAddressSpace.Layout.imageHeapV1());runtime.nativeMemory().bindGuestAddressSpace(space);Pc1OsRegistry registry=new Pc1OsRegistry(space);Pc1OsWords words=new Pc1OsWords(runtime.nativeMemory(),registry);
+        Pc1HeapLease.Heap physical=new Pc1HeapLease.Heap(){public Pc1HeapLease allocate(int length)throws IOException{throw new IOException("front import must not allocate");}public boolean release(Pc1HeapLease lease)throws IOException{throw new IOException("front import must not free");}};Pc1ImagePool pool=new Pc1ImagePool(new Pc1GuestHeap(space,physical));Path dll=Paths.get(args[0]);String suffix=Long.toHexString(System.nanoTime());
+        try(Pc1WindowsWindow a=window(dll,words,"CircusStartupA"+suffix);Pc1WindowsWindow b=window(dll,words,"CircusStartupB"+suffix)){
+            b.mainWindow(b.hwnd());Pc1WindowsStartupServices service=new Pc1WindowsStartupServices(host,a,new Pc1WindowsStartupServices.Consumers(){
+                public void initializeFontContext(long h)throws IOException{throw new IOException("not requested font leaf");}public void initializeAudio()throws IOException{throw new IOException("not requested audio leaf");}public void initializeAccelerated(long h)throws IOException{throw new IOException("not requested accelerated leaf");}public void loadScript(int raw,int mode)throws IOException{throw new IOException("not requested script leaf");}
+                public void frontCreated(Pc1HeapLease lease)throws IOException{throw new IOException("bound path must include raw pointer");}
+                public void frontCreatedRaw(int bits,Pc1HeapLease lease)throws IOException{check(lease!=null&&space.addressOf(lease)==bits,"actual DIB publication retains sole Guest mapping");pool.importFront(800,600,lease);}
+            });
+            boolean missingSettings=false;try{service.readSettings();}catch(IOException expected){missingSettings=expected.getMessage().contains("canonical402890");}check(missingSettings,"startup requires real canonical settings IO instead of the legacy immutable importer");
+            byte[] saveRoot=raw("owned");for(int n=0;n<=saveRoot.length;n++)runtime.nativeMemory().writeAddress(Pc1SettingsIo.SAVE_ROOT+n,n==saveRoot.length?0:saveRoot[n]);final int[] settingOpens={0};Pc1SettingsIo settings=new Pc1SettingsIo(runtime.nativeMemory(),(path,flags,hasMode,mode)->{settingOpens[0]++;check(java.util.Arrays.equals(Pc1SettingsIo.cstring(path),raw("owned\\system.dat"))&&flags==0x8000&&!hasMode,"startup settings passes live native path and actual two-argument read-open ABI");return null;});runtime.bindNativeSettingsIo(settings);runtime.nativeMemory().writeAddress(Pc1SettingsIo.DEFAULTS,0x93);service.readSettings();check(settingOpens[0]==1&&runtime.nativeMemory().readAddress(Pc1SettingsIo.SETTINGS)==0x93&&host.nativeSettings().nativeBytes()[0]==(byte)0x93,"startup canonical402890 copies current PE default into same raw settings RAM after failed open");
+            long module=a.moduleInstance();a.publishOsWord(Pc1OsWords.INSTANCE,Pc1OsRegistry.Kind.MODULE,module);check(service.instance()==module,"startup module resolves actual wide physical association at its raw-cell read");int moduleWord=words.rawWord(Pc1OsWords.INSTANCE);words.rawWord(Pc1OsWords.INSTANCE,0);check(service.instance()==0,"startup module follows later raw NULL alias rather than a cached Java process module");words.rawWord(Pc1OsWords.INSTANCE,moduleWord);
+            check(service.mainWindow()==b.hwnd()&&service.mainWindow()!=a.hwnd(),"startup mainWindow reads current global alias rather than provider lifetime HWND");service.initializeFront(service.mainWindow());check(pool.field(0,0)==space.addressOf(a.borrowDib())&&pool.pixelStorage(0).read(0)==a.borrowDib().readU8(0),"406ED0 captured HWND path publishes same actual DIB backing into canonical pool");
+            check(runtime.windowMemory().nativeMemory()==runtime.nativeMemory()&&words.rawWord(Pc1WindowMemory.BITMAP_INFO)==40&&words.rawWord(Pc1WindowMemory.BITMAP_INFO+4)==800&&words.rawWord(Pc1WindowMemory.BITMAP_INFO+8)==600,"actual JNI header stores reach Runtime's one BITMAPINFO owner");
+            check(service.setTimer(a.hwnd(),91,10)==91,"startup timer accepts its actual captured HWND independent of current global B");Pc1Startup.Message message=new Pc1Startup.Message();boolean seen=false;for(int n=0;n<50;n++){check(a.getMessage(message)>0,"actual all-thread GetMessage");if(message.get(4)==0x113&&message.get(8)==91){check(message.window()==a.hwnd(),"real timer notification belongs to captured A, not mutable global B");seen=true;break;}}check(seen,"actual captured-window timer message received");check(a.windowInfo()[1]==0&&b.windowInfo()[1]==0,"both audit windows remain hidden");service.requireBoundary();
+        }
+        System.out.println("PASS "+checks+" actual Runtime/startup binding checks; whole physical WinMain remains separate");
+    }
+}

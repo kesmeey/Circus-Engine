@@ -73,7 +73,7 @@ ops.put(11, "ui.wait");
 ops.put(33, "ui.flush");
 ops.put(49, "ui.focus");
 ops.put(51, "ui.navigation");
-ops.put(52, "ui.navigation_extra");
+ops.put(52, "ui.button_checkbox");
 ops.put(129, "ui.text");
 ops.put(112, "ui.button_text");
 ops.put(117, "ui.text_style");
@@ -102,7 +102,8 @@ ops.put(122, "dd.grid.text");
 ops.put(167, "dd.grid.columns");
 ops.put(163, "dd.audio.seek");
 ops.put(50, "ui.option_flag");
-return new Profile("dc3dd-a5a8",42408,6,3,57,68,99,104,113,71,31,2,false,true,true,false,Variables.Model.BYTE_WRAP,ops);
+ops.put(86, "dd.ui.modal_notice");
+return new Profile("dc3dd-a5a8",42408,6,3,57,68,99,104,113,71,31,2,false,true,true,false,Variables.Model.BYTE_WRAP,ops,null,false,false,false,true,new int[]{},new int[]{});
 }
 if(id.equals("dc3wy-a09f")) {
 ops.put(0, "stream.stop");
@@ -200,7 +201,7 @@ ops.put(154, "scene.record_motion");
 ops.put(155, "scene.replay_motion");
 ops.put(157, "dd.audio.seek");
 ops.put(158, "ui.pointer");
-return new Profile("dc3wy-a09f",41119,6,3,57,66,96,100,109,68,30,2,true,false,true,false,Variables.Model.BYTE_WRAP,ops);
+return new Profile("dc3wy-a09f",41119,6,3,57,66,96,100,109,68,30,2,true,false,true,false,Variables.Model.BYTE_WRAP,ops,null,false,false,false,true,new int[]{},new int[]{});
 }
 if(id.equals("dc2dm-9d72")) {
 ops.put(0, "stream.stop");
@@ -279,7 +280,7 @@ ops.put(109, "dm.scene.character_move");
 ops.put(5, "dm.audio.music_attenuation");
 ops.put(62, "dm.ui.button_voice");
 ops.put(73, "dm.audio.completion_action");
-return new Profile("dc2dm-9d72",40306,6,3,42,50,77,81,87,52,29,2,true,false,true,false,Variables.Model.DC2_PACKED,ops);
+return new Profile("dc2dm-9d72",40306,6,3,42,50,77,81,87,52,29,2,true,false,true,false,Variables.Model.DC2_PACKED,ops,null,true,false,false,true,new int[]{},new int[]{});
 }
 if(id.equals("dc2pc-5769")) {
 ops.put(0, "stream.stop");
@@ -371,7 +372,7 @@ ops.put(70, "pc.voice_group.add");
 ops.put(71, "ui.music_end_action");
 ops.put(87, "pc.grid.item");
 ops.put(88, "pc.grid.caption");
-return new Profile("dc2pc-5769",22377,4,2,41,47,74,78,82,53,30,2,true,false,true,false,Variables.Model.PC_WIDE,ops);
+return new Profile("dc2pc-5769",22377,4,2,41,47,74,78,82,53,30,2,true,false,true,false,Variables.Model.PC_WIDE,ops,null,true,true,false,false,new int[]{80,83,85,87},new int[]{});
 }
 if(id.equals("dcpc-2063")) {
 ops.put(0, "stream.stop");
@@ -399,7 +400,7 @@ ops.put(23, "pc.button_template");
 ops.put(24, "pc.fullscreen");
 ops.put(25, "pc.sprite_opaque");
 ops.put(27, "pc.save_context");
-ops.put(28, "dm.system.return");
+ops.put(28, "pc.system.return");
 ops.put(29, "pc.command");
 ops.put(31, "block.marker");
 ops.put(33, "dm.ui.commit");
@@ -437,7 +438,7 @@ ops.put(75, "text.speaker");
 ops.put(76, "text.body");
 ops.put(77, "choice.caption");
 ops.put(78, "native.no_effect");
-ops.put(79, "host.command_with_string");
+ops.put(79, "pc.button_rect_payload");
 ops.put(80, "pc.button_sprite");
 ops.put(81, "ui.button_text");
 ops.put(82, "arguments.extend");
@@ -456,7 +457,11 @@ ops.put(98, "dm.ui.palette");
 ops.put(84, "pc.grid.configure");
 ops.put(71, "pc.voice_group.add");
 ops.put(26, "pc.prompt_position");
-return new Profile("dcpc-2063",8291,4,2,45,45,74,78,82,50,31,2,true,false,true,false,Variables.Model.PC_BYTE,ops);
+ops.put(38, "pc.system.call");
+ops.put(87, "pc.grid.caption_payload");
+ops.put(86, "pc.grid.item_payload");
+ops.put(95, "pc.grid.caption_bounds");
+return new Profile("dcpc-2063",8291,4,2,45,45,74,78,82,50,31,2,true,false,true,false,Variables.Model.PC_BYTE,ops,null,true,true,false,false,new int[]{80,83,84,86},new int[]{27,37,38,79,81,87,92});
 }
 if(id.equals("dc2-3363")) {
 ops.put(0, "stream.stop");
@@ -472,7 +477,7 @@ ops.put(10, "pc.ui.wait");
 ops.put(11, "dm.ui.grid_wait");
 ops.put(13, "pc.transition");
 ops.put(14, "system.exit");
-ops.put(15, "native.unmodelled");
+ops.put(15, "variable.clear_ordinary_bytes");
 ops.put(17, "dm.audio.fade_music");
 ops.put(18, "pc.wait");
 ops.put(19, "dm.ui.button_sound");
@@ -498,14 +503,15 @@ ops.put(50, "pc.character");
 ops.put(51, "pc.character_overlay");
 ops.put(52, "dm.audio.voice");
 ops.put(53, "pc.script.transfer");
-ops.put(54, "pc.script.transfer");
-ops.put(55, "native.unmodelled");
+ops.put(54, "dm.script.transfer_alt");
+ops.put(55, "script.entry_label");
 ops.put(56, "pc.movie");
 ops.put(57, "native.unmodelled");
 ops.put(58, "jump.named_required");
-ops.put(59, "native.unmodelled");
-ops.put(60, "native.unmodelled");
-ops.put(61, "native.unmodelled");
+ops.put(59, "pc.action0");
+ops.put(60, "pc.action1");
+ops.put(61, "dc2.ui.button_voice");
+ops.put(62, "dc2.ui.button_hover_voice");
 ops.put(68, "choice.item");
 ops.put(69, "native.no_effect");
 ops.put(74, "text.speaker");
@@ -523,18 +529,18 @@ ops.put(89, "variable.copy");
 ops.put(90, "variable.sum_list");
 ops.put(91, "branch.compare");
 ops.put(92, "dm.ui.text");
-ops.put(94, "native.unmodelled");
+ops.put(94, "dc2.scene.motion");
 ops.put(96, "pc.actor_position");
 ops.put(97, "native.unmodelled");
 ops.put(98, "dm.ui.palette");
-return new Profile("dc2-3363",13155,4,2,44,44,73,77,81,49,30,2,true,false,true,false,Variables.Model.PC_WIDE,ops,new int[]{6755,12643});
+return new Profile("dc2-3363",13155,4,2,44,44,73,77,81,49,30,2,true,false,true,false,Variables.Model.PC_BYTE,ops,new int[]{6755,12643},true,true,true,false,new int[]{79,82,84,86},new int[]{});
 }
 if(id.equals("dc3pp-9872")) {
 ops.put(0, "stream.stop");
 ops.put(2, "control.marker");
 ops.put(3, "checkpoint");
 ops.put(4, "history.range");
-ops.put(5, "audio.restore_volume");
+ops.put(5, "pp.audio.music");
 ops.put(7, "wait.message");
 ops.put(8, "choice.begin");
 ops.put(9, "choice.show");
@@ -608,7 +614,8 @@ ops.put(108, "ui.message_position");
 ops.put(109, "scene.character_move");
 ops.put(110, "ui.palette");
 ops.put(111, "native.no_effect");
-return new Profile("dc3pp-9872",39026,6,3,43,51,79,82,87,53,30,2,false,false,true,false,Variables.Model.BYTE_WRAP,ops);
+ops.put(6, "pp.audio.duck");
+return new Profile("dc3pp-9872",39026,6,3,43,51,79,82,87,53,30,2,false,false,true,false,Variables.Model.DC2_PACKED,ops,null,true,false,false,true,new int[]{},new int[]{});
 }
 if(id.equals("circus-demo-v1")) {
 Profile dd=get("dc3dd-a5a8"); for(int i=0;i<256;i++)if(!dd.operation(i).equals("unknown"))ops.put(i,dd.operation(i));

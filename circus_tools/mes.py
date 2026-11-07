@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
+from functools import lru_cache
 import json
 from pathlib import Path
 import struct
@@ -12,16 +13,29 @@ from .common import FormatError
 CATALOG = Path(__file__).resolve().parent.parent / "profiles" / "dc123.json"
 
 
+@lru_cache(maxsize=1)
+def _profile_contracts() -> dict[str, dict]:
+    """Execution framing comes from native decoder evidence, not a game-name guess."""
+    catalog = CATALOG.with_name("mes-semantics.json")
+    bindings = json.loads(catalog.read_text(encoding="utf-8"))["profiles"]
+    return bindings
+
+
 @dataclass(frozen=True)
 class Instruction:
     offset: int
     opcode: int
     kind: str
     raw: bytes
+    consumed_by: int | None = None
 
     def to_dict(self, key: int = 0x20) -> dict:
         result = {"offset": self.offset, "opcode": f"0x{self.opcode:02X}",
                   "kind": self.kind, "size": len(self.raw), "raw_hex": self.raw.hex()}
+        if self.consumed_by is None and self.opcode == 0 and len(self.raw) < 3:
+            result["terminal_fragment"] = True
+        if self.consumed_by is not None:
+            result["consumed_by"] = self.consumed_by
         if self.kind == "u8x2":
             result["operands"] = list(self.raw[1:])
         elif self.kind == "u16x4":
@@ -42,7 +56,7 @@ def profiles() -> list[dict]:
 
 
 def candidate_profiles(data: bytes, profile_id: str | None = None) -> list[tuple[dict, int, int]]:
-    if len(data) < 8:
+    if len(data) < 4:
         raise FormatError("MES shorter than header")
     count = struct.unpack_from("<I", data)[0]
     if count > 1_000_000:
@@ -57,7 +71,8 @@ def candidate_profiles(data: bytes, profile_id: str | None = None) -> list[tuple
         width = 1 if length == 1 else 2
         if offset + length > len(data):
             continue
-        if int.from_bytes(data[offset:offset + width], "little") == version:
+        accepted_versions = (version, *profile.get("alt_versions", ()))
+        if int.from_bytes(data[offset:offset + width], "little") in accepted_versions:
             matches.append((profile, offset, length))
     return matches
 
@@ -90,12 +105,19 @@ Mixed or unknown collections fall back to per-file identification.
 
 def instructions(data: bytes, profile: dict, start: int):
     pos = start
+    binding = _profile_contracts().get(profile["id"], {})
+    decoder = binding.get("decoder", {})
+    extension_owners = frozenset(decoder.get("extension_owners", ()))
+    string_owners = frozenset(decoder.get("string_payload_owners", ()))
+    sum_opcodes = frozenset(int(opcode, 16) for opcode, operation in binding.get("opcodes", {}).items()
+                            if operation == "variable.sum_list")
     while pos < len(data):
         opcode = data[pos]
         kind = next((kind for kind, begin, end in profile["ranges"]
                      if begin <= opcode <= end), None)
-        if profile["id"] == "dcpc-2063" and opcode >= 0x80:
-            # Native signed fetch (4125F4) consumes 3 bytes before unsigned dispatch.
+        if decoder.get("signed_opcode_fetch", False) and opcode >= 0x80:
+            # MOVSX makes the framing comparison negative; the later unsigned
+            # dispatch bound takes the native default. Keep the raw opcode.
             kind = "u8x2"
         if kind is None:
             raise FormatError(f"unknown framing at 0x{pos:X}, opcode=0x{opcode:02X}")
@@ -108,12 +130,37 @@ def instructions(data: bytes, profile: dict, start: int):
             if end == -1:
                 raise FormatError(f"unterminated string at 0x{pos:X}")
             end += 1
-        if opcode == 0 and profile["id"] in {"dcpc-2063", "dc2pc-5769"} and len(data)-pos < 3 and not any(data[pos:]):
+        if opcode == 0 and decoder.get("allow_terminal_fragment", False) and len(data)-pos < 3:
             end = len(data)
         if end > len(data):
             raise FormatError(f"truncated {kind} instruction at 0x{pos:X}")
         yield Instruction(pos, opcode, kind, data[pos:end])
+        owner = pos
         pos = end
+        if opcode in sum_opcodes:
+            companion = binding["control"]["companion_opcode"]
+            while pos < len(data) and data[pos] != companion:
+                end = pos + 9
+                if end > len(data):
+                    raise FormatError(f"truncated sum term at 0x{pos:X}, owner=0x{owner:X}")
+                yield Instruction(pos, data[pos], "u16x4", data[pos:end], consumed_by=owner)
+                pos = end
+        elif opcode in extension_owners:
+            end = pos + 9
+            if end > len(data):
+                raise FormatError(f"truncated handler extension at 0x{pos:X}, owner=0x{owner:X}")
+            # This byte is skipped, not dispatched or used to choose a layout.
+            yield Instruction(pos, data[pos], "u16x4", data[pos:end], consumed_by=owner)
+            pos = end
+        elif opcode in string_owners:
+            if pos >= len(data):
+                raise FormatError(f"missing handler string at 0x{pos:X}, owner=0x{owner:X}")
+            end = data.find(b"\0", pos + 1)
+            if end == -1:
+                raise FormatError(f"unterminated handler string at 0x{pos:X}, owner=0x{owner:X}")
+            end += 1
+            yield Instruction(pos, data[pos], "string", data[pos:end], consumed_by=owner)
+            pos = end
         if profile["id"] == "dcpc-2063" and opcode == 0:
             break
         if profile["id"] == "dc2pc-5769" and opcode == 0 and data[pos:] == b"ad":
@@ -123,17 +170,23 @@ def instructions(data: bytes, profile: dict, start: int):
 def parse(data: bytes, profile_id: str | None = None) -> tuple[dict, list[Instruction]]:
     profile, version_offset, version_length = identify(data, profile_id)
     tokens = list(instructions(data, profile, version_offset + version_length))
+    if not tokens:
+        raise FormatError("Empty MES code")
     count = struct.unpack_from("<I", data)[0]
     # Preserve label words and ID table verbatim. Their runtime meaning must be
     # checked per version before treating them as jump targets.
     raw_labels = list(struct.unpack_from(f"<{count}I", data, 4)) if count else []
-    metadata = {"profile": profile["id"], "version": f"0x{profile['version']:04X}",
+    marker = int.from_bytes(data[version_offset:version_offset + min(version_length, 2)], "little")
+    metadata = {"profile": profile["id"], "version": f"0x{marker:04X}",
                 "layout": profile["layout"], "header_count": count,
                 "version_offset": version_offset, "code_offset": version_offset + version_length,
                 "version_record_hex": data[version_offset:version_offset + version_length].hex(),
                 "raw_label_words": raw_labels,
                 "raw_label_ids_hex": data[4 + count * 4:version_offset].hex(),
                 "instruction_count": len(tokens),
+                "terminal_fragments": [{"offset": token.offset, "raw_hex": token.raw.hex(),
+                                        "kind": "stop_operands_absent"}
+                                       for token in tokens if token.consumed_by is None and token.opcode == 0 and len(token.raw) < 3],
                 "opcodes": {f"0x{k:02X}": v for k, v in sorted(Counter(t.opcode for t in tokens).items())},
                 "semantic_status": "not_implemented"}
     return metadata, tokens

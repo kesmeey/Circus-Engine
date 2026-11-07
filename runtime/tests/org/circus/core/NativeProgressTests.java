@@ -20,7 +20,7 @@ public final class NativeProgressTests {
         });
         Profile profile=Profiles.get(id);
         NativeProgress.Target result=new NativeProgress.Target(new CircusResources(files,profile),TextCodec.identity());
-        if(result.legacy!=null)result.legacy.attach(new Variables(result.legacy,profile.variableModel));
+        if(result.legacy!=null){Pc1TestDefaults.bind(result.legacy);result.legacy.attach(new Variables(result.legacy,profile.variableModel));}
         return result;
     }
     private static void flag(byte[] bytes,int offset,int index,boolean packed){
@@ -108,7 +108,7 @@ public final class NativeProgressTests {
         if(t.dd!=null){t.dd.musicFavorites[12]=1;t.write(94,50,41);t.write(95,50,0);t.write(93,3,1);}
         else{
             t.legacy.readCheckpoints.add("phone_only:42");t.legacy.availableSaves.add(6);t.legacy.variables.write(3,4,123);
-            if(t.legacy instanceof PcHost){PcHost pc=(PcHost)t.legacy;pc.familyName="Own";pc.givenName="Name";pc.write(100,60,1);pc.write(97,cgCount,1);pc.write(98,sceneCount,1);}
+            if(t.legacy instanceof PcHost){PcHost pc=(PcHost)t.legacy;pc.setNativeNames("Own","Name");pc.write(100,60,1);pc.write(97,cgCount,1);if(pc.pc1==null)pc.write(98,sceneCount,1);else reject(()->pc.write(98,sceneCount,1),"PC1 byte bank cannot write beyond its actual1748-byte owner");}
             else{t.write(94,50,41);t.write(95,50,0);}
         }
         byte[] before=t.save(),nativeBefore=bytes.clone();NativeProgress.Summary preview=p.preview(t);
@@ -120,10 +120,10 @@ public final class NativeProgressTests {
         check(t.read(97,9)==1&&t.read(98,9)==1,"Source locked entries do not clear phone unlocks: "+id);
         if(musicCount>0)check(t.read(96,8)==1&&t.read(96,musicCount-1)==1&&t.read(96,9)==1,"Music first-byte boundary and final entry merge: "+id);
         check(t.read(100,ignored)==4&&t.read(99,7)==37&&t.read(99,8)==46,"Native preferences and unknown globals do not overwrite phone settings: "+id);
-        if(t.dd!=null)check(t.dd.musicFavorites[12]==1&&t.read(94,50)==41&&t.read(95,50)==0&&t.read(93,3)==1,"DD favorites, voice levels and confirmations retained");
+        if(t.dd!=null){if(id.equals("dc3pp-9872"))check(t.dd.musicFavorites[12]==1&&t.read(94,50)==0&&t.read(95,50)==0&&t.read(93,3)==0,"PP keeps host metadata but nonexistent native banks stay zero");else check(t.dd.musicFavorites[12]==1&&t.read(94,50)==41&&t.read(95,50)==0&&t.read(93,3)==1,"DD favorites, voice levels and confirmations retained");}
         else{
             check(t.legacy.readCheckpoints.contains("phone_only:42")&&t.legacy.availableSaves.equals(Collections.singleton(6))&&t.legacy.variables.read(3,4)==123,"Read history, story variables and phone slot availability retained: "+id);
-            if(t.legacy instanceof PcHost){PcHost pc=(PcHost)t.legacy;check(pc.familyName.equals("Own")&&pc.givenName.equals("Name")&&pc.read(100,60)==1&&pc.read(97,cgCount)==1&&pc.read(98,sceneCount)==1,"PC names/mute and host bank tail retained: "+id);}
+            if(t.legacy instanceof PcHost){PcHost pc=(PcHost)t.legacy;check(pc.familyName.equals("Own")&&pc.givenName.equals("Name")&&pc.read(100,60)==1&&pc.read(97,cgCount)==1,"PC names/mute and known adjacent native byte retained: "+id);if(pc.pc1==null)check(pc.read(98,sceneCount)==1,"Wider non-PC1 host tail retained: "+id);else{check(pc.read(98,0)==1,"PC1 CG512 aliases scene0 instead of a fabricated gallery tail");reject(()->pc.read(98,sceneCount),"PC1 last scene byte has no fabricated following memory");}}
             else check(t.read(94,50)==41&&t.read(95,50)==0,"DM voice preferences retained");
         }
         byte[] merged=t.save();check(p.apply(t).total==0&&Arrays.equals(merged,t.save()),"Repeated merge makes no persistent change: "+id);
@@ -135,7 +135,7 @@ public final class NativeProgressTests {
         if(packed){
             byte[] padding=new byte[size];padding[scenes+81]=(byte)0xfc;
             check(NativeProgress.parse(id,padding).source.total==0,"Unused packed scene tail bits650..655 never become extra unlocks");
-            reject(()->t.read(98,650),"Host bounds enforce exactly650 scenes");
+            check(t.read(98,650)==0,"Native packed reader can inspect final padding without creating a 651st unlock");
             byte[] bad=new byte[size];bad[globals+completion]=2;reject(()->NativeProgress.parse(id,bad),"Packed format still validates byte completion flags");
         }else{
             for(int offset:new int[]{cg,cg+cgCount-1,scenes,scenes+sceneCount-1}){

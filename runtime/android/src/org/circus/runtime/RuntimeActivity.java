@@ -50,6 +50,7 @@ public final class RuntimeActivity extends Activity {
             if(!Dc3Host.supports(profile)&&!profile.id.equals("dc2dm-9d72")&&!PcHost.supports(profile))throw new IOException("此版本尚未验证："+profile.id);
             CircusResources data=new CircusResources(resources,profile);TextCodec codec=GameText.select(resources,profile,getIntent().getStringExtra("encoding"),getIntent().getStringExtra("configuration"));ExecutableData.validate(data,codec);
             engine=Dc3Host.supports(profile)?new DesktopDd(data,codec,audit):new DesktopLegacy(data,codec,audit);
+            if(engine instanceof DesktopDd){android.util.DisplayMetrics metrics=new android.util.DisplayMetrics();getWindowManager().getDefaultDisplay().getRealMetrics(metrics);((DesktopDd)engine).displayCapabilities(Math.max(metrics.widthPixels,metrics.heightPixels),Math.min(metrics.widthPixels,metrics.heightPixels),32);}
             }
             if(!audit&&!(engine instanceof DesktopUnity))migratePreviousAndroid();Path automatic=engine.saveDirectory.resolve("mobile-resume.sav");if(resume&&Files.isRegularFile(automatic))engine.restore(automatic);
             String libraryId=getIntent().getStringExtra("library_id");if(!audit&&libraryId!=null)new GameLibrary(this).opened(libraryId);
@@ -77,7 +78,7 @@ public final class RuntimeActivity extends Activity {
         if(seenVm!=engine.executionIdentity()){for(int ch=0;ch<6;ch++)stopAudio(ch);Arrays.fill(heard,-1);Arrays.fill(seekGeneration,-1);seenVm=engine.executionIdentity();movieGeneration=-1;}
         for(int ch=0;ch<6;ch++){long position=engine.takeAudioResume(ch);if(position>0)requestedResume[ch]=position;
             if(heard[ch]!=engine.audioGeneration(ch)){heard[ch]=engine.audioGeneration(ch);startAudio(ch,engine.audioActive(ch)?engine.audio(ch):"",heard[ch],engine.audioLoop(ch));}
-            if(players[ch]!=null&&prepared[ch]){MediaPlayer p=players[ch];float gain=engine.volume(ch),pan=Math.max(-1,Math.min(1,engine.pan(ch)/100f));p.setVolume(gain*(1-Math.max(0,pan)),gain*(1+Math.min(0,pan)));
+            if(players[ch]!=null&&prepared[ch]){MediaPlayer p=players[ch];float gain=engine.volume(ch),pan=AudioLevels.directSoundBalance(engine.pan(ch));p.setVolume(gain*(1-Math.max(0,pan)),gain*(1+Math.min(0,pan)));
                 if(requestedResume[ch]>0){p.seekTo(Math.min((int)(requestedResume[ch]/1000),Math.max(0,p.getDuration()-1)));requestedResume[ch]=0;}
                 int seek=engine.audioSeekGeneration(ch);if(seekGeneration[ch]!=seek){if(seekGeneration[ch]>=0)p.seekTo((int)(p.getDuration()*(long)engine.audioSeekPercent(ch)/100));seekGeneration[ch]=seek;}
             }
@@ -124,7 +125,34 @@ public final class RuntimeActivity extends Activity {
     @Override protected void onPause(){active=false;if(stage!=null)stage.cancelGesture();Choreographer.getInstance().removeFrameCallback(frame);if(movie!=null)movie.pauseMovie();if(platformMovie!=null)platformMovie.pause();submit(()->{try{if(engine!=null&&!failed){engine.cancelPointer();updatePositions();if(!audit){engine.persist();engine.save(engine.saveDirectory.resolve("mobile-resume.sav"));}}}catch(Exception e){fail(e);}finally{for(int ch=0;ch<6;ch++)if(players[ch]!=null&&prepared[ch])players[ch].pause();}});super.onPause();}
     @Override protected void onSaveInstanceState(Bundle out){super.onSaveInstanceState(out);out.putBoolean("resume",true);}
     @Override protected void onDestroy(){closed=true;Choreographer.getInstance().removeFrameCallback(frame);closeMovie();worker.execute(()->{for(int ch=0;ch<6;ch++)stopAudio(ch);});worker.shutdown();stage.release();super.onDestroy();}
-    @Override public boolean onKeyUp(int code,KeyEvent event){if(code==KeyEvent.KEYCODE_BACK)return super.onKeyUp(code,event);input(()->{if(engine.editingText()){int mapped=code==KeyEvent.KEYCODE_DEL?8:code==KeyEvent.KEYCODE_FORWARD_DEL?127:code==KeyEvent.KEYCODE_DPAD_LEFT?37:code==KeyEvent.KEYCODE_DPAD_RIGHT?39:code==KeyEvent.KEYCODE_ENTER?10:0;if(mapped!=0)engine.editKey(mapped);else if(event.getUnicodeChar()!=0)engine.typeText(new String(Character.toChars(event.getUnicodeChar())));}else if(code==KeyEvent.KEYCODE_ENTER||code==KeyEvent.KEYCODE_SPACE)engine.click(engine.width/2,engine.height/2,false);});return true;}
+    private static int modalKeyCode(int code){
+        switch(code){
+        case KeyEvent.KEYCODE_ENTER:case KeyEvent.KEYCODE_NUMPAD_ENTER:return 10;
+        case KeyEvent.KEYCODE_SPACE:return 32;
+        case KeyEvent.KEYCODE_PAGE_UP:return 33;
+        case KeyEvent.KEYCODE_PAGE_DOWN:return 34;
+        case KeyEvent.KEYCODE_ESCAPE:return 27;
+        case KeyEvent.KEYCODE_DPAD_LEFT:return 37;
+        case KeyEvent.KEYCODE_DPAD_UP:return 38;
+        case KeyEvent.KEYCODE_DPAD_RIGHT:return 39;
+        case KeyEvent.KEYCODE_DPAD_DOWN:return 40;
+        default:return 0;
+        }
+    }
+    @Override public boolean onKeyUp(int code,KeyEvent event){
+        if(code==KeyEvent.KEYCODE_BACK)return super.onKeyUp(code,event);
+        input(()->{
+            if(engine.editingText()){
+                int mapped=code==KeyEvent.KEYCODE_DEL?8:code==KeyEvent.KEYCODE_FORWARD_DEL?127:code==KeyEvent.KEYCODE_DPAD_LEFT?37:code==KeyEvent.KEYCODE_DPAD_RIGHT?39:code==KeyEvent.KEYCODE_ENTER?10:0;
+                if(mapped!=0)engine.editKey(mapped);else if(event.getUnicodeChar()!=0)engine.typeText(new String(Character.toChars(event.getUnicodeChar())));
+            }else{
+                int mapped=modalKeyCode(code);
+                if(mapped!=0&&engine.modalKey(mapped))return;
+                if(code==KeyEvent.KEYCODE_ENTER||code==KeyEvent.KEYCODE_SPACE)engine.click(engine.width/2,engine.height/2,false);
+            }
+        });
+        return true;
+    }
     final class Stage extends View {
         java.util.function.LongConsumer presentationObserver;
         private BufferedImage image;private float scale=1,ox,oy;private final Paint paint=new Paint(Paint.FILTER_BITMAP_FLAG);private boolean held,multiTouch,tapCandidate,scrollAllowed,firstMoved;

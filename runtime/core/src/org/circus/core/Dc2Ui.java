@@ -8,17 +8,24 @@ import java.util.*;
 public final class Dc2Ui {
     public static final class Quad {
         public int x,y,sx,sy,width,height,flags,state,type,binding,animation,frames,step,period;
+        /** PC1 raw draw-entry d3. Independent of an encoded variable binding. */
+        public int nativeCondition;
+        /** PC1 type10 d4: offset in the current native loaded-code owner. */
+        public int nativeTextOffset=-1;
         public String text="";
         public int slot(){return flags&63;}
         public boolean opaque(){return (flags&128)!=0;}
-        void save(DataOutput o)throws IOException{for(int v:new int[]{x,y,sx,sy,width,height,flags,state,type,binding,animation,frames,step,period})o.writeInt(v);o.writeUTF(text);}
+        void save(DataOutput o)throws IOException{if(nativeCondition!=0||nativeTextOffset!=-1)throw new IOException("Native quad fields require their versioned list owner");saveBody(o);}
+        private void saveBody(DataOutput o)throws IOException{for(int v:new int[]{x,y,sx,sy,width,height,flags,state,type,binding,animation,frames,step,period})o.writeInt(v);o.writeUTF(text);}
         static Quad load(DataInput i)throws IOException{Quad q=new Quad();q.x=i.readInt();q.y=i.readInt();q.sx=i.readInt();q.sy=i.readInt();q.width=i.readInt();q.height=i.readInt();q.flags=i.readInt();q.state=i.readInt();q.type=i.readInt();q.binding=i.readInt();q.animation=i.readInt();q.frames=i.readInt();q.step=i.readInt();q.period=i.readInt();q.text=i.readUTF();return q;}
     }
     public static final class Button {
         public int left,top,right,bottom,hoverSound=255,clickSound=255,flags,binding;
         public int[] navigation=new int[4];
-        public String action="",voice="";
+        public String action="",voice="",hoverVoice="";
         public final List<Quad> sprites=new ArrayList<>();
+        /** Presentation view: replace only the input action, never the native model's label. */
+        public Button controlView(String inputAction){Button copy=new Button();copy.left=left;copy.top=top;copy.right=right;copy.bottom=bottom;copy.hoverSound=hoverSound;copy.clickSound=clickSound;copy.flags=flags;copy.binding=binding;copy.navigation=navigation.clone();copy.action=inputAction;copy.voice=voice;copy.hoverVoice=hoverVoice;copy.sprites.addAll(sprites);return copy;}
         void save(DataOutput o)throws IOException{for(int v:new int[]{left,top,right,bottom,hoverSound,clickSound,flags,binding})o.writeInt(v);for(int v:navigation)o.writeInt(v);o.writeUTF(action);o.writeUTF(voice);saveQuads(o,sprites);}
         static Button load(DataInput i)throws IOException{Button b=new Button();b.left=i.readInt();b.top=i.readInt();b.right=i.readInt();b.bottom=i.readInt();b.hoverSound=i.readInt();b.clickSound=i.readInt();b.flags=i.readInt();b.binding=i.readInt();for(int n=0;n<4;n++)b.navigation[n]=i.readInt();b.action=i.readUTF();b.voice=i.readUTF();b.sprites.addAll(loadQuads(i,14));return b;}
     }
@@ -71,10 +78,16 @@ public final class Dc2Ui {
     static List<Quad> copyQuads(List<Quad> src)throws IOException{ByteArrayOutputStream b=new ByteArrayOutputStream();saveQuads(new DataOutputStream(b),src);return loadQuads(new DataInputStream(new ByteArrayInputStream(b.toByteArray())),2048);}
     static List<Button> copyButtons(List<Button> src)throws IOException{ByteArrayOutputStream b=new ByteArrayOutputStream();saveButtons(new DataOutputStream(b),src);return loadButtons(new DataInputStream(new ByteArrayInputStream(b.toByteArray())));}
     private static int count(DataInput i,int max)throws IOException{int n=i.readInt();if(n<0||n>max)throw new IOException("DM UI count");return n;}
-    static void saveQuads(DataOutput o,List<Quad> list)throws IOException{o.writeInt(list.size());for(Quad q:list)q.save(o);}
-    static List<Quad> loadQuads(DataInput i,int max)throws IOException{List<Quad> list=new ArrayList<>();for(int n=count(i,max);n>0;n--)list.add(Quad.load(i));return list;}
-    static void saveButtons(DataOutput o,List<Button> list)throws IOException{o.writeInt(list.size());for(Button b:list)b.save(o);}
-    static List<Button> loadButtons(DataInput i)throws IOException{List<Button> list=new ArrayList<>();for(int n=count(i,50);n>0;n--)list.add(Button.load(i));return list;}
+    static void saveQuads(DataOutput o,List<Quad> list)throws IOException{
+        boolean nativeFields=false;for(Quad q:list){if(q.nativeTextOffset< -1||q.nativeTextOffset>=100000)throw new IOException("Native quad fields");nativeFields|=q.nativeCondition!=0||q.nativeTextOffset!=-1;}
+        if(nativeFields)o.writeInt(-3);o.writeInt(list.size());for(Quad q:list){q.saveBody(o);if(nativeFields){o.writeInt(q.nativeCondition);o.writeInt(q.nativeTextOffset);}}
+    }
+    static List<Quad> loadQuads(DataInput i,int max)throws IOException{
+        int size=i.readInt();boolean conditional=size==-2,nativeFields=size==-3;if(conditional||nativeFields)size=i.readInt();if(size<0||size>max)throw new IOException("DM UI count");
+        List<Quad> list=new ArrayList<>();for(int n=0;n<size;n++){Quad q=Quad.load(i);if(conditional||nativeFields){q.nativeCondition=i.readInt();if(nativeFields)q.nativeTextOffset=i.readInt();if(q.nativeTextOffset< -1||q.nativeTextOffset>=100000)throw new IOException("Native quad fields");}list.add(q);}return list;
+    }
+    static void saveButtons(DataOutput o,List<Button> list)throws IOException{boolean extended=false;for(Button b:list)extended|=!b.hoverVoice.isEmpty();if(extended)o.writeInt(-1);o.writeInt(list.size());for(Button b:list){b.save(o);if(extended)o.writeUTF(b.hoverVoice);}}
+    static List<Button> loadButtons(DataInput i)throws IOException{int n=i.readInt();boolean extended=n==-1;if(extended)n=i.readInt();if(n<0||n>100)throw new IOException("DM UI count");List<Button> list=new ArrayList<>();while(n-->0){Button button=Button.load(i);if(extended)button.hoverVoice=i.readUTF();list.add(button);}return list;}
     public void save(DataOutput o)throws IOException{o.writeInt(0x444d5531);for(int v:new int[]{x,y,sourceX,sourceY,layout,binding,hovered,pressed})o.writeInt(v);o.writeBoolean(waiting);o.writeUTF(version);for(String a:actions)o.writeUTF(a);for(int c:palette)o.writeInt(c);saveQuads(o,quads);saveButtons(o,buttons);for(List<Quad> t:quadTemplates)saveQuads(o,t);for(List<Button> t:buttonTemplates)saveButtons(o,t);}
     public void load(DataInput i)throws IOException{if(i.readInt()!=0x444d5531)throw new IOException("DM UI format");x=i.readInt();y=i.readInt();sourceX=i.readInt();sourceY=i.readInt();layout=i.readInt();binding=i.readInt();hovered=i.readInt();pressed=i.readInt();waiting=i.readBoolean();version=i.readUTF();for(int n=0;n<actions.length;n++)actions[n]=i.readUTF();for(int n=0;n<64;n++)palette[n]=i.readInt();quads.clear();quads.addAll(loadQuads(i,2048));buttons.clear();buttons.addAll(loadButtons(i));for(List<Quad> t:quadTemplates){t.clear();t.addAll(loadQuads(i,30));}for(List<Button> t:buttonTemplates){t.clear();t.addAll(loadButtons(i));}}
 }

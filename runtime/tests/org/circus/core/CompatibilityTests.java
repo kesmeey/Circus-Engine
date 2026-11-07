@@ -71,7 +71,7 @@ public final class CompatibilityTests {
         v.write(96,0,1);v.write(96,7,-2);check(v.read(96,0)==1&&v.read(96,7)==1&&v.read(100,100)==129,"persistent byte read overlaps LSB-first music bits");
         v.write(400,99,0x1234);check(v.read(400,99)==0x1281&&v.read(100,99)==0x12,"last persistent word writes high byte only, reads following music byte");
         v.write(96,7,0);v.write(97,1199,3);v.write(98,649,1);check(v.read(96,7)==0&&v.read(97,1199)==1&&v.read(98,649)==1,"bitsets keep independent boundaries");
-        reject(()->v.write(300,-1,0),"negative packed write rejected");reject(()->v.read(400,100),"unverified persistent window rejected");
+        reject(()->v.write(300,-1,0),"negative packed write rejected");check(v.read(400,100)==(short)((v.read(100,100)<<8)|v.read(100,101)),"native persistent word read crosses into owned music bytes");
         reject(()->v.read(99,219),"platform state query is never fabricated");
         check(state.persistenceDirty,"persistent writes schedule storage work");
         Profile dm=Profiles.get("dc2dm-9d72"),dd=Profiles.get("dc3dd-a5a8");

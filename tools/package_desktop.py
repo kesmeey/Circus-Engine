@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--jdk', type=Path, required=True)
     parser.add_argument('--ffmpeg', type=Path, required=True)
-    parser.add_argument('--version', default='0.11.0-pc-dev')
+    parser.add_argument('--version', default='0.14.3-native-rewrite-dev')
     args = parser.parse_args()
     if any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_' for c in args.version):
         raise SystemExit('Invalid version')
@@ -43,29 +43,33 @@ cd /d "%~dp0"
 start "DC Runtime" "%~dp0jre\bin\javaw.exe" -Xmx1536m "-Ddc.ffmpeg=%~dp0bin\ffmpeg.exe" "-Ddc.saveRoot=%~dp0saves" "-Ddc.cacheRoot=%~dp0cache" -jar "%~dp0dc-runtime.jar" %*
 '''
     (package/'DC Runtime.cmd').write_bytes(launch.replace('\n','\r\n').encode('ascii'))
-    readme = '''DC Runtime — 四版本 PC 解释器测试版
+    readme = '''DC Runtime — 非 Unity 原生规则重写开发版
 
 双击 DC Runtime.cmd，选择包含 AdvData 的游戏目录。
 也可以把游戏目录拖到 DC Runtime.cmd 上。无需安装 Python、Java 或 Android SDK。
-支持本次核验的 DC3DD、DC2DM、D.C.II P.C、D.C.P.C 四种数据版本。
+非 Unity 入口包括 DCPC、DC2PC、DC2、DC2DM、DD、WY、PP。
 读取原版 START/MES，使用原版标题、系统脚本、图片和声音；包内不含游戏数据。
 
-左键 / Enter / 空格：推进；右键 / Esc：原版菜单或返回。
-旧 PC 两代对话框的上下箭头可回看；DC3DD/DC2DM 使用原版 Log 面板。
+左键 / Enter：推进；右键 / Esc：原版菜单或返回。PC1 空格：隐藏/显示正文；选择画面请用鼠标点选。
+PC1 的 PgUp/PgDn、对话框上下箭头按原生日志回看，右键退出回看；PC2 对话框上下箭头可回看。DC3DD/DC2DM 使用各自 Log 面板。
 鉴赏列表：鼠标滚轮、原翻页按钮或拖动滚动条；DD CG 查看时右键返回。
 A：切换自动；按住 Ctrl：快进；F5 / F9：独立快速保存 / 读取；F11：全屏。
-原版存读档菜单也已接入；存档写入本包 saves，影片缓存写入 cache。
-不同游戏分开保存，不写原游戏目录。Windows 原游戏存档尚不导入。
+存档写入本包 saves，影片缓存写入 cache。
+PC1 原版存/读/快速槽位尚未完成原生重建，现明确拒绝；F5/F9 仍是独立便携快照。
+不同游戏分开保存，不写原游戏目录。Windows 原游戏剧情槽尚未完整导入，系统进度按各版本另行迁移。
 
-这是兼容性测试版。已验证标题、正文、立绘、选择、原版存读档和选定完整路线。
-已接入PC1原姓名编辑、存档预览/角色图标、BGM位置续播、文字显示速度和角色语音设置。
-0.11修复连续系统截图丢失底图，冻结截图中的控件/颜色/动画，兼容0.9/0.10解释器存档。
-尚不表示所有路线、鉴赏、设置和演出均已逐项与原作一致。
+本版本尚未完整复刻整个引擎，不承诺所有路线、鉴赏、设置及演出可用。
+已按各 EXE 独立证据重写脚本取指、变量布局及部分版本专属音频、UI、系统指令。
+新剧情存档为CVS2/rev7；旧CVS1或不同执行合同的旧快照明确拒绝读取并保留旧文件。
+独立系统进度使用自己的迁移规则，不能用旧剧情槽的限制推断系统进度也不可用。
 遇到未实现指令会停下并显示脚本位置，不会静默跳过。
-更多测试范围和限制见随包 PC_COMPATIBILITY.md。
+本次验证范围和缺口见随包 NATIVE_REWRITE_STATUS.md 与 NATIVE_FIDELITY_AUDIT.md。
+PC_COMPATIBILITY.md 包含旧版兼容层记录，不是本次全引擎忠实度证明。
 '''
     (package/'先读我.txt').write_text(readme, encoding='utf-8-sig')
     shutil.copy2(ROOT/'docs/PC_COMPATIBILITY.md', package/'PC_COMPATIBILITY.md')
+    for name in ['NATIVE_REWRITE_STATUS.md', 'NATIVE_FIDELITY_AUDIT.md', 'NATIVE_DECODER_CONTRACT.md']:
+        shutil.copy2(ROOT/'docs'/name, package/name)
     ffmpeg_version = subprocess.run([str(args.ffmpeg), '-version'], capture_output=True, text=True, check=True).stdout
     (package/'FFMPEG-BUILD.txt').write_text(ffmpeg_version, encoding='utf-8')
     report = {'version': args.version, 'game_assets_included': False, 'source_sha256': (ROOT/'build/desktop/source.sha256').read_text(),

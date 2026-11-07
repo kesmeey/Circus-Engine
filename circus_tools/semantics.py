@@ -108,7 +108,7 @@ def analyze(data: bytes, profile_id: str):
     access_counts = Counter()
     counts, physical_counts = Counter(), Counter(t.opcode for t in tokens)
     for t in tokens:
-        if t.opcode == sem["control"]["label_opcode"]:
+        if getattr(t, "consumed_by", None) is None and t.opcode == sem["control"]["label_opcode"]:
             labels.setdefault(t.raw[1:-1], []).append(t.offset)
 
     def issue(kind, offset, **extra):
@@ -141,17 +141,21 @@ def analyze(data: bytes, profile_id: str):
             issue("header_offset_candidate_not_boundary", location, raw_word=word)
 
     i = 0
+    decoder = sem["decoder"]
+    extension_at_fetch = decoder.get("extension_at_fetch", True)
+    extension_owners = set(decoder.get("extension_owners", ()))
     while i < len(tokens):
         t = tokens[i]
         op = f"0x{t.opcode:02X}"
-        operation = ops.get(op, "unknown")
+        operation = ("native.no_effect" if decoder.get("signed_opcode_fetch", False)
+                     and t.opcode >= 0x80 else ops.get(op, "unknown"))
         if operation == "unknown":
             counts["unknown"] += 1
         else:
             counts[operation] += 1
         record = {"offset": t.offset, "pc": t.offset - header["version_offset"],
                   "opcode": op, "operation": operation,
-                  "status": cat["operations"].get(operation, {}).get("status", "static_verified" if operation != "unknown" else "unknown")}
+                  "status": cat["operations"].get(operation, {}).get("status", "bound_status_unspecified" if operation != "unknown" else "unknown")}
         p = list(struct.unpack("<4h", t.raw[1:])) if t.kind == "u16x4" else list(t.raw[1:]) if t.kind == "u8x2" else None
         if p is not None:
             record["operands"] = p
@@ -159,12 +163,37 @@ def analyze(data: bytes, profile_id: str):
             record["string_bytes_hex"] = t.raw[1:-1].hex()
         j = i + 1
         next_offset = t.offset + len(t.raw)
-        # The native fetcher consumes at most ONE extension, not an arbitrary chain.
-        if t.opcode != 0 and j < len(tokens) and tokens[j].opcode == sem["decoder"]["extension_opcode"]:
+        # Newer fetchers look ahead for a single explicit extension opcode. Old
+        # PC handlers instead skip one byte and read the next eight bytes even
+        # when that byte is not the conventional extension marker.
+        handler_payload = not extension_at_fetch and t.opcode in extension_owners
+        fetch_extension = (extension_at_fetch and t.opcode != 0 and j < len(tokens)
+                           and tokens[j].opcode == decoder["extension_opcode"])
+        if handler_payload or fetch_extension:
+            if j >= len(tokens) or tokens[j].offset != next_offset or len(tokens[j].raw) != 9:
+                raise FormatError(f"handler/fetch extension is not nine bytes at 0x{next_offset:X}")
             ext = tokens[j]
-            record["extension"] = {"offset": ext.offset, "operands": list(struct.unpack("<4h", ext.raw[1:]))}
+            owner = getattr(ext, "consumed_by", None)
+            if handler_payload and owner is not None and owner != t.offset:
+                raise FormatError(f"handler payload owner mismatch at 0x{ext.offset:X}")
+            record["extension"] = {"offset": ext.offset,
+                                   "operands": list(struct.unpack("<4h", ext.raw[1:])),
+                                   "raw_opcode": ext.opcode, "consumed_by": t.offset,
+                                   "consumption": "handler_payload" if handler_payload else "fetch_lookahead"}
             counts["arguments.extend_absorbed"] += 1
+            if handler_payload:
+                counts["handler_word_payloads_absorbed"] += 1
             next_offset = ext.offset + len(ext.raw)
+            j += 1
+        if t.opcode in decoder.get("string_payload_owners", ()):
+            if j >= len(tokens) or tokens[j].offset != next_offset or tokens[j].consumed_by != t.offset:
+                raise FormatError(f"missing owned handler string at 0x{next_offset:X}")
+            payload = tokens[j]
+            record["string_payload"] = {"offset": payload.offset, "raw_opcode": payload.opcode,
+                                        "bytes_hex": payload.raw[1:-1].hex(), "consumed_by": t.offset,
+                                        "consumption": "handler_raw_nul_string"}
+            counts["handler_string_payloads_absorbed"] += 1
+            next_offset = payload.offset + len(payload.raw)
             j += 1
         if t.kind == "encoded_string" and sem["decoder"].get("encoded_string_postmap") is not None:
             record["native_string_bytes_hex"] = native_string_bytes(t.raw[1:-1], sem).hex()
@@ -219,6 +248,22 @@ def analyze(data: bytes, profile_id: str):
             issue("variable_update_mode_ignored", t.offset, mode=p[3])
         elif operation == "variable.update_indirect" and p[3] not in (0, 1, 2, 3):
             issue("variable_update_mode_ignored", t.offset, mode=p[3])
+        elif operation == "pp.audio.music":
+            # PP's native music handler consumes one adjacent 06 only after
+            # the fetcher's optional 57 extension. A lone 06 is its own duck
+            # command; it is unrelated to DD's opcode-06 message wait.
+            duck = 0
+            if j < len(tokens) and tokens[j].opcode == 0x06:
+                companion = tokens[j]
+                if len(companion.raw) != 3:
+                    raise FormatError(f"PP music duck companion is not three bytes at 0x{companion.offset:X}")
+                duck = companion.raw[1]
+                record['duck_companion'] = {'offset': companion.offset, 'raw_opcode': 0x06,
+                                             'duck': duck, 'ignored_byte': companion.raw[2]}
+                counts['pp.music_duck_companions_absorbed'] += 1
+                next_offset = companion.offset + 3
+                j += 1
+            record['music_request'] = {'track': p[0], 'mode': p[1], 'duck': duck}
         elif operation == "dd.grid.text" and p[3] != 99:
             if j < len(tokens) and tokens[j].kind in ("string", "encoded_string"):
                 payload = tokens[j]
@@ -261,7 +306,17 @@ def analyze(data: bytes, profile_id: str):
                                     'initial_pc': state['script_transition']['first_pc'],
                                     'applies_then_clears_pending_label': True,
                                     'status': 'partial_callee_effects_and_load_errors_unresolved'}
-        accesses = variable_accesses(record, profile_id, sem)
+        if ((operation.startswith("variable.") or operation == "branch.compare")
+                and "variables" not in sem
+                and sem.get('runtime_variable_model') not in ('PC_BYTE', 'PC_WIDE', 'DC2_PACKED')):
+            # A runtime memory-model name does not provide this analyzer's full
+            # per-bank evidence schema. Preserve operands rather than borrowing
+            # another game's variable contract or crashing on an absent table.
+            accesses = []
+            record['variable_access_status'] = 'native_schema_unavailable'
+            issue('variable_contract_unavailable', t.offset, profile=profile_id)
+        else:
+            accesses = variable_accesses(record, profile_id, sem)
         if accesses:
             record['variable_accesses'] = accesses
             for access in accesses:
@@ -275,7 +330,7 @@ def analyze(data: bytes, profile_id: str):
                 issue("physical_records_after_stop", t.offset, count=len(tokens)-j)
         else:
             record["native_next_offset"] = next_offset
-        if operation != "unknown" or "extension" in record:
+        if operation != "unknown" or "extension" in record or "string_payload" in record:
             annotations.append(record)
         i = j
 

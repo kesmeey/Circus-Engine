@@ -46,6 +46,8 @@ public abstract class DesktopEngine {
     public boolean editingText(){return false;}
     public void typeText(String text){}
     public void editKey(int code)throws IOException{}
+    /** Return true when the active native modal owns this key event. */
+    public boolean modalKey(int code)throws IOException{return false;}
     public abstract MesVm vm();
     public Object executionIdentity(){return vm();}
     public String scriptName(){return vm().scriptName();}

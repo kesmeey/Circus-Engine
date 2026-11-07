@@ -1,0 +1,2396 @@
+{
+  "schema": "circus.source-checkpoint.v1",
+  "generated_utc": "2026-11-07T08:20:57.730715+00:00",
+  "baseline_commit": "93e0b0e3a4960e1147fabdbce705bb17f5fd24ed",
+  "scope": "Unreleased native rewrite source. Whole non-Unity engine fidelity is incomplete. Original Windows game executables were not executed.",
+  "java": {
+    "release": 8,
+    "heap_mib": 192,
+    "checks": {
+      "core": {
+        "exit_code": 0,
+        "output": "PASS 826261 assertions; self-authored fixtures; DD choices/flow/original UI/animation/macros, WY bindings, DM memory/control and collection detection; archives, CRX/CRXD, audio, save integrity"
+      },
+      "startup-dc2-3363": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 2521
+      },
+      "startup-dc2dm-9d72": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 861
+      },
+      "startup-dc2pc-5769": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 665
+      },
+      "startup-dc3dd-a5a8": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 1468
+      },
+      "startup-dc3pp-9872": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 893
+      },
+      "startup-dc3wy-a09f": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 1439
+      },
+      "startup-dcpc-2063": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 560
+      }
+    },
+    "sources": {
+      "runtime/core/src/org/circus/core/Archive.java": {
+        "compiled_bytes_sha256": "afc1f41ffd933564087376b3d978becf32fff4dc8b67ec285683eedb0a514883",
+        "git_lf_sha256": "b184ceb871b43067247f8d02bb41c589699b09bf3e5ff48ae0c70a68c944f6d2"
+      },
+      "runtime/core/src/org/circus/core/AudioLevels.java": {
+        "compiled_bytes_sha256": "89fcd4ab081e4461eb3d025ca06a46d2687186cc46ae224b6db17c469f545b69",
+        "git_lf_sha256": "94696176d1c9e8376cfafce6f00e78c64e1d1496ee9d24dd1bf59829e7562285"
+      },
+      "runtime/core/src/org/circus/core/Binary.java": {
+        "compiled_bytes_sha256": "9e1a0e3670917d95315ef0f9e46d88e87f1a2e720657a89e7fedd6963ed4b1e2",
+        "git_lf_sha256": "04c7606739216094d1c1e2c4278ea3fd59ae73fcb6baeade85adfdae10bcfb80"
+      },
+      "runtime/core/src/org/circus/core/CircusResources.java": {
+        "compiled_bytes_sha256": "f5bb87966238809a6a4b57424acbdf1c845b22ac52e57b5c958b558b922cb4b2",
+        "git_lf_sha256": "25f36044392520600e8739e23d22494c1d699398b35608a5b8f2d82bbbbc4da0"
+      },
+      "runtime/core/src/org/circus/core/CircusScrScript.java": {
+        "compiled_bytes_sha256": "99d1294a7d4c61017330799ae0ffc455d21ce42af6d6985b320ff3ae31cdb1aa",
+        "git_lf_sha256": "c393afd282c6eb0e04b20980e77e275891b2fe5e4f9753eb4b09c7400d44d58c"
+      },
+      "runtime/core/src/org/circus/core/CircusScrVm.java": {
+        "compiled_bytes_sha256": "0430c6960ed8f4f2d6ed1ff9936a5b70bfc063deaf88955af94d29227d686ce9",
+        "git_lf_sha256": "a2e7a45e720048d436b3acf3da31f80223ae7863087cdcedf119f06bfd516f36"
+      },
+      "runtime/core/src/org/circus/core/Crx.java": {
+        "compiled_bytes_sha256": "1742c341a63e4b9946496c5badf4d73abf37f182240da346c1e636b7c503fcd6",
+        "git_lf_sha256": "f723cbedbdb16479eced54b5606659e33b98729c8f2f9f8c919242c7f6d0bbb7"
+      },
+      "runtime/core/src/org/circus/core/DataJson.java": {
+        "compiled_bytes_sha256": "3ddd7f5dc1b436d7ea732cf282d6194bc254cbb984adf753eb2d20f29774cc09",
+        "git_lf_sha256": "d3d5426e29bb121cc49f7e8619d451315544cfceb27f2aecd3aaadbd82bdda85"
+      },
+      "runtime/core/src/org/circus/core/Dc2Compositor.java": {
+        "compiled_bytes_sha256": "48f76df5c5ed63ce3b2910ca24b3fd16226ddaf9294c6cca0bbb7c41aaff96a8",
+        "git_lf_sha256": "48f76df5c5ed63ce3b2910ca24b3fd16226ddaf9294c6cca0bbb7c41aaff96a8"
+      },
+      "runtime/core/src/org/circus/core/Dc2Credits.java": {
+        "compiled_bytes_sha256": "69675ccb426a1b0b2c95c43400dcd6221336bf75e3249b700f9184deb7198c8c",
+        "git_lf_sha256": "509ddbc7cc41835cb9f5a30784633757860a4a911de9cf44cc8f29368d8b779a"
+      },
+      "runtime/core/src/org/circus/core/Dc2CrxMemory.java": {
+        "compiled_bytes_sha256": "4d57b044bda1ef929785f4cca0f0cea7e168b0eac61bdb0a23abc773a44f7c20",
+        "git_lf_sha256": "4d57b044bda1ef929785f4cca0f0cea7e168b0eac61bdb0a23abc773a44f7c20"
+      },
+      "runtime/core/src/org/circus/core/Dc2GlyphCache.java": {
+        "compiled_bytes_sha256": "431fa3873ee121edef9113b21e29721d8b03ca8fb5a1f0fdd5ea217dc873bca3",
+        "git_lf_sha256": "431fa3873ee121edef9113b21e29721d8b03ca8fb5a1f0fdd5ea217dc873bca3"
+      },
+      "runtime/core/src/org/circus/core/Dc2GlyphMemory.java": {
+        "compiled_bytes_sha256": "c77f0cb150e6057d6c028e9c813adf92678a94c94c03b004149993637ceee2b5",
+        "git_lf_sha256": "c77f0cb150e6057d6c028e9c813adf92678a94c94c03b004149993637ceee2b5"
+      },
+      "runtime/core/src/org/circus/core/Dc2GlyphService.java": {
+        "compiled_bytes_sha256": "e76eabbaceac5613397c7b29f22d0440daf4c00c55a86f0f699533e4da8b0b34",
+        "git_lf_sha256": "483572e97d5c637fb0265304c138a49d5340da5c1b067ed5eb026a51d5696783"
+      },
+      "runtime/core/src/org/circus/core/Dc2History.java": {
+        "compiled_bytes_sha256": "7b6db2ed5d04687eaa3f00d54059367c8572a1898cec47bc0bfdc4373deac573",
+        "git_lf_sha256": "bca6887b2650a05c166195c900751c9fc85a6ed99a3d95b68a83ed55ea85b427"
+      },
+      "runtime/core/src/org/circus/core/Dc2Host.java": {
+        "compiled_bytes_sha256": "ab3484cf6cc85d79d23cabed2015b8d119b63a2abbd497a3c670d6079110641f",
+        "git_lf_sha256": "187afb29a8bf4e6bbb7575e3406d9b59360fdd92271b96614c254a8cc71b6d7e"
+      },
+      "runtime/core/src/org/circus/core/Dc2Motion.java": {
+        "compiled_bytes_sha256": "bbe184d22b23933ae5562b6ca6ebdca77c1e68f81de7f2a26c5350b9813d9dc7",
+        "git_lf_sha256": "dedfdd9e828dedd8a9f5847f6c1f4dd60662bf0903d1d16bc8dba7145f74bdae"
+      },
+      "runtime/core/src/org/circus/core/Dc2MusicRoom.java": {
+        "compiled_bytes_sha256": "c45cf99438855610b4f3eddcf8868b343146c8efa869782c48a6e751370e5f5e",
+        "git_lf_sha256": "3db0ed3195d36918cc86e513de50d139cafbed22b7137b8c738345ffabb3fa9f"
+      },
+      "runtime/core/src/org/circus/core/Dc2NativeData.java": {
+        "compiled_bytes_sha256": "d0cf839541b9a3fcde3155082ab36e12bafd69a5dab088d21a308cebaaf134d6",
+        "git_lf_sha256": "05433d2070a6ea29a09a5fb1f70dc4e4d5f622e21b350a97370f5f76f8ef7a47"
+      },
+      "runtime/core/src/org/circus/core/Dc2PartialRedraw.java": {
+        "compiled_bytes_sha256": "b5f8ae2f2e5cb416c8d249ac7e079c2789f062474ab8e090c8527f3f2d23e810",
+        "git_lf_sha256": "b5f8ae2f2e5cb416c8d249ac7e079c2789f062474ab8e090c8527f3f2d23e810"
+      },
+      "runtime/core/src/org/circus/core/Dc2Particles.java": {
+        "compiled_bytes_sha256": "14664265665d3aef6ac554f523a674994bd6a549e62842a49fb7166f2c4d3afb",
+        "git_lf_sha256": "5bf8f1463996287724fa0a7e7bc382eed802a9d589be472cc2edf302552915db"
+      },
+      "runtime/core/src/org/circus/core/Dc2Rain.java": {
+        "compiled_bytes_sha256": "bafdd33df7fec51dcc08ea727138f7e04c370b0120c0b155096955cd8c83aaf2",
+        "git_lf_sha256": "bafdd33df7fec51dcc08ea727138f7e04c370b0120c0b155096955cd8c83aaf2"
+      },
+      "runtime/core/src/org/circus/core/Dc2RainPipeline.java": {
+        "compiled_bytes_sha256": "a68cb081a4c3a7e19e9a0f24ac76e738eddb290863493a9edfed105d37bb45e1",
+        "git_lf_sha256": "a68cb081a4c3a7e19e9a0f24ac76e738eddb290863493a9edfed105d37bb45e1"
+      },
+      "runtime/core/src/org/circus/core/Dc2Scene.java": {
+        "compiled_bytes_sha256": "d2bfb6c4ac804d5319426432a1d6c43a51580ab5f39979b944d163ad205bd05b",
+        "git_lf_sha256": "c8d5903a8b285f7a2a8ccef5d3a3a2045b85fd9b5213790dafdf4475e53d41e8"
+      },
+      "runtime/core/src/org/circus/core/Dc2Session.java": {
+        "compiled_bytes_sha256": "7b46ad41323020c9f37d619cf53864f06a4707994139d7481f16d33bd8861e23",
+        "git_lf_sha256": "b4b7920c032cd3c554a629425c55f95dc19a7147bb8fcd2c8d0e0fe8dace4a2c"
+      },
+      "runtime/core/src/org/circus/core/Dc2SpriteEffects.java": {
+        "compiled_bytes_sha256": "2b7a4064dfcd74f965dfd22894f07d272416d27ca16225d57840b3a7a81bc03a",
+        "git_lf_sha256": "2b7a4064dfcd74f965dfd22894f07d272416d27ca16225d57840b3a7a81bc03a"
+      },
+      "runtime/core/src/org/circus/core/Dc2State.java": {
+        "compiled_bytes_sha256": "65e05e7e1aafb9c80921d17d3f963f667c7ba5431f1917ab12b01e933d9a92f4",
+        "git_lf_sha256": "3a609440245cd5014f25eed950abe781d7237ba6e98c693f18b1eef5ddab0e70"
+      },
+      "runtime/core/src/org/circus/core/Dc2SystemCommands.java": {
+        "compiled_bytes_sha256": "eec1046956db5a1268d7f7b36faf4493c551e84e27c2aaeaa3b50a0e55ef38bb",
+        "git_lf_sha256": "f7c5297299dce270e70a55387d673c3d4df137fb44c12fb29c9d47d1eb866ca8"
+      },
+      "runtime/core/src/org/circus/core/Dc2Text.java": {
+        "compiled_bytes_sha256": "d77292cebe546d01885ba34c3a4e67d16b9b93fcf637e3fb07144fc3e6689d69",
+        "git_lf_sha256": "8987cae9acd5025b9e23915c4f13ae446af0955db8e7bc2dfa89a479c2c04a5a"
+      },
+      "runtime/core/src/org/circus/core/Dc2Ui.java": {
+        "compiled_bytes_sha256": "94b64001a03d5dcf663a7119702d4e650b652ece75bc2469f9064ba511830517",
+        "git_lf_sha256": "b0f90918c84fc39091133bb4ded1a74b5b4fd67b66cb32f0b2e29a78d0602543"
+      },
+      "runtime/core/src/org/circus/core/Dc2Voice.java": {
+        "compiled_bytes_sha256": "6bb57ddfefbf01685c4d26381e3cfdafdd2ec123290c08d792ec9ec976bc13f4",
+        "git_lf_sha256": "93d3f74d6ba7005b68a6561b6ccabcaeaa8bcddd004bf2edc8adcdac50146d81"
+      },
+      "runtime/core/src/org/circus/core/Dc3Backlog.java": {
+        "compiled_bytes_sha256": "0667a8bf69afeddefbee69e113a76fc19d16cf8bd1ac8dc994433054a42cc4a0",
+        "git_lf_sha256": "1ac6c3905b1ea24a3b250a37a29cf2cb62f865f898594acfa654b98e8b99c133"
+      },
+      "runtime/core/src/org/circus/core/Dc3Camera.java": {
+        "compiled_bytes_sha256": "60dbd5354a139d605970c7860d7d04bd7e4ae19116babb5d8f149adde9d8972d",
+        "git_lf_sha256": "40cfb58d18bf04c72393a30895dc9ab60aed3fa971c23fe66ee7ec9d4dba22c2"
+      },
+      "runtime/core/src/org/circus/core/Dc3Credits.java": {
+        "compiled_bytes_sha256": "efb449b4ae1ce6e705e8187ae2ee3cec4aa970ec1f6fd3f1d25a93fd587a4091",
+        "git_lf_sha256": "5980995a84725bcc738f84473c14a4c5c83a18cb896236b8a55fa977ddc7426f"
+      },
+      "runtime/core/src/org/circus/core/Dc3CreditsRules.java": {
+        "compiled_bytes_sha256": "8f711219f68453b8758fece54d00f880488b6b6f88f4b917aa7a86cc4108504c",
+        "git_lf_sha256": "f8e44aabec3ee36e9e12363a83289626d2ac0b2f2d2ea7c4520fe1b22573884c"
+      },
+      "runtime/core/src/org/circus/core/Dc3Gallery.java": {
+        "compiled_bytes_sha256": "13cfd164c66109f06a9b954dbe9e22099397212195ef8dfeb33388777a98157f",
+        "git_lf_sha256": "6fe810c0b4b8c76bf14e235a83c2808cfcaba383cc493a63d5bf8d593a654567"
+      },
+      "runtime/core/src/org/circus/core/Dc3Host.java": {
+        "compiled_bytes_sha256": "a0dcf9a59c6c65a527d1f364ce441794c543bd97986dcbb87a4370db0419b4ad",
+        "git_lf_sha256": "422cb52b59fc5b5ad36999eac66c0c337af4cae23fb11e7895ab3d9cab68b270"
+      },
+      "runtime/core/src/org/circus/core/Dc3Layout.java": {
+        "compiled_bytes_sha256": "82087aeb203e1b6f8ba941377c9febb3c735ace086174a6a91e6caf5ef22ed82",
+        "git_lf_sha256": "dc2f6432d567cdd8e0c7c67ba952fd797da9304c53fbcbb2de771801f6cf603c"
+      },
+      "runtime/core/src/org/circus/core/Dc3Music.java": {
+        "compiled_bytes_sha256": "574648cf8052a97825635e767c5f62599a288232f02ce52ab75e7aeeec84ea5c",
+        "git_lf_sha256": "0ae9b8295428f4d030e19f4645164316ea25aebf3967ce1340f0392823f9c55e"
+      },
+      "runtime/core/src/org/circus/core/Dc3NativeData.java": {
+        "compiled_bytes_sha256": "35df04171fa8a0e0428704ea032e466fe2d9faffa1ef2c9eae23c20459c9e1a1",
+        "git_lf_sha256": "307208a028a4e49987db4906b1f9f56f9cd84d703c867d4600464338c6514027"
+      },
+      "runtime/core/src/org/circus/core/Dc3Performance.java": {
+        "compiled_bytes_sha256": "a3fa9d0439852800a4f0006bbd5e068aa423f88b06e7b071726a76fc19897369",
+        "git_lf_sha256": "454d333233e1f72b8449def7c48ba15c6b5f066e26c60056d9dd0351c865ba77"
+      },
+      "runtime/core/src/org/circus/core/Dc3Petals.java": {
+        "compiled_bytes_sha256": "6e58b5c00d8697777868aa86ab7e690438d47d4ec94510b86556210c983ddb0c",
+        "git_lf_sha256": "ad59b26d93ee3e0c63af7acdc1a9afd7667ec65e2f2d2e06f262860da7cdb25d"
+      },
+      "runtime/core/src/org/circus/core/Dc3rAnimation.java": {
+        "compiled_bytes_sha256": "9b08f4baae52dca2775f66f919accb1af9b002b362cfb6bdc01248f03f86a81c",
+        "git_lf_sha256": "1b991c26b4c97c383041c6e65a8e7257c62bb950e918857bdf1b794450f820da"
+      },
+      "runtime/core/src/org/circus/core/Dc3rBacklog.java": {
+        "compiled_bytes_sha256": "198e9076dfceae4f5629f8159fc387825c56b6b9df08d757157163ae07d70d79",
+        "git_lf_sha256": "7ffae033b3fdf120407b7dbf514055051951aef05e14dfad5c9b2d537358869a"
+      },
+      "runtime/core/src/org/circus/core/Dc3Resources.java": {
+        "compiled_bytes_sha256": "4d789d890bb1f8a8c0e372a2d9111b0cd7ee342c5cc4878f31e0f9518a5707ca",
+        "git_lf_sha256": "ac00183dc5cb5355b94a25f8eec08ca5120a0ceda53af1a71f2711c8afe0a6f3"
+      },
+      "runtime/core/src/org/circus/core/Dc3rHost.java": {
+        "compiled_bytes_sha256": "230277f3ae8e3bf12ca72f4e7a9513fae97d4dfda1722132f116e1cc0985e84e",
+        "git_lf_sha256": "ac6599252f76bdfbcec2d6a4bab14005c45d1571906409b1f18380386d1801ef"
+      },
+      "runtime/core/src/org/circus/core/Dc3rNativeProgress.java": {
+        "compiled_bytes_sha256": "dd641c04e75411264ba89fcb1433d9745ac25af975fb5e7d4961710e57c092f5",
+        "git_lf_sha256": "30a4046f9fa8268f4d6cbc0156b19c3a13327ff95ebb8be609286b109832c81a"
+      },
+      "runtime/core/src/org/circus/core/Dc3Scene.java": {
+        "compiled_bytes_sha256": "6e6358d436c27fb0749c58376f1a2d3d5b877cd21b7fc1dd10fbcb9b80dea380",
+        "git_lf_sha256": "ee601bdddab084ad9e324398a80cdb46f7a02593cc0d7a98415eaa7ac47d0304"
+      },
+      "runtime/core/src/org/circus/core/Dc3State.java": {
+        "compiled_bytes_sha256": "93c19fe6278d6270b31964277dbb8cb516af3a6f062f2bc59fdfa5f7469def53",
+        "git_lf_sha256": "0b824f0b684f73bd9312b0d27f77cabbbf785f20959d7f0fbf609140f4fe975f"
+      },
+      "runtime/core/src/org/circus/core/Dc3StateRules.java": {
+        "compiled_bytes_sha256": "53313cc07dff91940bb787a751d4f3bf5d39751c80cf58482c5809bdd435c53f",
+        "git_lf_sha256": "66ce04cb8e1bbfe210390233a3133f6fdb1ded3c00419e6cede0b437abf4bfd2"
+      },
+      "runtime/core/src/org/circus/core/Dc3Transition.java": {
+        "compiled_bytes_sha256": "983524266762cf2b7a712eec5dd64bf0e59299f6d5a1655ceb57bbe2121a6803",
+        "git_lf_sha256": "fe87d33dc754ef046bba03df115f5012e451baa073030eb411939d227324ec98"
+      },
+      "runtime/core/src/org/circus/core/Dc3Ui.java": {
+        "compiled_bytes_sha256": "1e2ee150f7056b5de5a60299669299239ccd4ecda9048a6688f8885cf9f90799",
+        "git_lf_sha256": "14c89b70b908d07d4675945cf37761e4f5f292f59ae9659e08129ccbe033eaf7"
+      },
+      "runtime/core/src/org/circus/core/DdBoundControl.java": {
+        "compiled_bytes_sha256": "2a3aebd6573d593636c71ca467fc6d6a0bf63b244a31556437fbe5b95751aa22",
+        "git_lf_sha256": "ea3da2fd03a287c94d37e5658993f70ea72ebb3d012d2a09e9fc9df571cc8c9c"
+      },
+      "runtime/core/src/org/circus/core/DdModalNotice.java": {
+        "compiled_bytes_sha256": "e5e0963724ffb3f1a3f6523e92ea918bb83c4ac2fec36bb4dd2eec088529f5b6",
+        "git_lf_sha256": "c89dca1b1b6e99f6489f28e4f38733db8f4bd3d04e9ad3fce803032a64fd0f7f"
+      },
+      "runtime/core/src/org/circus/core/DemoHost.java": {
+        "compiled_bytes_sha256": "54de23033d8f4a2b8854d69a8219036ebe89e3bb83150af72e464f34d299773b",
+        "git_lf_sha256": "2f3d05a65d16be73e99ddc8728a5f051b7bdd07de909b69f65ebd3b82ecfdc36"
+      },
+      "runtime/core/src/org/circus/core/DialogueHost.java": {
+        "compiled_bytes_sha256": "cc33af16878ad7a3075528cfb8f83d88bf9d77d7d0196fe91f731e9176c1d584",
+        "git_lf_sha256": "bb4589bded1f74c72df3582e8366cb36abbc58a5df6b17443c52afe21f024c5d"
+      },
+      "runtime/core/src/org/circus/core/ExecutableData.java": {
+        "compiled_bytes_sha256": "328606646254d8388cb76b202bbb29e6d32fe842afa855909c2d8fe1529342fa",
+        "git_lf_sha256": "c377b52bb71c514f62f3c085434630385156bdb468287af5ec83d85e9ab2d278"
+      },
+      "runtime/core/src/org/circus/core/Fsb5Vorbis.java": {
+        "compiled_bytes_sha256": "54f9b75698ba3045c2b7cd1c3a733a79d3573175d4b26470911c511b0a914075",
+        "git_lf_sha256": "2fa51d9189d932d5cd559685cbf0f96442f5fa74f9b288f08450dafff6e40c2f"
+      },
+      "runtime/core/src/org/circus/core/GameResources.java": {
+        "compiled_bytes_sha256": "d36536646d28db0b2e97277ab30a36a32e8a0e5c63271cf6b34679daa3c99cee",
+        "git_lf_sha256": "c289c7590a14ee8e63ef21f621b887b1855f736c58a0d619df6df01177192dc9"
+      },
+      "runtime/core/src/org/circus/core/GameText.java": {
+        "compiled_bytes_sha256": "8545dd579456cd51645aec3993e94063bae54a9cd175e08e9000a42541899aa0",
+        "git_lf_sha256": "16780702d562b1f3a45cd0d4d7f37f4a6c82df05ee2d4adc247a1c642525e50b"
+      },
+      "runtime/core/src/org/circus/core/GameVersion.java": {
+        "compiled_bytes_sha256": "8f962fe18d58370f97f5ebaa6a2bfb4e2937af8e4fec1984ce6b1dde5668f174",
+        "git_lf_sha256": "c10beb039e999ddad6d00ad8b1c1ed6da425dd6caa09c6dbd14d774b3c490846"
+      },
+      "runtime/core/src/org/circus/core/MesFormats.java": {
+        "compiled_bytes_sha256": "439d2da7adffc0f5a7208faf1ccaf97e816379c0b375ef1e693a4fe99ec45122",
+        "git_lf_sha256": "5dba0fe20730ec15a71f37f7aac28024670a461389143f5ec79745c996242e3c"
+      },
+      "runtime/core/src/org/circus/core/MesRecordDecoder.java": {
+        "compiled_bytes_sha256": "7892202a0b0c7dc0ad278876c8f550d0fbec49bc6c118cd0728bf1e307f30208",
+        "git_lf_sha256": "30ce7f8a27f2eb77607bad73dbea8fa3c99d8191484183e26ea8b383ffcd92b0"
+      },
+      "runtime/core/src/org/circus/core/MesScript.java": {
+        "compiled_bytes_sha256": "0e6beef5270ebb11993cfe34260c91cac5fa506933d48882fe9e42a288ba0831",
+        "git_lf_sha256": "8b5e2edef867d2a85d6175c4f5915e8707f2a1871b0e12cbf8291b395834a883"
+      },
+      "runtime/core/src/org/circus/core/MesVm.java": {
+        "compiled_bytes_sha256": "55c8c106929209f2c7d77c83591412e63bd1b5574871b68e891bce1706df43cf",
+        "git_lf_sha256": "025d30d179eaf2dd5c5ecd525e5f339804f87c1706c3fd1dbf519268db976b05"
+      },
+      "runtime/core/src/org/circus/core/MixedVoice.java": {
+        "compiled_bytes_sha256": "3c83ec441bc552fff2d4f50bc94560903d02f8e355d1f5b45c86848bca97ef15",
+        "git_lf_sha256": "3a42131a9a0e95b8868c8eb767e9e23e553a1fa0a1aea885306164f1af02c97e"
+      },
+      "runtime/core/src/org/circus/core/NamesCatalog.java": {
+        "compiled_bytes_sha256": "49dad496f0f2acb1cce82de055fa8e470ec029ce86ba4f3edd2d37e8840c0631",
+        "git_lf_sha256": "013e6d4effccf80bdceb35b8c2127dc8c478e1c526502596039b1d4db2598372"
+      },
+      "runtime/core/src/org/circus/core/NativeGlyphCache.java": {
+        "compiled_bytes_sha256": "e037090057bac56b735c157c3e3d8bdc6357f50f0949188d2174d99118d24db6",
+        "git_lf_sha256": "e037090057bac56b735c157c3e3d8bdc6357f50f0949188d2174d99118d24db6"
+      },
+      "runtime/core/src/org/circus/core/NativeGlyphProjection.java": {
+        "compiled_bytes_sha256": "6f7a1ca26ab0216a57b147c158b23c931aac643c5b7cf58aaff2994adc5d4937",
+        "git_lf_sha256": "0243512fc9a15567d775b699a7e6a03f7c0d5fe4410da534bcdb7480e7c03695"
+      },
+      "runtime/core/src/org/circus/core/NativeInverseAlphaImage.java": {
+        "compiled_bytes_sha256": "11c4a6fc476b66ddac37fe35dcd21e6c8d5c3b85fc9f19b5cc1d1b5bccceb9ae",
+        "git_lf_sha256": "eef1e776dfe9f8d5f662438e36322b7b812e0e19192313997a464e57de1076da"
+      },
+      "runtime/core/src/org/circus/core/NativeProgress.java": {
+        "compiled_bytes_sha256": "8814ef4b0ac0f9aae309536d398fc0124492c514bfd31ec48cc647510d4a894d",
+        "git_lf_sha256": "e49101de468409f04894ee53112b8cd438724ce1393370150d506e4e98c1ea6a"
+      },
+      "runtime/core/src/org/circus/core/NativeProto.java": {
+        "compiled_bytes_sha256": "f9bab49050a33e12aec50c0295122a3cbbb4617137558c7cd3ca74f6276fd054",
+        "git_lf_sha256": "6e1c22439f501499dd53b4d1933e8c11ab2b435757203761d570dacaf1fd29d1"
+      },
+      "runtime/core/src/org/circus/core/NativeRgbImage.java": {
+        "compiled_bytes_sha256": "21a41fd566e1d769b7619313d4c64e03e5accdff019ead5c9f25587e094d275e",
+        "git_lf_sha256": "0fadad0364a8f927fac18ec103e72c050cecb02de431d9a2a04145f1500e580e"
+      },
+      "runtime/core/src/org/circus/core/NativeText.java": {
+        "compiled_bytes_sha256": "d3a257c1e683fc89ce913c4e956ea0d97b44a6ffa483183526f70f3c9ad34300",
+        "git_lf_sha256": "3842c185ed99ebd6c4872a7fe9be8c2b9eb1f833de916e0dfa75cab1eda44dc9"
+      },
+      "runtime/core/src/org/circus/core/Pc1AlphaRaster.java": {
+        "compiled_bytes_sha256": "f9e5c90dbaf5427742ad7cda1139a8c697120283f467f73e8ea8bc1082d1f8ae",
+        "git_lf_sha256": "ba04f5bf0414449d3ccf95a87740db971ed4e8308b5ab4700b4b14c85f22e358"
+      },
+      "runtime/core/src/org/circus/core/Pc1Audio.java": {
+        "compiled_bytes_sha256": "81c860a6f325ecf3837796aabb38509747b555ee4ec83c0840f6592a3c47a5ab",
+        "git_lf_sha256": "811aef8bb0ec6a3a36f0c21087c93d1be20c29fa352714b1d1c0eb349beec7c7"
+      },
+      "runtime/core/src/org/circus/core/Pc1Capture.java": {
+        "compiled_bytes_sha256": "bf727eb1d1d8bfbc17056cebfe35c3cf339841679ff3f16fc573f9fe7ba26595",
+        "git_lf_sha256": "bf727eb1d1d8bfbc17056cebfe35c3cf339841679ff3f16fc573f9fe7ba26595"
+      },
+      "runtime/core/src/org/circus/core/Pc1CatalogLoader.java": {
+        "compiled_bytes_sha256": "a8d3615411e95436457b3dabd80dfea776e439930ab59e632daebfc1205918c9",
+        "git_lf_sha256": "a8d3615411e95436457b3dabd80dfea776e439930ab59e632daebfc1205918c9"
+      },
+      "runtime/core/src/org/circus/core/Pc1CatalogMemory.java": {
+        "compiled_bytes_sha256": "383e6d92d2a23bc12b6ed591dde425d8bb16c0a26b1442311f899bdabae31fa5",
+        "git_lf_sha256": "e07dd95466a27aa9bb28c1e9a85fe85cd2eaddf894ccfdea5deaa4e592b5322a"
+      },
+      "runtime/core/src/org/circus/core/Pc1CgVisit.java": {
+        "compiled_bytes_sha256": "8e7fe4a8cab0beee42133f94961e2b7560132c247c48495badf7fb1cd358c406",
+        "git_lf_sha256": "8e7fe4a8cab0beee42133f94961e2b7560132c247c48495badf7fb1cd358c406"
+      },
+      "runtime/core/src/org/circus/core/Pc1CheckpointMemory.java": {
+        "compiled_bytes_sha256": "e25816a6358413405b0b175676c650c657c250508fcfbef368a78c55468869b7",
+        "git_lf_sha256": "e25816a6358413405b0b175676c650c657c250508fcfbef368a78c55468869b7"
+      },
+      "runtime/core/src/org/circus/core/Pc1CodeBuffer.java": {
+        "compiled_bytes_sha256": "e67d02ace2c8f175ef03f42bc5183d1c3f84b6cd495ab22f56637efc26cbe141",
+        "git_lf_sha256": "e67d02ace2c8f175ef03f42bc5183d1c3f84b6cd495ab22f56637efc26cbe141"
+      },
+      "runtime/core/src/org/circus/core/Pc1ComMemory.java": {
+        "compiled_bytes_sha256": "a7408a41791c90a12529b07aa7703c4f1bb48c00de2db9defc2be79c66c3006b",
+        "git_lf_sha256": "a7408a41791c90a12529b07aa7703c4f1bb48c00de2db9defc2be79c66c3006b"
+      },
+      "runtime/core/src/org/circus/core/Pc1Compositor.java": {
+        "compiled_bytes_sha256": "c6782dda06f10843c91a7b6babb0c83d887e45384179177c6171b06caa402e3f",
+        "git_lf_sha256": "9e73d5960451599e0c1f8de800580686fcc1fa41de8c53ddcedd9e28429376ba"
+      },
+      "runtime/core/src/org/circus/core/Pc1CrxDecoder.java": {
+        "compiled_bytes_sha256": "99b84f54061e7fd12dd6882f5cad5101b3d47d920226d9af9777d77ff2a29eba",
+        "git_lf_sha256": "9c235e860570ea500a876ebdcce2d34b03c4f732f8da40c65835f7e603d44760"
+      },
+      "runtime/core/src/org/circus/core/Pc1CrxMemory.java": {
+        "compiled_bytes_sha256": "5e8113e85a439e864a46710c1ef8c689b2189c2e0ca8f0946b9efe3ca6a8f095",
+        "git_lf_sha256": "5e8113e85a439e864a46710c1ef8c689b2189c2e0ca8f0946b9efe3ca6a8f095"
+      },
+      "runtime/core/src/org/circus/core/Pc1DrawBatch.java": {
+        "compiled_bytes_sha256": "503d742ed7a948835e1f71072a17250416bab324208f3c102e758be98364c761",
+        "git_lf_sha256": "af9dd8919238eec256bf03fc4cf135c78e8572ddefa9361541ab1b54b6668aa1"
+      },
+      "runtime/core/src/org/circus/core/Pc1DrawMemory.java": {
+        "compiled_bytes_sha256": "ff411850e66b3c5468d6bb36b437ee5c610d193a9d1d9d249ff6b995ca5053e0",
+        "git_lf_sha256": "ff411850e66b3c5468d6bb36b437ee5c610d193a9d1d9d249ff6b995ca5053e0"
+      },
+      "runtime/core/src/org/circus/core/Pc1DrawProducer.java": {
+        "compiled_bytes_sha256": "6019a00d42717f0a63ecf474df44ec101a507a96f880c9496ad552b42c745203",
+        "git_lf_sha256": "6019a00d42717f0a63ecf474df44ec101a507a96f880c9496ad552b42c745203"
+      },
+      "runtime/core/src/org/circus/core/Pc1EffectPeMemory.java": {
+        "compiled_bytes_sha256": "2f48e4a3f8911849a470d73e5ce688144afbdb0e070a25e81f9d21a519b2799c",
+        "git_lf_sha256": "9b4a6d01b2300a73acc0e56a2b6311aa4a6d33ee656ef81c4521e1c9319616b7"
+      },
+      "runtime/core/src/org/circus/core/Pc1Effects.java": {
+        "compiled_bytes_sha256": "559b4a81f439628345b2237941f559419a59f4d22b624b1624e4bf8086b8b874",
+        "git_lf_sha256": "077fc033fc0453a0af631b608126e28ec5cb327c72070f82695ffaf9351315f5"
+      },
+      "runtime/core/src/org/circus/core/Pc1EventMemory.java": {
+        "compiled_bytes_sha256": "13d694943b790d4438f0fad7edf6acd4477643e5c35a9df8274142ddd433004b",
+        "git_lf_sha256": "13d694943b790d4438f0fad7edf6acd4477643e5c35a9df8274142ddd433004b"
+      },
+      "runtime/core/src/org/circus/core/Pc1Fetch.java": {
+        "compiled_bytes_sha256": "ac8046471a2b4665447dcc03cd87b321609ee7f788b4bf727b65b0d33b41b0a9",
+        "git_lf_sha256": "3f02024273a9ffe4f1a0a86c42eef1b01c2b6f7420541fd7f59978e1f094aa4d"
+      },
+      "runtime/core/src/org/circus/core/Pc1FontMemory.java": {
+        "compiled_bytes_sha256": "7f1e6e1b1677f21f23a4648e1b22fbe3131eb6973682b039d5c2556df417af6c",
+        "git_lf_sha256": "7f1e6e1b1677f21f23a4648e1b22fbe3131eb6973682b039d5c2556df417af6c"
+      },
+      "runtime/core/src/org/circus/core/Pc1Frame.java": {
+        "compiled_bytes_sha256": "468a85a05e76c4ac13b678a9bd52ddb6d970373d00693ff2743d5c63f62dcfaa",
+        "git_lf_sha256": "dacd09b5694eb057dde29a45ef4748bd10d26c5b5ded06f9987f17719e7696be"
+      },
+      "runtime/core/src/org/circus/core/Pc1FrameCopies.java": {
+        "compiled_bytes_sha256": "5058f3df3ffaa6fa6d7105e0f2b633e0075148014c4d33c3c9bd53a773828a29",
+        "git_lf_sha256": "5058f3df3ffaa6fa6d7105e0f2b633e0075148014c4d33c3c9bd53a773828a29"
+      },
+      "runtime/core/src/org/circus/core/Pc1FrameFields.java": {
+        "compiled_bytes_sha256": "0a98dd023a119deb54598b6a09f50a2ce85ba80977e697b4076345a80a3348d8",
+        "git_lf_sha256": "c887c87e8a68beec4bbb0e82295dbfa7ac0a0a718b25356662eba1d4ce79113a"
+      },
+      "runtime/core/src/org/circus/core/Pc1FrameLayout.java": {
+        "compiled_bytes_sha256": "f766c83c019b5d2b7f14fd119ba579fe58700498b40bc499ca9307ed504d9f58",
+        "git_lf_sha256": "dc2b652d80594213a50bb3661339c0497c5625aa17947a69e129d8bc4fd0baef"
+      },
+      "runtime/core/src/org/circus/core/Pc1GeneralRedraw.java": {
+        "compiled_bytes_sha256": "82b7842eedc9f9b5b97d912b9f22f5e4248709288ab959cb7fa12b1c07d7d668",
+        "git_lf_sha256": "82b7842eedc9f9b5b97d912b9f22f5e4248709288ab959cb7fa12b1c07d7d668"
+      },
+      "runtime/core/src/org/circus/core/Pc1GlyphCache.java": {
+        "compiled_bytes_sha256": "d666a04f20963a39b414643fc7231b16154de2b1c7d58d93d55b752d0bafaace",
+        "git_lf_sha256": "d666a04f20963a39b414643fc7231b16154de2b1c7d58d93d55b752d0bafaace"
+      },
+      "runtime/core/src/org/circus/core/Pc1GlyphRaster.java": {
+        "compiled_bytes_sha256": "cf4bc15b8d46f7a9136bb7c092a8412b03aa449c6029430413fa034e37cade37",
+        "git_lf_sha256": "34d6445937dc1a189a5bc0bee5d234035189504b0b0007a8ee202e8149159eea"
+      },
+      "runtime/core/src/org/circus/core/Pc1GlyphService.java": {
+        "compiled_bytes_sha256": "9e5e53b49e03b6b393c2a7a8508080100c0527c11bfc61e43dd6a40e20d4396c",
+        "git_lf_sha256": "9e5e53b49e03b6b393c2a7a8508080100c0527c11bfc61e43dd6a40e20d4396c"
+      },
+      "runtime/core/src/org/circus/core/Pc1GraphicsMemory.java": {
+        "compiled_bytes_sha256": "bdba06dfef78cfbc1ac3c60538a66da585b5adfa38dd56ad1db12b2a4f9b8f3a",
+        "git_lf_sha256": "61f900814dc41c4ed0f1b5c808bb28aa55d422bdf893e9efca5d046480bc24c1"
+      },
+      "runtime/core/src/org/circus/core/Pc1GraphicsPipeline.java": {
+        "compiled_bytes_sha256": "89eb95e0722cbbf4ba779a36a153a22e136590dda32330809e1a985e767b8028",
+        "git_lf_sha256": "b0aba7db1d9d8d6e43845c811a3e6de5e5bbb8281d7a987d7cee772fb33878f0"
+      },
+      "runtime/core/src/org/circus/core/Pc1GraphicsResources.java": {
+        "compiled_bytes_sha256": "fdd12b219ee63693cfb65482415a8299965ee0e95e1260643ba663a55529c2a7",
+        "git_lf_sha256": "478ddd1fcc798a554d0419e6a722381c03a97ae83c29ab676e4e47e4ff91fe92"
+      },
+      "runtime/core/src/org/circus/core/Pc1GuestAddressSpace.java": {
+        "compiled_bytes_sha256": "38398c9935021dd65b18c256152f2d0b0186d774071d1b9b7ecde4fc6956192b",
+        "git_lf_sha256": "acc1aa7567c31f717a62ef6a076de5e6e09ea297a5f434ea6bf7630216bc7809"
+      },
+      "runtime/core/src/org/circus/core/Pc1GuestHeap.java": {
+        "compiled_bytes_sha256": "6c39c5296417a521a0bdff31c1e181d16f85495f76dae15165747250968cb03a",
+        "git_lf_sha256": "6c39c5296417a521a0bdff31c1e181d16f85495f76dae15165747250968cb03a"
+      },
+      "runtime/core/src/org/circus/core/Pc1HeapLease.java": {
+        "compiled_bytes_sha256": "5165244f4e71e00dd67d1753b5769b2d7787913311c0c6775dd07dc7abd2ac02",
+        "git_lf_sha256": "fa52d540211ab34c14101a9480523286df6cc866ae70891d0bf5605ace36bc1d"
+      },
+      "runtime/core/src/org/circus/core/Pc1History.java": {
+        "compiled_bytes_sha256": "28fe230b4e988cf22ed1bce53c8ddb3e2ff2c30aa29aacbfd0aaf5f829a5de41",
+        "git_lf_sha256": "28fe230b4e988cf22ed1bce53c8ddb3e2ff2c30aa29aacbfd0aaf5f829a5de41"
+      },
+      "runtime/core/src/org/circus/core/Pc1ImagePool.java": {
+        "compiled_bytes_sha256": "cee0d0ff12b6a09f62f4bb37a0593d3e41f8c8c3c74996ba6882788dc8d4ca8f",
+        "git_lf_sha256": "9b786f443435e6f89e290408b213ff7c02a27f1c7f1b555ad77ed15067e800b3"
+      },
+      "runtime/core/src/org/circus/core/Pc1InlineText.java": {
+        "compiled_bytes_sha256": "2d12ed2db36c30147b86b6b3f727f04fb37336bde29dd3bf4e987f4ccb0aecdd",
+        "git_lf_sha256": "2d12ed2db36c30147b86b6b3f727f04fb37336bde29dd3bf4e987f4ccb0aecdd"
+      },
+      "runtime/core/src/org/circus/core/Pc1Input.java": {
+        "compiled_bytes_sha256": "dd00ce2c9e7a869ebc28f5dbbfeceee632b3da357748e70caa778a398af37ae6",
+        "git_lf_sha256": "1445d424759c7e4658cc5d86551b0aadb13e069577a5c527fdeb9b20af6447a1"
+      },
+      "runtime/core/src/org/circus/core/Pc1InputMemory.java": {
+        "compiled_bytes_sha256": "5b015fe463ae14d42844c354769152c842497dee4a1d8f477b16803491ced79e",
+        "git_lf_sha256": "5b015fe463ae14d42844c354769152c842497dee4a1d8f477b16803491ced79e"
+      },
+      "runtime/core/src/org/circus/core/Pc1InstallKey.java": {
+        "compiled_bytes_sha256": "e67fa9bb31cd25cbba4ad07e3bc7692da9e778de245eb9490ba95d92edb88059",
+        "git_lf_sha256": "e67fa9bb31cd25cbba4ad07e3bc7692da9e778de245eb9490ba95d92edb88059"
+      },
+      "runtime/core/src/org/circus/core/Pc1LabelScanner.java": {
+        "compiled_bytes_sha256": "64717dbffc4b73140cfd1165fcb2ef607d38cd9560fb9680070a6eb65c5acdeb",
+        "git_lf_sha256": "64717dbffc4b73140cfd1165fcb2ef607d38cd9560fb9680070a6eb65c5acdeb"
+      },
+      "runtime/core/src/org/circus/core/Pc1LayoutMemory.java": {
+        "compiled_bytes_sha256": "9206f1de6b2ede4002634d0a0768c257f3fb40ceb9b825d21724163c87ace7ed",
+        "git_lf_sha256": "9206f1de6b2ede4002634d0a0768c257f3fb40ceb9b825d21724163c87ace7ed"
+      },
+      "runtime/core/src/org/circus/core/Pc1LoadFade.java": {
+        "compiled_bytes_sha256": "078e76f501baa1376b3eadb5288730a0c5837ff3716e28c33f822296a9ea4eea",
+        "git_lf_sha256": "0706290e5fda256e06319dc5c3df4af604486e13dc45fe58b92f1e7e4ea89dcf"
+      },
+      "runtime/core/src/org/circus/core/Pc1MessageGeometry.java": {
+        "compiled_bytes_sha256": "e87b92468dd6f0e4f9e97fb67449140c195f7afc5cbf0e9f15d567684713883b",
+        "git_lf_sha256": "b2db39bd9341a6395fd588c27ecf875fa3e7522a6ec450c60db1b5ca49c4d805"
+      },
+      "runtime/core/src/org/circus/core/Pc1Modal.java": {
+        "compiled_bytes_sha256": "f31ef894c065a9d170c906cbead80fe3fdb658e181358852e6d9d38b66645db4",
+        "git_lf_sha256": "f31ef894c065a9d170c906cbead80fe3fdb658e181358852e6d9d38b66645db4"
+      },
+      "runtime/core/src/org/circus/core/Pc1NativeFrame.java": {
+        "compiled_bytes_sha256": "51ae39d5403563617f3060e4003de97c16db747084dafef4ff9b2274faf755d1",
+        "git_lf_sha256": "78a72d39d044f47912fd09bf14c8d513503fcb6d31464be441c136a30fa2d8f8"
+      },
+      "runtime/core/src/org/circus/core/Pc1NativeMemory.java": {
+        "compiled_bytes_sha256": "99a80783ec9b6ae861194abe2f47302ace30f8b22fe27f15a60c185ed1621c1b",
+        "git_lf_sha256": "97dc8fd79190197972c515d1a911fac257263f8b58668357789e0a4674f39136"
+      },
+      "runtime/core/src/org/circus/core/Pc1NativePaths.java": {
+        "compiled_bytes_sha256": "160f2a3e2e28b9184dc60b1c90c448e4289ced234b690c6690d4f83e7c3ffeef",
+        "git_lf_sha256": "160f2a3e2e28b9184dc60b1c90c448e4289ced234b690c6690d4f83e7c3ffeef"
+      },
+      "runtime/core/src/org/circus/core/Pc1NativeSettings.java": {
+        "compiled_bytes_sha256": "c391263e7d30c77d4c9ef7b33e15c98438933ffd11b01cccc40d66d6163d63e5",
+        "git_lf_sha256": "1f0575ef933d8362f9bdff3a5011e53c7b29acacab6adf250d10f95296f7e129"
+      },
+      "runtime/core/src/org/circus/core/Pc1NativeSlot.java": {
+        "compiled_bytes_sha256": "f8c2d21eac8453cc453c79362743547a32473d82bc8dd503a49eef55bdf3ea79",
+        "git_lf_sha256": "88d984ee2d5441b073d11e29d66a63ba04c383f820145d3919d5ecb967d59596"
+      },
+      "runtime/core/src/org/circus/core/Pc1NativeUi.java": {
+        "compiled_bytes_sha256": "77c08518ac4d0f5b0b02d8e888c0b87852a28d2ef60785df5ad23000f5262818",
+        "git_lf_sha256": "77c08518ac4d0f5b0b02d8e888c0b87852a28d2ef60785df5ad23000f5262818"
+      },
+      "runtime/core/src/org/circus/core/Pc1OsRegistry.java": {
+        "compiled_bytes_sha256": "a72f6f6571d63c49767904d3a553f6a499623aeca17bbe482b0473d8af41f428",
+        "git_lf_sha256": "3f516feccbcebc6c574d26df8dd15917585bbf7cde6044190de272c03b9fea45"
+      },
+      "runtime/core/src/org/circus/core/Pc1OsWords.java": {
+        "compiled_bytes_sha256": "cd9e57d6398da8ddd50b09311c8b9029f539bbb489ff7e4dc9ecc42e6128e30c",
+        "git_lf_sha256": "a3085d11687025da037585c45cc0d4673f77c34e7fa13b6742131f326db431f6"
+      },
+      "runtime/core/src/org/circus/core/Pc1PathGlobals.java": {
+        "compiled_bytes_sha256": "def01a3e78c028405987dc8fd6871bb6fc9e13387bd7d0275eeab3304734e71e",
+        "git_lf_sha256": "def01a3e78c028405987dc8fd6871bb6fc9e13387bd7d0275eeab3304734e71e"
+      },
+      "runtime/core/src/org/circus/core/Pc1PresentationMemory.java": {
+        "compiled_bytes_sha256": "1a5f8edc40816d9b7487ea9e11c768f2357d014e14344015eb7f1546ba07fdb9",
+        "git_lf_sha256": "1a5f8edc40816d9b7487ea9e11c768f2357d014e14344015eb7f1546ba07fdb9"
+      },
+      "runtime/core/src/org/circus/core/Pc1Raster.java": {
+        "compiled_bytes_sha256": "82b6122ea5282ec8a50465bc72813e1da7e026ab5658fb9c56f2445965306681",
+        "git_lf_sha256": "e672adc298e79e720d2dd01b1fdba95d36e3d8da3a792d4c8c4e7e448c762681"
+      },
+      "runtime/core/src/org/circus/core/Pc1RenderContext.java": {
+        "compiled_bytes_sha256": "4e7b94a66f64a649e7e6965614805fbcf9716561e0eeb6a547f541fa4cfcb95f",
+        "git_lf_sha256": "4e7b94a66f64a649e7e6965614805fbcf9716561e0eeb6a547f541fa4cfcb95f"
+      },
+      "runtime/core/src/org/circus/core/Pc1ResourceLiterals.java": {
+        "compiled_bytes_sha256": "7d7aa05ceb5d1dfe0611259b47a009dec0588612a11fc86f409a90fe8931dd40",
+        "git_lf_sha256": "7d7aa05ceb5d1dfe0611259b47a009dec0588612a11fc86f409a90fe8931dd40"
+      },
+      "runtime/core/src/org/circus/core/Pc1ReturnSurface.java": {
+        "compiled_bytes_sha256": "ab52a4b5ba0c9d6ce3e9a0feebaafcda7267863b7314ea48a4d8c3fc44762614",
+        "git_lf_sha256": "3df0ef778e5d366652d04ef1264d376c64ae0738da758a44feba5932d7685cef"
+      },
+      "runtime/core/src/org/circus/core/Pc1Runtime.java": {
+        "compiled_bytes_sha256": "d62dcb86257b8f08b2b714e67d4ee22d7d00a985fa8e049e895f7a2eaa3c1ef2",
+        "git_lf_sha256": "deae43f6daceb5736725bcb0840aad2ab9991fc4b344b92e945184696c079854"
+      },
+      "runtime/core/src/org/circus/core/Pc1SaveContext.java": {
+        "compiled_bytes_sha256": "f2e4e1c883c35e11047af1a69f2e36e775acc606d72d8b2cb93af95e5d38a297",
+        "git_lf_sha256": "0bc8ff6cd29e083604be8b7b0ea0b680210e2b57a7e1e39032b16d4b07f10d07"
+      },
+      "runtime/core/src/org/circus/core/Pc1SavePreparation.java": {
+        "compiled_bytes_sha256": "369c18bf5ce0158fc8e3dc81064b2c1a49e564671f62286b2a49a349dad1f26f",
+        "git_lf_sha256": "369c18bf5ce0158fc8e3dc81064b2c1a49e564671f62286b2a49a349dad1f26f"
+      },
+      "runtime/core/src/org/circus/core/Pc1ScenarioCatalog.java": {
+        "compiled_bytes_sha256": "cd84071a5d568da7d2f91f7e0ad91b7218a22394505baecfbecc1fcf6b443e57",
+        "git_lf_sha256": "cd84071a5d568da7d2f91f7e0ad91b7218a22394505baecfbecc1fcf6b443e57"
+      },
+      "runtime/core/src/org/circus/core/Pc1ScriptFlow.java": {
+        "compiled_bytes_sha256": "537bff7766e8d88472e8e9df616a0a6df04b05d8ddb8f028a3f1f3a83e999bec",
+        "git_lf_sha256": "537bff7766e8d88472e8e9df616a0a6df04b05d8ddb8f028a3f1f3a83e999bec"
+      },
+      "runtime/core/src/org/circus/core/Pc1ScriptLoader.java": {
+        "compiled_bytes_sha256": "9d9566f379eb71f9f4269eea3038d1b314b7b971e8cd48a57393e0227614d114",
+        "git_lf_sha256": "9d9566f379eb71f9f4269eea3038d1b314b7b971e8cd48a57393e0227614d114"
+      },
+      "runtime/core/src/org/circus/core/Pc1ScriptMemory.java": {
+        "compiled_bytes_sha256": "8f9454f7d3063324e19e23e222f9be2094fa0937984838d0bf6b10734b9f6cfe",
+        "git_lf_sha256": "8f9454f7d3063324e19e23e222f9be2094fa0937984838d0bf6b10734b9f6cfe"
+      },
+      "runtime/core/src/org/circus/core/Pc1SettingsIo.java": {
+        "compiled_bytes_sha256": "d5c1aaf555b10a15dfa9ec303fadcc3cb4149e500b62251dc5bcf128f3a2ed8a",
+        "git_lf_sha256": "fff90d524cab447d4da5db672abae0576f423b216f1d58b9204d20b4259d2e4b"
+      },
+      "runtime/core/src/org/circus/core/Pc1SlotLoader.java": {
+        "compiled_bytes_sha256": "6e76152da3e8fcaadb385c4f857a4a289765403177c3f9011cb3b703a9860c14",
+        "git_lf_sha256": "6e76152da3e8fcaadb385c4f857a4a289765403177c3f9011cb3b703a9860c14"
+      },
+      "runtime/core/src/org/circus/core/Pc1SlotProjection.java": {
+        "compiled_bytes_sha256": "4e43366c98511880ad7b992cbd2e05742e39160b2ba06ce12112c46b8d045442",
+        "git_lf_sha256": "b6d4594fbe11bfbbb10b50489ed9d16dd1f54099cae9ec457c1036580a68500e"
+      },
+      "runtime/core/src/org/circus/core/Pc1Startup.java": {
+        "compiled_bytes_sha256": "3243fe789a87cedf50bd082446fb0066548294312ac4c0cc900fb1f529ca7067",
+        "git_lf_sha256": "dafb54246d3e75358303c2fd6cdb0481a78eecf63edb24bee2951bd6a9c164df"
+      },
+      "runtime/core/src/org/circus/core/Pc1StartupDisplay.java": {
+        "compiled_bytes_sha256": "4bb8bca10b9f00d43ab71f1b18226ca6351c2eb74b972892c72b2798e7726ed1",
+        "git_lf_sha256": "4bb8bca10b9f00d43ab71f1b18226ca6351c2eb74b972892c72b2798e7726ed1"
+      },
+      "runtime/core/src/org/circus/core/Pc1StartupMemory.java": {
+        "compiled_bytes_sha256": "da11bfd42e825d95937d5ba922434ade90295f6decf94fc24d52fb87866496de",
+        "git_lf_sha256": "3077c8353ce9a5827dd2dc89bf7abaabdf83dfeb93a619ec6560e8f818960403"
+      },
+      "runtime/core/src/org/circus/core/Pc1StartupRegistry.java": {
+        "compiled_bytes_sha256": "b1c185978d6098281a45fc994d3686fce3b300a76349040c87b7487d878bd34a",
+        "git_lf_sha256": "b1c185978d6098281a45fc994d3686fce3b300a76349040c87b7487d878bd34a"
+      },
+      "runtime/core/src/org/circus/core/Pc1StartupScreens.java": {
+        "compiled_bytes_sha256": "1e2e7084d832b33079c5150454d51d4c5273d23b751ee400448170e478d68f4a",
+        "git_lf_sha256": "1e2e7084d832b33079c5150454d51d4c5273d23b751ee400448170e478d68f4a"
+      },
+      "runtime/core/src/org/circus/core/Pc1StartupStorage.java": {
+        "compiled_bytes_sha256": "82ede3cc8be73194c611dd7ab3f16f05a25e62fcc361844a10190e5395b41f4a",
+        "git_lf_sha256": "82ede3cc8be73194c611dd7ab3f16f05a25e62fcc361844a10190e5395b41f4a"
+      },
+      "runtime/core/src/org/circus/core/Pc1StartupWindow.java": {
+        "compiled_bytes_sha256": "5a5aba1955ab293ae06eef7eeda64cd3bfb12f16d019b0f9bb027e43c680aa4d",
+        "git_lf_sha256": "5a5aba1955ab293ae06eef7eeda64cd3bfb12f16d019b0f9bb027e43c680aa4d"
+      },
+      "runtime/core/src/org/circus/core/Pc1StaticImage.java": {
+        "compiled_bytes_sha256": "df1e0dc2615e14f53bcc24bcf465cc9027c66d5ec5a2752dc8694c523293fcff",
+        "git_lf_sha256": "da48aea2ef7b8e7562cb192f001905667c85083c0a4e7e827039b5459b15b633"
+      },
+      "runtime/core/src/org/circus/core/Pc1StoryControls.java": {
+        "compiled_bytes_sha256": "c5078a9e6b356be6ff1dc928d120aa6a29cf60003c958ee346866970dff3af91",
+        "git_lf_sha256": "c5078a9e6b356be6ff1dc928d120aa6a29cf60003c958ee346866970dff3af91"
+      },
+      "runtime/core/src/org/circus/core/Pc1StorySlotIo.java": {
+        "compiled_bytes_sha256": "899fcb044359e8eb78ccf66563c2eb8c9e25634128a6d7addfb2456b6026df60",
+        "git_lf_sha256": "899fcb044359e8eb78ccf66563c2eb8c9e25634128a6d7addfb2456b6026df60"
+      },
+      "runtime/core/src/org/circus/core/Pc1SystemContext.java": {
+        "compiled_bytes_sha256": "06db1492c4a357aa87b39c842d494d141893b51b9a60b58adfb77ae7ec910b46",
+        "git_lf_sha256": "85a41d617f2c8e493b7c83345fa6aa6986ce0c69c8d56a8ece98df102beaa35e"
+      },
+      "runtime/core/src/org/circus/core/Pc1SystemMemory.java": {
+        "compiled_bytes_sha256": "eb1f39a4d3c0786b1aed3cf1b80cab41180b0266d4645db6f04605c557720c60",
+        "git_lf_sha256": "eb1f39a4d3c0786b1aed3cf1b80cab41180b0266d4645db6f04605c557720c60"
+      },
+      "runtime/core/src/org/circus/core/Pc1SystemNative.java": {
+        "compiled_bytes_sha256": "c7be5695d9aa384137a0f7e9e5c0022b443e46cdbddc77c0a9ee7760c857d5f3",
+        "git_lf_sha256": "c7be5695d9aa384137a0f7e9e5c0022b443e46cdbddc77c0a9ee7760c857d5f3"
+      },
+      "runtime/core/src/org/circus/core/Pc1TextBuffers.java": {
+        "compiled_bytes_sha256": "a364d3cbc1d5006cb5c701b8202ae7f1782c5cf9d4f7a83fc8d9dfbea062d31b",
+        "git_lf_sha256": "ece78170d19cb9acaea44f3b9fb6468907f225fd280eb87da9c66f2da5891d44"
+      },
+      "runtime/core/src/org/circus/core/Pc1TextControls.java": {
+        "compiled_bytes_sha256": "59fce92afa5b9013186fb50335e757265e57fa543a836783e158f8d6711fb984",
+        "git_lf_sha256": "59fce92afa5b9013186fb50335e757265e57fa543a836783e158f8d6711fb984"
+      },
+      "runtime/core/src/org/circus/core/Pc1TextExpander.java": {
+        "compiled_bytes_sha256": "dcb8bf164654aed2a84bc5c6e5b4145b1eef37a19e7ac3d8e54bbca4f75482ca",
+        "git_lf_sha256": "e23f2baa86c80d898153013af0d03a85c98cf6413f6a5b99da1bc84994197978"
+      },
+      "runtime/core/src/org/circus/core/Pc1TextLayout.java": {
+        "compiled_bytes_sha256": "04a454f4386c94f8385fd045dae97fc411ab9361cf0dacc796ce9facd5cfc029",
+        "git_lf_sha256": "5db099f5a910079c44f37302c24911211a2a35d9e3041bb3421c123d45e93cfc"
+      },
+      "runtime/core/src/org/circus/core/Pc1TextLog.java": {
+        "compiled_bytes_sha256": "f6ad2c2b8b557b8aec3e0806ee1f27312bdb7aed4f440c63930c94762cc1a40a",
+        "git_lf_sha256": "0d497b59e49c07980f34eb789704b6ce36ef0a8a0123084a787acce72d013902"
+      },
+      "runtime/core/src/org/circus/core/Pc1TextPresentation.java": {
+        "compiled_bytes_sha256": "d82eaa5b800fed125d5782f421a4a57723010911f38e0a2ea07e9dbabb8e4b3a",
+        "git_lf_sha256": "d82eaa5b800fed125d5782f421a4a57723010911f38e0a2ea07e9dbabb8e4b3a"
+      },
+      "runtime/core/src/org/circus/core/Pc1TextRedraw.java": {
+        "compiled_bytes_sha256": "33a215500a3d8d2fed07f9f2760c5048f1ea5f55cec0e8aa80c79a4c348f6172",
+        "git_lf_sha256": "33a215500a3d8d2fed07f9f2760c5048f1ea5f55cec0e8aa80c79a4c348f6172"
+      },
+      "runtime/core/src/org/circus/core/Pc1TextServices.java": {
+        "compiled_bytes_sha256": "b8ecc47bbc3df82be1e299df3e04d819ce9172a4463772b36b1b252463f8b3ea",
+        "git_lf_sha256": "b8ecc47bbc3df82be1e299df3e04d819ce9172a4463772b36b1b252463f8b3ea"
+      },
+      "runtime/core/src/org/circus/core/Pc1Timer1.java": {
+        "compiled_bytes_sha256": "0aa1bde78ed2adcf48ad8d7b651469153bf0462906bdc086b18aa315ba5fe887",
+        "git_lf_sha256": "0aa1bde78ed2adcf48ad8d7b651469153bf0462906bdc086b18aa315ba5fe887"
+      },
+      "runtime/core/src/org/circus/core/Pc1Timer5.java": {
+        "compiled_bytes_sha256": "16c2016b4904ac8ac9f4396f98477406d3ca5a507eb1ffc468e0cc2f6c003e12",
+        "git_lf_sha256": "a198082e92e274d4ca06faf94e70f085b093df6ab7981db8abaf186728a8a54b"
+      },
+      "runtime/core/src/org/circus/core/Pc1Transition.java": {
+        "compiled_bytes_sha256": "674fd6f59f766bb254164d9e64b44e8982f38d9bf9d6c9d346b36f3abcc5bd08",
+        "git_lf_sha256": "674fd6f59f766bb254164d9e64b44e8982f38d9bf9d6c9d346b36f3abcc5bd08"
+      },
+      "runtime/core/src/org/circus/core/Pc1UiPage.java": {
+        "compiled_bytes_sha256": "75c655eebacdf321d79149482010caaf03f05bcbc93104a6866856cf96580ed9",
+        "git_lf_sha256": "b086a68e8ce6ca4d42b6a5a698e75d22db477e79cbc5606cfe0fee42dbecf3bd"
+      },
+      "runtime/core/src/org/circus/core/Pc1UiProducer.java": {
+        "compiled_bytes_sha256": "36b2871efa058757192ac46dbb457475409e67945493bbd0781df76216e69160",
+        "git_lf_sha256": "36b2871efa058757192ac46dbb457475409e67945493bbd0781df76216e69160"
+      },
+      "runtime/core/src/org/circus/core/Pc1UiRaster.java": {
+        "compiled_bytes_sha256": "0e95719d9dc3b8945ff0b98b291d43d7740dca89735cdc18616b8b3f053a7e14",
+        "git_lf_sha256": "6f5c2b08ee61afe0aa8c0cbca0f929aff8728a67930dd380c5055cd633327429"
+      },
+      "runtime/core/src/org/circus/core/Pc1UiServices.java": {
+        "compiled_bytes_sha256": "de9dcf31a9c5844a42da6b4473540829cd5d31248fb7259ece11359c65f1bde9",
+        "git_lf_sha256": "de9dcf31a9c5844a42da6b4473540829cd5d31248fb7259ece11359c65f1bde9"
+      },
+      "runtime/core/src/org/circus/core/Pc1Underlay.java": {
+        "compiled_bytes_sha256": "da3f2d4eccb58c544dba56b81baf873bef4b44afab0de4b29f47dd26cf0205b5",
+        "git_lf_sha256": "da3f2d4eccb58c544dba56b81baf873bef4b44afab0de4b29f47dd26cf0205b5"
+      },
+      "runtime/core/src/org/circus/core/Pc1Variables.java": {
+        "compiled_bytes_sha256": "8b296f1394cade352f84ed3f710fb1fff0a476d63bbc2651123a8275d62a47ad",
+        "git_lf_sha256": "1940e54a75ce276fc887b427c8fa4bde58e721c76512e4b06fa4e0f0558e5336"
+      },
+      "runtime/core/src/org/circus/core/Pc1VmGlobals.java": {
+        "compiled_bytes_sha256": "66ae65f5fd9ece4f2598fcf77fef72a528704bda1c8372aca19d4c197f329666",
+        "git_lf_sha256": "66ae65f5fd9ece4f2598fcf77fef72a528704bda1c8372aca19d4c197f329666"
+      },
+      "runtime/core/src/org/circus/core/Pc1VoiceDispatch.java": {
+        "compiled_bytes_sha256": "25973c59113a788bf07ddb421044b83ad81259246aeaf3cc48408ce2d4681ef3",
+        "git_lf_sha256": "25973c59113a788bf07ddb421044b83ad81259246aeaf3cc48408ce2d4681ef3"
+      },
+      "runtime/core/src/org/circus/core/Pc1VoiceIndex.java": {
+        "compiled_bytes_sha256": "0e2f0d7144cf356809c3c4b2250a5b223f869740e2e87fe8b2a8576584aaef44",
+        "git_lf_sha256": "45f6ed28008669305c8fbc2a4797a1e4c22cca7d819999209d874bd75563910c"
+      },
+      "runtime/core/src/org/circus/core/Pc1WaitDispatcher.java": {
+        "compiled_bytes_sha256": "a8224c978e986e2f4f6ab2c637539a33acdc02509bca1ec9aeb3d4a857987e78",
+        "git_lf_sha256": "c277299d2ebcaa9c1504bd178ba9407b03a3303832152d8d0dd74f9ec847ad5f"
+      },
+      "runtime/core/src/org/circus/core/Pc1WaitEffects.java": {
+        "compiled_bytes_sha256": "f108db971bfc90cf766dd996d8507e18bc862b6b682f96b5bf7b4679f81c361d",
+        "git_lf_sha256": "f108db971bfc90cf766dd996d8507e18bc862b6b682f96b5bf7b4679f81c361d"
+      },
+      "runtime/core/src/org/circus/core/Pc1WindowMemory.java": {
+        "compiled_bytes_sha256": "704ae3196d287e5e17801310a8c6747a04381e717ac06ce3b72ef11c1dbd2599",
+        "git_lf_sha256": "b984e1a1b8c1d9615352cde142ba05f62f2b4a0779ecbca969c49224ed89ffa5"
+      },
+      "runtime/core/src/org/circus/core/Pc1WindowProcedure.java": {
+        "compiled_bytes_sha256": "4ddcd7e49dfcae2b64627dd3f3add129ba520bbb07685e259d473e0a89059a6e",
+        "git_lf_sha256": "4ddcd7e49dfcae2b64627dd3f3add129ba520bbb07685e259d473e0a89059a6e"
+      },
+      "runtime/core/src/org/circus/core/Pc2Map.java": {
+        "compiled_bytes_sha256": "5155e6ca69cbdec21641f9c0c6349c10362eee6ffc760a7e44e06b73956394a0",
+        "git_lf_sha256": "95a280010a71c249b82860d6a04f2e8ae524a7259d81aff2728b5e53cac9057f"
+      },
+      "runtime/core/src/org/circus/core/PcActorLayout.java": {
+        "compiled_bytes_sha256": "44f1eb03c670fb8e30a1d0887c583d82d53e11a262f5c66eaaa9ef4c44f47e5e",
+        "git_lf_sha256": "227c4aefea3f7d1dd4a70ab8192c1c052a89577566e657d08bc3708a9cbe5a13"
+      },
+      "runtime/core/src/org/circus/core/PcCredits.java": {
+        "compiled_bytes_sha256": "bb1dcb4a5525bd28219444de944be5c00cabe777b8fe008f8c4c6f08b0285a53",
+        "git_lf_sha256": "5da5cd535b8847ef996fd1920b0ea4267c296d9a47dd689bf93b09a167ab4ac8"
+      },
+      "runtime/core/src/org/circus/core/PcHost.java": {
+        "compiled_bytes_sha256": "8be61f65d008e94508e019f452c9722474b9bf8943b94b60568b0d0080346aca",
+        "git_lf_sha256": "6928cee1ff064a3a782d2add047aef0b387a612fbe2141bfbc031bf5d6134f88"
+      },
+      "runtime/core/src/org/circus/core/PcNameInput.java": {
+        "compiled_bytes_sha256": "9e2c38e952c6cd307a54603ab03f470f65c061c6962dd04be6cda6fb3cf85bb3",
+        "git_lf_sha256": "707db5d5464c578a7e5bb506e678df698af3d66ef6d150c3e45131ab37bc9fc1"
+      },
+      "runtime/core/src/org/circus/core/PcVoice.java": {
+        "compiled_bytes_sha256": "ef281f93ca998dec3942ffaf6ed4220c0760c98d6788c17dcb6e5bb0a9b27fa3",
+        "git_lf_sha256": "4aafe0f9b91c444af28efd4db56f0254342f19abf3ef3b40fd1316fa7a4f8109"
+      },
+      "runtime/core/src/org/circus/core/PpMusic.java": {
+        "compiled_bytes_sha256": "824bd578f2d1b2f713ba73c086a6db573c0f979487e2f5ad0cb2adb278bcaa82",
+        "git_lf_sha256": "113a3c2037534be037094e14bc1f1f0954af1459dd3afddb031b7f8c6220274c"
+      },
+      "runtime/core/src/org/circus/core/PpVoice.java": {
+        "compiled_bytes_sha256": "28ff76a6ea83d9f3c4ed488d5c63377a34cb1dcc92d416946badd5488e58d29a",
+        "git_lf_sha256": "cfcb8e7a172c2ce0770be9cd28ebbb0248f1ff83dfb90b8931b41860d2d54c2c"
+      },
+      "runtime/core/src/org/circus/core/Profile.java": {
+        "compiled_bytes_sha256": "081514da178b2333b256338d36ca09cab8b555ed9df2b5a9f677c1e590d682e2",
+        "git_lf_sha256": "188fdbf3fc5435f8cb0578bfbdcaf5ee2b625e544bf94831b391209cb8028e02"
+      },
+      "runtime/core/src/org/circus/core/Profiles.java": {
+        "compiled_bytes_sha256": "ea942e7523deae200a4ccdd4ef779ea5d5c18eda89806aa03813c285b86202ba",
+        "git_lf_sha256": "892ad86448f6a04bf5a67def0a786c3a3f63c2f65ac68c2a1f2ee710e5711ea9"
+      },
+      "runtime/core/src/org/circus/core/SceneCaptures.java": {
+        "compiled_bytes_sha256": "0ef698e6ed57b74c324f061e96218e7a54511b74db7d925ca55de68ac6f8ddd6",
+        "git_lf_sha256": "a728a9e615919be99fd6580f6d17390ffec63841dea6e79c349df07c5f1f5884"
+      },
+      "runtime/core/src/org/circus/core/ScriptList.java": {
+        "compiled_bytes_sha256": "0b6dacb183d633d321cf118644a6a4b76f0f3abccbd5f1691f3d95a8a97dd6ed",
+        "git_lf_sha256": "d61aefa7aaa105e27a1facfbb6be3eff5a875a7a6b9819e0a5f6b2bcac206d10"
+      },
+      "runtime/core/src/org/circus/core/TextCodec.java": {
+        "compiled_bytes_sha256": "5fc1444c012a824ac518879140fe35a58b6282ab4c337da5cfc6b72f9873c01a",
+        "git_lf_sha256": "2d9244c2d10a3443ad5ae225e8e0ef05b4e2885a3524edf4ba5babcf5a247a6b"
+      },
+      "runtime/core/src/org/circus/core/TextPlayback.java": {
+        "compiled_bytes_sha256": "c5cce12b18338743d6487bc854b28eccbd3116f8c8d37635c6c65a1ef0a17f74",
+        "git_lf_sha256": "0524bada5f529894833d0b99331719b6e5b4cd7e9b8be28a16b7c2d73e85f055"
+      },
+      "runtime/core/src/org/circus/core/UiCapture.java": {
+        "compiled_bytes_sha256": "5e6b38832c5a2a8ede412af414600abd1da48b9266f7f456940575333dbaa357",
+        "git_lf_sha256": "1ae24c8c6da517494c5f814f8685cb120fb52efc3fd366bc484e6558268f48ed"
+      },
+      "runtime/core/src/org/circus/core/UnityBinary.java": {
+        "compiled_bytes_sha256": "1371c18e29e672e5d73e90fd47bdcb112a42f2a0e4d77f9f51363b0f844767d1",
+        "git_lf_sha256": "75ec23f7379869a81fdaeb588d229a1427f83a30b902454cc7f55562cb109526"
+      },
+      "runtime/core/src/org/circus/core/UnityBundle.java": {
+        "compiled_bytes_sha256": "6606bf2478eef360377e9126247a0085191ec33cc197a02757a7b345f1531b5a",
+        "git_lf_sha256": "756a661ee11f656cf8da4ce17f955e3c1dcc31abbaad6eed5a886a98163b1771"
+      },
+      "runtime/core/src/org/circus/core/UnityCircusResources.java": {
+        "compiled_bytes_sha256": "410725404eade3fcbcf777dff71dfbaf1aa5b7e75c4b8644fd3352436a98722d",
+        "git_lf_sha256": "782707384aa1ee4060f267abf5da149a87b625d39bad2d13afd83d6fe3c2efc8"
+      },
+      "runtime/core/src/org/circus/core/UnityResources.java": {
+        "compiled_bytes_sha256": "65ce11cbb1b05201c4779af2967acd0c1b57fc28a23e1bc207814bd09971e352",
+        "git_lf_sha256": "d0e3642e5a4b66e0fd1967cebcb053cde0c49ec68a9cc190dc4873262c5cca8f"
+      },
+      "runtime/core/src/org/circus/core/UnitySerializedFile.java": {
+        "compiled_bytes_sha256": "b9a35d458ec0793e6a4d0d529b75b0ea65d1bc4258cf5df7ba26301fed0255da",
+        "git_lf_sha256": "f7446f5c93fdedbb982df3ece3286b27e89ec37bb2f278a8a44b9b941704457a"
+      },
+      "runtime/core/src/org/circus/core/Variables.java": {
+        "compiled_bytes_sha256": "6c363f91080739043c7dadb59bd2906f11748dbd8f851643c9cda9131623aca8",
+        "git_lf_sha256": "a6f9c1f71a4c6c62967237f068e20069695fb090ff4e93769ecd29f55d043549"
+      },
+      "runtime/core/src/org/circus/core/Xpcm.java": {
+        "compiled_bytes_sha256": "d1bb613ed1ee7561c3418b7c6abae62354ba46c05dd537806a1f79d519b15b7e",
+        "git_lf_sha256": "25e85ae7d1ebf276110073ecd597eee8178afb2c09d4118d5f729280f3c2e566"
+      },
+      "runtime/core/src/org/circus/core/XpcmTransform.java": {
+        "compiled_bytes_sha256": "758c6b3b99f0fc046b6acb7125ee8caf53073c7b70f107a75e4bc9b15fae0918",
+        "git_lf_sha256": "71690d9f0fc1dac2c15169206b343ad7417f6f7e91b30ad5755e44bbab537b1d"
+      },
+      "runtime/desktop/src/org/circus/core/Dc2ActionOutputAudit.java": {
+        "compiled_bytes_sha256": "b3cc7347f34010d917e816e14ddb132aa1c984fecb72716656721f93e738fd2f",
+        "git_lf_sha256": "8baba9e17cf33c1b0efacfbb3433519276809a53e47e0d9d2010e379afc012be"
+      },
+      "runtime/desktop/src/org/circus/core/Dc2ButtonVoiceOutputAudit.java": {
+        "compiled_bytes_sha256": "aa89d7618d22af6e2791eacd2fb2b24b826b5a3a572baba2759be564a96af2b2",
+        "git_lf_sha256": "966f42f9e2304b0eac954a2000fcfd6c8049e445e7499433ed43704a3a54a2d1"
+      },
+      "runtime/desktop/src/org/circus/core/Dc2GdiAllByteAudit.java": {
+        "compiled_bytes_sha256": "5ecd9691cec5781efa4a708790b8200e3425b036bc3caf66577e2acc28510956",
+        "git_lf_sha256": "86a1ea4b8a7f0dbea924b148aeae59934b1b2e0c86b5f03e5c21e01f7345e1f9"
+      },
+      "runtime/desktop/src/org/circus/core/Dc2GdiGlyph.java": {
+        "compiled_bytes_sha256": "a7f1dbb7bd5fc4b7496e2f2da5236ae17362eff35ddf90859b472710fd6b4945",
+        "git_lf_sha256": "a7f1dbb7bd5fc4b7496e2f2da5236ae17362eff35ddf90859b472710fd6b4945"
+      },
+      "runtime/desktop/src/org/circus/core/Dc2GdiGlyphAudit.java": {
+        "compiled_bytes_sha256": "1da766b34eb904a77145989f366d6256af99cde36ad0e9d6c8e1692736105019",
+        "git_lf_sha256": "74f625be4a94fd7d7735930afb5e96f4fe0364e1e9ef00d7564f5053547c4580"
+      },
+      "runtime/desktop/src/org/circus/core/Dc2GridControlAudit.java": {
+        "compiled_bytes_sha256": "b643b86db76d27d97715205281c46bab04a9431e7cb1bc6b1412922c4f79fbfc",
+        "git_lf_sha256": "0c19ddf025eced8e89b94231a1090683e54f8515fca636961621e7d3fbe2da2a"
+      },
+      "runtime/desktop/src/org/circus/core/Dc2MotionOutputAudit.java": {
+        "compiled_bytes_sha256": "0b83ae0258559733e1e4974ecd9a0cb25f2b1fe4c13315e1b2bd7a7cfec8300d",
+        "git_lf_sha256": "a739ace7e1f1b28b8192c3967062d0ea919b6dcf5cd2c073eba1ea80575ef096"
+      },
+      "runtime/desktop/src/org/circus/core/Dc2ParticleOutputAudit.java": {
+        "compiled_bytes_sha256": "d7e76dd58e785f025803d5f4e4cb09f32b1d44f431e73c7c30cc80e09fbe5a72",
+        "git_lf_sha256": "4729db9b5ecf5fb6a832e117bb945a749f7c4cc2fd06b61b2dce36e22e3cb3b9"
+      },
+      "runtime/desktop/src/org/circus/core/Dc2PcAudioMemoryAudit.java": {
+        "compiled_bytes_sha256": "63a33c9b49837e7ef08477e68287d7e58517b4e55fecbfd01903bc1493f0bdc5",
+        "git_lf_sha256": "be482ecc989280871cb4bb9bd4c97d62007e8474d3f4f9e4581b72d5cbe2f350"
+      },
+      "runtime/desktop/src/org/circus/core/Dc3FamilyAudit.java": {
+        "compiled_bytes_sha256": "177f125dd6a6be67c8e0947210a249ba69c60bee35e67ad6770e4f5bf53d7f0f",
+        "git_lf_sha256": "7b6fcd369f22c0ae3400b125964c8d9f63ed86d28529c0f61c1facd0469dc035"
+      },
+      "runtime/desktop/src/org/circus/core/Dc3ProgressGalleryAudit.java": {
+        "compiled_bytes_sha256": "22b1b73c1743f7ef7a50976c403e98b916622a971be52e8f79ef9f9d9df342f9",
+        "git_lf_sha256": "e5ea1b93c521a8c06d4e67b6258f8aa1e1f37ece7d822fd82430155851e58609"
+      },
+      "runtime/desktop/src/org/circus/core/Dc3rNativeSlot.java": {
+        "compiled_bytes_sha256": "b5aa3cb142b3383a870686bc1a5ab45b77022aa7f6df93d494cde01a2119d277",
+        "git_lf_sha256": "47ce844b6c19cc2a80d751afbd1dc499fe769f355b0332bc9cc6c64e2e0d59b9"
+      },
+      "runtime/desktop/src/org/circus/core/Dc3rNativeSlotAudit.java": {
+        "compiled_bytes_sha256": "4180dc3335f7fd993a6d7ba2f070db9ee912c901deef9d37c169be46ac78b006",
+        "git_lf_sha256": "ec923eea500d94133aad0762a23d47cf4a7359a142fe02bd828740cf37d8e338"
+      },
+      "runtime/desktop/src/org/circus/core/DcUnpack.java": {
+        "compiled_bytes_sha256": "4c9f94b087df9ce7d64f929039a0d0da2ea7699f6d763a91119e6fda3b436962",
+        "git_lf_sha256": "77f75362a19080e62ff9495be0a43aba69225f1b33c608ad2f6bdc918da321d5"
+      },
+      "runtime/desktop/src/org/circus/core/DdGalleryAudit.java": {
+        "compiled_bytes_sha256": "ba8526e3a81c95c84234a6ff31ce73e2bc202bf9898c4a00eab3eacd553fdce8",
+        "git_lf_sha256": "afd9c39329bbe25192e2a9692d8c111f325297ecfd62c8787d713283c585e5c0"
+      },
+      "runtime/desktop/src/org/circus/core/DdModalNoticeAudit.java": {
+        "compiled_bytes_sha256": "9885b8be76214e25213abd6030936e46c6f838c53bbd4c2ff241c02c3d19b8a1",
+        "git_lf_sha256": "2f4c4ec94c84f7fee12328d1f67997080c5c8b2fe299dcf5a9a9709cae47155a"
+      },
+      "runtime/desktop/src/org/circus/core/DdPetalAudit.java": {
+        "compiled_bytes_sha256": "3a28e2840480c9ea534ec56ec0325085dd337120d7ab2a0725b5437c305e2996",
+        "git_lf_sha256": "3ea6074ce5fb228091b9049c4c8806b9b45e8f684f97c5a41f41b332629322f4"
+      },
+      "runtime/desktop/src/org/circus/core/DdTransitionAudit.java": {
+        "compiled_bytes_sha256": "ba238aa7d81efacdcc0dba92566b89b529ee5fba36d5454959415d90511acc80",
+        "git_lf_sha256": "cc90ea521dd6c2acc997825cb8522668c9a495eb06bd1614d4b31d797ce18185"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopAudioProbe.java": {
+        "compiled_bytes_sha256": "53964e32dfc32dcb324c2de13861dd40344ad26ac9c71a54d9ed84dd9b01ab53",
+        "git_lf_sha256": "0391b04c522bedc7c4407ab4e3c44d827ae17bcfdfce7ee577e1ea76d17cb94a"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopCaptureAudit.java": {
+        "compiled_bytes_sha256": "6d98fa58499eecaf4de45c7b39dfdc179ef8ac686b60f39f03e346e9d7042045",
+        "git_lf_sha256": "2c73490b1537fe5b4614825a92ff438daa63318a908c61d6d5fac1bcf877aad2"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopCaptures.java": {
+        "compiled_bytes_sha256": "881b6db71f128059870a30a3bac1886d4dbd35afaf0f5bc4e59db8030b765b77",
+        "git_lf_sha256": "cad010b7bba16bc22ed9526079498a23562bc625b3dde3296b5505fccd54077e"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopDd.java": {
+        "compiled_bytes_sha256": "16b7edc24a250901801c393e23b4a3c955bde8016dc8ff08e1666259dce4980f",
+        "git_lf_sha256": "3329adab3d5816dd4cc229a509e33b88285772790953e46a6f15088fb88aaf87"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopEngine.java": {
+        "compiled_bytes_sha256": "6f035242edf335202083a713c2172f8ff2cb8c1246f6ea7c98d4f7edf5ec17da",
+        "git_lf_sha256": "daa92eb76013744e622bc73dd63cf9bf0803aa20448db085759268c2d63b89b6"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopExtrasAudit.java": {
+        "compiled_bytes_sha256": "ccd4c9839f04a1663774f7a40ed9837cd8bca171fd072ad4ff96e3e7ca2df474",
+        "git_lf_sha256": "f42256c29f14eb527a77e2ed92200a13837a6b9a587718917b4497c0177d3207"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopFeatureAudit.java": {
+        "compiled_bytes_sha256": "484d46125d26a401645809e8c5333f86f8e57d65682d31b2e44034b86c48d7ad",
+        "git_lf_sha256": "7dc55cbcdb659d9b646fc7a9c24f340e1f3db1ecdd1a60693cfbd89f3021a9fd"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopGalleryAudit.java": {
+        "compiled_bytes_sha256": "513ff33b77c249017b06ee87afb365a473823b5dae75c9d3542df7fa174a9bae",
+        "git_lf_sha256": "af859c0b3e16079e2e49200aeece636c5ab49ece6bf5157dfa8f0af1429644b9"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopLegacy.java": {
+        "compiled_bytes_sha256": "cf6818dfce5097042d4e0c8a0287e40b8a6d50bef1c7d7f8ee3ff3fd068eee8f",
+        "git_lf_sha256": "a468103287f52f0f4c5bf5a69da9a082cacfd4086f86ba990a1e611f563bd2d3"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopMedia.java": {
+        "compiled_bytes_sha256": "d772c6e45853aa96cd0ac91ce8bd1306e2fcc2f2c684ac44cea1bcf6052108de",
+        "git_lf_sha256": "01f71fdd6d9e389363f9efd83f270537b0cd7e58a3123f63baa98680c2dd4c70"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopMediaAudit.java": {
+        "compiled_bytes_sha256": "614eefb149b54b029e92ee989ad6c1cc0160fe0a3d61b7b3430556a6d478e0a2",
+        "git_lf_sha256": "e206096260c559ccbc3f5c59937b503f52dbc34598c93ce980ce0ba485e19754"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopMediaEofAudit.java": {
+        "compiled_bytes_sha256": "170497bc191905c481213e322cfed5f917b8efa1e3b992f767e4582b5a26b36e",
+        "git_lf_sha256": "4dfb47bcfe29993e0930c7082dd9aa88fc80e46d73bfe560554c7566264aeb65"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopNativeFiles.java": {
+        "compiled_bytes_sha256": "4a5c3c12dc43ca5baaaa1187b6ad29820e3504a5b265949eb8cd22652155f5ab",
+        "git_lf_sha256": "4a5c3c12dc43ca5baaaa1187b6ad29820e3504a5b265949eb8cd22652155f5ab"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopNativeFilesAudit.java": {
+        "compiled_bytes_sha256": "3c4d9b765b09d710bec354a193d1bbdedfda7aa9630b479c5d4f631d16d8eff2",
+        "git_lf_sha256": "3c4d9b765b09d710bec354a193d1bbdedfda7aa9630b479c5d4f631d16d8eff2"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopOverlayAudit.java": {
+        "compiled_bytes_sha256": "5bc993fce8c336702b9342bc8ef5805a3a7375a841c5711e0c8c8aacc44235dd",
+        "git_lf_sha256": "d2af7d7c63de2adf99eba5ae17b526a4dda875d368942b6c9c07e240b305b8fb"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopPetalAudit.java": {
+        "compiled_bytes_sha256": "741acf5a6c76766850a9d0d58939003a29cb808779c86d503c8ef16060227dce",
+        "git_lf_sha256": "d7a78f0fbfcd62e6b2a0944d1a1d2a92dd0b7937af24cf0bf1cdf33e69d0e788"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopRouteAudit.java": {
+        "compiled_bytes_sha256": "d0c7fafae41e937a03faaaff5bc33d82ac7446d895519f3721de793e931c80c8",
+        "git_lf_sha256": "f0b30220c2aa295a388a7f9f0f78a31c83dd7fbc75de85837807420bf175eb48"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopRuntime.java": {
+        "compiled_bytes_sha256": "57e6f5a1f52359f3191a635560651940bcae1fa1d224d61597c026a6a1386bd0",
+        "git_lf_sha256": "44dc81930c58cae0d9d60da9d7ddfde912c77936605d35528b661a2e54fd8b68"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopSave.java": {
+        "compiled_bytes_sha256": "bb7dfe3a4cc617964c05de63113592275f6086c3d042dc7a24c41184c07169ab",
+        "git_lf_sha256": "735e85eb925866dd4f0b3346cd714956db5067dae3d563b5de6b57f4d2f8fcaa"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopSettingsAudit.java": {
+        "compiled_bytes_sha256": "8241e0a2fd07f656bd050bdbd54f447c5fac985112c4ac49190616aa949fded6",
+        "git_lf_sha256": "ef3613a9a3c2eceff764c204e117aa06afc3c9b4533434afe8f205a748a8e6f3"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopTransitionAudit.java": {
+        "compiled_bytes_sha256": "e130622e4c4bf00b3f4f224d207fc4a0cd4be7d36e382f2b541a81791ee35f94",
+        "git_lf_sha256": "2555d059e03b020dea5fd5a49b9224c7493280750309bf21301484ce2ed99e3f"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopTransitionMask.java": {
+        "compiled_bytes_sha256": "eb55b221e315e32f6b6eb81f78b767295b646e218d4cd4b810fb384c5bb36faa",
+        "git_lf_sha256": "8a4dc2a6a44d7a731c34471b869ba99dbce90a8030f9fa918cb8ca80023c77b6"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopUiAudit.java": {
+        "compiled_bytes_sha256": "52f52b7b384e62aacea62781e9a75de8e14ea4821f5c1aaa14711d4e4beb0657",
+        "git_lf_sha256": "3c3261688505268f400839c371623187c674dd38e61a3fa7f0c9fe19dd07e0ef"
+      },
+      "runtime/desktop/src/org/circus/core/DesktopUnity.java": {
+        "compiled_bytes_sha256": "46f5e995b8d0155aae7b2fca0f957ba0c8127c137c6508e4e582781a49eaa7a9",
+        "git_lf_sha256": "92acb10a3433f31889dc47bc6a072048e3e4ffab86de798abb0afad3237bef05"
+      },
+      "runtime/desktop/src/org/circus/core/DmOverlayAudit.java": {
+        "compiled_bytes_sha256": "5dccde0b85c41f387841c53919709773a1156458e884bd55116ebf3929e58e64",
+        "git_lf_sha256": "ebe439229a3659cd29b5064ddff1e3e8a09216f7495fed9c7a1bed46c41ddceb"
+      },
+      "runtime/desktop/src/org/circus/core/Json.java": {
+        "compiled_bytes_sha256": "0837dee26f71ca052c8bc6cc2246f79196024c1ea13c3633ce0f83bf27680ebf",
+        "git_lf_sha256": "4dbc9b63145ae785a9cf31ab5094cff736ba8bcd04bbd6659efcf7e0b079ed67"
+      },
+      "runtime/desktop/src/org/circus/core/LegacyChoiceStyleAudit.java": {
+        "compiled_bytes_sha256": "08ba77b71c53df3b8a72265b64746f3339730ca0e1bc0e7d86d59fc4096926cd",
+        "git_lf_sha256": "0099998f1e7bf412f8fc01cfcdcf94365a52be510941e8be9fd365d2e3c96951"
+      },
+      "runtime/desktop/src/org/circus/core/LegacyInputAudit.java": {
+        "compiled_bytes_sha256": "7327a108a43f145e4996276c514412725e2513ed93b476a1831b56ab642c2f41",
+        "git_lf_sha256": "34f4f1ad3a980b682e4f4599444d1541d645fb0a6b0f232a6a56f64dab7aa555"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1AudioResources.java": {
+        "compiled_bytes_sha256": "1aeeed2ae91afec7bfae1adfddeeb75cc85b6244d8dec9358629d78e2ef413aa",
+        "git_lf_sha256": "a90d0ea216b543b8a51d51c05876bca89982629674329cea31891ca59d191f46"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1AudioResourcesAudit.java": {
+        "compiled_bytes_sha256": "5c865a5dbe92666d323a0571693d64ce49d62aece10b5a225adc2ba192a4c388",
+        "git_lf_sha256": "263183e53e7a76fe10cb67d6a242b2a1ecbd4b8d9f62ccffab93afa4e1913208"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1CatalogFiles.java": {
+        "compiled_bytes_sha256": "d8bfd5f6d9a657f769df41ceda938d657ba4ca370f7c13be1dad75151668fe0d",
+        "git_lf_sha256": "d8bfd5f6d9a657f769df41ceda938d657ba4ca370f7c13be1dad75151668fe0d"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1CatalogFilesAudit.java": {
+        "compiled_bytes_sha256": "93f556128f146071a151151e064f1eaa4269bc3959d9953aa8553b3a27382123",
+        "git_lf_sha256": "93f556128f146071a151151e064f1eaa4269bc3959d9953aa8553b3a27382123"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1ComAbiAudit.java": {
+        "compiled_bytes_sha256": "2b73ac5a86e02a283b459dfe0c4e7d65348546e57c420a56649f30d30afc2eda",
+        "git_lf_sha256": "2b73ac5a86e02a283b459dfe0c4e7d65348546e57c420a56649f30d30afc2eda"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSound.java": {
+        "compiled_bytes_sha256": "c67819f3f89239265d6a7bb650e1533c9f88bb1ef2562098dfe0d9c8c642be53",
+        "git_lf_sha256": "fa0983e8d32806a532be6d9181596e58fe43139ae6ce66fbc90b89453a779884"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundAliasAudit.java": {
+        "compiled_bytes_sha256": "e880f4f5c54ccb5093f9c3f874984a82139070b3ffee9ab9bc8a8e5a5b288343",
+        "git_lf_sha256": "e880f4f5c54ccb5093f9c3f874984a82139070b3ffee9ab9bc8a8e5a5b288343"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundAudit.java": {
+        "compiled_bytes_sha256": "0563e0614fa2d0dedc6effae5c72abfcab37656ae4b475b4cd2e7d0acc4767b2",
+        "git_lf_sha256": "9c12b28ed367912571fd2b3441cc7c386966b6cafaefb6b1f94b9f934b16d9a9"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundCompressedAudit.java": {
+        "compiled_bytes_sha256": "3031f6149268aceb57825978deff029e95f79ff6808fff341d346cdd9b1439e7",
+        "git_lf_sha256": "7a4e4ae896f3333e254fa6b788e19e22e47da5319fa36fe066dda364753823ff"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundDspAudit.java": {
+        "compiled_bytes_sha256": "fa822c617a15e42c3a5ff5a848b0d2a80157eb0e3a0d4d471eb492100ac63265",
+        "git_lf_sha256": "f0c02b4bc52281fa95ebd1a6013b9bb712ef3826a34bdd38a4f53a256e965540"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundFileAudit.java": {
+        "compiled_bytes_sha256": "53e3e030f43c5874c2fdda0cd70a9544a40dab42908dd20f3d36f5b89e01b590",
+        "git_lf_sha256": "41d1dcb39495b0bb4d1f0b6e6ec1f4619db72b892d9427445b60863864a66ab5"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundLiveNameAudit.java": {
+        "compiled_bytes_sha256": "8c9ae273187bfa0cb3bd755ed3a38e5c848c51502c0459401ec0a9cb5d3bb914",
+        "git_lf_sha256": "32976a3d4750f1ecd81c041e29864dc49d546b60210bb1771d5daf7d22d76130"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundLiveVectorsAudit.java": {
+        "compiled_bytes_sha256": "8edf68d0ffcfa8c2864577f50857765648880c0e533347f4e5e45fc278aee697",
+        "git_lf_sha256": "547fc6763151122c109874a992569587888bd34c6b69f1c69d77b545384794cf"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundLzAudit.java": {
+        "compiled_bytes_sha256": "e273ee4f668b3e8cade2447601be953efa88452c71516cd427467e70f8595156",
+        "git_lf_sha256": "d2dcd0a6e6f3a7cd657b76654df031a25f3a89707bf9194d7433305332aea418"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundPacketAudit.java": {
+        "compiled_bytes_sha256": "45ea5a8cc700095c39112981755212dfd793b5e2677eeda57a9dcec62eec5413",
+        "git_lf_sha256": "336446a34404b319dd5323b48772fbd4c8d41f824cda4fcd869269fb0421e7a6"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundRawAPathAudit.java": {
+        "compiled_bytes_sha256": "cda7c827cd66c52416acac23963d36c6d1e189802ca18b1e72402746aeda573c",
+        "git_lf_sha256": "93fa949990f20d799093eb36c44f35b5d9097b88a827d528403aadb69a1a3212"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundRawAssetsAudit.java": {
+        "compiled_bytes_sha256": "398815079a2fd5860aeeff1b69329640eabd69307f32897ab6c719a02ef9e640",
+        "git_lf_sha256": "e4dc955d60ccc7398ae7589eca324b047814956f828f4d8e5a814aa3e3ebc03b"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundRestoreAudit.java": {
+        "compiled_bytes_sha256": "7e7fa68ce134a841866b33edd323e14a20cd5a288b343afff689e58e9d95db81",
+        "git_lf_sha256": "b26516fbf3938e606b0cfcd7b51a436221b9f7d835bdcb7feafa2ac7fb6d6fa2"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundSourceAudit.java": {
+        "compiled_bytes_sha256": "b9cc2f8414bd5648478fad19fcec0fe85596e265733602ea3f9ec046323f84f6",
+        "git_lf_sha256": "4233d7f1392c86f8e1cf9ef1096441b7a843dda6ffad255d9f99583272c105b3"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundStartupAudit.java": {
+        "compiled_bytes_sha256": "cd7d78de25ef593380eb12b44d6956b8d8417133b128f7c9f0deb8045d0da70e",
+        "git_lf_sha256": "4f49b1c8928400ba9fd4581a4ff6d2f41296c0438de02d8c982ff6438b2381a9"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundTransformAudit.java": {
+        "compiled_bytes_sha256": "5718b2be329ba8e49f0878a033db906ca0ecca741e7f926ed68799d5fae7aea6",
+        "git_lf_sha256": "83d39605f4f51ddcd1582644c1be4803dc9479bdb7015736e6f444a26308f254"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1FontAllByteAudit.java": {
+        "compiled_bytes_sha256": "cd32d9ab0c88edab03ddd74df57c97c3c51cb2af41a17983d93a3198d3907638",
+        "git_lf_sha256": "af8ddc96389dbbe000a00d4895829b8556bee0a8d82c0427e43efd983486317d"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1FontStartupAudit.java": {
+        "compiled_bytes_sha256": "44f731dc60a78e1b698558c317ad6aaf3d431d0758ef5e2e463f61da8e31dc6a",
+        "git_lf_sha256": "44f731dc60a78e1b698558c317ad6aaf3d431d0758ef5e2e463f61da8e31dc6a"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1GdiCacheAudit.java": {
+        "compiled_bytes_sha256": "f1df3b28a10a025ba630992f6a21c1ab78bd338a9bd95ed69ceb3a01a24a1c00",
+        "git_lf_sha256": "d880bfec0ca2b941b90f7774d75ee956aab73adf52ac6a392bb28c6a1d1ecb4b"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1GdiGlyph.java": {
+        "compiled_bytes_sha256": "88638dd4cee9dfd63bfa96d1119297c7d5b512768b177196559b07a5f36f458c",
+        "git_lf_sha256": "f354dd442de929df6d21a2c7b405c5e32ac8908f4d6eecbe1c7b51e00c3898a1"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1GdiGlyphAudit.java": {
+        "compiled_bytes_sha256": "939a5058c106740d2309f879a8c1fcd0a530d392f7012d9cf7b8450b6fb99668",
+        "git_lf_sha256": "ac35f55d52f81237fef65700f8adbcb94b65ec83ee413fdba6bee9c0483395d4"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1GdiWordsAudit.java": {
+        "compiled_bytes_sha256": "38b66c4388387f332db1543ba79c067f7d70d4ce1b8f0cc2c9b31d7b0c72bbef",
+        "git_lf_sha256": "47f99a401c903a9fae15281e2e086686e71a8895b97d415dd8010e2d0cd9f91b"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1GlyphAudit.java": {
+        "compiled_bytes_sha256": "aa71aed37d6715197eaf75714ae6c8d59d0ab1e8c9a7c397730703d9cfbe1cbc",
+        "git_lf_sha256": "d4122682010b6f0d1086ea240306b11fb1e848ae5dc37ea916ee61c24a3fd4ba"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1GraphicsFiles.java": {
+        "compiled_bytes_sha256": "b9fd7db5cd043058faa9d605e9ef27bfa9be52023832065261f508c99e2f3abb",
+        "git_lf_sha256": "b9fd7db5cd043058faa9d605e9ef27bfa9be52023832065261f508c99e2f3abb"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1GraphicsFilesAudit.java": {
+        "compiled_bytes_sha256": "63c331400b3c843c08f3cd1cc97403a844594b0c930b666a207ed878d97bcbb0",
+        "git_lf_sha256": "5cf8b56808f115b6bad1f24da95f8734c99ab638ee5dc45f574d8ef03263aacb"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1ImageModifierCorpusAudit.java": {
+        "compiled_bytes_sha256": "0798bc159b71501c381ed8778284a049d24e4ca57e07fe6675c3494e2c2f08f3",
+        "git_lf_sha256": "0798bc159b71501c381ed8778284a049d24e4ca57e07fe6675c3494e2c2f08f3"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1InputWindowAudit.java": {
+        "compiled_bytes_sha256": "94e0f9d32715dc03bcac1f27bdfa1e41dd82220e551280f91756bd289f0a4234",
+        "git_lf_sha256": "94e0f9d32715dc03bcac1f27bdfa1e41dd82220e551280f91756bd289f0a4234"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1NativeSystemAudit.java": {
+        "compiled_bytes_sha256": "52841c8f92faaa9247974189bf340bdbda1d1a3a098076b961a8f551cd41bd02",
+        "git_lf_sha256": "b900f3413b3cce40cb06a4a0577a9c98ac5b8118697ac5f54fd6aeb9d9d06605"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1RenderContextAudit.java": {
+        "compiled_bytes_sha256": "6a71ea97805436bf99d11e6dd5baa8dd94841a18ae3bb6a91655c058d55f2d33",
+        "git_lf_sha256": "c703c40e8963141e9bb502bbf2bf6f97acfec836affc1469056891ea847d3af1"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1ResourcePaths.java": {
+        "compiled_bytes_sha256": "d3d9b4ead4c6e2326c7515f191fe371bcf4f459d892d1a4d9d36833bfafd4eb6",
+        "git_lf_sha256": "d3d9b4ead4c6e2326c7515f191fe371bcf4f459d892d1a4d9d36833bfafd4eb6"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1ReturnOutputAudit.java": {
+        "compiled_bytes_sha256": "8c663a74b1af1b547f1d4543a827351cf41906c7aa12f2fabb5ff976557b393c",
+        "git_lf_sha256": "1e696b053fe80b25cb50af68dc3b377378e0c002bf4fc8ee5267ca69bc24cd5a"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1StagedGdiRenderAudit.java": {
+        "compiled_bytes_sha256": "5a945486843c72f1dafb11bdd060af27ce792c279bdf05e2d00b5014b150b9cb",
+        "git_lf_sha256": "5a945486843c72f1dafb11bdd060af27ce792c279bdf05e2d00b5014b150b9cb"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1StaticImageAudit.java": {
+        "compiled_bytes_sha256": "4c376b6622ecc40966b0fba6245aa901cfd21a92c66b39bb163f3851ca92b4d3",
+        "git_lf_sha256": "13a602a6474db9d77b70555ec542010deed1de03344a98b7cffe071dfea25202"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1TextRedrawAudit.java": {
+        "compiled_bytes_sha256": "c99f7b4dfb9410edd24a09977da139decdf1930f20d129180f9c786c5bed99ec",
+        "git_lf_sha256": "1a829ce6a4aea2c08c4d3beb60c97256f8a07cd76a7198c84d754da25d4c65ee"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowProcedureAudit.java": {
+        "compiled_bytes_sha256": "5d10a4b2cbc8be88faf90179652d04eaa740d45ef937c161e9265105b01d9b0f",
+        "git_lf_sha256": "60d69d5b8907830ba4e075e68094ec02af520b3bf7a9c2057572ce7b03d963b8"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsCapsuleAudit.java": {
+        "compiled_bytes_sha256": "34bff3626c148dfcd52850182207e7b56e155a8d2f55aef94d9e9e9c3f3be57b",
+        "git_lf_sha256": "fa1147c655dc3b6bcbade1d2c028d71c03022e1d6c783e5922ea589c0e973e4f"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsCaptureAudit.java": {
+        "compiled_bytes_sha256": "44efaa553ca60809a5480ee4965da666d5792fbf2fcfdb6aa1b7dd4d057a5845",
+        "git_lf_sha256": "44efaa553ca60809a5480ee4965da666d5792fbf2fcfdb6aa1b7dd4d057a5845"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsDibLeaseAudit.java": {
+        "compiled_bytes_sha256": "3ddb959511e1583531c22a6d3fb757d4113f93e8ef9b7b3d23133863bf09e4c9",
+        "git_lf_sha256": "08fb15f109feead8d86fd4bfa714670d75144e3698689a7087968fb0b0f1ff2e"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsEffectPaintAudit.java": {
+        "compiled_bytes_sha256": "c81012c58017e509ebbdf4d6e1cbdcf0317c1f836b3d2cd05bd910efbb489045",
+        "git_lf_sha256": "c81012c58017e509ebbdf4d6e1cbdcf0317c1f836b3d2cd05bd910efbb489045"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsGuestImageAudit.java": {
+        "compiled_bytes_sha256": "24f9216fb0f3209628c86bb2bf7c0dbfe617feaa059a49a472548658954bfb98",
+        "git_lf_sha256": "1466d957f7ccea54c18bebdcbddf90e0a0d74b57ec4180d0caf3bdd24e68bc30"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsImageHeap.java": {
+        "compiled_bytes_sha256": "3d9ddd1ae56d54200d2f925d75e74ef05399b037d499ae129067f88e62ec6db4",
+        "git_lf_sha256": "3d9ddd1ae56d54200d2f925d75e74ef05399b037d499ae129067f88e62ec6db4"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsImageHeapAudit.java": {
+        "compiled_bytes_sha256": "7e55767321dcf695e165873d0144e61d33b6bae175d789b9262d87659f8d70f6",
+        "git_lf_sha256": "7e55767321dcf695e165873d0144e61d33b6bae175d789b9262d87659f8d70f6"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsImageIo.java": {
+        "compiled_bytes_sha256": "419911759127bb906582091e62883d2aecea10776ae183daf937e92e01a3e8e9",
+        "git_lf_sha256": "419911759127bb906582091e62883d2aecea10776ae183daf937e92e01a3e8e9"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsMessageAudit.java": {
+        "compiled_bytes_sha256": "62dbd7d8da45177649a07c2fd526f50310cdc219967b96e7d7cfc32e8cd1f7a7",
+        "git_lf_sha256": "69c895cea58b34b7c1f349be94dba87706475174e8926e420365fc78ebf9d216"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsOsWordsAudit.java": {
+        "compiled_bytes_sha256": "df1b0404e46ea729c191c327a77c55fe650b61b655df04d031602699b4a97875",
+        "git_lf_sha256": "516e900959b9d55c7dd3eb4979a5193be87435da7220de497e69b6c2c36db6ca"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsPaintAudit.java": {
+        "compiled_bytes_sha256": "f3d8222978838c83c8a67bfc19c5d4eaa368ccdc727139879babb89024094a2a",
+        "git_lf_sha256": "6702e4c9f2f493ec7a0368da2185de2c9ca0ff4589d62e15f1728d613d1c76bb"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsPaths.java": {
+        "compiled_bytes_sha256": "31af2bf86f0b7f0830518f18a69567515b8e77467ff94dce7a00393aacf7a786",
+        "git_lf_sha256": "31af2bf86f0b7f0830518f18a69567515b8e77467ff94dce7a00393aacf7a786"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsPathsAudit.java": {
+        "compiled_bytes_sha256": "99e743bd31a22c0158452960d410d06919873770d3e6fcfefa3e05ebbdeaff0c",
+        "git_lf_sha256": "99e743bd31a22c0158452960d410d06919873770d3e6fcfefa3e05ebbdeaff0c"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsServices.java": {
+        "compiled_bytes_sha256": "82e1c94a2e584947e1b541888332da9eea4e55c08057f9c1007bceac9129ff46",
+        "git_lf_sha256": "82e1c94a2e584947e1b541888332da9eea4e55c08057f9c1007bceac9129ff46"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsServicesAudit.java": {
+        "compiled_bytes_sha256": "b324892eb334a375df62340a35cc97872077ca420e70264cdcc3e84980269d01",
+        "git_lf_sha256": "d4b8334dfe546850537434781afb0a3b72e827eb841f0a7f01731c053e7e44a8"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsSharedCompositorAudit.java": {
+        "compiled_bytes_sha256": "704d087f41992d797c5781aa78fb9cf3f02d91448860e84a1d9940687a119fca",
+        "git_lf_sha256": "2b080bfe706aedfdb6d763a5af03669c854ecc7696b346f6876061fee3e0c8e9"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsStartupAudit.java": {
+        "compiled_bytes_sha256": "637f67ffd58d451717ec54f2d61bedcf4520f6c770de02485ef7064f005c77f9",
+        "git_lf_sha256": "7b8d1994cce432edfbb305dad8b4d2df89744ae30cf54f5408c2dc4342248ecb"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsStartupBindingAudit.java": {
+        "compiled_bytes_sha256": "96f898ce532d6c375f2763a3cc9bccef3eb28be52fec377eca6e2aa0621be64a",
+        "git_lf_sha256": "392e77193cc23acf26db19388a39b8ab9d3fa301355b9d911387622967547190"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsStartupServices.java": {
+        "compiled_bytes_sha256": "dadeb951cab9088c5e10373325c560f14ff038b7da0bdcaf45b9ec32f0ee781a",
+        "git_lf_sha256": "dadeb951cab9088c5e10373325c560f14ff038b7da0bdcaf45b9ec32f0ee781a"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsWindow.java": {
+        "compiled_bytes_sha256": "0ad50ca17dacfdf0723879d4089876a0cbec1cf0afaf97cc6a0e336228c5272a",
+        "git_lf_sha256": "cf3b6e226f92d7c58c46be3f9c4c2fe54af309985bfb63bf491f8547aa6b03c8"
+      },
+      "runtime/desktop/src/org/circus/core/Pc1WindowsWindowAudit.java": {
+        "compiled_bytes_sha256": "2880365e86da7497fc6484044156d63c74db487178cef3a17564a14e2a882297",
+        "git_lf_sha256": "99a96832d4450d864e16647da369affedf84aecc282f0021b27e2bc523ee8032"
+      },
+      "runtime/desktop/src/org/circus/core/PcActorLayoutAudit.java": {
+        "compiled_bytes_sha256": "f23bd39c681e41334c0b71e09287fd2ed43bec1ad964334a5694354fdc29dba6",
+        "git_lf_sha256": "749bf6a30a0e1045eb6a5694d3860781e2538d9a7132a0553f3165d99794e772"
+      },
+      "runtime/desktop/src/org/circus/core/PcChoiceAudit.java": {
+        "compiled_bytes_sha256": "ff59e570f6f4e83a04a4b70948a169d8374071f2f319140ac4cc4f46c8a6a617",
+        "git_lf_sha256": "34c875961a21cf56b9f159ee22496ab44fa2060292fde7dc2b69eed773223c3c"
+      },
+      "runtime/desktop/src/org/circus/core/PpVoiceOutputAudit.java": {
+        "compiled_bytes_sha256": "7316cd410e850ab388f6f26ae3e2ce797e13bfce1cf93a2ddfab617c32d51596",
+        "git_lf_sha256": "72e04601b70b4e892c2036d3fef6004db1e06199ed288465af7a7920b62d49d0"
+      },
+      "runtime/desktop/src/org/circus/core/TransitionMaskTests.java": {
+        "compiled_bytes_sha256": "b49dfa76d292154c354c675b408571eded1345272312547a9c12833c32906e2e",
+        "git_lf_sha256": "4a8be29150caadd88989988e690209ff32c8f0175a907df1862a26f99fd841fd"
+      },
+      "runtime/desktop/src/org/circus/core/UnityMenuPerformanceAudit.java": {
+        "compiled_bytes_sha256": "73b6c00f6670996212095b95e617aa2fbe46e23a2f9b1124daabaf781fb66324",
+        "git_lf_sha256": "3278dff699300b8de253664bf2380529913aae8ef2ebee6dd93f8a30783d34ce"
+      },
+      "runtime/desktop/src/org/circus/core/UnitySaveCacheAudit.java": {
+        "compiled_bytes_sha256": "73c2ab40cf4b5752bcad8d9852fe0bbd236ba3641f4ed68df16ad6ddf9c3eb8e",
+        "git_lf_sha256": "93ebaa3250fcfb8b5dc0cbb61ae241474b41e5c5a53d2102538ac27aad6a5a1c"
+      },
+      "runtime/desktop/src/org/circus/core/UnityStartupAudit.java": {
+        "compiled_bytes_sha256": "b7ee3966ecb7f7494662bc62d54d1bb935d42c2e5b4aedbd7563c30b5aee206e",
+        "git_lf_sha256": "1d5d1abd7cc859a71ccc97f8bfeefcd315fbcd7935f4e011f531a0cb1ea203ab"
+      },
+      "runtime/desktop/src/org/circus/core/UnitySystemAudit.java": {
+        "compiled_bytes_sha256": "9f131d73e71e82cb30dc675f992a16b669ca73bc8e76c135e670508b73319ca8",
+        "git_lf_sha256": "1185439948408baf3f808f7e960c1b08c7d539a4ffa4a03d4faae0c7d1323d73"
+      },
+      "runtime/desktop/src/org/circus/core/WyResourcePathAudit.java": {
+        "compiled_bytes_sha256": "e8aff880fcf8ab689b8103b148bdb5e1a760b1c341b2dc5fa9ec2d6a4034a50f",
+        "git_lf_sha256": "fb23eabe7adcc8a6623b88804447276efe59f76721e6c03e5ca93ff0fec28d74"
+      },
+      "runtime/desktop/src/org/circus/runtime/Fsb5VorbisAudit.java": {
+        "compiled_bytes_sha256": "25ddc3672693edb1a5d95ed39b13b3043a712c045362a485d6b6ec3ac0e9a26d",
+        "git_lf_sha256": "f276afb42bf0f7381bd8ac84c139812caca1e26d5f85a66ac5c50edbfe57829e"
+      },
+      "runtime/desktop/src/org/circus/runtime/UnityResourceAudit.java": {
+        "compiled_bytes_sha256": "34ba13f9a4c0f873727a783aac1584af5202f858731b32930c14721ea93dea74",
+        "git_lf_sha256": "6104a589ea895e78dce43ef4bbaaf3d663907e412a4bc02c2598fb01e696bf10"
+      },
+      "runtime/tests/org/circus/core/AudioStreamingTests.java": {
+        "compiled_bytes_sha256": "339c27d28c8e2e396efa96b19c1b28ae06931573d5ca2d6b70a15fd7407b35ce",
+        "git_lf_sha256": "9488571e812f1d598614c9cc7fde76c9df4625e3cc8e1a7e178f68a0a1078539"
+      },
+      "runtime/tests/org/circus/core/BranchAudit.java": {
+        "compiled_bytes_sha256": "5e4e8d32ad606cf19c56fcb966cb34875fb8865ba3cc46c5b8f07a9f06ec5e00",
+        "git_lf_sha256": "fe6dc91b74ff0c1cb20d5121c2e9751be98d1b6508a4dfd920841348105b4e81"
+      },
+      "runtime/tests/org/circus/core/CaptureTests.java": {
+        "compiled_bytes_sha256": "450c34c7077440990225e857a8229dcd05ceb08138147f5316fd316976659132",
+        "git_lf_sha256": "1e1ee79bd902b9b568ef1f995245fc35f118758bcdfe6679779310319aa01238"
+      },
+      "runtime/tests/org/circus/core/ChapterAudit.java": {
+        "compiled_bytes_sha256": "54f14d4fb017ddf8499d2f922dfe3da31770f6e5465ced514a9fa69dd636b69c",
+        "git_lf_sha256": "02106c1c5405a7cbe332eddcb1f9a91341c60b7588758ee8886f374fd33801c5"
+      },
+      "runtime/tests/org/circus/core/CircusScrCorpusAudit.java": {
+        "compiled_bytes_sha256": "9b7c1fc710b6f49339203ead22b5bc05c33edab49d7e742d2344b0c62ca83f8b",
+        "git_lf_sha256": "ea754f8e6085614390bada40e1b8ee71501b1ac00c68fc7fbdaeb5de26e5389d"
+      },
+      "runtime/tests/org/circus/core/CircusScrVmTests.java": {
+        "compiled_bytes_sha256": "d1d4334d41eb8a9470783a0f52b96009640ea1693b69b47c627d76bef0db0973",
+        "git_lf_sha256": "f4965ce344d32fb4c22c8a70d814f168c0ecdb80fba1d425a64b195f955b257b"
+      },
+      "runtime/tests/org/circus/core/CompatibilityAudit.java": {
+        "compiled_bytes_sha256": "8e463f1f8f39dab92b8b333b9c50d71cbad350bc97cc9874dcce952135c4bec0",
+        "git_lf_sha256": "6e8b7e44ccdb9555b7f648b79448fd0a9a4f81136a50bdf3b43c026c72d122e3"
+      },
+      "runtime/tests/org/circus/core/CompatibilityTests.java": {
+        "compiled_bytes_sha256": "5b4c08a90fa40ff27917857a5317b515923c5fe3704d16c4afef0add75efd6a3",
+        "git_lf_sha256": "988cff29b3ffd9c8a2c94a886b1f9b2f0204f0facbba9a8f89c9ec8205f47544"
+      },
+      "runtime/tests/org/circus/core/CoreTests.java": {
+        "compiled_bytes_sha256": "64d2a85351ef1bf24bac1f946e28c2b03151f6936495614097b20a3e5bb0f4bc",
+        "git_lf_sha256": "816834f6f3ce37f30c4a823c148faa270851adaaab4e93548fe85004327e05a4"
+      },
+      "runtime/tests/org/circus/core/CorpusAudit.java": {
+        "compiled_bytes_sha256": "b63aa4388da18718fb1b7fe13e75b615cc35e89ba0b7b41058c2ef633e6a8864",
+        "git_lf_sha256": "40175bca1c4185e29e2ef40f4496ae9946333f5359ac96a960895810fc9db12d"
+      },
+      "runtime/tests/org/circus/core/Dc2ActionTests.java": {
+        "compiled_bytes_sha256": "691770ef61e868ef9d6e8b3bb9c5cd9c946c7a01ec30b97015520757936a9713",
+        "git_lf_sha256": "8506407582b17e546e82b1eb5e14607cbdbfc9ef0237898bc2b9a1fe89701609"
+      },
+      "runtime/tests/org/circus/core/Dc2ButtonVoiceTests.java": {
+        "compiled_bytes_sha256": "47e523b954ecd5398fcb16093863a42ff64dec7a6549f55652dfb8daa8e9cd7c",
+        "git_lf_sha256": "f0fa3438868107b2bfcaae8d0c38b736f5e079899dca278fb448fdc152138992"
+      },
+      "runtime/tests/org/circus/core/Dc2CrxMemoryTests.java": {
+        "compiled_bytes_sha256": "36dd44509cb40d1720017d1a0e80fff24a2cce5fa48569835b29bda16bf96fe3",
+        "git_lf_sha256": "86e75c9258b20006dd1bc32c2f0e3a65db6bf779a87682a4d364970549defd3f"
+      },
+      "runtime/tests/org/circus/core/Dc2EntryLabelTests.java": {
+        "compiled_bytes_sha256": "0232d5855706c9d57197ee31c5d48b10023420f7920b07849ada9858fcc28f95",
+        "git_lf_sha256": "29706fef9aff84840566479a5016ddcec938ef6968a17842f7b7a730a02c1dd5"
+      },
+      "runtime/tests/org/circus/core/Dc2ExtrasAudit.java": {
+        "compiled_bytes_sha256": "38993953d1ded030d6abdccf3e9f86e07bd23cb5a85ad45d6b4dc1a96bfae1cf",
+        "git_lf_sha256": "0cd6fd002fe08231ee31f997d2e662cae55c42be879c4b69c89b99f44f2e42bb"
+      },
+      "runtime/tests/org/circus/core/Dc2GlyphTests.java": {
+        "compiled_bytes_sha256": "447c07d9742fa9fb48f5545c1a4888d94428c62b0592a6ac58f1498ef41fdf3e",
+        "git_lf_sha256": "bf6c1d175057d85f9960c4d0efb8884add5e46bdd255b3ef5806e1eba1570204"
+      },
+      "runtime/tests/org/circus/core/Dc2MotionTests.java": {
+        "compiled_bytes_sha256": "eac5e4d35308fd9efcb0f6a1237c75ec77659b7d15840c106ce0afdc5e30f2d4",
+        "git_lf_sha256": "ac1876cefc0300a1aca32db2be034989926a5acfb5834352b5ada411b148f056"
+      },
+      "runtime/tests/org/circus/core/Dc2PartialRedrawTests.java": {
+        "compiled_bytes_sha256": "c1090e30666f85227fcf561fd7fc54419b759f17adb8ab00761169018aebe1e3",
+        "git_lf_sha256": "093f14b570db07ea449e17123370c2da914103ff7451afccdfe34d45eb81543c"
+      },
+      "runtime/tests/org/circus/core/Dc2ParticleHostTests.java": {
+        "compiled_bytes_sha256": "0b072414ae1507db47f28659637a083e70ef453f8a2d586eecbdcb20a8950f87",
+        "git_lf_sha256": "e2348e349d04f77c7491e36b98fe996adae8e71c3a3d84b716e70731cd379827"
+      },
+      "runtime/tests/org/circus/core/Dc2ParticleTests.java": {
+        "compiled_bytes_sha256": "6b09b859627db481f111f00ca3b141cf22656cab200f5b44eb9569eba766c6b6",
+        "git_lf_sha256": "687b500eb1fb936f0dd5ab10db03ecfb7ed0608487030d6bd1f3a9ea4faced96"
+      },
+      "runtime/tests/org/circus/core/Dc2RainPipelineTests.java": {
+        "compiled_bytes_sha256": "b43efe30a880870ca54a1064ae045baa0bd26babce1b09b4d20508d6a56ecbaf",
+        "git_lf_sha256": "eeb9b1900e7335148e769d174d2b74bd5cf8187f95b9de7f963418f9be583348"
+      },
+      "runtime/tests/org/circus/core/Dc2RainTests.java": {
+        "compiled_bytes_sha256": "7ba5f2fd811cb88be805d16375e5e9eee5cee5112f886b9a06a1d6037b100cb2",
+        "git_lf_sha256": "416f2814eaccc77cd7b942a680d619c2175fcdfd947b11faf49f685d98374b5c"
+      },
+      "runtime/tests/org/circus/core/Dc2ResetTests.java": {
+        "compiled_bytes_sha256": "05dc5d468ccd2daf1259f5f089a4170b63fe795e9835b34a5f25c036de437f5d",
+        "git_lf_sha256": "391d5519fb4e15c9875b2d9405f861c4fef43d2d18c618f5f4e2b9bb540490a4"
+      },
+      "runtime/tests/org/circus/core/Dc2SpriteEffectsTests.java": {
+        "compiled_bytes_sha256": "99ddf730fd969a104670525bf9dfabb665c064ebf978cf0f739f4c6d2c698ff2",
+        "git_lf_sha256": "92a03b6ddd7cb42dc12fec8567ce7c75ce299bbe052bfc8ba562627a5ab6d4e1"
+      },
+      "runtime/tests/org/circus/core/Dc2SystemAudit.java": {
+        "compiled_bytes_sha256": "4702bd7cb6268d323be19797031bbc1a2455c72a788f2e205519e26710ebd29e",
+        "git_lf_sha256": "11733c65e2b0bb86046038ffcc12348a79a8c4dc1eade08e3a8ae257fe714eea"
+      },
+      "runtime/tests/org/circus/core/Dc2SystemTests.java": {
+        "compiled_bytes_sha256": "54b3a011b12a18053324b261cc690fd2a7163e653eb5b93303470ec0897f1abd",
+        "git_lf_sha256": "de67b179dd00923e211e1fceb78d3626e822f89b65703da149ee53a852cd3196"
+      },
+      "runtime/tests/org/circus/core/Dc2UiAudit.java": {
+        "compiled_bytes_sha256": "c42e3e116e0d05914e4e391aa1cae2b402974f7448750760604f7b5cfcd30020",
+        "git_lf_sha256": "fddbc13d1f351bcae81d6a8172a8b5b4385e4db25c693141d1ab3d71babf7c25"
+      },
+      "runtime/tests/org/circus/core/Dc3rHostTests.java": {
+        "compiled_bytes_sha256": "42a4b38311010ff41c7c8be3ef490fc589092467d91ef5f45c27415e0e635dcc",
+        "git_lf_sha256": "3b754d5c52e890e10e3e6e625fad8b052836845703aa8b68c8e64097ce2b4fb8"
+      },
+      "runtime/tests/org/circus/core/Dc3rNativeProgressTests.java": {
+        "compiled_bytes_sha256": "7deb38b67c9146511fa833e62969e1d9a97f7bd1419fa38957ce3fa7872fae99",
+        "git_lf_sha256": "a25a17ffa143d2fd4e6c6f828705a330f5ba6793c2a6039e819f775028182728"
+      },
+      "runtime/tests/org/circus/core/DdBoundControlTests.java": {
+        "compiled_bytes_sha256": "469b09e5113e59e15c423f8aa8f5536f06d583de74032903d247517a7117d427",
+        "git_lf_sha256": "689f3cc7f216bd6c242889ec9bfab87ceed83ec43d19e5c0b59f689e5933d885"
+      },
+      "runtime/tests/org/circus/core/DdGalleryTests.java": {
+        "compiled_bytes_sha256": "bbd301a1a6bebf376d7f7e9d380e46cb103c8dacfaedc2dffad3581112727e9c",
+        "git_lf_sha256": "8339ef811f4b182877da97884b50b49fe224f2c8d4662e5eabd09be75802a314"
+      },
+      "runtime/tests/org/circus/core/DdModalNoticeTests.java": {
+        "compiled_bytes_sha256": "abd4fd2acf0e7ecad28db1b8d5a0319865954b6ea7cb0e2e1e14ac9edd699962",
+        "git_lf_sha256": "73df3f24968fd72eccd513865805b5deca5d90ef4732afab7084ac46024d1a38"
+      },
+      "runtime/tests/org/circus/core/DialogueAudit.java": {
+        "compiled_bytes_sha256": "37f00e1fac2a7299d4a76a10f0143a49e3fc33b046bfbab1f95a1715cf722422",
+        "git_lf_sha256": "d1c3c108dd86d0aed30fffd7f24e9847bb73aa10560a3d3210628a23124db082"
+      },
+      "runtime/tests/org/circus/core/DmDdPaletteTests.java": {
+        "compiled_bytes_sha256": "77d011baad7a3658088cf26b1de607c8bc853e0a236fd37a9fecda1fd0e6eb92",
+        "git_lf_sha256": "e6da03aecb3dec7dbbc3e7b0e414db97ff14e8b1a725bcde64bacb5b78e831f7"
+      },
+      "runtime/tests/org/circus/core/Fsb5VorbisTests.java": {
+        "compiled_bytes_sha256": "f1f9207f5e5bac80e910ca316e23e0a48733d6e5a4347eccd8c29234c8968229",
+        "git_lf_sha256": "7b2d3e22c1628fe0b69c7943553e0b19de66243d1b222b1d329dcb5c595f557a"
+      },
+      "runtime/tests/org/circus/core/LegacyHostFixtures.java": {
+        "compiled_bytes_sha256": "7e1119bc48c2ed50b92f08231240bf1a6e33b6dc0f940d4f4b6f1d8735193f1d",
+        "git_lf_sha256": "8c56f653c44e34579ef2f37a36adc25198e74bed0e07ffa44a6ab0160ef19afa"
+      },
+      "runtime/tests/org/circus/core/LocalGameStorage.java": {
+        "compiled_bytes_sha256": "7c87a196802597c1be6a2941e31b7a14462c9f0810b23d2bb06d75cec648ad92",
+        "git_lf_sha256": "be887b703d2d2a4b4e42bef549aff82058d29a0bf7007e10b91e7e40eaaf4b0b"
+      },
+      "runtime/tests/org/circus/core/MesDecoderTests.java": {
+        "compiled_bytes_sha256": "c20a44b3265d42e90c9d35559739980794cc9818ab14db9ef7c6afc9f2d0e2fa",
+        "git_lf_sha256": "fdbbf65d84421afa362858a0106069c507168bbd2af75498ef3a89c994d31980"
+      },
+      "runtime/tests/org/circus/core/NativeCapabilityTests.java": {
+        "compiled_bytes_sha256": "2bcbb46b6b1492716dd6a32ab1b19224df5e5c714d871069ad0ee6043c835183",
+        "git_lf_sha256": "e4bc0f8c62228e7b7109e7ca75571c64c98d9cf3279bdb25d966ddc90484554e"
+      },
+      "runtime/tests/org/circus/core/NativeCursorTests.java": {
+        "compiled_bytes_sha256": "6de49460efe5583df06aec463f25f676eb1db1d34055a19a0c4bb81cb87cc108",
+        "git_lf_sha256": "bcf137702804565fc92c86d9db9357a8d85c7ca0f0953e80b475f40b5b14e376"
+      },
+      "runtime/tests/org/circus/core/NativeGameVersionTests.java": {
+        "compiled_bytes_sha256": "c5b55b5558e356362c7e8fd18099fe860a8433705f67376b2dc0fed9a3f69a7e",
+        "git_lf_sha256": "0b104fb42dafa622e756441cf07d57fb74c83b1fac51bcc4d1940b5ecf6513f0"
+      },
+      "runtime/tests/org/circus/core/NativeInverseAlphaImageTests.java": {
+        "compiled_bytes_sha256": "4f8a188fe707b98f2d9079d3c263560a7b4cd0c06a741a3386eb77a062da7da4",
+        "git_lf_sha256": "7ad6129eb5a646bb48d15c2c7ecf001952fffc356f50542d1db4f614694b9a0e"
+      },
+      "runtime/tests/org/circus/core/NativeMesCorpusAudit.java": {
+        "compiled_bytes_sha256": "6ed6d3dccd123760025b9250acf4be3770f5c7551031d517f4bb15e8eff406f0",
+        "git_lf_sha256": "10167dac85c1658fcc69e80e07ad6606a917ad6a6155594695f95048e679c2ea"
+      },
+      "runtime/tests/org/circus/core/NativePc1ContextAudit.java": {
+        "compiled_bytes_sha256": "0a79557c3ff5617c8de0d1d5ed9062c137ddef8414b4467c9462cf76e4dbfdf1",
+        "git_lf_sha256": "abf804672541f31b9845a57bebbbf2e94f6e5268bfd8c1d291c86b5721056373"
+      },
+      "runtime/tests/org/circus/core/NativeProgressTests.java": {
+        "compiled_bytes_sha256": "e9977a034ad8186cf41ccb5164e1171114bbbb86b9a2426a8b584c8182e37d18",
+        "git_lf_sha256": "87ab67d6bf981759cede9465f8c213ad9ccf9fee9d46ec4e5bc45854eaed3b49"
+      },
+      "runtime/tests/org/circus/core/NativeSelectionAudit.java": {
+        "compiled_bytes_sha256": "9679734983b908a154b87a048a706dd6be710813689048ce86cd06ff8d4ff4cc",
+        "git_lf_sha256": "f6d6b288bbacddb56f416b6a4104a72d2ec758873a6108e911c660654b7546c5"
+      },
+      "runtime/tests/org/circus/core/NativeStartupAudit.java": {
+        "compiled_bytes_sha256": "efec742ddfaef7514e11a1a479296431a27717daf86966b4c46236a78f5d2606",
+        "git_lf_sha256": "93f27a94876acc9bfb43e042c0f16b289ad558828426a751d003923d4494a7bc"
+      },
+      "runtime/tests/org/circus/core/NativeStringPayloadTests.java": {
+        "compiled_bytes_sha256": "d026621a3aa919ce29479a903e012cb5e33a784a2d6b8b45034aba2dac254397",
+        "git_lf_sha256": "4da3243bff088f5098edc744fbe3fa2e149a3304686a9628c3ab7326d385f986"
+      },
+      "runtime/tests/org/circus/core/NativeSystemCallTests.java": {
+        "compiled_bytes_sha256": "0c54a1d47b9cff6900043d0dcdc51bec5f69d6634cd3fa724f33cba4443a3540",
+        "git_lf_sha256": "71fd733f7b8b3511c18423439f4346eb6cd1ef46d8f874a26f06e64c043a6068"
+      },
+      "runtime/tests/org/circus/core/NativeVariableTests.java": {
+        "compiled_bytes_sha256": "90e0f7a3a3acaf111cdb443f0c5fa8c63649134778a0010e881292ffb0fa034d",
+        "git_lf_sha256": "033c5ec9b7c7d8ae386a3640d7308ee7bc894a6bd3066029a85a67128343905e"
+      },
+      "runtime/tests/org/circus/core/OriginalUiAudit.java": {
+        "compiled_bytes_sha256": "ef8342882564d946a19839cbfd12e4afc67c7a8bcf7d823409edafad6be3ca2a",
+        "git_lf_sha256": "0ee91b648901c6cb5e156df596e5e4bf7c551129ef843187a0849ec1e0fd2832"
+      },
+      "runtime/tests/org/circus/core/Pc1AlphaRasterTests.java": {
+        "compiled_bytes_sha256": "7541b62aa155799e7d90f724978a045b4d765489ec11d1231f5a748832da0d98",
+        "git_lf_sha256": "572d1f94afcad9c511d8e84dce80d9b453d7f1698758adf60acce9db5140e7fe"
+      },
+      "runtime/tests/org/circus/core/Pc1AlphaResourceAudit.java": {
+        "compiled_bytes_sha256": "2b96ee50850d5f986881e8040f70df5fe9aee983b0535a89b4b4f55fefcd02e0",
+        "git_lf_sha256": "ac73469328f7cc727240b02a2923e95e05dd3904e3147375bfd95dcf1dcb34e0"
+      },
+      "runtime/tests/org/circus/core/Pc1AudioAliasTests.java": {
+        "compiled_bytes_sha256": "e7a5464a8cb0f4bb4204453e238a97415930003292f4d3b5ea551125e152669a",
+        "git_lf_sha256": "01f53724a8cfd0f6a14ec7831260b6c41a5001c6764c3bba1e6df7e04df4ef01"
+      },
+      "runtime/tests/org/circus/core/Pc1AudioTests.java": {
+        "compiled_bytes_sha256": "05fc15f1c96cd975de540a54557a2b283f7568b8c2c5666d60b81573af80ec53",
+        "git_lf_sha256": "f2cd2e770ebe08d07dc22de26bc3451a4f655bcb46ff8ed1e4a22b5c0093e843"
+      },
+      "runtime/tests/org/circus/core/Pc1CandidateMemoryTests.java": {
+        "compiled_bytes_sha256": "6737316cd5a139a3847e020a9fc92568a1fbb715597ee8f59b12075bd57c496f",
+        "git_lf_sha256": "6737316cd5a139a3847e020a9fc92568a1fbb715597ee8f59b12075bd57c496f"
+      },
+      "runtime/tests/org/circus/core/Pc1CanonicalFrameTests.java": {
+        "compiled_bytes_sha256": "d75018a7ccdbadd90a4298e1119c8ab6dcf5c8c4892aa8e24f7cef70a333b16f",
+        "git_lf_sha256": "71333740ce46924996192e5ebf74bbe0126c2721eb0ec5b3c86b55890e07fe92"
+      },
+      "runtime/tests/org/circus/core/Pc1CatalogLoaderTests.java": {
+        "compiled_bytes_sha256": "379c72efccbae45234e7ca79f8df854bf4968e38484498a20a6617adca95539b",
+        "git_lf_sha256": "88232a291263ae5632745dea446e7eb122462908b467222648dc6d610b0acf06"
+      },
+      "runtime/tests/org/circus/core/Pc1CatalogMemoryTests.java": {
+        "compiled_bytes_sha256": "0b4ed0a1ab07dd3114ef5b7e59a2193022ee3e377107e78dfc7f58d113a5f269",
+        "git_lf_sha256": "9c5cb66bd461bdb0e766c5c67f994c0863f8f9356df9fdf529ad9d8863e2aa17"
+      },
+      "runtime/tests/org/circus/core/Pc1CgVisitTests.java": {
+        "compiled_bytes_sha256": "ace28d79afbcd15fb674b62022a7db828744651cb104347706bf1e44448b2bd9",
+        "git_lf_sha256": "ead6d42c33fa056e3ee79e06b52059d5a6593d8b0af4e25c264346b45e6dc6e6"
+      },
+      "runtime/tests/org/circus/core/Pc1CheckpointMemoryTests.java": {
+        "compiled_bytes_sha256": "c3a8552f8f411a33a127f65fc2958ac61e09b4a8911ec6b0db89163f52ba3b6a",
+        "git_lf_sha256": "c3a8552f8f411a33a127f65fc2958ac61e09b4a8911ec6b0db89163f52ba3b6a"
+      },
+      "runtime/tests/org/circus/core/Pc1CodeBufferTests.java": {
+        "compiled_bytes_sha256": "5a4925d930f15e5c2dc9235faeba45eca2d98a1ac0ae085d4b679684dd96c8d1",
+        "git_lf_sha256": "5f737a8537b8c1933c08396f27c35912c05d7b8f364c1359fc06c41d7fa0d0e1"
+      },
+      "runtime/tests/org/circus/core/Pc1ComMachineTests.java": {
+        "compiled_bytes_sha256": "1fe8111ea9f269f39e651ccc86950f0a31aaf0ee3978b7efa91742f6ea82514b",
+        "git_lf_sha256": "45ac3083550e4eaee6e236bf0c7dd0b947eb31bc9aca88d511e769db0c5fb968"
+      },
+      "runtime/tests/org/circus/core/Pc1ComMemoryTests.java": {
+        "compiled_bytes_sha256": "34c3df8b02ae14230ea8ff046d38c2a4c78c4c3e31be98fba38e5c8dd1bdf0ad",
+        "git_lf_sha256": "34c3df8b02ae14230ea8ff046d38c2a4c78c4c3e31be98fba38e5c8dd1bdf0ad"
+      },
+      "runtime/tests/org/circus/core/Pc1CompositorTests.java": {
+        "compiled_bytes_sha256": "fc8f294038dc88879fb439421aa66eed1d691d2e8942efb2c8faa27ea2760461",
+        "git_lf_sha256": "3731eda80b2a47cad94c2aa3d092c04d40b0c632ef83d4cd8bee5d6634336312"
+      },
+      "runtime/tests/org/circus/core/Pc1ConditionalTests.java": {
+        "compiled_bytes_sha256": "9c189c07de33dee390beb29cd859bd35b3129c7a8ff6d03c2fd48a7c7c068fd3",
+        "git_lf_sha256": "32c97fde01fcc0de87ea294d253237ed1bdb0c30e4f682c0f794ca0290efe2bc"
+      },
+      "runtime/tests/org/circus/core/Pc1CrxDecoderTests.java": {
+        "compiled_bytes_sha256": "e0a3050a63c5d71c160e84d53725035176be04862b9b299b52b6c71d66c0850b",
+        "git_lf_sha256": "4fe69d39dc67401f53d0ffe61cc85ba87279b6ee72a01f31ca5392fc10f70e68"
+      },
+      "runtime/tests/org/circus/core/Pc1CrxLzTests.java": {
+        "compiled_bytes_sha256": "71b9e65507eed0f68ab1215701ab5f08a998ad6b6f4d764932cc6edff12164fa",
+        "git_lf_sha256": "71d3de896c8f7c904c78f36b01e4c4f2f790f6e4ca261dbfceb38743a9ad3736"
+      },
+      "runtime/tests/org/circus/core/Pc1CrxPoolTests.java": {
+        "compiled_bytes_sha256": "2e7bb9809ff8c158da4e635a938f34978eebb2e954042a7a2d59461358825f70",
+        "git_lf_sha256": "9551596655c25f8e2f878d8df7405a2dcf733d727f91a53766a3633a68cf2ff4"
+      },
+      "runtime/tests/org/circus/core/Pc1DrawBatchTests.java": {
+        "compiled_bytes_sha256": "48c013f53e3b61ac0dcd5e765597933cfd225e3fea74a1c87b3ceabfa0dd723b",
+        "git_lf_sha256": "fa91e1d9e3812f19ab6e3e0f17cb1c175ec457ad1a791b7e571748a4c2a80536"
+      },
+      "runtime/tests/org/circus/core/Pc1DrawProducerTests.java": {
+        "compiled_bytes_sha256": "dd683a6c68fe14a30090a6a9982e45a89aa783512b5c994c05e626765c774271",
+        "git_lf_sha256": "1ad213c03656e6db15c9e36d776be561926356b540586e0ffc1958b260a3802d"
+      },
+      "runtime/tests/org/circus/core/Pc1DrawTextTests.java": {
+        "compiled_bytes_sha256": "ee46519677a4fd62b7a2646e6c15ca02b00b47c88a7b5675bb80cbb830c6006c",
+        "git_lf_sha256": "f57ba3f895365ffea84ecc9ccfb2aa4d2ed8fe61496d56b1bf8c14510f25d68e"
+      },
+      "runtime/tests/org/circus/core/Pc1EffectPeMemoryTests.java": {
+        "compiled_bytes_sha256": "d1cf709209eefe76913d5d406672e86404b452a39ec30064dbcd5053eb9a3427",
+        "git_lf_sha256": "a783c296b3a86a8c4b15915758b319e7a62f621cd5b08297762fc8f31c359ee5"
+      },
+      "runtime/tests/org/circus/core/Pc1EffectsTests.java": {
+        "compiled_bytes_sha256": "83262969af4cbd224c412fc5edb0cbb82ab30161aa8cd9d33150da095a30646a",
+        "git_lf_sha256": "48fb285f788a5b07a32e8c93f566c5f1735332ee5cb594272fa7eb2e6a56d3e5"
+      },
+      "runtime/tests/org/circus/core/Pc1FetchTests.java": {
+        "compiled_bytes_sha256": "a666735dc0aa344ae85d1ec359d768fdff84e85aee9a42a4b475c4af4932da59",
+        "git_lf_sha256": "9b6568901d749ee18b664cac8de30f2a9d6dfcd1e8407c98e18b26858efadb3a"
+      },
+      "runtime/tests/org/circus/core/Pc1FixedFrameMemoryTests.java": {
+        "compiled_bytes_sha256": "838ec67d7f8de58f6e1373046f6098dfee1f3c29273d48d01a0cca5a8ef05b74",
+        "git_lf_sha256": "838ec67d7f8de58f6e1373046f6098dfee1f3c29273d48d01a0cca5a8ef05b74"
+      },
+      "runtime/tests/org/circus/core/Pc1FontMemoryTests.java": {
+        "compiled_bytes_sha256": "8f8fe9ed4714a62fbed819819b10c7e63a02901f846f39a837b43c99f64e80de",
+        "git_lf_sha256": "e733d454ead603a5a210013a9f3b01c5a21fc4ff06bcc4f28ec03c0253d7b88f"
+      },
+      "runtime/tests/org/circus/core/Pc1FrameCopiesTests.java": {
+        "compiled_bytes_sha256": "909c9c6add0ca19934f9293c1f7c83dc25ba5b9c8f50891332b70156285f951f",
+        "git_lf_sha256": "909c9c6add0ca19934f9293c1f7c83dc25ba5b9c8f50891332b70156285f951f"
+      },
+      "runtime/tests/org/circus/core/Pc1FrameFieldsTests.java": {
+        "compiled_bytes_sha256": "7ff85f0980e842319d4e0c43c1a14b5089e24870e4bc896b957f53ca11c0e8d2",
+        "git_lf_sha256": "974c8e35ef286043a6858a58f61dd4f7a761ec78bc2714bb29b64b9be710151f"
+      },
+      "runtime/tests/org/circus/core/Pc1FrameInitTests.java": {
+        "compiled_bytes_sha256": "e39590238a348d47003c37cbbc5dc985a0c6eca8aedf065a7cadca76f2bb6dd8",
+        "git_lf_sha256": "e39590238a348d47003c37cbbc5dc985a0c6eca8aedf065a7cadca76f2bb6dd8"
+      },
+      "runtime/tests/org/circus/core/Pc1GeneralRedrawTests.java": {
+        "compiled_bytes_sha256": "61aecfc927a611377bf2e0a829adcac3b2fe8d493a2cb70209a3c3c48f961190",
+        "git_lf_sha256": "50768e5b319d2264b2966e5103609385c7f8f3ca1bcd37f283adfe55ca37393b"
+      },
+      "runtime/tests/org/circus/core/Pc1GlyphCacheTests.java": {
+        "compiled_bytes_sha256": "79a315aaf5fb374798f7a645a2d286d514703bbb018309091c8053186595c1da",
+        "git_lf_sha256": "bdbcdd6c1e943fc9e014c603ba58582d59bc46946295b16e326e9cb68b8d4064"
+      },
+      "runtime/tests/org/circus/core/Pc1GlyphRasterTests.java": {
+        "compiled_bytes_sha256": "308bd26919dbe5b811760c5b5d20f90aa554fd07d4dd2601cc7881881fea05a9",
+        "git_lf_sha256": "ff48584c321522f9ca0248a96743f06c6f5e0032186cbbba4fd461c12e58af72"
+      },
+      "runtime/tests/org/circus/core/Pc1GlyphServiceTests.java": {
+        "compiled_bytes_sha256": "17589ac031aebcd33c4491494805a921aebc374a54db33e6e73e7d144803924a",
+        "git_lf_sha256": "b18adbf29cf52e2148bb2af71b8d9575fe57dc39368659f4778a64396407162e"
+      },
+      "runtime/tests/org/circus/core/Pc1GraphicsAddressTests.java": {
+        "compiled_bytes_sha256": "a5f67e79318541546904d797e5dd4279e6e60c4d7592edeeb0bc06baac7d1fc9",
+        "git_lf_sha256": "9e577211ac8f65359c5fbaa330bd4e02b674e7ce8ac4ebb1728d189f816d777c"
+      },
+      "runtime/tests/org/circus/core/Pc1GraphicsMemoryTests.java": {
+        "compiled_bytes_sha256": "baabb827a88d5e251031c8a72ac82eb9d6f06b68eeaa7fdd4ff84fe8bd48a902",
+        "git_lf_sha256": "2de91132678748b14a84f708781c2df2a2c5649fd2e6717c4de6abf6ad36f69f"
+      },
+      "runtime/tests/org/circus/core/Pc1GraphicsPipelineTests.java": {
+        "compiled_bytes_sha256": "85ebf09a285f31f57a71d1549b9402b2d0af0ed66cbf93ba52939de53d9c4fe8",
+        "git_lf_sha256": "85ebf09a285f31f57a71d1549b9402b2d0af0ed66cbf93ba52939de53d9c4fe8"
+      },
+      "runtime/tests/org/circus/core/Pc1GraphicsResourcesTests.java": {
+        "compiled_bytes_sha256": "23bb206b1a4bcd3bf10e5203364036f42b32a1cfeb802df1aa7509a520e511f4",
+        "git_lf_sha256": "a2e976b77add0c4b9470e7588c048c6368f0a2fda05428231f447fb6c72a3531"
+      },
+      "runtime/tests/org/circus/core/Pc1GuestAddressTests.java": {
+        "compiled_bytes_sha256": "0bfd9e13f95a18cf8e9b6963855a954a6284653ccef6921912ac2532eaeca1cf",
+        "git_lf_sha256": "3e53d438049bee482b2442fc2884f6b936b75ccb0abe1a313d84e5d5a6420995"
+      },
+      "runtime/tests/org/circus/core/Pc1GuestMachineTests.java": {
+        "compiled_bytes_sha256": "a0a1bcfb2905237921c5be79dd95f32881762fe793b33d5613b9a18e4f5352ee",
+        "git_lf_sha256": "b123e938f6abbbbe63ba8987145802bc89471f865ce8eb1aa63c0c7a1cc94969"
+      },
+      "runtime/tests/org/circus/core/Pc1HistoryTests.java": {
+        "compiled_bytes_sha256": "93cb790e1f1aabd261d5a3f4632cbb5fd6ad5f586b6314b506658ddc78d153c1",
+        "git_lf_sha256": "2143758193b8a565c53b74328c80d6532ca5fd9fb932b2e16ffdf390404f2afb"
+      },
+      "runtime/tests/org/circus/core/Pc1HistoryWaitTests.java": {
+        "compiled_bytes_sha256": "086c944d43361ebb13d3a704573b439c430aa38fa7c5fd9f53e9ad961b968d67",
+        "git_lf_sha256": "c23341b66fb61d30a0701d72606463a44456709bb78ec7171be73fa048317826"
+      },
+      "runtime/tests/org/circus/core/Pc1ImagePoolTests.java": {
+        "compiled_bytes_sha256": "6ba288b5f77a801536ed6b6341ee110a796d138b6ad616b6642343445813e326",
+        "git_lf_sha256": "5f7c3eb9073ffd3a38520c20be09340abb15b5b48d87d73a3e8ae84beeb805f8"
+      },
+      "runtime/tests/org/circus/core/Pc1InlineSourceTests.java": {
+        "compiled_bytes_sha256": "2dc37de31af246680c06f7d0ba16c3c51b8e6dec7f72ab65a7a03b581268b466",
+        "git_lf_sha256": "eb9561bd488ec3c4eb28a4b0901124197b382e4f49b70ac1739a8f1d87d838dc"
+      },
+      "runtime/tests/org/circus/core/Pc1InlineTextTests.java": {
+        "compiled_bytes_sha256": "ea8c31d595cce06514f98fef2c71a4f5ca4897912c493f9e2bdfd3b59c9ecb39",
+        "git_lf_sha256": "0232a99fce0a9752e7629031cee9a8bc33989d5d70873b2834940c72120efcbc"
+      },
+      "runtime/tests/org/circus/core/Pc1InputTests.java": {
+        "compiled_bytes_sha256": "a0fd48a47f3673152ff8339c15ccedd33175db243e2c3891565e315916bc720f",
+        "git_lf_sha256": "d3e9d2e73ab45fdaaf419bc6ca66bb88bdc65e45377120be02474e8e51c94d38"
+      },
+      "runtime/tests/org/circus/core/Pc1InstallKeyTests.java": {
+        "compiled_bytes_sha256": "d970b247056a52ead4b315c73c662d847d9c2902f42543b5c18ac1050a8e0f17",
+        "git_lf_sha256": "13d2b549c04f40a50999a3b527df338ea47bc2d48a3bf195d172a44e07fdfd96"
+      },
+      "runtime/tests/org/circus/core/Pc1LayoutMemoryTests.java": {
+        "compiled_bytes_sha256": "138d4f9c1030b6164f3712211186580ef624e788837cdf8d9e5eca65aa6af3eb",
+        "git_lf_sha256": "50cb9d9e902d65d60f0cda061a1f0ea383373199ef786831f632d223b50d9e05"
+      },
+      "runtime/tests/org/circus/core/Pc1LiveGlyphTests.java": {
+        "compiled_bytes_sha256": "56a1c2cc6b0b8eb7bb854aaae140dbe288ca3ea8b124d529f34fb8f1740976af",
+        "git_lf_sha256": "30ee897778ae53e5a2bdb31b1b2f698bb93fa41a229e82f45ec4b0cbf6743ef6"
+      },
+      "runtime/tests/org/circus/core/Pc1LoadFadeTests.java": {
+        "compiled_bytes_sha256": "5827ef84d5d8eecc5bedd2747a49805c4f234eb11039db2ca27d913ce9d2b4df",
+        "git_lf_sha256": "747c4efb5298bd6e8e8c2005ee5e5b500ef84964b3c77bd154a21e7881c32954"
+      },
+      "runtime/tests/org/circus/core/Pc1MessageGeometryTests.java": {
+        "compiled_bytes_sha256": "48393c29bf19b95a260985b5f5193c789f32415515c888b2d355eac7b0a12672",
+        "git_lf_sha256": "744072604fdc4e1bb4afd41b4ab7d11351ba731a5c9cca1b22b6dee20fa28990"
+      },
+      "runtime/tests/org/circus/core/Pc1ModalTests.java": {
+        "compiled_bytes_sha256": "78225e0dc7b29e2915ff84ad4f4d754b28ece6be5f2c210e557bb8b4fcc2a6e2",
+        "git_lf_sha256": "3f161f46942fe37397330c3454c7a09f5827948480ba765a62cfb268b2b50d36"
+      },
+      "runtime/tests/org/circus/core/Pc1NativeFrameTests.java": {
+        "compiled_bytes_sha256": "eb1ace204bf3f4334f533b14ea9029444a3caa546f12451b9ad240d549be556a",
+        "git_lf_sha256": "fa992a117ffe6163709b3187e9135ce818cee10bd1da5c20eb3ae94ff81ecb8b"
+      },
+      "runtime/tests/org/circus/core/Pc1NativeMemoryTests.java": {
+        "compiled_bytes_sha256": "cf158c1229b75f2c9413407c6cd445d31eaba7c72c3986cc3b608dc1143534ee",
+        "git_lf_sha256": "e84570b0cd35062995277586dbda3446fda7c7001c6afd177d30320f9ee85092"
+      },
+      "runtime/tests/org/circus/core/Pc1NativePathsTests.java": {
+        "compiled_bytes_sha256": "b1673d400d92356ea99a41eaad4d68002077114e1e22094631db0bbcf2215787",
+        "git_lf_sha256": "79b13b926c0216ae7e0701ca96b794afd153d74c6c31d37c73b28e77f35a0302"
+      },
+      "runtime/tests/org/circus/core/Pc1NativePcBindingTests.java": {
+        "compiled_bytes_sha256": "7ddc5f5247ad42a1179cf958b15d76109fdcf4eaa9f73436708cfa22cb29ac65",
+        "git_lf_sha256": "e8a67aa18119cbbce55b2829013ecee03508b8b6638c93ba319f513a415f097f"
+      },
+      "runtime/tests/org/circus/core/Pc1NativeSettingsTests.java": {
+        "compiled_bytes_sha256": "7b6dc4b649b0cf73ccf41b2b4cc322db473dfcdaca9469d8e54ca36364d2bd8e",
+        "git_lf_sha256": "1bd0d004858136517f08ae31de9aa234fd05b3329e4f8b07e550b47ce8d1f074"
+      },
+      "runtime/tests/org/circus/core/Pc1NativeSlotTests.java": {
+        "compiled_bytes_sha256": "d0c24096317398ec7f21c6fce97874200a1ced4bf9a27c1d32e2d8fc6acf562b",
+        "git_lf_sha256": "39e1c5abea8fcbd3fc5438127266e41a7be36066ad75bb0b7e02767abcd500fe"
+      },
+      "runtime/tests/org/circus/core/Pc1NativeWordTests.java": {
+        "compiled_bytes_sha256": "156b94e6bc80241ed66a5a8a5c0d2cab5f1d64c0a1bfadd669a9d0119bcb24fd",
+        "git_lf_sha256": "156b94e6bc80241ed66a5a8a5c0d2cab5f1d64c0a1bfadd669a9d0119bcb24fd"
+      },
+      "runtime/tests/org/circus/core/Pc1OsRegistryTests.java": {
+        "compiled_bytes_sha256": "93ec7502d7cc77b134a7f310fff3135b33693d92fdb9e3269bce818f0170de2f",
+        "git_lf_sha256": "8db934d77caf6299a91289cb54b0ba9fd05341fc4d366ba5c7b95e5842d82b3a"
+      },
+      "runtime/tests/org/circus/core/Pc1OsWordsTests.java": {
+        "compiled_bytes_sha256": "d9c6a7436e7504b6238849bb2f4d07352e7630db9ff416b4176a41f6305d0cc0",
+        "git_lf_sha256": "2c844a670bf4bec0d3703b89f42c16f10a9393cfaa4e2cb3b9545b1ff9e19357"
+      },
+      "runtime/tests/org/circus/core/Pc1OwnerIntegrationTests.java": {
+        "compiled_bytes_sha256": "64cdfbc725910ff4579aa3f44796a0453284e93ee6598a55c4cf61e539878e30",
+        "git_lf_sha256": "e3e2a821ae32a35ad9675d7c989059e1a01d82a60a8da650519928987e09c8ce"
+      },
+      "runtime/tests/org/circus/core/Pc1PeDirectStorageTests.java": {
+        "compiled_bytes_sha256": "37d545c96d2146db3852326858bd4b1746fe4b63c253165bdbb4de666a127a80",
+        "git_lf_sha256": "37d545c96d2146db3852326858bd4b1746fe4b63c253165bdbb4de666a127a80"
+      },
+      "runtime/tests/org/circus/core/Pc1PhysicalMessageTests.java": {
+        "compiled_bytes_sha256": "93021f9ea06abdad9d8e32b83d799e0cffd19f5ffbee922d7f461c8e2470cfae",
+        "git_lf_sha256": "7a731a645695d368c95e13ee1da1518f089b3925ec82cb4104d4dbe6b1ea1e09"
+      },
+      "runtime/tests/org/circus/core/Pc1ProducerIntegrationTests.java": {
+        "compiled_bytes_sha256": "897abff5061648337190a9a4009fbbf18d92e229656d537f872a886e260bcd71",
+        "git_lf_sha256": "447dd83644354019f9096da37e1ab0ba7925e78db4f8cfcc5891d477ef2faa5a"
+      },
+      "runtime/tests/org/circus/core/Pc1RasterTests.java": {
+        "compiled_bytes_sha256": "e7d6390ab2a4f9e81bae0d9f336c379072ab02f1b0b1d977a8c2e729e079f91b",
+        "git_lf_sha256": "39952697068c705e448bf6210173b58f91050745589215f4fd9feb8e550b087e"
+      },
+      "runtime/tests/org/circus/core/Pc1RawFrontTests.java": {
+        "compiled_bytes_sha256": "087da6b39b93bcdfd28f3a387504158324810c0c380a6dc13784a5762226323c",
+        "git_lf_sha256": "087da6b39b93bcdfd28f3a387504158324810c0c380a6dc13784a5762226323c"
+      },
+      "runtime/tests/org/circus/core/Pc1RenderContextTests.java": {
+        "compiled_bytes_sha256": "fb5c10e2c6879455d8677a3c792ccd11bbe094944baf664ac1f9750f133384eb",
+        "git_lf_sha256": "e39fae9be372dfa382a76dc78f05a4e3bb9f9c333c3f66d0dfccc3aee1f1e1ca"
+      },
+      "runtime/tests/org/circus/core/Pc1ReturnIntegrationTests.java": {
+        "compiled_bytes_sha256": "4070514b6b3b6341c321d6bf20a9d6ff22bc598794f399d0fb142773e700022a",
+        "git_lf_sha256": "28050cf7d833c42105e4b13511b24b7631063801500e2ddb310751e98b85c7ce"
+      },
+      "runtime/tests/org/circus/core/Pc1ReturnSurfaceTests.java": {
+        "compiled_bytes_sha256": "58ba0f35ac806689f8e8694eb3ecedd442210db444a479ad3e1d6e78fffdc725",
+        "git_lf_sha256": "c744f5873e2a511d22ac8355724cac5434f4d8808c37c2b9d7baccd6f1066391"
+      },
+      "runtime/tests/org/circus/core/Pc1RuntimeTests.java": {
+        "compiled_bytes_sha256": "723b9317d0f9800f0fab2bc8df249591c60a7ee3558ed25f31f9313d57616224",
+        "git_lf_sha256": "09d9cce220ee508501f60b2ac371c63e3407b186de33e9e7238cd14338e9e63f"
+      },
+      "runtime/tests/org/circus/core/Pc1SaveContextTests.java": {
+        "compiled_bytes_sha256": "6c5e5ecaa1a330c97597b15a309369c5e1cda05120b0d73dc0dead6ac28d4bb7",
+        "git_lf_sha256": "6a0bcd84f8a0c5a8522946225e4caf71112c26fa099d36eaedc1c46199f28298"
+      },
+      "runtime/tests/org/circus/core/Pc1SavePreparationTests.java": {
+        "compiled_bytes_sha256": "cba17287922c872be30e59670151a2a38d029704c1fa7ac125b51bb8a469b2d8",
+        "git_lf_sha256": "5fee91acb3993923ceeb3ee4474d1f335c7ac818ed77810564e9bb387e9f4c6d"
+      },
+      "runtime/tests/org/circus/core/Pc1ScenarioCatalogTests.java": {
+        "compiled_bytes_sha256": "ff5db1d8f1ebc53a0de7d985c6b2920dca4995fb6fd1546bbb680f5c2cd9f0e7",
+        "git_lf_sha256": "60ae2ff9f6fc88f2883675527969f5e267e0736e947643f0ed3a2c9327ada8e3"
+      },
+      "runtime/tests/org/circus/core/Pc1ScriptFlowTests.java": {
+        "compiled_bytes_sha256": "903a5495ec85a6bb1549e09d7c4ae6855a367fcc4e9017be0fc9205d2036126e",
+        "git_lf_sha256": "e8c59ded97a5b8c582e5e2e96e2f4e6fcd969e0b716a3d9d04782d504f3f5eec"
+      },
+      "runtime/tests/org/circus/core/Pc1ScriptIntegrationTests.java": {
+        "compiled_bytes_sha256": "317d0e983395374b5dc2b1aec691ce4819075ab306bb4fe2c953f629d217cc28",
+        "git_lf_sha256": "b7a966d84fbeca8e74ace33e0dbf4ea13a3107aafc987af4ad731c0eaa97c35f"
+      },
+      "runtime/tests/org/circus/core/Pc1ScriptLoaderTests.java": {
+        "compiled_bytes_sha256": "5fb8fb0ec4a94cbf88caddfcd54fe038b312ec1bd16374f23e4c8ea4a5151f82",
+        "git_lf_sha256": "397bf305fa5aef5b10bad845fe50d1b5ee41b661e5ec119f9ea9641750720815"
+      },
+      "runtime/tests/org/circus/core/Pc1SettingsIntegrationTests.java": {
+        "compiled_bytes_sha256": "a4e0abb14676449db6e85f3c147f90b91a636629d9c3d909b7fb31441242ee6e",
+        "git_lf_sha256": "a4e0abb14676449db6e85f3c147f90b91a636629d9c3d909b7fb31441242ee6e"
+      },
+      "runtime/tests/org/circus/core/Pc1SettingsIoIntegrationTests.java": {
+        "compiled_bytes_sha256": "1f09d58266c8421a01b472bf336bb898fe40f334be8be5f256a8f0af476ea4e4",
+        "git_lf_sha256": "1f09d58266c8421a01b472bf336bb898fe40f334be8be5f256a8f0af476ea4e4"
+      },
+      "runtime/tests/org/circus/core/Pc1SettingsIoTests.java": {
+        "compiled_bytes_sha256": "460948da47f224d1fea7c5a8d167cc029b1919f05a1fb76d8bd02d1426ec5b75",
+        "git_lf_sha256": "c6782428fc23ceab2e7aa5a2dead01c3e7fcb7fda7b24664b7572232cc719694"
+      },
+      "runtime/tests/org/circus/core/Pc1SettingsRamTests.java": {
+        "compiled_bytes_sha256": "86b667c434dc351b705eede7450cdf2b4bbf0e359618cec243cd12c381b31be5",
+        "git_lf_sha256": "86b667c434dc351b705eede7450cdf2b4bbf0e359618cec243cd12c381b31be5"
+      },
+      "runtime/tests/org/circus/core/Pc1SlotLoaderTests.java": {
+        "compiled_bytes_sha256": "98e16b54c1b673b37889b4284095fcc148c29064fa0a4d2b65e652cc3c04067f",
+        "git_lf_sha256": "003a5b119c223823f6c57fb368ca28d27ec6eccb58c435c17c68ad4e9e278f8c"
+      },
+      "runtime/tests/org/circus/core/Pc1SlotProjectionTests.java": {
+        "compiled_bytes_sha256": "1132be94944d3bf502c08c2a2fb08a47da9451972b731e84a1a62f90c5efc526",
+        "git_lf_sha256": "3f01fad8dd3a20ded3476cce026b9ad27b1f8e16d768246b91d245027fe2237d"
+      },
+      "runtime/tests/org/circus/core/Pc1SourceIdentityTests.java": {
+        "compiled_bytes_sha256": "91e1dbe6bf93d92f745dde54c09c30bb154026cbb87170374ba258d7de7718f6",
+        "git_lf_sha256": "42bb34538a3b80005beb5264c3594a02cf1dfc9188e81f92c9b34b35dad4cb77"
+      },
+      "runtime/tests/org/circus/core/Pc1StagedRenderTests.java": {
+        "compiled_bytes_sha256": "24c2aa0606cca562be4327f07003153bb4cb50369766dfe254edd1589b6a2a9c",
+        "git_lf_sha256": "24c2aa0606cca562be4327f07003153bb4cb50369766dfe254edd1589b6a2a9c"
+      },
+      "runtime/tests/org/circus/core/Pc1StartupTests.java": {
+        "compiled_bytes_sha256": "c4c21bd0497fba52a922854ff816ef99c02280861ca9e3ee55e58d242637c93f",
+        "git_lf_sha256": "13fe907df94e6f7a470abe9b4b3011048778db8bd6b302020d86697d18f6777c"
+      },
+      "runtime/tests/org/circus/core/Pc1StaticImageTests.java": {
+        "compiled_bytes_sha256": "88017e2864b200b39b1e27426a28bb6e6715989300ff18269b1dc2f0862d0b09",
+        "git_lf_sha256": "3b2ed2309c985cab6680195bc21c9dd00ef81739af71dacb4e5b7a8aa7b27d13"
+      },
+      "runtime/tests/org/circus/core/Pc1StoryControlsTests.java": {
+        "compiled_bytes_sha256": "9aa32751e33035647f630fd03fc73b09e8e850ccec8824cbb0ed77b6f5bbd86e",
+        "git_lf_sha256": "e18a1e80fd70a1ec42215cd24801c05202a6bb80e63fa0e1d2be0cb35891f996"
+      },
+      "runtime/tests/org/circus/core/Pc1StorySlotIoTests.java": {
+        "compiled_bytes_sha256": "894c7c6b858c5a5f2dbb5b2afffe2d26f1cd1a502d7218d7891670ea7f966cef",
+        "git_lf_sha256": "d21dd039298ede53657b686af0286a62d0c27604e9a408231d4252d17f73253b"
+      },
+      "runtime/tests/org/circus/core/Pc1SystemContextTests.java": {
+        "compiled_bytes_sha256": "e87b5e9695f07b99c822f81575a2ab217e4a03eeb5390c72709f67ea83a5a735",
+        "git_lf_sha256": "53ea3c3834838e86c5b4ebbf1b857f2ff09dbc9c5d76ec13f3b8fcf007910d5e"
+      },
+      "runtime/tests/org/circus/core/Pc1SystemNativeTests.java": {
+        "compiled_bytes_sha256": "7aa81732ab2b0a43a9361afc4c956d76c2985cb33008dd9b74087672d541a042",
+        "git_lf_sha256": "f710d3d7c378eec58bb094a8d8a57f2b8f97ecbc02983ca4e7ee500082525ee1"
+      },
+      "runtime/tests/org/circus/core/Pc1TestDefaults.java": {
+        "compiled_bytes_sha256": "bea7b324c1676f60eba999dc0fd9cf8bcb1c2f3af20b7cae2161cc5f2486a703",
+        "git_lf_sha256": "bea7b324c1676f60eba999dc0fd9cf8bcb1c2f3af20b7cae2161cc5f2486a703"
+      },
+      "runtime/tests/org/circus/core/Pc1TextBuffersTests.java": {
+        "compiled_bytes_sha256": "2dec9611c969db2b449fdbcaa991a1a4b295331fc8b2daef13f206fcf7833a6c",
+        "git_lf_sha256": "b2701f2613684993b91fb1d4449c8b7bf969be6aea94906c472372c99b7e5533"
+      },
+      "runtime/tests/org/circus/core/Pc1TextControlsTests.java": {
+        "compiled_bytes_sha256": "f6e5c6050d3e40940d7526b167ae78ff425417c6e7a0eba9a0e8a1510a112cf3",
+        "git_lf_sha256": "7f32fbd53ebf34d658ef47065bc922ee0d682a4ea03d34cf1497e1cc3783e510"
+      },
+      "runtime/tests/org/circus/core/Pc1TextExpanderTests.java": {
+        "compiled_bytes_sha256": "01e466e7ad6441ef5eae0433297b92b071a5604e67c1a6faa61c93ff44c709d6",
+        "git_lf_sha256": "cbb40ba1d49abe15f99fd868d0a074adef54276d9615a72a32960095ad5d3adb"
+      },
+      "runtime/tests/org/circus/core/Pc1TextLayoutTests.java": {
+        "compiled_bytes_sha256": "07a63f2d1f6e309391f5d4f6914c7d5e2bad5d77b75ced215bc59d0c6341b9d9",
+        "git_lf_sha256": "b7e106b98ede2dbf911ed17c01a14d430fe3947bac18c54a16c88d662b421447"
+      },
+      "runtime/tests/org/circus/core/Pc1TextLogTests.java": {
+        "compiled_bytes_sha256": "14186412b4667ec50a77f3aa301a01c1e116bb841b2f62f5956e805a1d85bbca",
+        "git_lf_sha256": "67d84b076fba977a54c18b7fd38b6783b4fea50bf7f9f564c728e1e83e7ea8d6"
+      },
+      "runtime/tests/org/circus/core/Pc1TextPresentationTests.java": {
+        "compiled_bytes_sha256": "108af35d64bb47245c09be146dcba5c7933a78dd5b228cf82e3b44e35d2cb47f",
+        "git_lf_sha256": "7617922a80f43b2fdae140be530e771e9a9bca7be421317e0c6da066aab8a523"
+      },
+      "runtime/tests/org/circus/core/Pc1TextRedrawTests.java": {
+        "compiled_bytes_sha256": "33d68bfa1c1a4372f7574072f76b29ec6ac2453e9b2aff71c99c8226fffb98de",
+        "git_lf_sha256": "6563252aa31a17db2f139306cb812ee54a8870c39b72d0a3897000d2ac61d84e"
+      },
+      "runtime/tests/org/circus/core/Pc1TextServicesTests.java": {
+        "compiled_bytes_sha256": "41b13066f5a2a491de728980e2e1618145ba373ee53958d6b1884a9231b5b01b",
+        "git_lf_sha256": "5a2558555369375049a5a0456d5e36146e08b541a51abefc2c67c66a2aa1de34"
+      },
+      "runtime/tests/org/circus/core/Pc1Timer1Tests.java": {
+        "compiled_bytes_sha256": "5d406807faac1e9d813f737e7d333367a9e394962ccad3e2cc1dbefa42b33357",
+        "git_lf_sha256": "a5726fbccba8e281379a1438eb818df0cb33c1c3ff73a71ac7fdd1b5fb230768"
+      },
+      "runtime/tests/org/circus/core/Pc1Timer5Tests.java": {
+        "compiled_bytes_sha256": "6a794432c23d21eae87a3e4976b8aeaa60a8e8dbf445d65438cc1740e196cc24",
+        "git_lf_sha256": "65bedf0028c14bfff9fc020f7793e7802cb42ffd1c0ba2caf9b4922ac04abdce"
+      },
+      "runtime/tests/org/circus/core/Pc1TransitionTests.java": {
+        "compiled_bytes_sha256": "96466b9980fe1f08a0e689144ef2d97207f0532dcca8fce03512854fb807abcb",
+        "git_lf_sha256": "08e40be92b655241b512306b18774b8d7caa120fa71dd62d028c802fe989a934"
+      },
+      "runtime/tests/org/circus/core/Pc1UiPageTests.java": {
+        "compiled_bytes_sha256": "6854cb2ff3b5f05d2a102a58b9e8f897e38028d58abbdb01dd6f945611b29dfb",
+        "git_lf_sha256": "4049ecbc9b4aa11888c8384dacca05db4fc805a7a9fe88fa5de29f4b9a59dc62"
+      },
+      "runtime/tests/org/circus/core/Pc1UiProducerTests.java": {
+        "compiled_bytes_sha256": "23426fbb0ace50a2a47bc85ef10b2151fe8e398942dfdd211f16ca53d755d833",
+        "git_lf_sha256": "21aa69a7eced5a761211c7388f21e8ba3610f25dfcb6ae55df17c8b9ea40daff"
+      },
+      "runtime/tests/org/circus/core/Pc1UiRasterTests.java": {
+        "compiled_bytes_sha256": "9eacdfb48e9d59f737acbdd4a4c021e93cf8fa8cfb3be57fb4474d7fe28c9e06",
+        "git_lf_sha256": "82baaa54550f56926b0ee391f8fdfa2a17137e36b011b26e4e5053e66ab9dcc4"
+      },
+      "runtime/tests/org/circus/core/Pc1UiServicesTests.java": {
+        "compiled_bytes_sha256": "ac93a5a80785eab29ef4809fe72921efea085a237e6d1582cf2692f647375d6d",
+        "git_lf_sha256": "7dc91198b347d5e42d841b8b23a392b3010530030ddbf1c80ca15689d5797807"
+      },
+      "runtime/tests/org/circus/core/Pc1UnderlayTests.java": {
+        "compiled_bytes_sha256": "738194cc67b3eba9388af5499beef22f799d29192d61c01f5a405d58e5fce11b",
+        "git_lf_sha256": "371321302ed1c61dc5f45b146a6894a116021aa73d5505884ceb60362cac1bc0"
+      },
+      "runtime/tests/org/circus/core/Pc1VariablesTests.java": {
+        "compiled_bytes_sha256": "ed8c991ca7b6770f14fc05ea231e0476ce6cee2482fc7fea72f8ec295dc00946",
+        "git_lf_sha256": "215de75c31fd3d76911148d235a429b551347b256cab532d7681da2d26f7ebca"
+      },
+      "runtime/tests/org/circus/core/Pc1VoiceDispatchTests.java": {
+        "compiled_bytes_sha256": "9096c087e2f8f8c304d7732365f89449420a47ecbda83a6d9b5159e1b5a9927e",
+        "git_lf_sha256": "84ae3e11c4e12e253c14132887e47e6a6596318a5d848425b9335921df9ce1f7"
+      },
+      "runtime/tests/org/circus/core/Pc1VoiceIndexTests.java": {
+        "compiled_bytes_sha256": "581bed2f82ed0f70161322b3495e3471efc86a4ff7c01ab01f0e89c01042c8cc",
+        "git_lf_sha256": "90b32966e10daa0a7696ad07512420d97be0f59fa4d0037020834ccb18dd0635"
+      },
+      "runtime/tests/org/circus/core/Pc1WaitEffectsTests.java": {
+        "compiled_bytes_sha256": "62e9f4b56b382c61a4c41ddc69610c90a43f05f4ee73441b800d7383b0f2378e",
+        "git_lf_sha256": "06583c66298b0fe511627fda49ec294c0262c0e411442f3c4cba45b06a4ed2ff"
+      },
+      "runtime/tests/org/circus/core/Pc1WindowMemoryTests.java": {
+        "compiled_bytes_sha256": "06a51f8007a910865186a338768684170d8492b9897a681fa56c9ffc890acd55",
+        "git_lf_sha256": "4851f54094d9f1aa6e4c455025511f2bd4c3adaf536bf57ba7253fcfeae9c362"
+      },
+      "runtime/tests/org/circus/core/Pc1WindowProcedureTests.java": {
+        "compiled_bytes_sha256": "98201450647428056c09a2571759ab4e9128468236494d7070dd1d3429d8dd18",
+        "git_lf_sha256": "ec6f7a57895bebd805098883b5c4200656e6c1926d2dffc7558ac6292c0c3941"
+      },
+      "runtime/tests/org/circus/core/Pc1WindowRuntimeTests.java": {
+        "compiled_bytes_sha256": "b6a435f333489e928fe2913c0edf52017115fb3df4ffe6736691a34b04b3387f",
+        "git_lf_sha256": "b6a435f333489e928fe2913c0edf52017115fb3df4ffe6736691a34b04b3387f"
+      },
+      "runtime/tests/org/circus/core/PcActorLayoutTests.java": {
+        "compiled_bytes_sha256": "2758a4a6a4c72ad9b3330728f4ef97291c0cf5cd57c1e3f20389d3fd516faed0",
+        "git_lf_sha256": "875b4d96ec83966f2278806e68a92e9d77c22c4219e613f2d5565e30bc982a41"
+      },
+      "runtime/tests/org/circus/core/PcChoiceTests.java": {
+        "compiled_bytes_sha256": "45ddcef87edb2182aea5738e01a321175722cd7410a4c9d58d853ca0f954001e",
+        "git_lf_sha256": "f9b845bb57300ea8f689a03d45605b56291b2c3c71910b2c549666be87306fb5"
+      },
+      "runtime/tests/org/circus/core/PcCompatibilityTests.java": {
+        "compiled_bytes_sha256": "28184269359b60395578a6264bf03c4a3c2cc7dfc7ac5f6be89c06489c52486e",
+        "git_lf_sha256": "d613050d47fc8bf21dc573cd4772e047e221b00e871e5135de4289f42b637349"
+      },
+      "runtime/tests/org/circus/core/PcNativeProgressTests.java": {
+        "compiled_bytes_sha256": "d79e1f3247e7d5af35b1c8c08a52e27110ca23b9c677fb962cfb8f0e398748eb",
+        "git_lf_sha256": "a231a3943418dfe211f61d7c0b81933c950bf42a776408ee0484349597d0ca3e"
+      },
+      "runtime/tests/org/circus/core/PcRandomTests.java": {
+        "compiled_bytes_sha256": "622ff301b182a80a9d20f7f16793095bba8a37c069c21f9c956b7bfbd019392c",
+        "git_lf_sha256": "3c1f7bafc3f24683bf9cc4d4b576161e8fd996943cb99ac79d1336c72e3c8d2c"
+      },
+      "runtime/tests/org/circus/core/PcStartupAudit.java": {
+        "compiled_bytes_sha256": "5d3c701b56f0f347ce9a4ecf0f0f6792e2c838ab1887181348f7895bdd4c58f5",
+        "git_lf_sha256": "e826a36df0a9b97fd95c7ded01dc7a802816aadac30e1bbaba14c5aaa9546cf1"
+      },
+      "runtime/tests/org/circus/core/PlaybackAudit.java": {
+        "compiled_bytes_sha256": "12b3eef670d2103f940d4bd7bb3dfaa02e872691388dca2c93ac93f99de4a06d",
+        "git_lf_sha256": "231e81c75afbf367bf3955b4f70d88ba0a59fe57776a7cd4b36419f4cccfc469"
+      },
+      "runtime/tests/org/circus/core/PpMusicHostTests.java": {
+        "compiled_bytes_sha256": "167fd3d64a94d63e8c42a633a5c3a0892c43654b598d5ce544be94240cb8ec3a",
+        "git_lf_sha256": "80e3b558eed8e22a343fb9221abc75b9076250ec534e9d50dece9a03f73e41a0"
+      },
+      "runtime/tests/org/circus/core/PpMusicTests.java": {
+        "compiled_bytes_sha256": "d9eff8a81b5e7a0d6be7b25cae1beebc41288317d750b276f49dad13806c5557",
+        "git_lf_sha256": "c220b96521951104dd4e38b68d345f6f5f569089eb8a3c2087ce1b23d3e79198"
+      },
+      "runtime/tests/org/circus/core/PpStateTests.java": {
+        "compiled_bytes_sha256": "e6c8bf26a0bce699c7620e62c210ef5e15de5482ced52665a6fc12b5f046cd5c",
+        "git_lf_sha256": "14ecfcc094abb49c811908faebed8bf4702f4afa6c9aa577c1512f6d2f999c4e"
+      },
+      "runtime/tests/org/circus/core/PpVoiceTests.java": {
+        "compiled_bytes_sha256": "24bbc4e43243e215cd9548d48c379e01fb8b08244938cb219e9f9f5ad5757cd9",
+        "git_lf_sha256": "71846353648770c6c5270908b855b95dc662854bd8fee6423b92afa32c170be0"
+      },
+      "runtime/tests/org/circus/core/RangeStorage.java": {
+        "compiled_bytes_sha256": "3932d9bc9c077eac0861b52bdd2c9098baa1d3bd412cdaded25f4af272987a62",
+        "git_lf_sha256": "56282acb2c8f6433b9bc098acb42823befff0ec4b4f0d2c7cfd01258501e2f7a"
+      },
+      "runtime/tests/org/circus/core/RangeStorageTests.java": {
+        "compiled_bytes_sha256": "6f86d79d5c1a51e1a693bb2ac2a43926d889b0d1a6c181c8f8acf84c3ad3defc",
+        "git_lf_sha256": "c8c43d1bf75912a3bd4bfb380758d5bbf3ce4e72e4bd23c91f391457a8e5cef3"
+      },
+      "runtime/tests/org/circus/core/RenderCases.java": {
+        "compiled_bytes_sha256": "f8af83b869f017b19cebc493151743e62c525b8ce8131e62bd9c0696bbde16b6",
+        "git_lf_sha256": "f778267de32aad4ab2f7103f86db05f55b33121ea1c5cf15ab23d68a59c9b8d9"
+      },
+      "runtime/tests/org/circus/core/ResourceSelectionTest.java": {
+        "compiled_bytes_sha256": "fa6d81af0e3d9ceae7bb1925478dd1e7ad3b47d30a64f12c1d43c064a9ca229b",
+        "git_lf_sha256": "3ab41e85dd6586bbca8cf711852e0257acbb5e330901e59d51a02d4478838fe4"
+      },
+      "runtime/tests/org/circus/core/SnapshotContractTests.java": {
+        "compiled_bytes_sha256": "714afc036a126ecb9520ed73f5ebebe9f1eb33df139ec789f6fa065a4e595c34",
+        "git_lf_sha256": "86cd3c5cacc523bf4583e5340cd20d80e55f1f6089c878f12fb8d03a9e29c496"
+      },
+      "runtime/tests/org/circus/core/UnityResourceTests.java": {
+        "compiled_bytes_sha256": "d0a6c13dfa8d0e96f453b4e87bae2c089623e7b0228f1161702b3849ea80bd96",
+        "git_lf_sha256": "d87399c7a17683f9cae507ad91991f6d8fe39abdab0eca7f0253852950c3521f"
+      },
+      "runtime/tests/org/circus/core/UnityTextureIoAudit.java": {
+        "compiled_bytes_sha256": "c83cf56746a008cf344e7841a9917f497654e1eb9a2f59276cdbf6059d6940d4",
+        "git_lf_sha256": "8f449de18b0e5e97be0713a4f135aeeb7640cac8a64dd3e5a34ac28ab0c9be4d"
+      },
+      "runtime/tests/org/circus/core/XpcmAudit.java": {
+        "compiled_bytes_sha256": "5479004b3c6b3bf6b7da8bb194d105d43593d3328f95605c78fcaeb2aa777e98",
+        "git_lf_sha256": "8059fbe9ef46f154214190c01af30cf41ec4961f4c64b6bfa80edb7650ee040b"
+      },
+      "runtime/core/resources/org/circus/core/fsb5-vorbis-headers.bin.gz": {
+        "compiled_bytes_sha256": "7024ca9fcb07c0230dcb4e041022172e037fb77a4dc655c4bafe3b34c227624d",
+        "git_lf_sha256": "7024ca9fcb07c0230dcb4e041022172e037fb77a4dc655c4bafe3b34c227624d"
+      },
+      "runtime/core/resources/org/circus/core/fsb5-vorbis-headers.LICENSE": {
+        "compiled_bytes_sha256": "1470a02eef9e41fc7b48626069e1c4cbf6dea9a48c06b8d8f6edd56a705e20e3",
+        "git_lf_sha256": "1470a02eef9e41fc7b48626069e1c4cbf6dea9a48c06b8d8f6edd56a705e20e3"
+      }
+    },
+    "self_authored_demo_fixture_sha256": {
+      "blue.crx": "6d214a7640a7646dab260c243d1760aa6f163f03a4d35f9a8dffc32fa4be4f39",
+      "dawn.crx": "524f3a16a7c1baa0cf1545cdbf283745630b0a29be8f70a7dd9dec1986e7a56f",
+      "ending.mes": "e1ea30d5fd2245edf4bb6b7cd4b01de00d13771dab22eac53f86f241c8eea601",
+      "gold.crx": "314d01869b8275ba2b21e8f0e492f56913c393009dc51ecc0a364e6884593949",
+      "main.mes": "3bcb51023c820268242f782b934ae76bcaa6c7e1cecf1240e27c65ea59cd91d6",
+      "native-dialogue.mes": "d6bdb62776e5e5d606f600a6154cf63fcdde931c84036e03b5ed188fb0dfff9f",
+      "sample.crm": "148d5a79760f98bb56e4a5a85e43dda75a1f35d14841bada2545a31fb6bebb86",
+      "sample.pck": "02888257d65da893e3042ebdb1a56cab9075a9591ef29440413fabb0a4b7b67d",
+      "tone.pcm": "8a92e170fdc0baa49f3221daf5e5346b94d8fbcaeb9b22111f8c16ef1c51e0ba"
+    }
+  },
+  "python": {
+    "command": "python -m unittest discover -s tests",
+    "tests": 91,
+    "passed": true
+  },
+  "android": {
+    "passed": true,
+    "apk_sha256": "ce78d14672960e1dc1c16d178f0853fd016c0d9139e7b73ee8ff421ab77b45e6",
+    "core_assertions": 826261,
+    "emulator": "emulator-5586",
+    "heap_growth_limit": "192m",
+    "app_data_cleared": false,
+    "core_source_freeze": "producer-integration-20261107T075203739202Z",
+    "source_changes_during_build": [],
+    "instrumentation_command_exit_code": 0,
+    "instrumentation_code": -1,
+    "additional_checks": {
+      "Canvas": 7,
+      "transition_pixels": 484,
+      "character_map_and_tunnel_rejection": true,
+      "save_rollback_and_envelopes": true,
+      "library_persistence_and_rollback": true
+    },
+    "scope": "Frozen Java core/tests and Android host; native Windows DLLs and later raw dispatcher candidate are not covered."
+  },
+  "directsound": {
+    "matching_dll_sha256": "b85325dc09308c5be20a99ceab9594656b77d56c5eb498eb6e41bc0e99703cc9",
+    "owned_sources_sha256": {
+      "runtime/desktop/src/org/circus/core/Pc1DirectSound.java": "c67819f3f89239265d6a7bb650e1533c9f88bb1ef2562098dfe0d9c8c642be53",
+      "runtime/desktop/src/org/circus/core/Pc1AudioResources.java": "1aeeed2ae91afec7bfae1adfddeeb75cc85b6244d8dec9358629d78e2ef413aa",
+      "runtime/core/src/org/circus/core/Pc1VoiceIndex.java": "0e2f0d7144cf356809c3c4b2250a5b223f869740e2e87fe8b2a8576584aaef44",
+      "runtime/desktop/native/pc1_audio.c": "1a8174f2ebdf86d6c7c77c0ffc3afce131c4144f4804e415736ccdc61d3a7ad0",
+      "runtime/tests/org/circus/core/Pc1VoiceIndexTests.java": "581bed2f82ed0f70161322b3495e3471efc86a4ff7c01ab01f0e89c01042c8cc",
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundLiveNameAudit.java": "8c9ae273187bfa0cb3bd755ed3a38e5c848c51502c0459401ec0a9cb5d3bb914",
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundLiveVectorsAudit.java": "8edf68d0ffcfa8c2864577f50857765648880c0e533347f4e5e45fc278aee697",
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundRawAssetsAudit.java": "398815079a2fd5860aeeff1b69329640eabd69307f32897ab6c719a02ef9e640",
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundRawAPathAudit.java": "cda7c827cd66c52416acac23963d36c6d1e189802ca18b1e72402746aeda573c"
+    },
+    "git_lf_sources_sha256": {
+      "runtime/desktop/src/org/circus/core/Pc1DirectSound.java": "fa0983e8d32806a532be6d9181596e58fe43139ae6ce66fbc90b89453a779884",
+      "runtime/desktop/src/org/circus/core/Pc1AudioResources.java": "a90d0ea216b543b8a51d51c05876bca89982629674329cea31891ca59d191f46",
+      "runtime/core/src/org/circus/core/Pc1VoiceIndex.java": "45f6ed28008669305c8fbc2a4797a1e4c22cca7d819999209d874bd75563910c",
+      "runtime/desktop/native/pc1_audio.c": "e6adf2d39d7f0ffeba635acaaaee444078cac61253b74a8beb27ce4d7dbef6a4",
+      "runtime/tests/org/circus/core/Pc1VoiceIndexTests.java": "90b32966e10daa0a7696ad07512420d97be0f59fa4d0037020834ccb18dd0635",
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundLiveNameAudit.java": "32976a3d4750f1ecd81c041e29864dc49d546b60210bb1771d5daf7d22d76130",
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundLiveVectorsAudit.java": "547fc6763151122c109874a992569587888bd34c6b69f1c69d77b545384794cf",
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundRawAssetsAudit.java": "e4dc955d60ccc7398ae7589eca324b047814956f828f4d8e5a814aa3e3ebc03b",
+      "runtime/desktop/src/org/circus/core/Pc1DirectSoundRawAPathAudit.java": "93fa949990f20d799093eb36c44f35b5d9097b88a827d528403aadb69a1a3212"
+    },
+    "validation": {
+      "build": "MSVC2019 x64 /LD /MT /O2 /W4 /WX; Java --release8",
+      "all_runs": [
+        {
+          "name": "native-build",
+          "exit_code": 0
+        },
+        {
+          "name": "compile",
+          "exit_code": 0
+        },
+        {
+          "name": "core-audio",
+          "exit_code": 0
+        },
+        {
+          "name": "core-dispatch",
+          "exit_code": 0
+        },
+        {
+          "name": "core-index",
+          "exit_code": 0
+        },
+        {
+          "name": "actual-live-name",
+          "exit_code": 0
+        },
+        {
+          "name": "actual-live-vectors",
+          "exit_code": 0
+        },
+        {
+          "name": "actual-raw-assets",
+          "exit_code": 0
+        },
+        {
+          "name": "actual-raw-apath",
+          "exit_code": 0
+        },
+        {
+          "name": "old-dsp-packet",
+          "exit_code": 0
+        },
+        {
+          "name": "old-dsp-lz",
+          "exit_code": 0
+        },
+        {
+          "name": "old-dsp-transform",
+          "exit_code": 0
+        },
+        {
+          "name": "old-dsp-init",
+          "exit_code": 0
+        },
+        {
+          "name": "old-core-alias",
+          "exit_code": 0
+        },
+        {
+          "name": "old-api",
+          "exit_code": 0
+        },
+        {
+          "name": "old-startup",
+          "exit_code": 0
+        },
+        {
+          "name": "old-aliases",
+          "exit_code": 0
+        },
+        {
+          "name": "old-restore",
+          "exit_code": 0
+        },
+        {
+          "name": "old-sources",
+          "exit_code": 0
+        },
+        {
+          "name": "old-compressed",
+          "exit_code": 0
+        }
+      ],
+      "assertions_by_run": {
+        "core-audio": 8389,
+        "core-dispatch": 287,
+        "core-index": 1976,
+        "actual-live-name": 55,
+        "actual-live-vectors": 391,
+        "actual-raw-assets": 18,
+        "actual-raw-apath": 15,
+        "old-dsp-packet": 177,
+        "old-dsp-lz": 450,
+        "old-dsp-transform": 57,
+        "old-dsp-init": 61,
+        "old-core-alias": 155,
+        "old-api": 64,
+        "old-startup": 53,
+        "old-aliases": 16,
+        "old-restore": 154,
+        "old-sources": 35,
+        "old-compressed": 20
+      },
+      "total_assertions": 12373,
+      "new_actual_checks": 479,
+      "original_programs": 15,
+      "original_instruction_steps": 2589,
+      "original_reference_scope": "Actual41BE20 and425210 instructions; path/decoder/COM/free fixtures explicitly named. Not a decoder/COM equivalence claim. Every late SCAS/copy source-byte offset and whole metadata/resource cells compared against actualDS. Independent asm review in independent-be20-current.asm.",
+      "old_regressions": "Existing static/stream modes0/1/2/3, LZ/FFT packet, initialization, negative aliases, FILE proof, stopped staging/adoption, MCI/timer checks all passed as listed."
+    }
+  },
+  "staged_gdi_render": {
+    "actual_checks": 7,
+    "core_checks": 11,
+    "matching_dll_sha256": "b214a612c79c51d346b3eb59aa7be384f54b6ba86b687a8186adeb430b685e46",
+    "scope": "Actual Font/DC/DIB, managed RGB front fixture; no whole Window/audio world claim."
+  },
+  "window_capsule": {
+    "matching_dll_sha256": "d31bd25cf96d447cf93b0277001e52b3f6bae6f5382a431eae204772ff2a351f",
+    "owned_source_sha256": {
+      "runtime/desktop/src/org/circus/core/Pc1WindowsWindow.java": "0ad50ca17dacfdf0723879d4089876a0cbec1cf0afaf97cc6a0e336228c5272a",
+      "runtime/desktop/src/org/circus/core/Pc1WindowsCapsuleAudit.java": "34bff3626c148dfcd52850182207e7b56e155a8d2f55aef94d9e9e9c3f3be57b",
+      "runtime/desktop/native/pc1_window.c": "2be52fab316df72413d301b76b30af59baa6b6711163bb328a8af6057b43afd6",
+      "runtime/desktop/native/pc1_window_capsule.h": "0f440de6119859c17280f90c896b2f8bfd40673a5cdb8e7404c815e883aec444"
+    },
+    "git_lf_source_sha256": {
+      "runtime/desktop/src/org/circus/core/Pc1WindowsWindow.java": "cf3b6e226f92d7c58c46be3f9c4c2fe54af309985bfb63bf491f8547aa6b03c8",
+      "runtime/desktop/src/org/circus/core/Pc1WindowsCapsuleAudit.java": "fa1147c655dc3b6bcbade1d2c028d71c03022e1d6c783e5922ea589c0e973e4f",
+      "runtime/desktop/native/pc1_window.c": "27cdb84aadea207a313a10318ce16dd4ee8d9e5264f88435b4b6f7fecc9f973b",
+      "runtime/desktop/native/pc1_window_capsule.h": "769e3387a7712868a610f1cd31ebd1700fdf9b49e854adf7dbd061f7f13bc30a"
+    },
+    "checks": [
+      {
+        "name": "native-build",
+        "exit_code": 0,
+        "log_sha256": "6db13079640c34b432a2e8ff058431c056f7ef2f772d91cccfb2352d7f971828"
+      },
+      {
+        "name": "java-build",
+        "exit_code": 0,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "Pc1WindowsCapsuleAudit",
+        "exit_code": 0,
+        "log_sha256": "4c73f8b36980d91fbc9b71a3948014c50d2314bf67c4607672a530aac5cef88e",
+        "checks": 39
+      },
+      {
+        "name": "Pc1WindowsOsWordsAudit",
+        "exit_code": 0,
+        "log_sha256": "23ffdd2578417b1b856337cec37f99606b8b2c77c1f76e9e5b8f488156b2a969",
+        "checks": 105
+      },
+      {
+        "name": "Pc1WindowsStartupBindingAudit",
+        "exit_code": 0,
+        "log_sha256": "9c213fadc05379b99deb582ab0bf86df12e7f18877a2755069abda84e827376e",
+        "checks": 18
+      },
+      {
+        "name": "Pc1WindowsStartupAudit",
+        "exit_code": 0,
+        "log_sha256": "edfd4f23d96e8656bd43fa57284407b243c0eef4658f45fff4adb74d8854f57d",
+        "checks": 20
+      },
+      {
+        "name": "Pc1WindowsMessageAudit",
+        "exit_code": 0,
+        "log_sha256": "e4bdb99b5bfb69a55bb984a3d7d662da3397523e516312f4b21c12240c885778",
+        "checks": 16
+      },
+      {
+        "name": "Pc1WindowsCaptureAudit",
+        "exit_code": 0,
+        "log_sha256": "5583ca584c8e237736b1478d7957edadae1a030b4252b554635c6fbf014bf845",
+        "checks": 8
+      },
+      {
+        "name": "Pc1WindowsDibLeaseAudit",
+        "exit_code": 0,
+        "log_sha256": "7b26f1740f0b2cf3e24497fcc7d15612656608bcc3f3099839d78cd948dbd225",
+        "checks": 13
+      },
+      {
+        "name": "Pc1WindowsPaintAudit",
+        "exit_code": 0,
+        "log_sha256": "90416fc02f16a13be1a63a6f5673ca0a0eade33e2dbd62bcb4e67cc151bdba09",
+        "checks": 25
+      },
+      {
+        "name": "Pc1WindowsEffectPaintAudit",
+        "exit_code": 0,
+        "log_sha256": "8f98aa889f8642202adb50882704f41470a545b562c8579d4f43fc8c2efbe547",
+        "checks": 18
+      },
+      {
+        "name": "Pc1WindowsGuestImageAudit",
+        "exit_code": 0,
+        "log_sha256": "27f146db9ddbfb42e0fe94aa73de5dd1ae276364e85e2b5a3625fb2016ac5429",
+        "checks": 24
+      },
+      {
+        "name": "Pc1WindowsSharedCompositorAudit",
+        "exit_code": 0,
+        "log_sha256": "68c401eea6df0a56fdbf162f8e3ab404d46c1c55b57fc2bd3ce2d441a1c822cc",
+        "checks": 10
+      },
+      {
+        "name": "Pc1WindowProcedureAudit",
+        "exit_code": 0,
+        "log_sha256": "8482b365767471e7b3656d81645b65ca93d288e6a8173a6cca5b649b0978e2d0",
+        "checks": 11
+      },
+      {
+        "name": "Pc1InputWindowAudit",
+        "exit_code": 0,
+        "log_sha256": "7ead8c3d0d34897c7f9f1f83a3c9b779a2a3149bbb62d835a43cc0ede8d774b4",
+        "checks": 10
+      },
+      {
+        "name": "Pc1WindowsServicesAudit",
+        "exit_code": 0,
+        "log_sha256": "278337c2f3747133d746b887f2994e2ffd8abeb643014c2c64de893f4e4f6c7c",
+        "checks": 12
+      },
+      {
+        "name": "Pc1WindowsWindowAudit",
+        "exit_code": 0,
+        "log_sha256": "2f0feaa10261be2b0d3f5801b12db6979eb7f17765467429addb67b0b7cb58db",
+        "checks": 31
+      }
+    ],
+    "scope": "Actual hidden self-authored Win32 contexts and owned DC/DIB/native DDB; explicit same-HWND adoption. No original EXE, original process, visible-game, queue or complete HWND-state snapshot claim."
+  },
+  "desktop_build_regressions": {
+    "failed_compile_marker_invalidation": true,
+    "removed_resources_absent_from_package": true,
+    "fixture_scope": "Isolated temporary ROOT, actual javac/java; no production source modified."
+  },
+  "limitations": [
+    "Raw dispatcher candidate is not yet the production frontend.",
+    "Full WinMain, native slots and all engine profiles remain incomplete.",
+    "Window HWND/queue adoption and COM lifetimes require explicit external owners.",
+    "Cross-MM-backing DWORD, fetched stack-name route, decoder writable tags and complete static native decoder remain unfinished."
+  ],
+  "source_hash_note": "Compiled byte hashes describe frozen inputs. Java LF hashes describe .gitattributes-normalized Git blobs; CRLF-only checkout differences do not change their Java text."
+}

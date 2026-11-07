@@ -23,7 +23,13 @@ def generate():
         marker=s['decoder'].get('version_bytes',3 if stride==6 else 2)
         fields=[json.dumps(pid),str(f['version']),str(stride),str(marker),str(starts.get('u8str',starts['string'])),str(starts['string']),str(starts['encoded_string']),str(starts['u16x4']),str(s['decoder']['extension_opcode']),str(c['label_opcode']),str(c['block_marker_opcode']),str(c['companion_opcode']),str(c['block_scan_signed_opcode']).lower(),str(mapping == {'36':32}).lower(),str(s['decoder'].get('text_verified',mapping is not None)).lower(),'false','Variables.Model.'+model,'ops']
         alt = f.get('alt_versions')
-        if alt: fields.append('new int[]{'+','.join(str(x) for x in alt)+'}')
+        fields.append('new int[]{'+','.join(str(x) for x in alt)+'}' if alt else 'null')
+        fields.append(str(s['decoder'].get('signed_opcode_fetch',False)).lower())
+        fields.append(str(s['decoder'].get('allow_terminal_fragment',False)).lower())
+        fields.append(str(s['decoder'].get('runtime_exact_version',False)).lower())
+        fields.append(str(s['decoder'].get('extension_at_fetch',True)).lower())
+        fields.append('new int[]{'+','.join(str(x) for x in s['decoder'].get('extension_owners',[]))+'}')
+        fields.append('new int[]{'+','.join(str(x) for x in s['decoder'].get('string_payload_owners',[]))+'}')
         lines += ['return new Profile('+','.join(fields)+');','}']
     lines += ['if(id.equals("circus-demo-v1")) {',
               'Profile dd=get("dc3dd-a5a8"); for(int i=0;i<256;i++)if(!dd.operation(i).equals("unknown"))ops.put(i,dd.operation(i));',

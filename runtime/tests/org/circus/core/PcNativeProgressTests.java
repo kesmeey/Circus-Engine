@@ -15,7 +15,7 @@ public final class PcNativeProgressTests {
             public byte[] read(String path,int limit){return new byte[20];}
             public Archive.Source source(String path){return new Archive.Source(){public long size(){return 20;}public byte[] read(long at,int n)throws IOException{Binary.range(at,n,20);return new byte[n];}};}
         });
-        PcHost result=new PcHost(new CircusResources(files,Profiles.get(profile)),TextCodec.identity());
+        PcHost result=Pc1TestDefaults.bind(new PcHost(new CircusResources(files,Profiles.get(profile)),TextCodec.identity()));
         result.attach(new Variables(result,result.second?Variables.Model.PC_WIDE:Variables.Model.PC_BYTE));return result;
     }
     private static byte[] persistent(PcHost host)throws IOException{ByteArrayOutputStream bytes=new ByteArrayOutputStream();host.savePersistent(new DataOutputStream(bytes));return bytes.toByteArray();}
@@ -41,7 +41,7 @@ public final class PcNativeProgressTests {
         check(progress.source.completion==23&&progress.source.cg==3&&progress.source.scenes==3&&progress.source.total==29,"Source counts only reviewed unlock banks, ignoring native settings/names/voice preferences");
         Arrays.fill(original,(byte)0);
         check(progress.profileId.equals(id)&&progress.sourceSummary.contains("3312"),"Parsed source identifies supported layout");
-        PcHost target=host(id);target.familyName="Own";target.givenName="Name";target.write(99,8,4);target.write(99,13,3);
+        PcHost target=host(id);target.setNativeNames("Own","Name");target.write(99,8,4);target.write(99,13,3);
         target.write(100,1,1);target.write(100,20,7);target.write(100,56,9);target.write(100,57,5);target.write(100,60,1);target.write(100,99,17);
         target.write(97,45,1);target.write(97,46,1);target.write(97,1500,1);target.write(98,88,1);target.write(98,89,1);target.write(98,1500,1);
         target.write(95,1,0);target.write(90,7,90);target.variables.write(3,4,123);target.readCheckpoints.add("local:42");target.availableSaves.add(6);

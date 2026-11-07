@@ -17,11 +17,14 @@ public final class GameVersion {
             // table. Keep one provider handle per file, without reading the body
             // or trusting a cached result when the game directory changes.
             try(Archive.Reader reader=files.openReader(path)){
-                long size=reader.size();if(size<8||size>64*1024*1024)throw new IOException("Invalid MES size: "+path);
-                byte[] head=read(reader,0,8);long labels=Binary.u32(head,0);if(labels>1000000)throw new IOException("MES header count limit: "+path);
+                long size=reader.size();if(size<4||size>64*1024*1024)throw new IOException("Invalid MES size: "+path);
+                long labels=Binary.u32(read(reader,0,4),0);if(labels>1000000)throw new IOException("MES header count limit: "+path);
+                // Zero-label offset1 files may consist of a six-byte header
+                // plus a one-byte STOP. An eighth byte is not required.
+                boolean extraMarkerByte=size>=8&&Binary.u32(read(reader,4,4),0)==3;
                 Map<Integer,byte[]> markers=new HashMap<>();
                 for(MesFormats.Format f:MesFormats.ALL){
-                    long offset=4+labels*f.stride;int length=f.stride==6||Binary.u32(head,4)==3?3:f.version<256?1:2;
+                    long offset=4+labels*f.stride;int length=f.stride==6||extraMarkerByte?3:f.version<256?1:2;
                     if(offset+length>=size)continue;
                     byte[] marker=markers.get(f.stride);if(marker==null){marker=read(reader,offset,(int)Math.min(3,size-offset));markers.put(f.stride,marker);}
                     if((length==1?Binary.u8(marker,0):Binary.u16(marker,0))==f.version)candidates.add(f.id);

@@ -40,7 +40,7 @@ public final class DesktopMedia implements AutoCloseable {
         }
         if(movie!=null){if(movie.error!=null)throw new IOException("Movie playback failed",movie.error);if(movie.videoDone&&movie.audioDone)finishMovie();}
     }
-    private static void balance(Line line,int pan){FloatControl.Type type=line.isControlSupported(FloatControl.Type.BALANCE)?FloatControl.Type.BALANCE:FloatControl.Type.PAN;if(line.isControlSupported(type)){FloatControl c=(FloatControl)line.getControl(type);float value=pan==0?0:Math.copySign((float)(1-Math.pow(10,-Math.abs(pan)/2000.0)),pan);c.setValue(Math.max(c.getMinimum(),Math.min(c.getMaximum(),value)));}}
+    private static void balance(Line line,int pan){FloatControl.Type type=line.isControlSupported(FloatControl.Type.BALANCE)?FloatControl.Type.BALANCE:FloatControl.Type.PAN;if(line.isControlSupported(type)){FloatControl c=(FloatControl)line.getControl(type);float value=AudioLevels.directSoundBalance(pan);c.setValue(Math.max(c.getMinimum(),Math.min(c.getMaximum(),value)));}}
     private static void gain(Line line,float value){if(line.isControlSupported(FloatControl.Type.MASTER_GAIN)){FloatControl gain=(FloatControl)line.getControl(FloatControl.Type.MASTER_GAIN);float db=value<=0?gain.getMinimum():(float)(20*Math.log10(value));gain.setValue(Math.max(gain.getMinimum(),Math.min(gain.getMaximum(),db)));}}
     public BufferedImage movieFrame(){return movie==null?null:movie.frame;}
     public long audioFrames(int ch){return clips[ch]==null?0:clips[ch].getLongFramePosition();}

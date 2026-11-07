@@ -131,8 +131,73 @@ class StaticTests(unittest.TestCase):
         self.assertEqual([(t.opcode, len(t.raw)) for t in tokens], [(0x81, 3), (7, 3), (0, 1)])
         with self.assertRaises(FormatError):
             parse(mes_fixture(0x2063, b"\x81\x83", 4), 'dcpc-2063')
-        with self.assertRaises(FormatError):
-            parse(mes_fixture(0x5769, b"\x81\x83\0\0", 4), 'dc2pc-5769')
+        # PC2 has the same MOVSX framing before its unsigned table bound.
+        _, tokens = parse(mes_fixture(0x5769, b"\x81\x83\0\0", 4), 'dc2pc-5769')
+        self.assertEqual([(t.opcode, len(t.raw)) for t in tokens], [(0x81, 3), (0, 1)])
+
+    def test_other_native_signed_fetch_decoders(self):
+        for pid, version, stride in [('dc2dm-9d72', 0x9D72, 6),
+                                     ('dc2-3363', 0x3363, 4)]:
+            with self.subTest(profile=pid):
+                _, tokens = parse(mes_fixture(version, b"\xff\x71\x7f\0\0\0", stride), pid)
+                self.assertEqual([(t.opcode, len(t.raw)) for t in tokens], [(255, 3), (0, 3)])
+                with self.assertRaises(FormatError):
+                    parse(mes_fixture(version, b"\xff\x71", stride), pid)
+
+    def test_dd_high_bit_record_is_unsigned(self):
+        _, tokens = parse(mes_fixture(0xA5A8, b"\x80" + bytes(8)), 'dc3dd-a5a8')
+        self.assertEqual([(t.opcode, len(t.raw)) for t in tokens], [(128, 9)])
+
+    def test_dc2_alternate_markers_preserve_file_identity(self):
+        for marker in (0x3363, 0x1A63, 0x3163):
+            with self.subTest(marker=marker):
+                data = mes_fixture(marker, bytes(3), 4)
+                info, _ = parse(data, 'dc2-3363')
+                self.assertEqual(info['profile'], 'dc2-3363')
+                self.assertEqual(info['version'], f'0x{marker:04X}')
+
+    def test_dc2_short_stop_retains_missing_operands(self):
+        info, tokens = parse(mes_fixture(0x3363, b'\x00\x00', 4), 'dc2-3363')
+        self.assertEqual(tokens[0].raw, b'\x00\x00')
+        self.assertEqual(tokens[0].to_dict()['operands'], [0])
+        self.assertTrue(tokens[0].to_dict()['terminal_fragment'])
+        self.assertEqual(info['terminal_fragments'], [{'offset': info['code_offset'],
+            'raw_hex': '0000', 'kind': 'stop_operands_absent'}])
+        _, nonzero = parse(mes_fixture(0x3363, b'\x00\x01', 4), 'dc2-3363')
+        self.assertEqual(nonzero[0].to_dict()['operands'], [1])
+
+    def test_minimal_offset1_stop(self):
+        for marker, profile in [(0x2063, 'dcpc-2063'), (0x5769, 'dc2pc-5769'),
+                                (0x3363, 'dc2-3363')]:
+            data = bytes(4) + struct.pack('<H', marker) + b'\0'
+            info, tokens = parse(data, profile)
+            self.assertEqual(info['code_offset'], 6)
+            self.assertEqual([token.raw for token in tokens], [b'\0'])
+            with self.assertRaises(FormatError):
+                parse(data[:-1], profile)
+
+    def test_handler_extension_ignores_payload_opcode(self):
+        for marker, pid, owner in [(0x2063, 'dcpc-2063', 0x53),
+                                   (0x5769, 'dc2pc-5769', 0x53),
+                                   (0x3363, 'dc2-3363', 0x52)]:
+            code = bytes([owner]) + struct.pack('<4h', 1, 2, 3, 4)
+            code += bytes([0]) + struct.pack('<4h', 5, 6, 7, 8) + bytes(3)
+            _, tokens = parse(bytes(4) + struct.pack('<H', marker) + code, pid)
+            self.assertEqual(len(tokens), 3)
+            self.assertEqual(tokens[1].kind, 'u16x4')
+            self.assertEqual(tokens[1].opcode, 0)
+            self.assertEqual(tokens[1].consumed_by, tokens[0].offset)
+            self.assertEqual(tokens[1].to_dict()['operands'], [5, 6, 7, 8])
+
+    def test_sum_terms_do_not_become_handler_owners(self):
+        # PC1 5A is sum_list; the native loop only tests for companion 02.
+        code = bytes([0x5A]) + struct.pack('<4h', 0, 0, 0, 0)
+        code += bytes([0x53]) + struct.pack('<4h', 0, 1, 0, 0)
+        code += bytes([0]) + struct.pack('<4h', 0, 2, 0, 0)
+        code += bytes([2, 0, 0]) + bytes(3)
+        _, tokens = parse(bytes(4) + struct.pack('<H', 0x2063) + code, 'dcpc-2063')
+        self.assertEqual([len(token.raw) for token in tokens], [9, 9, 9, 3, 3])
+        self.assertEqual([token.consumed_by for token in tokens], [None, 6, 6, None, None])
 
     def test_offset1_profile(self):
         info, tokens = parse(mes_fixture(0x6E69, b"\x29\x01BG\0", 4, 1))

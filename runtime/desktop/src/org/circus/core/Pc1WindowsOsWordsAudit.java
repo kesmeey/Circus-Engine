@@ -1,0 +1,96 @@
+package org.circus.core;
+import java.io.*;import java.nio.file.*;import java.util.*;
+/** Controlled hidden USER/GDI objects, never the original executable. */
+public final class Pc1WindowsOsWordsAudit {
+ private static int checks;private static Path dll;
+ private static void check(boolean value,String message){checks++;if(!value)throw new AssertionError(message);}
+ private interface Action {void run()throws Exception;}
+ private static void fault(Action action,String message)throws Exception{boolean caught=false;try{action.run();}catch(IOException expected){caught=true;}check(caught,message);}
+ private static byte[] raw(String text)throws Exception{return (text+"\0").getBytes("US-ASCII");}
+ private static final class World {
+  final byte[] settings=new byte[65536];final Pc1NativeMemory bus=new Pc1NativeMemory(Pc1NativeFrame.zeroBss(),Pc1CodeBuffer.zeroBss(),new Pc1NativeMemory.SettingsBytes(){public int read(int at){return settings[at]&255;}public void write(int at,int value){settings[at]=(byte)value;}});
+  final Pc1GuestAddressSpace space;final Pc1OsRegistry registry;final Pc1OsWords words;final Pc1WindowMemory memory;
+  World()throws Exception{this(false);}
+  World(boolean failDib)throws Exception{space=new Pc1GuestAddressSpace(Pc1GuestAddressSpace.Layout.imageHeapV1());bus.bindGuestAddressSpace(space);registry=new Pc1OsRegistry(space);words=new Pc1OsWords(bus,registry);if(!failDib)memory=new Pc1WindowMemory(bus);else {memory=null;final byte[] header=new byte[40];bus.bind(Pc1WindowMemory.BITMAP_INFO,40,new Pc1NativeMemory.Region(){public int read(int at){return header[at]&255;}public void write(int at,int value){header[at]=(byte)value;if(at==39){for(int n=4;n<8;n++)header[n]=0;}}});}}
+ }
+ private static final class Display implements Pc1WindowsWindow.NativeDispatcher,Pc1WindowsWindow.PaintHost {
+  Pc1WindowsWindow window;Pc1OsWords words;int ready=1,paintMode,paintCount,dirtyCount,resetCount;Action atDirty;List<Integer> custom=new ArrayList<>();Action atCustom;
+  public Pc1WindowsWindow.Dispatch dispatch(long hwnd,int msg,long wp,long lp)throws IOException{if(msg==0xf&&paintMode!=0){paintCount++;return window.paintCurrent(this);}if(msg==0x8031||msg==0x8032){custom.add(msg);if(atCustom!=null)try{atCustom.run();}catch(Exception error){throw new IOException(error);}return Pc1WindowsWindow.Dispatch.handled(0);}return Pc1WindowsWindow.Dispatch.unhandled();}
+  public int quitFlag(){return 0;}
+  public int global(int address){return address==0x94c694?ready:0;}
+  public byte[] frontBgr24(){throw new AssertionError("bound native paint must not import a portable pixel copy");}
+  public int[] dirtyForPresent()throws IOException{dirtyCount++;if(atDirty!=null)try{atDirty.run();}catch(Exception error){throw new IOException(error);}return new int[]{0,0,16,16};}
+  public void resetDirty(){resetCount++;}
+  public void accelerated(long bitmap,int[] rect)throws IOException{throw new IOException("not requested in this native GDI audit");}
+ }
+ private static Pc1WindowsWindow open(World world,Display display,String suffix)throws Exception{
+  Pc1WindowsWindow window=Pc1WindowsWindow.deferred(dll,display);display.window=window;display.words=world.words;window.bindOsWords(world.words);byte[] cls=raw("CircusOsWordsAudit"+suffix+System.nanoTime());long instance=window.moduleInstance();check(window.registerClass(instance,cls,0,window.loadCursor(0,32512))!=0,"actual audit class registration");long hwnd=window.createWindow(0,cls,raw("hidden native words audit"),0x80000000,0,0,800,600,instance);check(hwnd!=0&&window.windowInfo()[1]==0,"self-authored HWND remains hidden");window.mainWindow(hwnd);check(world.words.resolve(Pc1OsWords.HWND,Pc1OsRegistry.Domain.USER).physicalHandle()==hwnd,"405995 MOV publishes this actual HWND");return window;
+ }
+ private static Pc1HeapLease front(Pc1WindowsWindow window,World world)throws Exception{
+  final Pc1HeapLease[] lease={null};window.initializeFrontSharedAt(window.hwnd(),new Pc1WindowsWindow.FrontAllocated(){public void allocated(Pc1HeapLease value){throw new AssertionError("bound path must include raw bits");}public void allocatedRaw(int bits,Pc1HeapLease value)throws IOException{check(value!=null,"actual CreateDIBSection returns a physical memory lease");lease[0]=value;check(world.space.addressOf(value)==bits,"401000 raw pointer uses same canonical Guest32 lease mapping");check(window.bootstrapTail()[0]==0,"401000 publication precedes black compatible-DDB tail");}});check(lease[0]!=null&&lease[0].length()==1440000,"actual DIB full storage");check(world.words.rawWord(Pc1WindowMemory.BITMAP_INFO)==40&&world.words.rawWord(Pc1WindowMemory.BITMAP_INFO+4)==800&&world.words.rawWord(Pc1WindowMemory.BITMAP_INFO+8)==600&&world.words.rawWord(Pc1WindowMemory.BITMAP_INFO+12)==0x180001,"canonical BITMAPINFO original DWORD/WORD stores");check(window.bootstrapTail()[3]!=0,"bootstrap FillRect completes after publication");return lease[0];
+ }
+ private static int bgr(Pc1WindowsWindow window)throws Exception{int color=window.compatiblePixel(0,0);return ((color&255)<<16)|(color&0xff00)|((color>>>16)&255);}
+ private static byte[] copiedRect(byte[] destination,byte[] source,int width,int height){byte[] out=destination.clone();for(int y=0;y<height;y++)System.arraycopy(source,(599-y)*2400,out,(599-y)*2400,width*3);return out;}
+ private static byte[] saveWords(Pc1OsWords words)throws Exception{ByteArrayOutputStream out=new ByteArrayOutputStream();words.save(new DataOutputStream(out));return out.toByteArray();}
+ private static void basicAliases()throws Exception{
+  World w=new World();Display da=new Display(),db=new Display();try(Pc1WindowsWindow a=open(w,da,"A");Pc1WindowsWindow b=open(w,db,"B")){
+   for(int at:new int[]{Pc1OsWords.FONT12,Pc1OsWords.FONT22,Pc1OsWords.FONT28,Pc1OsWords.FONT32,Pc1OsWords.FONT40})w.words.unknown(at,"deliberately unread unrelated font slot");
+   a.traceOsWords(true);a.mainWindow(a.hwnd());Pc1HeapLease la=front(a,w);int ah=w.words.rawWord(Pc1OsWords.HWND),as=w.words.rawWord(Pc1OsWords.SOURCE_DC),ad=w.words.rawWord(Pc1OsWords.DESTINATION_DC),ab=w.words.rawWord(Pc1OsWords.DIB_BITMAP);long adc=w.words.resolve(Pc1OsWords.SOURCE_DC,Pc1OsRegistry.Domain.GDI).physicalHandle();
+   List<String> trace=a.osWordTrace();check(trace.stream().noneMatch(v->v.startsWith("read:94c64")||v.startsWith("read:94c650")),"406ED0 never preflights five unrelated fonts");List<String> moves=new ArrayList<>();for(String value:trace){String[] fields=value.split(":");if(fields[0].equals("store"))moves.add("store:"+fields[1]+":"+fields[2]);else if(fields[0].equals("publish")&&!fields[1].equals("94c63c"))moves.add("publish:"+fields[1]+":4");}System.out.println("bootstrapMoves="+String.join(";",moves));check(trace.indexOf("store:94c2ec:2:1")<trace.indexOf("store:94c2ee:2:18"),"planes WORD precedes bpp WORD");
+   b.mainWindow(b.hwnd());Pc1HeapLease lb=front(b,w);int bh=w.words.rawWord(Pc1OsWords.HWND),bs=w.words.rawWord(Pc1OsWords.SOURCE_DC),bd=w.words.rawWord(Pc1OsWords.DESTINATION_DC),bb=w.words.rawWord(Pc1OsWords.DIB_BITMAP);check(ab!=bb&&as!=bs&&ad!=bd,"two real providers have independent physical objects");
+   la.writeU8(0,0x12);la.writeU8(1,0x34);la.writeU8(2,0x56);lb.writeU8(0,0x67);lb.writeU8(1,0x89);lb.writeU8(2,0xab);
+   //Top-left bitmap pixel is bottom-up row599.
+   int top=599*2400;for(int n=0;n<3;n++){la.writeU8(top+n,new int[]{0x12,0x34,0x56}[n]);lb.writeU8(top+n,new int[]{0x67,0x89,0xab}[n]);}
+   w.words.rawWord(Pc1OsWords.HWND,bh);check(a.setCapture()==0&&a.captureWindow()==b.hwnd(),"SetCapture through A uses current raw alias B");check(a.releaseCapture()!=0,"ReleaseCapture ignores raw main HWND");
+   check(a.setTimer(73,10000)!=0&&a.killTimer(73)!=0,"SetTimer/KillTimer use aliased actual HWND");
+   da.custom.clear();db.custom.clear();db.atCustom=()->w.words.rawWord(Pc1OsWords.HWND,ah);w.words.rawWord(Pc1OsWords.HWND,bh);a.postMessage(0x8031,0,0);a.postMessage(0x8032,0,0);a.pumpMessages();check(db.custom.equals(Arrays.asList(0x8031,0x8032))&&da.custom.isEmpty(),"405710 retains captured filter despite callback raw main replacement");db.atCustom=null;
+   byte[] aBefore=a.compatibleRgb().bgr24(),bBefore=b.compatibleRgb().bgr24(),aSource=la.copyBytes(),bSource=lb.copyBytes();
+   //Actual406CB0 HWND is dispatch argument; changing global toNULL must not redirect paint.
+   w.words.rawWord(Pc1OsWords.HWND,ah);w.words.rawWord(Pc1OsWords.SOURCE_DC,as);w.words.rawWord(Pc1OsWords.DESTINATION_DC,ad);w.words.rawWord(Pc1OsWords.DIB_BITMAP,bb);da.atDirty=()->{w.words.rawWord(Pc1OsWords.HWND,0);w.words.rawWord(Pc1OsWords.DESTINATION_DC,bd);};da.paintMode=1;
+   a.invalidate(0,0,16,16,false);a.postMessage(0xf,0,0);a.pumpMessages(a.hwnd());check(da.dirtyCount>0&&da.resetCount==da.dirtyCount,"normal WM_PAINT completes dirty/reset with NULL current main");check(bgr(b)==0xab8967&&bgr(a)==0,"first BitBlt follows aliased DIB and post-dirty destination");check(Arrays.equals(b.compatibleRgb().bgr24(),copiedRect(bBefore,bSource,16,16))&&Arrays.equals(a.compatibleRgb().bgr24(),aBefore),"all1440000 DDB bytes follow aliased source/target, outside rectangle preserved");check(a.lastPaintReport()[17]==0&&la.readU8(top)==0x12,"bound paint never syncs a shadow image into original DIB");check(a.selectedBitmap(adc)!=w.words.resolve(Pc1OsWords.DIB_BITMAP,Pc1OsRegistry.Domain.GDI).physicalHandle(),"original source selection restored after native paint");
+   da.paintMode=0;da.atDirty=null;w.words.rawWord(Pc1OsWords.HWND,ah);check(a.beginNativePaint()!=0,"actual effect GetDC begins");w.words.rawWord(Pc1OsWords.DESTINATION_DC,ad);w.words.rawWord(Pc1OsWords.DIB_BITMAP,ab);a.paintRectangleShared(0,0,8,8,null);check(bgr(a)==0x563412,"406E40 uses raw bitmap/DCs and never needs image0 lease argument");check(Arrays.equals(a.compatibleRgb().bgr24(),copiedRect(aBefore,aSource,8,8)),"406E40 all1440000 actual DDB bytes preserve outside rectangle");check(a.endNativePaint()!=0,"ReleaseDC exact current global pair");check(w.words.rawWord(Pc1OsWords.EFFECT_DC)!=0,"released effect DC raw DWORD remains uncleared");check(w.words.resolve(Pc1OsWords.EFFECT_DC,Pc1OsRegistry.Domain.GDI).status==Pc1OsRegistry.Status.CLOSED,"released common-DC lease stays closed despite underlying reusable OS numeric");
+   w.words.unknown(Pc1OsWords.HWND,"test unknown bytes");a.tickCount();a.asyncKeyState(0);a.releaseCapture();fault(()->a.setTimer(74,500),"unknown main DWORD gates exactly at its read, independent leaves still work");w.words.rawWord(Pc1OsWords.HWND,ah);
+   a.publishOsWord(Pc1OsWords.INSTANCE,Pc1OsRegistry.Kind.MODULE,a.moduleInstance());int module=w.words.rawWord(Pc1OsWords.INSTANCE);w.words.rawWord(Pc1OsWords.HWND,module);fault(()->a.updateWindow(),"wrong-domain scalar is never passed as HWND");w.words.rawWord(Pc1OsWords.HWND,ah);
+   //Restore bytes independently of physical providers; unknown font masks retained.
+   byte[] state=saveWords(w.words);w.words.rawWord(Pc1OsWords.HWND,bh);w.words.restore(Pc1OsWords.loadImage(new DataInputStream(new ByteArrayInputStream(state))));check(a.currentMainWindow()==a.hwnd(),"raw OS-cell codec restores aliases without recreating windows");check(w.words.knownByteMask(Pc1OsWords.FONT28)==0,"codec preserves unknown byte knowledge");
+   //Actual typed registry can stage the SAME physical providers into a new Guest world.
+   ByteArrayOutputStream registryOut=new ByteArrayOutputStream(),spaceOut=new ByteArrayOutputStream();w.registry.save(new DataOutputStream(registryOut));w.space.saveLayout(new DataOutputStream(spaceOut),lease->lease==la?0:lease==lb?1:-1);
+   Pc1OsRegistry.Image ri=Pc1OsRegistry.loadImage(new DataInputStream(new ByteArrayInputStream(registryOut.toByteArray())));Pc1GuestAddressSpace.Image si=Pc1GuestAddressSpace.loadLayout(new DataInputStream(new ByteArrayInputStream(spaceOut.toByteArray())));
+   la.writeU8(top,0xee);a.beginNativePaint();a.paintNativeRectangle(0,0,1,1);a.endNativePaint();World mismatch=new World();fault(()->mismatch.registry.restoreInto(ri,si,saved->{try{return a.rebindOsObject(saved);}catch(IOException absent){return b.rebindOsObject(saved);}}),"changed physical DDB pixels cannot masquerade as restored snapshot");la.writeU8(top,0x12);a.beginNativePaint();a.paintNativeRectangle(0,0,1,1);a.endNativePaint();
+   World staged=new World();staged.registry.restoreInto(ri,si,saved->{try{return a.rebindOsObject(saved);}catch(IOException absent){return b.rebindOsObject(saved);}});staged.space.restoreLayout(si,Arrays.asList(la,lb));staged.words.restore(Pc1OsWords.loadImage(new DataInputStream(new ByteArrayInputStream(state))));a.rebindOsWords(staged.words);check(a.currentMainWindow()==a.hwnd(),"staged raw registry resolves retained physical HWND");check(staged.words.resolve(Pc1OsWords.INSTANCE,Pc1OsRegistry.Domain.MODULE).physicalHandle()==a.moduleInstance(),"opaque64 module token restores in sole Guest layout");a.rebindOsWords(w.words);
+   Pc1OsRegistry.GdiObjectBinding bitmap=(Pc1OsRegistry.GdiObjectBinding)w.registry.lookup(ab,Pc1OsRegistry.Domain.GDI).object.binding();check(bitmap.deleteObject(),"actual registered Window HBITMAP can be deleted by shared GDI consumer");check(!la.live()&&!w.space.containsLease(la),"successful bitmap deletion retires shared byte lease and Guest view");fault(()->la.readU8(0),"retired direct ByteBuffer cannot be read");check(w.words.rawWord(Pc1OsWords.DIB_BITMAP)==ab,"DeleteObject never clears engine raw bitmap cell");
+   check(a.windowInfo()[1]==0&&b.windowInfo()[1]==0,"all USER/GDI cases remain hidden");
+  }
+ }
+ private static void failedDib()throws Exception{
+  World w=new World(true);Display d=new Display();try(Pc1WindowsWindow a=open(w,d,"BadBMI")){
+   final int[] bits={0};final boolean[] called={false};a.initializeFrontSharedAt(a.hwnd(),new Pc1WindowsWindow.FrontAllocated(){public void allocated(Pc1HeapLease lease){throw new AssertionError("failure has no physical DIB lease");}public void allocatedRaw(int raw,Pc1HeapLease lease)throws IOException{called[0]=true;bits[0]=raw;check(lease==null,"failed actual CreateDIBSection does not invent storage");check(a.bootstrapHandles()[3]==0&&a.bootstrapHandles()[4]!=0,"native NULL DIB result still permits compatible bitmap allocation");check(a.bootstrapTail()[0]==0,"raw401000 publication remains before GetClientRect tail even on failure");}});
+   check(called[0]&&w.words.rawWord(Pc1OsWords.DIB_BITMAP)==0,"failed DIB publishesNULL and reaches401000 consumer");check(bits[0]==0||bits[0]==w.words.rawWord(Pc1OsWords.HWND),"actual output parameter is preserved as either NULL or prior known HWND");check(a.bootstrapTail()[3]!=0,"failed DIB does not skip native black-DDB tail");fault(()->a.borrowDib(),"NULL DIB pixel dereference gates after metadata prefix");System.out.println("failedDibRaw=0x"+Integer.toHexString(bits[0]));
+  }
+ }
+ private static void lazyAndNullOperands()throws Exception{
+  World w=new World();Display d=new Display();try(Pc1WindowsWindow a=open(w,d,"Lazy")){
+   for(int at:new int[]{Pc1OsWords.SOURCE_DC,Pc1OsWords.DESTINATION_DC,Pc1OsWords.DIB_BITMAP})w.words.unknown(at,"untouched lazy GDI slot");d.ready=0;d.paintMode=1;a.invalidate(0,0,8,8,false);a.postMessage(0xf,0,0);a.pumpMessages();check(a.lastPaintReport()[2]==2&&d.dirtyCount==0,"unready paint never reads unrelated unknown GDI DWORDs");
+  }
+  w=new World();d=new Display();try(Pc1WindowsWindow a=open(w,d,"Null")){
+   front(a,w);w.words.rawWord(Pc1OsWords.SOURCE_DC,0);d.paintMode=1;a.invalidate(0,0,8,8,false);a.postMessage(0xf,0,0);a.pumpMessages();check(a.lastPaintReport()[6]==0&&a.lastPaintReport()[20]==1&&d.resetCount>0,"NULL GDI source produces actual BitBlt FALSE but native EndPaint/reset still execute");
+  }
+ }
+ private static void stoppedPrefix()throws Exception{
+  World w=new World();Display d=new Display();try(Pc1WindowsWindow a=open(w,d,"Fault")){
+   Pc1HeapLease lease=front(a,w);ByteArrayOutputStream registryBytes=new ByteArrayOutputStream(),layoutBytes=new ByteArrayOutputStream();w.registry.save(new DataOutputStream(registryBytes));w.space.saveLayout(new DataOutputStream(layoutBytes),value->value==lease?0:-1);Pc1OsRegistry.Image saved=Pc1OsRegistry.loadImage(new DataInputStream(new ByteArrayInputStream(registryBytes.toByteArray())));Pc1GuestAddressSpace.Image layout=Pc1GuestAddressSpace.loadLayout(new DataInputStream(new ByteArrayInputStream(layoutBytes.toByteArray())));int source=w.words.rawWord(Pc1OsWords.SOURCE_DC);long physical=w.words.resolve(Pc1OsWords.SOURCE_DC,Pc1OsRegistry.Domain.GDI).physicalHandle();long bitmap=w.words.resolve(Pc1OsWords.DIB_BITMAP,Pc1OsRegistry.Domain.GDI).physicalHandle();d.paintMode=1;d.atDirty=()->{throw new IOException("required4075E0 boundary after initial SelectObject");};a.invalidate(0,0,8,8,false);a.postMessage(0xf,0,0);fault(()->a.pumpMessages(a.hwnd()),"required dirty failure retains actual prefix");long[] report=a.lastPaintReport();check(report[19]==1&&report[5]==-1&&report[6]==-1&&d.resetCount==0,"fault does not invent EndPaint/BitBlt/reset tail");check(a.selectedBitmap(physical)==bitmap&&w.words.rawWord(Pc1OsWords.SOURCE_DC)==source,"native stopped selection remains until external provider cleanup");check(lease.live(),"stopped paint has not fabricated image lifetime retirement");World mismatch=new World();fault(()->mismatch.registry.restoreInto(saved,layout,a::rebindOsObject),"changed physical DC selection cannot be accepted as a restored snapshot");
+  }
+ }
+ private static void deletedDcOperand()throws Exception{
+  World w=new World();Display d=new Display();try(Pc1WindowsWindow a=open(w,d,"DeletedDC")){
+   Pc1HeapLease lease=front(a,w);int source=w.words.rawWord(Pc1OsWords.SOURCE_DC);Pc1OsRegistry.GdiDcBinding binding=(Pc1OsRegistry.GdiDcBinding)w.words.resolve(Pc1OsWords.SOURCE_DC,Pc1OsRegistry.Domain.GDI).object.binding();check(binding.deleteDc(),"actual owned compatible DC deletion");check(w.words.rawWord(Pc1OsWords.SOURCE_DC)==source&&w.words.resolve(Pc1OsWords.SOURCE_DC,Pc1OsRegistry.Domain.GDI).status==Pc1OsRegistry.Status.CLOSED,"DeleteDC retains known raw DWORD and closes physical provider");d.paintMode=1;a.invalidate(0,0,8,8,false);a.postMessage(0xf,0,0);a.pumpMessages();check(a.lastPaintReport()[6]==0&&a.lastPaintReport()[20]==1,"captured invalid numeric source reaches actual failing BitBlt and common reset");check(lease.live(),"deleting DC does not delete independent DIB storage");
+  }
+ }
+ private static void shutdownCaptured()throws Exception{
+  World w=new World();Display d=new Display();try(Pc1WindowsWindow a=open(w,d,"Destroy")){
+   d.atCustom=()->a.destroyWindow();a.postMessage(0x8031,0,0);check(a.pumpMessages()==0,"405710 performs subsequent PeekMessage with captured HWND destroyed by dispatch");check(a.windowInfo()[0]==0,"actual HWND has ended while owner context remains");check(w.words.resolve(Pc1OsWords.HWND,Pc1OsRegistry.Domain.USER).status==Pc1OsRegistry.Status.CLOSED,"closed raw scalar stays known, not rewritten NULL");
+  }
+ }
+ public static void main(String[] args)throws Exception{if(args.length!=1)throw new IOException("Expected matching window DLL");dll=Paths.get(args[0]);basicAliases();failedDib();lazyAndNullOperands();stoppedPrefix();deletedDcOperand();shutdownCaptured();System.out.println("Pc1WindowsOsWordsAudit PASS "+checks+" actual hidden USER/GDI checks");}
+}
+

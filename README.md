@@ -1,24 +1,32 @@
 # Circus Engine
 
 用**原版脚本和原版素材**驱动 D.C.（ダ・カーポ）系列 1／2／3 的兼容运行时。
-选一个游戏目录，执行该版本自己的启动、标题、正文、系统菜单和存读档；
+选择游戏目录，按已实现的版本规则执行原版启动、标题、正文和系统脚本；
 不运行原 Windows EXE，不附带任何游戏数据。
 
 仓库：[kesmeey/Circus-Engine](https://github.com/kesmeey/Circus-Engine)。
 项目目录与命令行工具仍沿用 `circus-runtime`／`dc_runtime` 命名。
 
-Android 最新版 **0.13.15** 修复 W.Y. 夏露露剧情中的重复目录分隔符报错，同时覆盖 P.P. 的同类图片引用。安装包：`build/distribution/circus-runtime-0.13.15-android-dev.apk`，可覆盖安装，见 [修复说明](docs/ANDROID_01315.md)。保留 [0.13.14 的 W.Y.／P.P. 原版系统进度导入](docs/ANDROID_01314.md)和 [0.13.13 的手机启动与中文补丁兼容](docs/ANDROID_01313.md)。
+最后一批固定开发包为 **0.14.3-native-rewrite-dev**。当前源码继续按原生证据重写，已进入尚未发布的 rev8 执行契约，尚未完成整个引擎复刻；见 [重写状态与缺口](docs/NATIVE_REWRITE_STATUS.md)、[执行核心契约](docs/NATIVE_DECODER_CONTRACT.md)及下方存档边界。
 
-## 现在能玩的游戏
+此前分发的 Android 开发包 **0.13.15** 修复 W.Y. 夏露露剧情中的重复目录分隔符报错，同时覆盖 P.P. 的同类图片引用。旧安装包：`build/distribution/circus-runtime-0.13.15-android-dev.apk`，见 [修复说明](docs/ANDROID_01315.md)。保留 [0.13.14 的 W.Y.／P.P. 原版系统进度导入](docs/ANDROID_01314.md)和 [0.13.13 的手机启动与中文补丁兼容](docs/ANDROID_01313.md)。
 
-有独立宿主、由原版脚本驱动的一共 8 个入口。Windows 包和 Android APK 用的是同一份核心，
-两边都能打开。
+## 运行入口与历史验证范围
+
+当前源码正在重写非 Unity 引擎的执行规则，详见 [忠实度审计](docs/NATIVE_FIDELITY_AUDIT.md)。
+本轮用原生证据替换了 D.C.II（2006）的系统服务放行逻辑：已证实的默认分支直接返回，
+有实际副作用但尚未实现的服务会明确报出脚本位置和原生入口。
+这会暴露此前被跳过的模块；当前重写源码不能沿用旧开发包对该作的可玩承诺。
+以下其他作品的进度保留为此前验证范围，不能据此宣称本轮已忠实复刻整个引擎。
+
+有独立宿主、由原版脚本驱动的一共8个入口。Windows与Android共用核心；
+下表保留历史验证范围，本轮的实际验证与未实现边界以重写状态为准。
 
 | 作品 | 数据格式 | 目前能跑到哪 |
 |---|---|---|
-| D.C. 〜ダ・カーポ〜 P.C. | `dcpc-2063` | 启动／正文／选择／存读档／到片尾 |
+| D.C. 〜ダ・カーポ〜 P.C. | `dcpc-2063` | 本轮真实启动20句、typed系统菜单返回、原生字节文本日志与历史游标已接入；原版槽位及部分cache仍明确拒绝，完整平台与时序未等价验证 |
 | D.C.II 〜ダ・カーポII〜 P.C. | `dc2pc-5769` | 启动／正文／选择／存读档／到片尾 |
-| D.C.II 〜ダ・カーポII〜（2006 原版） | `dc2-3363` | 启动／正文／存读档／系统菜单／CG Mode／场景回想／闹钟设定；整条路线尚未验证 |
+| D.C.II 〜ダ・カーポII〜（2006 原版） | `dc2-3363` | 重写开发中；未完成的原生系统服务会精确停止，部分剧情／片尾／闹钟流程尚不支持，暂不承诺整作可玩 |
 | D.C.II Dearest Marriage | `dc2dm-9d72` | 启动／正文／存读档／回看与语音重播／CG·场景·音乐鉴赏／到片尾 |
 | D.C.III DreamDays | `dc3dd-a5a8` | 七条剧情路线到片尾 |
 | D.C.III With You | `dc3wy-a09f` | 启动／正文／选择／存读档；整条路线尚未验证 |
@@ -56,11 +64,28 @@ SAF 只申请读取权限；存档和解码缓存写应用私有目录。
 ### Windows
 
 ```powershell
-python tools/package_desktop.py --jdk <JDK21> --ffmpeg <ffmpeg.exe> --version 0.13.11-pc-dev
+python tools/package_desktop.py --jdk <JDK21> --ffmpeg <ffmpeg.exe> --version 0.14.3-native-rewrite-dev
 ```
 
-产物 `build/distribution/dc-runtime-0.13.11-pc-dev-windows-x64/`，双击 `DC Runtime.cmd`，
+产物 `build/distribution/dc-runtime-0.14.3-native-rewrite-dev-windows-x64/`，双击 `DC Runtime.cmd`，
 再选游戏目录。包内自带 JRE 和 FFmpeg，不需要另装 Java；存档写在包目录的 `saves/`。
+
+### 验证当前源码
+
+不需要原游戏文件的核心边界检查：
+
+```powershell
+python tools/check_native_core.py --java-home <JDK21> --heap-mb 192
+python -m unittest discover -s tests
+```
+
+`tools/build_desktop.py` 默认构建播放器；`--with-tests` 将全部测试与物理审计入口编译到独立的 `build/desktop-tests/classes`，避免把审计夹具放入播放器包。Windows JNI 服务可用本机 MSVC 构建：
+
+```powershell
+python tools/build_windows_native.py --java-home <JDK21> --vcvars "<Visual Studio>\VC\Auxiliary\Build\vcvarsall.bat"
+```
+
+每次原生构建冻结所用 C/header，记录源码与 DLL 哈希。实际审计必须搭配同次源码对应的 DLL；核心测试、真实 Win32 服务检查和真实游戏启动分别记录，不能相互替代。当前已验范围及剩余工作见 [重写状态](docs/NATIVE_REWRITE_STATUS.md)，本轮源码哈希见 [验证摘要](docs/validation/native-source-2026-11-07.json)。
 
 ## 操作（Android）
 
@@ -76,6 +101,16 @@ python tools/package_desktop.py --jdk <JDK21> --ffmpeg <ffmpeg.exe> --version 0.
 手机存档不是原 Windows 格式。原版的系统进度（通关、CG、场景解锁）可以导入：
 游戏卡片「更多 → 导入原版进度」，支持 DCPC／DC2（2006）／DC2PC／DC2DM／DC3DD／DC3WY／DC3PP／DC3R。
 原版剧情槽位目前只有 DC3R 能转换，其余版本只合并系统进度。
+
+本轮非 Unity 剧情快照使用 `CVS2`，保存执行规则身份；旧非示例 `CVS1` 剧情槽会明确拒绝，
+因为旧变量模型和取指规则已造成的执行差异不能仅凭存档长度证明可迁移。系统持久进度单独处理。
+
+PC1的原版存/读/快速槽位依赖独立1B候选与完整41A620重建，本轮尚未接通，现明确报未实现。
+F5/F9使用的独立CVS2便携快照与原版菜单槽位不同，不能相互替代。当前执行合同rev5也会拒绝rev4等不同身份的旧快照。
+P.P. 重写已改用原生位图和持久变量别名，新版可迁移合法旧手机系统进度。
+新 P.P. 状态以版本前缀保存完整持久字节（含可读填充位），旧版程序不能读取；DD/WY 的系统进度格式不变。
+旧兼容层系统进度若含非布尔解锁标志或原生不可写的全局索引数据，会明确报出无法忠实迁移并保留原文件；
+不会静默修改这些值。具体边界见 [忠实度审计](docs/NATIVE_FIDELITY_AUDIT.md)。
 
 ## 已知限制
 
@@ -108,7 +143,7 @@ docs/               VM 规范、各版本兼容性、版本记录
 
 ```powershell
 python -m unittest discover -s tests            # 47 项 Python 测试
-python tools/build_android.py --java-home ...   # APK，内含 997 项 JVM 断言
+python tools/build_android.py --java-home ...   # APK，并运行 JVM 核心回归
 python tools/package_desktop.py ...             # Windows 包
 ```
 

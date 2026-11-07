@@ -86,16 +86,22 @@ public final class NativeProgress {
     public Summary preview(Target target)throws IOException{return preview(target==null?null:target.profileId,target);}
     public Summary apply(Target target)throws IOException{return apply(target==null?null:target.profileId,target);}
     public Summary preview(Dc2Host host)throws IOException{return preview(host==null?null:host.resources.profileId,host);}
-    public Summary apply(Dc2Host host)throws IOException{return apply(host==null?null:host.resources.profileId,host);}
+    public Summary apply(Dc2Host host)throws IOException{
+        if(host instanceof PcHost&&((PcHost)host).pc1!=null){PcHost target=(PcHost)host;return apply(host.resources.profileId,new Variables.Special(){
+            public int read(int bank,int index)throws IOException{return target.read(bank,index);}
+            public void write(int bank,int index,int value)throws IOException{target.importNativeProgressByte(bank,index,value);}
+        });}
+        return apply(host==null?null:host.resources.profileId,host);
+    }
 
     /** Uses the exact phone persistence schemas read by the runtime; no running game is needed. */
     public static final class Target implements Variables.Special {
         public final String profileId;public final Dc2Host legacy;public final Dc3State dd;
         public Target(CircusResources data,TextCodec codec)throws IOException{
-            layout(data.profileId);profileId=data.profileId;dd=Dc3Host.supports(profileId)?new Dc3State(true):null;legacy=dd==null?Dc2Host.create(data,codec):null;
+            layout(data.profileId);profileId=data.profileId;dd=Dc3Host.supports(profileId)?new Dc3State(profileId,true):null;legacy=dd==null?Dc2Host.create(data,codec):null;
         }
         public int read(int bank,int index)throws IOException{return dd==null?legacy.read(bank,index):dd.read(bank,index);}
-        public void write(int bank,int index,int value)throws IOException{if(dd==null)legacy.write(bank,index,value);else dd.write(bank,index,value);}
+        public void write(int bank,int index,int value)throws IOException{if((bank==97||bank==98||bank==100)&&legacy instanceof PcHost&&((PcHost)legacy).pc1!=null)((PcHost)legacy).importNativeProgressByte(bank,index,value);else if(dd==null)legacy.write(bank,index,value);else dd.write(bank,index,value);}
         public void load(byte[] bytes)throws IOException{
             if(dd!=null){dd.loadPersistent(bytes);return;}
             try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(bytes))){legacy.loadPersistent(in);if(in.available()!=0)throw new IOException("手机系统进度存在无法识别的数据，已保留原文件");}

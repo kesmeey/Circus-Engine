@@ -3,7 +3,7 @@ package org.circus.core;
 import java.io.*;
 import java.util.*;
 
-/** DD host: legacy story audit or original-system execution. Unknown submodes stop. */
+/** D.C.III host with profile-owned state and reviewed PP-specific audio contracts. */
 public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.TitleHost,MesVm.MenuHost {
     public final Set<Integer> availableSaves=new HashSet<>();
     public final Dc2History history=new Dc2History();private int scriptOffset;private String historyVoice="";
@@ -11,9 +11,12 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
     public interface SettingsLoader {void load(Dc3State state)throws IOException;}
     public SettingsLoader settingsLoader;
     public int windowRequest=-1;public boolean fullscreen;public boolean windowSizeReset;private int musicVolumeBackup;
+    private boolean ppDisplayCapable=true;
+    /** PP initializes this from display bounds/color depth; WY's native constructor sets 1. */
+    public void displayCapabilities(int width,int height,int bits){ppDisplayCapable=width>=1024&&height>=576&&bits>=9;}
     public UiCapture uiCapture;public UiCapture.Renderer captureRenderer;
     public Dc3Scene.Frame systemScene;
-    public void enterSystem(){systemScene=scene.capture();dialogue.suspend();wasDialogue=false;remaining=0;audioWaitMask=0;ui.clear();movie="";audio[5]="";audioActive[5]=false;audioGeneration[5]++;}
+    public void enterSystem(){if(isPp()){ppPendingVoice=false;pendingAudio[5]=null;if(ppMusic!=null)ppMusic.setRestoreTrack(musicId);}systemScene=scene.capture();dialogue.suspend();wasDialogue=false;remaining=0;audioWaitMask=0;ui.clear();movie="";audio[5]="";audioActive[5]=false;audioGeneration[5]++;}
     public final Dc3Ui ui=new Dc3Ui();public final boolean originalSystem;
     private byte[] settingsBackup;private boolean settingsEditing;
     private byte[] automaticMenuAction;public final ScriptList list=new ScriptList();public final Dc3Music musicRoom=new Dc3Music();private String musicEndAction="";private long musicPollElapsed;
@@ -23,6 +26,7 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
         public byte[] label(){return target.clone();}
     }
     private final List<Choice> choices=new ArrayList<>();private boolean choiceVisible;
+    private MesScript activeScript;private byte[] pendingFrameAction;private boolean ddActionWindowMode,ddIdleEnabled,ddDeviceAvailable=true,ddCursorShown;private long ddInputIdle;private int ddPointerX=Integer.MIN_VALUE,ddPointerY=Integer.MIN_VALUE;private int ddNoticeInputSelector=2;
     public List<Choice> choices(){return Collections.unmodifiableList(choices);}
     public boolean choosing(){return choiceVisible;}
     public void addChoice(byte[] label,byte[] caption)throws IOException {
@@ -46,6 +50,10 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
     public final boolean[] audioLoop=new boolean[6];
     private final boolean[] audioActive=new boolean[6];
     private final String[] pendingAudio=new String[6];
+    private boolean ppPendingVoice;private float ppPlaybackGain=PpVoice.gain(0,PpVoice.DEFAULT_VOLUME);
+    private PpMusic ppMusic;private String[] ppMusicResources;
+    /** Current platform fast-forward input; physical input is not restored from a story snapshot. */
+    public boolean ppSkipVoice;
     private Variables variables;
     private String scriptName="",checkpointLabel="";
     private int checkpoint,checkpointMetadata,musicId=-1,imageTone;
@@ -58,35 +66,39 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
     public int movieGeneration;
     public int autosaveGeneration;
     public Dc3Host(CircusResources resources,TextCodec codec){this(resources,codec,false);}
-    /** The D.C.III builds that share this host. Only the opcode numbering moves between
-     *  them, and the profile carries it, so nothing else here is build-specific. */
+    /** Shared presentation owner; native memory, audio and services still vary by build.
+     * A common Java host does not establish cross-version semantic equivalence. */
     public static boolean supports(String id){return id.equals("dc3dd-a5a8")||id.equals("dc3wy-a09f")||id.equals("dc3pp-9872");}
     public static boolean supports(Profile p){return p!=null&&supports(p.id);}
     /** wait.message - the opcode that closes a line of dialogue. */
     public static int waitMessageOpcode(String id){return id.equals("dc3pp-9872")?0x07:0x06;}
     public Dc3Layout layout(){return scene.layout;}
-    public Dc3Host(CircusResources resources,TextCodec codec,boolean originalSystem){if(resources!=null&&!supports(resources.profile.id))throw new IllegalArgumentException("DD host cannot execute "+resources.profile.id);this.resources=resources;gallery=new Dc3Gallery(resources);this.originalSystem=originalSystem;state=new Dc3State(originalSystem);dialogue=new DialogueHost(codec);dialogue.familyName="朝倉";dialogue.givenName="清隆";if(resources!=null)scene.layout=Dc3Layout.of(resources.profile.id);}
+    public Dc3Host(CircusResources resources,TextCodec codec,boolean originalSystem){if(resources!=null&&!supports(resources.profile.id))throw new IllegalArgumentException("DD host cannot execute "+resources.profile.id);this.resources=resources;gallery=new Dc3Gallery(resources);this.originalSystem=originalSystem;state=new Dc3State(resources==null?"dc3dd-a5a8":resources.profile.id,originalSystem);dialogue=new DialogueHost(codec);dialogue.familyName="朝倉";dialogue.givenName="清隆";if(resources!=null)scene.layout=Dc3Layout.of(resources.profile.id);ui.exactCheckboxFlags(originalSystem&&isDd());}
     public String checkpointLabel(){return checkpointLabel;}
-    public void attach(Variables variables){this.variables=variables;}
-    public void position(MesScript script,int pc){scriptName=script.name;scriptOffset=pc;}
+    public void attach(Variables variables){this.variables=variables;ui.attach(variables);}
+    public void position(MesScript script,int pc){activeScript=script;scriptName=script.name;scriptOffset=pc;}
+    public void restored(MesScript script,int pc)throws IOException{position(script,pc);if(pendingFrameAction!=null&&script.label(pendingFrameAction)==null)throw new IOException("DD pending frame label absent from saved script");}
     public long waitTicket(){return ticket;}
     public boolean waiting(){return returnRequested||saveRequest>=0||loadRequest>=0||ui.waiting||remaining!=0||dialogue.waiting()||audioWaitMask!=0||!movie.isEmpty()||credits.active();}
     public long remainingMillis(){return credits.active()?Math.min(1000,credits.end()-credits.elapsed):remaining;}
     public boolean audioIsActive(int channel){return audioActive[channel];}
     public boolean beforeInstruction(Profile profile,int opcode)throws IOException {
+        ui.checkBounds();
         if(!supports(profile.id))throw new IOException("DD host requires a D.C.III semantic profile, got "+profile.id);
+        // PP opcode 37 yields to 4278E0: commit prepared voice before fetching the next record.
+        if(isPp()&&ppPendingVoice){String source=pendingAudio[5];ppPendingVoice=false;pendingAudio[5]=null;publish();if(!ppSkipVoice){historyVoice=source;playPpVoice(source);}}
         boolean wait=dialogue.beforeInstruction(profile,opcode);syncDialogue();if(wait)publish();return waiting();
     }
     private void syncDialogue()throws IOException {boolean current=dialogue.waiting();if(current&&!wasDialogue){nextTicket();if(originalSystem&&!dialogue.shownText.isEmpty())history.append(dialogue.shownSpeaker,dialogue.shownText,historyVoice,scriptName,scriptOffset);historyVoice="";}wasDialogue=current;}
     private void nextTicket()throws IOException {if(ticket==Long.MAX_VALUE)throw new IOException("Host event counter exhausted");ticket++;}
     private void delay(long millis,boolean canInterrupt)throws IOException {publish();remaining=millis;interruptible=canInterrupt;if(millis!=0)nextTicket();}
-    public void elapse(long milliseconds){musicPollElapsed=Math.min(1000,musicPollElapsed+Math.max(0,milliseconds));boolean roll=credits.active();credits.elapse(milliseconds);if(roll&&!credits.active())finishCredits();if(remaining>0)remaining=Math.max(0,remaining-Math.max(0,milliseconds));scene.elapse(milliseconds);if(musicFadeRemaining>0){musicFadeRemaining=Math.max(0,musicFadeRemaining-Math.max(0,milliseconds));musicGain=musicFadeRemaining/(float)musicFadeDuration;if(musicFadeRemaining==0){audio[0]="";audioActive[0]=false;audioGeneration[0]++;musicId=-1;}}performance.elapse(milliseconds,scene,this::perform);pollAudioWait();}
+    public void elapse(long milliseconds){if(isDd()){ddInputIdle=Math.min(60001,ddInputIdle+Math.max(0,Math.min(60001,milliseconds)));if(ddInputIdle>5000&&ddAutoCursor())ddCursorShown=false;}if(isPp()&&ppMusic!=null)applyPpMusicAudio(ppMusic.elapse(milliseconds,ppMusicVolume()));musicPollElapsed=Math.min(1000,musicPollElapsed+Math.max(0,milliseconds));boolean roll=credits.active();credits.elapse(milliseconds);if(roll&&!credits.active())finishCredits();if(remaining>0)remaining=Math.max(0,remaining-Math.max(0,milliseconds));scene.elapse(milliseconds);if(musicFadeRemaining>0){musicFadeRemaining=Math.max(0,musicFadeRemaining-Math.max(0,milliseconds));musicGain=musicFadeRemaining/(float)musicFadeDuration;if(musicFadeRemaining==0){audio[0]="";audioActive[0]=false;audioGeneration[0]++;musicId=-1;}}performance.elapse(milliseconds,scene,this::perform);pollAudioWait();if(isDd()){try{if(ui.waiting&&ui.activeConfirmation>=0)ui.confirmChecked=state.read(93,ui.activeConfirmation)!=0;}catch(IOException failure){ui.nativeFailure(failure);}ui.updateBoundSprites();}}
     private void finishCredits(){for(Dc3Scene.Layer l:scene.slots)l.resource="";scene.slots[1].resource="BG/BLACK";scene.quads.clear();scene.published=scene.capture();}
     private void perform(Dc3Performance.Event e){
         if(e.kind==5){musicFadeDuration=musicFadeRemaining=e.value;if(e.value==0){audio[0]="";audioActive[0]=false;audioGeneration[0]++;musicId=-1;}return;}
         int ch=e.kind==4?0:1;if(ch==0){musicId=e.value;musicGain=1;musicFadeRemaining=0;}audio[ch]=e.resource;audioLoop[ch]=e.kind==4||e.kind==8;audioActive[ch]=true;audioGeneration[ch]++;
     }
-    public void audioCompleted(int channel,int generation){if(channel>=0&&channel<6&&audioGeneration[channel]==generation)audioActive[channel]=false;pollAudioWait();}
+    public void audioCompleted(int channel,int generation){if(channel>=0&&channel<6&&audioGeneration[channel]==generation){audioActive[channel]=false;if(isPp()&&channel==0&&ppMusic!=null)ppMusic.completed();}pollAudioWait();}
     private void pollAudioWait(){if(audioWaitMask==0)return;boolean busy=(audioWaitMask&1)!=0&&audioActive[0]||(audioWaitMask&4)!=0&&audioActive[5];if((audioWaitMask&2)!=0)for(int i=1;i<=4;i++)busy|=audioActive[i];if(!busy)audioWaitMask=0;}
     public boolean signal(long expected,MesVm.HostSignal signal)throws IOException {
         if(!waiting()||expected!=ticket)return false;
@@ -103,11 +115,60 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
     private int voiceIndex(String resource){String suffix=resource.substring(resource.lastIndexOf('_')+1);for(int n=0;n<ui.voiceNames.size();n++)if(suffix.regionMatches(true,0,ui.voiceNames.get(n),0,ui.voiceNames.get(n).length()))return n;return 50;}
     private boolean systemVoice(String resource){return resource.replace('/', '\\').toLowerCase(Locale.ROOT).startsWith("voice\\system");}
     private boolean voiceEnabled(String resource){try{return systemVoice(resource)||state.read(95,voiceIndex(resource))!=0;}catch(IOException e){throw new IllegalStateException(e);}}
-    public float voiceGain()throws IOException{if(!voiceEnabled(audio[5]))return 0;return systemVoice(audio[5])&&variables.read(98,9)==0?1:Math.max(0,Math.min(100,state.read(94,voiceIndex(audio[5]))))/100f;}
-    private void publishAudio(){for(int i=0;i<audio.length;i++)if(pendingAudio[i]!=null){audio[i]=pendingAudio[i];audioActive[i]=!audio[i].isEmpty()&&(i!=5||voiceEnabled(audio[i]));pendingAudio[i]=null;audioGeneration[i]++;}
+    public boolean isPp(){return state.profileId.equals("dc3pp-9872");}
+    private boolean isDd(){return state.profileId.equals("dc3dd-a5a8");}
+    public float voiceGain()throws IOException{if(isPp())return ppPlaybackGain;if(!voiceEnabled(audio[5]))return 0;return systemVoice(audio[5])&&variables.read(98,9)==0?1:Math.max(0,Math.min(100,state.read(94,voiceIndex(audio[5]))))/100f;}
+    public String audioResource(int channel){return isPp()&&channel==5?PpVoice.request(audio[5]).resource:audio[channel];}
+    public int audioPan(int channel){return isPp()&&channel==5?PpVoice.request(audio[5]).pan:0;}
+    private void playPpVoice(String source)throws IOException{PpVoice.Request request=PpVoice.request(source);if(!request.allowed(state))return;audio[5]=source;audioActive[5]=!request.resource.isEmpty();audioLoop[5]=false;audioGeneration[5]++;ppPlaybackGain=PpVoice.gain(0,state.read(99,9));}
+    private void publishAudio(){for(int i=0;i<audio.length;i++)if(pendingAudio[i]!=null&&!(isPp()&&i==5&&ppPendingVoice)){audio[i]=pendingAudio[i];audioActive[i]=!audio[i].isEmpty()&&(i!=5||isPp()||voiceEnabled(audio[i]));pendingAudio[i]=null;audioGeneration[i]++;}
     }
-    public int read(int bank,int index)throws IOException{if(originalSystem&&bank==99){if(index==21)return availableSaves.contains(2)?1:0;if(index==4)return fullscreen?1:0;}return state.read(bank,index);}
-    public void write(int bank,int index,int value)throws IOException{state.write(bank,index,value);}
+    public int read(int bank,int index)throws IOException{if(bank==99&&index==3){if(isPp())return ppDisplayCapable?1:0;if(state.profileId.equals("dc3wy-a09f"))return 1;}if(isPp()&&bank==99&&index==244)return musicId;if(isPp()&&bank==99&&index==249)return state.read(99,5)==0||!audioActive[5]?1:0;if(originalSystem&&bank==99){if(index==21)return availableSaves.contains(2)?1:0;if(index==4)return fullscreen?1:0;}return state.read(bank,index);}
+    public void write(int bank,int index,int value)throws IOException{
+        state.write(bank,index,value);
+        if(isDd()&&bank==93)ui.checkboxChanged(index,value);
+        if(isPp()&&bank==99&&ppMusic!=null){
+            if(index==7)ppMusic.volumeChanged(ppMusicVolume());
+            if(index==14)applyPpMusic(value==0?ppMusic.disable(ppMusicVolume()):ppMusic.enable(ppMusicVolume()));
+        }
+    }
+    private PpMusic ppMusic()throws IOException {
+        if(ppMusic==null){
+            if(resources==null)throw new IOException("PP music requires its own NAMES catalog");
+            List<NamesCatalog.Entry> entries=resources.names.table("music");int[] extra=new int[entries.size()];ppMusicResources=new String[entries.size()];
+            for(int i=0;i<extra.length;i++){extra[i]=(int)Binary.u32(entries.get(i).extra,12);ppMusicResources[i]=entries.get(i).name;}
+            ppMusic=new PpMusic(extra);
+        }
+        return ppMusic;
+    }
+    private void applyPpMusic(PpMusic.Result result)throws IOException {
+        if(result.unlockTrack>=0)state.write(96,result.unlockTrack,1);
+        musicId=ppMusic.track();
+        applyPpMusicAudio(result);
+    }
+    private int ppMusicVolume(){try{return state.read(99,7);}catch(IOException impossible){throw new IllegalStateException("PP native volume register",impossible);}}
+    /** Timer results cannot unlock flags or perform resource I/O: names were validated on initialization. */
+    private void applyPpMusicAudio(PpMusic.Result result) {
+        if(result.action==PpMusic.Action.PLAY){
+            audio[0]=ppMusicResources[result.track];pendingAudio[0]=null;audioLoop[0]=result.loop;
+            audioActive[0]=!audio[0].isEmpty();audioGeneration[0]++;musicGain=1;musicFadeRemaining=0;
+        }else if(result.action==PpMusic.Action.STOP){
+            audio[0]="";pendingAudio[0]=null;audioActive[0]=false;audioGeneration[0]++;musicGain=1;musicFadeRemaining=0;
+        }
+        // PRESENT0/1 call native 411450, independently verified to be a single RET.
+    }
+    /** PP gain has resource metadata and a native duck phase, independent of DD's master fields. */
+    public float ppOutputGain(int channel)throws IOException {
+        if(!isPp())throw new IOException("PP gain requested for another profile");
+        if(channel==5)return voiceGain();
+        if(channel==0)return ppMusic==null?0:ppMusic.gain();
+        if(state.read(99,15)==0)return 0;
+        int masterDb=0;
+        if(resources!=null&&!audio[channel].isEmpty())for(NamesCatalog.Entry entry:resources.names.table("sound")){
+            if(entry.name.equalsIgnoreCase(audio[channel])){masterDb=(int)Binary.u32(entry.extra,0)*-100;break;}
+        }
+        return PpVoice.gain(masterDb,state.read(99,8));
+    }
     public boolean allowNamedJump(){return true;}
     public boolean returnToTitle(int mode,String name,byte[] entry)throws IOException {
         if(originalSystem||mode!=0||!name.equalsIgnoreCase("MAIN"))return false;
@@ -120,16 +181,38 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
         gallery.completedScript(state,scriptName);
         publish();if(mode==0)scene.resetForTransfer();if(originalSystem){ui.clear();list.clear();musicRoom.caption=false;musicEndAction="";}state.write(99,245,-1);imageTone=0;return true;
     }
-    public byte[] pollMenuAction(){if(ui.waiting&&!audioActive[0]&&!musicEndAction.isEmpty()&&musicPollElapsed>500){byte[] a=musicEndAction.getBytes(Binary.SJIS);musicPollElapsed=0;ui.waiting=ui.gridWaiting=false;return a;}return null;}
+    public byte[] pollMenuAction(){
+        if(pendingFrameAction!=null){byte[] result=pendingFrameAction;pendingFrameAction=null;return result;}
+        if(isDd()&&ui.noticeActive()&&musicEndAction.isEmpty()&&frameAction(ui.actions[6])&&ddActionWindowMode!=fullscreen){ddActionWindowMode=fullscreen;queueDdFrameAction(ui.actions[6]);byte[] result=pendingFrameAction;pendingFrameAction=null;return result;}
+        if(isDd()&&ui.noticeActive()&&musicEndAction.isEmpty()&&frameAction(ui.actions[16])&&ddIdleEnabled&&ddDeviceAvailable&&ddInputIdle>60000){ddIdleEnabled=false;ddInputIdle=0;queueDdFrameAction(ui.actions[16]);byte[] result=pendingFrameAction;pendingFrameAction=null;return result;}
+        if(ui.waiting&&!audioActive[0]&&!musicEndAction.isEmpty()&&musicPollElapsed>500){musicPollElapsed=0;if(isDd()&&ui.noticeActive()){queueDdFrameAction(musicEndAction);byte[] result=pendingFrameAction;pendingFrameAction=null;return result;}byte[] a=musicEndAction.getBytes(Binary.SJIS);ui.waiting=ui.gridWaiting=false;return a;}return null;
+    }
+    private static boolean frameAction(String value){return !value.isEmpty()&&value.charAt(0)!='-';}
+    /** 432C60 executes the common physical-input tail after its local wait56 branch. */
+    public void deviceAvailable(boolean available){ddDeviceAvailable=available;}
+    private boolean ddAutoCursor(){try{return state.read(99,212)!=0;}catch(IOException impossible){throw new IllegalStateException(impossible);}}
+    public void inputMouseButton(){if(isDd()&&ddDeviceAvailable&&ddAutoCursor()&&!ddCursorShown){ddCursorShown=true;ddInputIdle=0;}}
+    public void inputPointer(int x,int y){if(x!=ddPointerX||y!=ddPointerY){ddPointerX=x;ddPointerY=y;if(isDd()){ddInputIdle=0;if(ddAutoCursor())ddCursorShown=true;}}}
+    public void consumedNoticeActivation(boolean consumed){ddNoticeInputSelector=consumed?-1:2;}
+    public void noticeCommonInput(int selector){if(!isDd()||selector<0||selector>=ui.actions.length||!frameAction(ui.actions[selector]))return;queueDdFrameAction(ui.actions[selector]);}
+    private void queueDdFrameAction(String action){ui.noticeFrameJump();ui.waiting=false;remaining=0;interruptible=false;byte[] bytes=action.getBytes(Binary.SJIS);pendingFrameAction=activeScript!=null&&activeScript.label(bytes)!=null?bytes:null;}
     public byte[] automaticMenuAction(){byte[] action=automaticMenuAction;automaticMenuAction=null;return action;}
     public boolean hasTimedInput(){return interruptible&&remaining!=0;}
-    public byte[] menuAction(long expected,int button)throws IOException{if(!originalSystem||expected!=ticket)return null;if(!ui.waiting){return button==-1&&hasTimedInput()&&!ui.actions[3].isEmpty()?ui.actions[3].getBytes(Binary.SJIS):null;}if(button==-15)return ui.actions[15].isEmpty()?null:ui.actions[15].getBytes(Binary.SJIS);
+    public byte[] menuAction(long expected,int button)throws IOException{if(!originalSystem||expected!=ticket)return null;if(!ui.waiting){return button==-1&&hasTimedInput()&&!ui.actions[3].isEmpty()?ui.actions[3].getBytes(Binary.SJIS):null;}if(ui.noticeActive())return null;if(button==-15)return ui.actions[15].isEmpty()?null:ui.actions[15].getBytes(Binary.SJIS);
         if(ui.activeConfirmation>=0){String action=button==-1?":n":button>=0&&button<ui.current.buttons.size()?ui.current.buttons.get(button).action:"";if(action.equals(":y")||action.equals(":n"))return ui.actions[action.equals(":y")?0:1].getBytes(Binary.SJIS);}
         if(button==-1)return ui.actions[3].isEmpty()?null:ui.actions[3].getBytes(Binary.SJIS);if(button<0||button>=ui.current.buttons.size())throw new IOException("Invalid UI button");return ui.current.buttons.get(button).actionBytes();}
     public boolean internalMenuAction(long expected,int button)throws IOException{
+        if(ui.noticeActive()){
+            if(!originalSystem||!isDd()||!ui.waiting||expected!=ticket)return false;
+            if(button< -1||button>=ui.current.buttons.size())return false;
+            if(button>=0&&!DdModalNotice.actionable(ui.current.buttons.get(button)))return false;
+            if(button>=0){state.write(99,245,button);menuSound(ui.current.buttons.get(button).clickSound);}
+            if(button==1){boolean visibleChecked=ui.confirmChecked;write(93,19,state.read(93,19)==0?1:0);ui.pressed=-1;noticeCommonInput(ddNoticeInputSelector);ui.retainCheckboxVisual(visibleChecked);nextTicket();return true;}
+            ui.closeConfirmation();ui.waiting=false;noticeCommonInput(button<0?3:ddNoticeInputSelector);nextTicket();return true;
+        }
         if(history.active&&ui.waiting&&expected==ticket){String a=button<0?"@log:exit":button<ui.current.buttons.size()?ui.current.buttons.get(button).action:"";if(!a.startsWith("@log:"))return false;
             if(a.equals("@log:exit")){history.active=false;ui.waiting=false;returnRequested=true;return true;}
-            if(a.equals("@log:preview"))history.previewEnabled=!history.previewEnabled;else if(a.startsWith("@log:select:")){history.selected=Integer.parseInt(a.substring(12));require(history.selected>=0&&history.selected<history.entries.size(),"history selection");}else if(a.equals("@log:first"))history.cursor=0;else if(a.equals("@log:last"))history.cursor=Math.max(0,history.entries.size()-4);else if(a.equals("@log:up"))history.scroll(-1);else if(a.equals("@log:down"))history.scroll(1);else if(a.startsWith("@log:voice:")){int index=Integer.parseInt(a.substring(11));require(index>=0&&index<history.entries.size(),"history voice index");history.selected=index;audio[5]=history.entries.get(index).voice;audioLoop[5]=false;audioActive[5]=!audio[5].isEmpty();audioGeneration[5]++;}Dc3Backlog.build(ui,history,resources.profile.id);return true;}
+            if(a.equals("@log:preview"))history.previewEnabled=!history.previewEnabled;else if(a.startsWith("@log:select:")){history.selected=Integer.parseInt(a.substring(12));require(history.selected>=0&&history.selected<history.entries.size(),"history selection");}else if(a.equals("@log:first"))history.cursor=0;else if(a.equals("@log:last"))history.cursor=Math.max(0,history.entries.size()-4);else if(a.equals("@log:up"))history.scroll(-1);else if(a.equals("@log:down"))history.scroll(1);else if(a.startsWith("@log:voice:")){int index=Integer.parseInt(a.substring(11));require(index>=0&&index<history.entries.size(),"history voice index");history.selected=index;if(isPp())playPpVoice(history.entries.get(index).voice);else{audio[5]=history.entries.get(index).voice;audioLoop[5]=false;audioActive[5]=!audio[5].isEmpty();audioGeneration[5]++;}}Dc3Backlog.build(ui,history,resources.profile.id);return true;}
         if(!originalSystem||!ui.waiting||expected!=ticket||ui.activeConfirmation<0||button<0||button>=ui.current.buttons.size()||!ui.current.buttons.get(button).action.equals(":c"))return false;
         int index=ui.activeConfirmation;state.write(93,index,state.read(93,index)==0?1:0);int pair=index==1?2:index==2?1:index==4?9:index==9?4:index==5?10:index==10?5:-1;if(pair>=0)state.write(93,pair,state.read(93,pair)==0?1:0);
         ui.confirmChecked=state.read(93,index)!=0;menuSound(ui.current.buttons.get(button).clickSound);ui.pressed=-1;nextTicket();return true;
@@ -143,7 +226,7 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
     }
     private void menuSound(int sound)throws IOException{if(sound!=255){audio[1]=resources.named("sound",sound);audioLoop[1]=false;audioActive[1]=true;audioGeneration[1]++;}}
     public void acceptMenuAction(int button)throws IOException{remaining=0;if(button>=0)state.write(99,245,button);menuSound(button<0?255:ui.current.buttons.get(button).clickSound);ui.closeConfirmation();ui.waiting=false;ui.pressed=ui.hovered=-1;}
-    public void hoverMenu(int button)throws IOException{if(!ui.waiting||button==ui.hovered)return;require(button>=-1&&button<ui.current.buttons.size(),"hover button");ui.hovered=button;if(button>=0){int sound=ui.current.buttons.get(button).hoverSound;if(sound!=255){audio[1]=resources.named("sound",sound);audioLoop[1]=false;audioActive[1]=true;audioGeneration[1]++;}}}
+    public void hoverMenu(int button)throws IOException{if(!ui.waiting||button==ui.hovered)return;require(button>=-1&&button<ui.current.buttons.size(),"hover button");ui.hovered=button;ui.updateBoundSprites();if(button>=0){int sound=ui.current.buttons.get(button).hoverSound;if(sound!=255){audio[1]=resources.named("sound",sound);audioLoop[1]=false;audioActive[1]=true;audioGeneration[1]++;}}}
     private Dc3Scene.Quad uiQuad(int[] a)throws IOException{require(a.length==8,"UI quad extension");int s=slot(a[6]&63);Dc3Scene.Quad q=new Dc3Scene.Quad();q.resource=scene.pending[s]!=null?scene.pending[s]:scene.slots[s].resource;if(q.resource.isEmpty())q.resource="@slot:"+s;q.x=ui.current.x+a[0];q.y=ui.current.y+a[1];q.sx=a[2];q.sy=a[3];q.width=a[4];q.height=a[5];q.opaque=(a[6]&128)!=0;return q;}
     /** A UI quad keeps "@slot:N" when its slot was still empty at the moment it was built -
      *  a template that outlives the surface, or a panel drawn before the loader ran. The
@@ -176,14 +259,18 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
         case "ui.resource":require(a[0]<=4,"UI resource slot");if(!text(bytes).equals("-"))scene.slots[scene.layout.uiBase+a[0]].resource=text(bytes);return true;
         case "host.command_with_string":ui.button(a,bytes);return true;
         case "ui.button_sound":if(a[0]!=255)ui.last().hoverSound=a[0];if(a[1]!=255)ui.last().clickSound=a[1];return true;
-        case "ui.button_sprite":{require(a.length==8,"button sprite extension");require(a[7]==99||a[7]>=0&&a[7]<=11,"UI sprite state "+a[7]);Dc3Ui.Sprite s=new Dc3Ui.Sprite();s.quad=uiQuad(a);s.state=a[7];require(ui.last().sprites.size()<1024,"UI sprite count");ui.last().sprites.add(s);return true;}
+        case "ui.button_sprite":{require(a.length==8,"button sprite extension");require(isDd()&&a[7]>=Short.MIN_VALUE&&a[7]<=Short.MAX_VALUE||a[7]==99||a[7]>=0&&a[7]<=11,"UI sprite state "+a[7]);Dc3Ui.Sprite s=new Dc3Ui.Sprite();s.quad=uiQuad(a);s.state=a[7];require(ui.last().sprites.size()<1024,"UI sprite count");ui.last().sprites.add(s);return true;}
         case "ui.origin":ui.current.x=a[0];ui.current.y=a[1];return true;
         case "ui.image_quad":require(ui.current.quads.size()<1024,"UI quad count");ui.current.quads.add(uiQuad(a));return true;
         case "ui.palette":require(a[0]>=0&&a[0]<64,"palette index");ui.palette[a[0]]=0xff000000|(a[1]&255)<<16|(a[2]&255)<<8|(a[3]&255);return true;
-        case "ui.action":require(a[0]<ui.actions.length,"action selector");ui.actions[a[0]]=text(bytes);return true;
-        case "ui.confirm_position":require(a[3]>=0&&a[3]<20,"confirmation kind");ui.confirmX=a[0];ui.confirmY=a[1];ui.confirmKind=a[3];return true;
-        case "ui.confirm":automaticMenuAction=null;if(state.read(93,ui.confirmKind)!=0){automaticMenuAction=ui.actions[0].getBytes(Binary.SJIS);return true;}publish();ui.confirmation();ui.confirmChecked=false;nextTicket();return true;
+        case "ui.action":require(a[0]>=0&&a[0]<ui.actions.length,"action selector");if(isDd()&&a[0]>=7&&a[0]<=9)return true;ui.actions[a[0]]=text(bytes);if(isDd()&&a[0]<2)ui.actions[a[0]+2]="";if(isDd()&&a[0]==6)ddActionWindowMode=fullscreen;if(isDd()&&a[0]==16){ddIdleEnabled=true;ddInputIdle=0;}return true;
+        case "ui.confirm_position":require(isDd()&&a[3]>=Short.MIN_VALUE&&a[3]<=Short.MAX_VALUE||a[3]>=0&&a[3]<20,"confirmation kind");ui.confirmX=a[0];ui.confirmY=a[1];ui.confirmKind=a[3];return true;
+        case "dd.ui.modal_notice":
+            require(originalSystem&&isDd(),"DD modal notice profile");automaticMenuAction=null;publish();
+            if(ui.modalNotice()){ui.confirmChecked=state.read(93,19)!=0;nextTicket();}return true;
+        case "ui.confirm":automaticMenuAction=null;if(state.read(93,ui.confirmKind)!=0){automaticMenuAction=ui.actions[0].getBytes(Binary.SJIS);return true;}publish();ui.confirmation();ui.confirmChecked=false;if(ui.waiting)nextTicket();return true;
         case "ui.wait":
+            ui.finalizeButtons();
             for(Dc3Scene.Quad q:ui.current.quads)resolveUi(q);
             for(Dc3Ui.Button b:ui.current.buttons)for(Dc3Ui.Sprite s:b.sprites)if(s.state!=5)resolveUi(s.quad);
             publish();ui.waiting=true;nextTicket();return true;
@@ -191,6 +278,7 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
         case "ui.focus":ui.current.focus=true;return true;
         case "ui.navigation":require(a[0]>=0&&a[0]<=3,"UI navigation selector");ui.current.flags|=1<<a[0];return true;
         case "ui.navigation_extra":ui.current.flags|=16;return true;
+        case "ui.button_checkbox":require(originalSystem&&isDd(),"DD checkbox producer");ui.buttonCheckbox();return true;
         case "ui.option_flag":ui.current.flags|=a[0]==0?32:64;return true;
         case "ui.text":if(a[2]==0)return true;
         case "ui.button_text":{require(ui.current.texts.size()<1024,"UI text count");Dc3Ui.Text t=new Dc3Ui.Text();t.args=a.clone();t.text=dialogue.codec.decode(bytes);t.button=op.equals("ui.button_text");ui.current.texts.add(t);return true;}
@@ -332,14 +420,20 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
             if(a[0]==16){scene.clouds=a[1]!=0;scene.environmentTime=0;return true;}
             if(a[0]==0){scene.petals.start(0);scene.fog=false;scene.clouds=false;return true;}
             require(a[0]==7,"scene effect "+a[0]);scene.fog=a[1]!=0;if(!scene.fog)scene.pending[scene.layout.fog]="-";scene.revision++;return true;
+        case "pp.audio.music":{
+            require(isPp()&&a.length==3,"PP music arguments");
+            if(a[0]<254&&(a[1]==10||a[1]==11))return true; // 411450 is a single RET.
+            PpMusic player=ppMusic();applyPpMusic(player.command(a[0],a[1],a[2],state.read(99,14)!=0,ppMusicVolume()));return true;
+        }
+        case "pp.audio.duck":require(isPp(),"PP duck profile");applyPpMusic(ppMusic().duck(a[0],ppMusicVolume()));return true;
         case "audio.music":{
             if(a[0]==255){pendingAudio[0]="";musicId=-1;return true;}
             require(a[1]>=0&&a[1]<=2,"music start mode "+a[1]);
             if(a[1]!=1||musicId!=a[0])pendingAudio[0]=resources.named("music",a[0]);audioLoop[0]=a[1]<2;musicId=a[0];musicGain=1;musicFadeRemaining=0;return true;
         }
-        case "audio.music_stop":pendingAudio[0]="";musicId=-1;return true;
-        case "audio.system_voice":pendingAudio[2]=text(bytes);audioLoop[2]=false;return true;
-        case "audio.voice":historyVoice=pendingAudio[5]=text(bytes);return true;
+        case "audio.music_stop":if(isPp()){applyPpMusic(ppMusic().stopFading(ppMusicVolume()));return true;}pendingAudio[0]="";musicId=-1;return true;
+        case "audio.system_voice":if(isPp()){playPpVoice(text(bytes));return true;}pendingAudio[2]=text(bytes);audioLoop[2]=false;return true;
+        case "audio.voice":if(isPp()){if(!ppSkipVoice){pendingAudio[5]=text(bytes);ppPendingVoice=true;}return true;}historyVoice=pendingAudio[5]=text(bytes);return true;
         case "audio.sound":{
             if(a[0]==-2){pendingAudio[5]="";return true;}
             if(a[0]==-1){for(int i=1;i<=4;i++)pendingAudio[i]="";return true;}
@@ -356,20 +450,20 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
         }
     }
     public void save(DataOutput out)throws IOException {
-        out.writeInt(originalSystem?0x4444333e:0x44443337);if(originalSystem){out.writeBoolean(returnRequested);out.writeInt(saveRequest);out.writeInt(loadRequest);out.writeBoolean(systemScene!=null);if(systemScene!=null)systemScene.save(out);ui.save(out);history.save(out);out.writeUTF(historyVoice);out.writeBoolean(exitRequested);out.writeBoolean(settingsEditing);out.writeBoolean(settingsBackup!=null);if(settingsBackup!=null){out.writeInt(settingsBackup.length);out.write(settingsBackup);}}dialogue.save(out);scene.save(out);state.save(out);performance.save(out);credits.save(out);out.writeBoolean(titleRequested);out.writeInt(imageTone);out.writeInt(randomSeed);out.writeLong(musicFadeRemaining);out.writeLong(musicFadeDuration);out.writeFloat(musicGain);
+        out.writeInt(originalSystem?(isPp()?0x44443340:isDd()?0x44443341:0x4444333e):(isPp()?0x44443339:0x44443337));if(originalSystem){out.writeBoolean(returnRequested);out.writeInt(saveRequest);out.writeInt(loadRequest);out.writeBoolean(systemScene!=null);if(systemScene!=null)systemScene.save(out);ui.save(out);history.save(out);out.writeUTF(historyVoice);out.writeBoolean(exitRequested);out.writeBoolean(settingsEditing);out.writeBoolean(settingsBackup!=null);if(settingsBackup!=null){out.writeInt(settingsBackup.length);out.write(settingsBackup);}}dialogue.save(out);scene.save(out);state.save(out);performance.save(out);credits.save(out);out.writeBoolean(titleRequested);out.writeInt(imageTone);out.writeInt(randomSeed);out.writeLong(musicFadeRemaining);out.writeLong(musicFadeDuration);out.writeFloat(musicGain);
         out.writeBoolean(choiceVisible);out.writeInt(choices.size());for(Choice c:choices){out.writeInt(c.target.length);out.write(c.target);out.writeUTF(c.caption);}
         out.writeUTF(scriptName);out.writeUTF(checkpointLabel);out.writeInt(checkpoint);out.writeInt(checkpointMetadata);out.writeInt(musicId);
         out.writeLong(ticket);out.writeLong(remaining);out.writeBoolean(wasDialogue);out.writeBoolean(interruptible);out.writeInt(autosaveGeneration);
         out.writeInt(audioWaitMask);out.writeBoolean(skipAllowed);out.writeUTF(movie);out.writeInt(movieGeneration);
-        for(int i=0;i<audio.length;i++){out.writeUTF(audio[i]);out.writeInt(audioGeneration[i]);out.writeBoolean(audioActive[i]);out.writeBoolean(audioLoop[i]);out.writeBoolean(pendingAudio[i]!=null);if(pendingAudio[i]!=null)out.writeUTF(pendingAudio[i]);}if(originalSystem){list.save(out);out.writeUTF(musicEndAction);musicRoom.save(out,state);out.writeLong(musicPollElapsed);history.saveVisuals(out);out.writeBoolean(false);out.writeInt(musicVolumeBackup);UiCapture.save(out,uiCapture);}
+        for(int i=0;i<audio.length;i++){out.writeUTF(audio[i]);out.writeInt(audioGeneration[i]);out.writeBoolean(audioActive[i]);out.writeBoolean(audioLoop[i]);out.writeBoolean(pendingAudio[i]!=null);if(pendingAudio[i]!=null)out.writeUTF(pendingAudio[i]);}if(originalSystem){list.save(out);out.writeUTF(musicEndAction);musicRoom.save(out,state);out.writeLong(musicPollElapsed);history.saveVisuals(out);out.writeBoolean(false);out.writeInt(musicVolumeBackup);UiCapture.save(out,uiCapture);}if(isPp()){out.writeFloat(ppPlaybackGain);out.writeBoolean(ppPendingVoice);out.writeBoolean(ppMusic!=null);if(ppMusic!=null)ppMusic.save(out);}if(originalSystem&&isDd()){ui.saveDdModal(out);out.writeBoolean(ddActionWindowMode);out.writeBoolean(ddIdleEnabled);out.writeBoolean(ddCursorShown);out.writeLong(ddInputIdle);out.writeBoolean(pendingFrameAction!=null);if(pendingFrameAction!=null){out.writeInt(pendingFrameAction.length);out.write(pendingFrameAction);}}
     }
     public void load(DataInput in)throws IOException {
-        uiCapture=null;int format=in.readInt();if(originalSystem?(format!=0x4444333a&&format!=0x4444333b&&format!=0x4444333c&&format!=0x4444333d&&format!=0x4444333e):format!=0x44443337)throw new IOException("Native host save version");if(originalSystem){returnRequested=in.readBoolean();saveRequest=in.readInt();loadRequest=in.readInt();if(saveRequest< -1||saveRequest>255||loadRequest< -1||loadRequest>255)throw new IOException("Invalid pending slot");systemScene=null;if(in.readBoolean()){systemScene=new Dc3Scene.Frame();systemScene.load(in);}ui.load(in);if(format>=0x4444333b){history.load(in);historyVoice=in.readUTF();}else{history.clear();historyVoice="";}exitRequested=in.readBoolean();settingsEditing=in.readBoolean();settingsBackup=null;if(in.readBoolean()){int n=in.readInt();if(!state.acceptsSettingsLength(n))throw new IOException("Invalid saved settings backup");settingsBackup=new byte[n];in.readFully(settingsBackup);}if(settingsEditing&&settingsBackup==null)throw new IOException("Missing settings backup");}dialogue.load(in);scene.load(in);state.load(in);performance.load(in);credits.load(in);titleRequested=in.readBoolean();imageTone=in.readInt();if(imageTone<0||imageTone>2)throw new IOException("Invalid image tone");randomSeed=in.readInt();musicFadeRemaining=in.readLong();musicFadeDuration=in.readLong();musicGain=in.readFloat();if(musicFadeRemaining<0||musicFadeRemaining>musicFadeDuration||musicFadeDuration>86400000||!Float.isFinite(musicGain)||musicGain<0||musicGain>1)throw new IOException("Invalid music fade");
+        uiCapture=null;int format=in.readInt();if(originalSystem?(format!=0x4444333a&&format!=0x4444333b&&format!=0x4444333c&&format!=0x4444333d&&format!=0x4444333e&&!(isPp()&&(format==0x4444333f||format==0x44443340))&&!(isDd()&&format==0x44443341)):format!=0x44443337&&!(isPp()&&(format==0x44443338||format==0x44443339)))throw new IOException("Native host save version");if(originalSystem){returnRequested=in.readBoolean();saveRequest=in.readInt();loadRequest=in.readInt();if(saveRequest< -1||saveRequest>255||loadRequest< -1||loadRequest>255)throw new IOException("Invalid pending slot");systemScene=null;if(in.readBoolean()){systemScene=new Dc3Scene.Frame();systemScene.load(in);}ui.load(in);if(format>=0x4444333b){history.load(in);historyVoice=in.readUTF();}else{history.clear();historyVoice="";}exitRequested=in.readBoolean();settingsEditing=in.readBoolean();settingsBackup=null;if(in.readBoolean()){int n=in.readInt();if(!state.acceptsSettingsLength(n))throw new IOException("Invalid saved settings backup");settingsBackup=new byte[n];in.readFully(settingsBackup);}if(settingsEditing&&settingsBackup==null)throw new IOException("Missing settings backup");}dialogue.load(in);scene.load(in);state.load(in);performance.load(in);credits.load(in);titleRequested=in.readBoolean();imageTone=in.readInt();if(imageTone<0||imageTone>2)throw new IOException("Invalid image tone");randomSeed=in.readInt();musicFadeRemaining=in.readLong();musicFadeDuration=in.readLong();musicGain=in.readFloat();if(musicFadeRemaining<0||musicFadeRemaining>musicFadeDuration||musicFadeDuration>86400000||!Float.isFinite(musicGain)||musicGain<0||musicGain>1)throw new IOException("Invalid music fade");
         choiceVisible=in.readBoolean();int count=in.readInt();if(count<0||count>50||choiceVisible&&count==0)throw new IOException("Invalid saved choices");choices.clear();for(int i=0;i<count;i++){int n=in.readInt();if(n<1||n>255)throw new IOException("Invalid choice label");byte[] b=new byte[n];in.readFully(b);choices.add(new Choice(b,in.readUTF()));}
         scriptName=in.readUTF();checkpointLabel=in.readUTF();checkpoint=in.readInt();checkpointMetadata=in.readInt();musicId=in.readInt();
         ticket=in.readLong();remaining=in.readLong();wasDialogue=in.readBoolean();interruptible=in.readBoolean();autosaveGeneration=in.readInt();
         audioWaitMask=in.readInt();skipAllowed=in.readBoolean();movie=in.readUTF();movieGeneration=in.readInt();
         if(ticket<0||remaining< -1||remaining>86400000||wasDialogue!=dialogue.waiting())throw new IOException("Invalid native scheduler state");
-        for(int i=0;i<audio.length;i++){audio[i]=in.readUTF();audioGeneration[i]=in.readInt();audioActive[i]=in.readBoolean();audioLoop[i]=in.readBoolean();pendingAudio[i]=in.readBoolean()?in.readUTF():null;}if(originalSystem&&format>=0x4444333c){list.load(in);musicEndAction=in.readUTF();musicRoom.load(in,state);musicPollElapsed=format==0x4444333c&&in instanceof DataInputStream&&((DataInputStream)in).available()==0?0:in.readLong();if(musicPollElapsed<0||musicPollElapsed>1000)throw new IOException("Music callback clock");}if(originalSystem&&format>=0x4444333d){history.loadVisuals(in);if(in.readBoolean()){Dc3Scene.Frame captured=new Dc3Scene.Frame();captured.load(in);Dc3Ui.Panel panel=new Dc3Ui.Panel();panel.load(in);uiCapture=SceneCaptures.dd(captured,panel,ui.palette,null);}musicVolumeBackup=in.readInt();if(format>=0x4444333e)uiCapture=UiCapture.load(in);}else if(originalSystem){state.migrateLegacyAudio();if(settingsBackup!=null){Dc3State prior=new Dc3State();prior.restoreSettings(settingsBackup);prior.migrateLegacyAudio();settingsBackup=prior.settingsSnapshot();}}if(originalSystem)state.voiceCount=ui.voiceNames.size();
+        for(int i=0;i<audio.length;i++){audio[i]=in.readUTF();audioGeneration[i]=in.readInt();audioActive[i]=in.readBoolean();audioLoop[i]=in.readBoolean();pendingAudio[i]=in.readBoolean()?in.readUTF():null;}if(originalSystem&&format>=0x4444333c){list.load(in);musicEndAction=in.readUTF();musicRoom.load(in,state);musicPollElapsed=format==0x4444333c&&in instanceof DataInputStream&&((DataInputStream)in).available()==0?0:in.readLong();if(musicPollElapsed<0||musicPollElapsed>1000)throw new IOException("Music callback clock");}if(originalSystem&&format>=0x4444333d){history.loadVisuals(in);if(in.readBoolean()){Dc3Scene.Frame captured=new Dc3Scene.Frame();captured.load(in);Dc3Ui.Panel panel=new Dc3Ui.Panel();panel.load(in);uiCapture=SceneCaptures.dd(captured,panel,ui.palette,null);}musicVolumeBackup=in.readInt();if(format>=0x4444333e)uiCapture=UiCapture.load(in);}else if(originalSystem){state.migrateLegacyAudio();if(settingsBackup!=null){Dc3State prior=new Dc3State(state.profileId,false);prior.restoreSettings(settingsBackup);prior.migrateLegacyAudio();settingsBackup=prior.settingsSnapshot();}}if(originalSystem)state.voiceCount=ui.voiceNames.size();if(isPp()){if(format==0x4444333f||format==0x44443340||format==0x44443338||format==0x44443339){ppPlaybackGain=in.readFloat();ppPendingVoice=in.readBoolean();if(!Float.isFinite(ppPlaybackGain)||ppPlaybackGain<0||ppPlaybackGain>1||ppPendingVoice&&pendingAudio[5]==null)throw new IOException("Invalid PP voice state");}else{ppPlaybackGain=PpVoice.gain(0,state.read(99,9));ppPendingVoice=pendingAudio[5]!=null&&!pendingAudio[5].isEmpty();}if(format==0x44443340||format==0x44443339){if(in.readBoolean())ppMusic().load(in);else ppMusic=null;}}if(originalSystem&&isDd()&&format==0x44443341){ui.loadDdModal(in);ddActionWindowMode=in.readBoolean();ddIdleEnabled=in.readBoolean();ddCursorShown=in.readBoolean();ddInputIdle=in.readLong();require(ddInputIdle>=0&&ddInputIdle<=60001,"DD idle input clock");pendingFrameAction=null;if(in.readBoolean()){int length=in.readInt();require(length>0&&length<256,"DD pending frame action length");pendingFrameAction=new byte[length];in.readFully(pendingFrameAction);require(pendingFrameAction[0]!=45,"DD pending disabled action");}}
     }
 }

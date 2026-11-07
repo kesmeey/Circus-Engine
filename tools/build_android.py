@@ -9,6 +9,17 @@ from generate_android_backend import generate as android_backend
 ROOT=Path(__file__).resolve().parent.parent
 
 def run(args,env):
+    if Path(args[0]).name.lower() == 'javac.exe':
+        args=[args[0],'-J-Dfile.encoding=UTF-8','-J-Duser.language=en','-Xlint:-options',*args[1:]]
+        # Frozen source snapshots have longer absolute paths. Keep javac's
+        # source list out of Windows'32767-character process command line.
+        values=[str(a) for a in args[1:] if not str(a).startswith('-J')]
+        jvm=[str(a) for a in args[1:] if str(a).startswith('-J')]
+        identity=hashlib.sha256('\0'.join(values).encode('utf-8')).hexdigest()[:16]
+        argument_file=ROOT/'build/android'/('javac-inputs-'+identity+'.txt')
+        argument_file.parent.mkdir(parents=True,exist_ok=True)
+        argument_file.write_text('\n'.join('"'+v.replace('\\','/').replace('"','\\"')+'"' for v in values)+'\n',encoding='utf-8')
+        args=[args[0],*jvm,'@'+str(argument_file)]
     print('RUN',str(args[0]),flush=True)
     result=subprocess.run([str(a) for a in args],cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
     text=result.stdout.decode('utf-8',errors='replace');print(text,flush=True)
@@ -39,6 +50,10 @@ def main():
     for name in ['LICENSE','THIRD_PARTY.md']:shutil.copyfile(ROOT/name,legal/name)
     core=list((ROOT/'runtime/core/src').rglob('*.java'));tests=list((ROOT/'runtime/tests').rglob('*.java'));app=list((ROOT/'runtime/android/src').rglob('*.java'))
     resources=sorted(p for p in (ROOT/'runtime/core/resources').rglob('*') if p.is_file())
+    native_sources=[p for p in (ROOT/'runtime/native').rglob('*') if p.is_file()]
+    inputs=core+tests+app+[ROOT/'runtime/desktop/src/org/circus/core'/p.name for p in shared]+[p for p in (ROOT/'runtime/android/res').rglob('*') if p.is_file()]+native_sources+[ROOT/'LICENSE',ROOT/'THIRD_PARTY.md',ROOT/'runtime/android/AndroidManifest.xml',ROOT/'tools/generate_android_backend.py',Path(__file__)]
+    tracked=inputs+resources+shared+[p for p in (ROOT/'runtime/android/assets').rglob('*') if p.is_file()]
+    before={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in tracked}
     classes=out/'classes';classes.mkdir(exist_ok=True);jvm=out/'jvm';jvm.mkdir(exist_ok=True)
     # javac output dirs are unique to this project. Remove only previously generated class files.
     for directory in [classes,jvm]:
@@ -72,8 +87,12 @@ def main():
     run([*signer,'sign','--ks',key,'--ks-pass','pass:android','--key-pass','pass:android','--out',apk,aligned],env)
     signed=run([*signer,'verify','--verbose',apk],env)
     badging=run([bt/'aapt.exe','dump','badging',apk],env)
-    native_sources=list((ROOT/'runtime/native').rglob('*'));inputs=core+tests+app+[ROOT/'runtime/desktop/src/org/circus/core'/p.name for p in shared]+[p for p in (ROOT/'runtime/android/res').rglob('*') if p.is_file()]+[p for p in native_sources if p.is_file()]+[ROOT/'LICENSE',ROOT/'THIRD_PARTY.md',ROOT/'runtime/android/AndroidManifest.xml',ROOT/'tools/generate_android_backend.py',Path(__file__)]
-    report={'apk':str(apk),'sha256':hashlib.sha256(apk.read_bytes()).hexdigest(),'bytes':apk.stat().st_size,'jvm_tests':test_log.strip(),'signature_verified':True,'min_sdk':26,'target_sdk':35,'original_game_assets_included':False,'user_supplied_launcher_icon':hashlib.sha256((ROOT/'runtime/android/res/drawable-nodpi/launcher_logo.png').read_bytes()).hexdigest(),'original_game_executed':False,'sdk':str(sdk),'java_home':str(java.parent),'sources':{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs+resources}}
+    after={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in tracked}
+    changed=[path for path in before if before[path]!=after[path]]
+    if changed:
+        (out/'changed-build-inputs.json').write_text(json.dumps(changed,indent=2)+'\n',encoding='utf-8')
+        raise RuntimeError('Build inputs changed during compilation; APK is not a source-stable result: '+', '.join(changed))
+    report={'apk':str(apk),'sha256':hashlib.sha256(apk.read_bytes()).hexdigest(),'bytes':apk.stat().st_size,'jvm_tests':test_log.strip(),'signature_verified':True,'min_sdk':26,'target_sdk':35,'original_game_assets_included':False,'user_supplied_launcher_icon':hashlib.sha256((ROOT/'runtime/android/res/drawable-nodpi/launcher_logo.png').read_bytes()).hexdigest(),'original_game_executed':False,'sdk':str(sdk),'java_home':str(java.parent),'sources':before,'source_changes_during_build':changed}
     (out/'build-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     (out/'apk-verification.txt').write_text(signed+'\n'+badging,encoding='utf-8');print(json.dumps({k:v for k,v in report.items() if k!='sources'},ensure_ascii=True))
 

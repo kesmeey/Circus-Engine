@@ -536,6 +536,108 @@
     "ui.option_flag": {
       "description": "43178F calls 412DB0/412DC0: set UI object fields +348/+34C to 1, selected by operand 0; platform pointer constraints still under review.",
       "status": "partial"
+    },
+    "pp.audio.music": {
+      "description": "PP-specific BGM service05. Optional adjacent06 contributes duck and is consumed, after the single global argument extension. Not DD temporary-volume restore.",
+      "operands": [
+        "track:u8",
+        "mode:u8",
+        "duck:optional_companion_u8"
+      ],
+      "status": "partial_binding"
+    },
+    "pp.audio.duck": {
+      "description": "PP standalone06 sets current BGM duck and recomputes native channel gain.",
+      "operands": [
+        "duck:u8",
+        "unused:u8"
+      ],
+      "status": "partial_binding"
+    },
+    "variable.clear_ordinary_bytes": {
+      "description": "Native ordinary-byte memset only; preserves special globals, UI/audio, history shadow and history log.",
+      "operands": [],
+      "status": "reviewed_primitive"
+    },
+    "dc2.scene.motion": {
+      "description": "DC2 native 5E background offset command: nonzero a2 assigns immediately; a2=0 yields to10ms-step native motion and integer feedback blending, with independent capability/skip rules.",
+      "operands": [
+        "target_x:i16",
+        "target_y:i16",
+        "mode:i16",
+        "feedback_weight:i16"
+      ],
+      "status": "partial_binding"
+    },
+    "dc2.ui.button_voice": {
+      "description": "DC2 3D stores the trailing raw path on the last ordinary UI button and clears its click-sound id to FF. Empty button lists have no effect. Mouse click invokes the SE-gated native channel2 service.",
+      "operands": [
+        "bytes_z"
+      ],
+      "status": "reviewed_binding"
+    },
+    "dc2.ui.button_hover_voice": {
+      "description": "DC2 3E stores the trailing raw path on the last ordinary UI button and clears its hover-sound id to FF. The native mouse-hover consumer invokes channel2; registration is independent of platform input availability.",
+      "operands": [
+        "bytes_z"
+      ],
+      "status": "reviewed_binding"
+    },
+    "dd.ui.modal_notice": {
+      "description": "DD native56 second modal builder/wait: template20, prior73 caption/origin, fixed checkbox bank93:19, initial focus0, numeric results/cancel and same-script close/resume. Distinct from55 confirmation.",
+      "operands": [],
+      "status": "partial_binding"
+    },
+    "ui.button_checkbox": {
+      "description": "Verified DD34 calls412DE0(1) on the current constructing button block. Finalizing a button clears that construction state; it does not mark the last stored button by action name. Modal builders assign checkbox bank93/index.",
+      "operands": [
+        "unused:u8",
+        "unused:u8"
+      ],
+      "status": "reviewed_dd_binding"
+    },
+    "pc.system.call": {
+      "description": "Verified PC1 explicit system-script call26 with owned raw companion. Same VM ordinary variables remain live; suspended graphics/UI/text owners and consumed caller PC are versioned separately. Nonzero modes and unresolved saved-state submodes may reject precisely.",
+      "operands": [
+        "mode:u8",
+        "unused:u8",
+        "owned_raw_target_z"
+      ],
+      "status": "partial_binding"
+    },
+    "pc.system.return": {
+      "description": "PC1 paired1C returns to the consumed caller cursor with current ordinary variables retained; caller code identity is checked before restoring typed owners. Ordinary right/Esc and toolbar menu events also use typed owners with their distinct candidate/voice entry order.",
+      "operands": [
+        "u8",
+        "u8"
+      ],
+      "status": "partial_binding"
+    },
+    "pc.button_rect_payload": {
+      "description": "Current PC1 4F owns arbitrary marker plus raw NUL action bytes, commits its native PC first, then creates a raw560-byte button via40B900. Nonzero pending condition becomes literal1, is consumed, and the pending opaque flag is cleared. Native UI/GDI/input consumers retain separate verified boundaries.",
+      "operands": [
+        "i16",
+        "i16",
+        "i16",
+        "i16",
+        "owned_raw_string"
+      ],
+      "status": "partial",
+      "native_handler_va": "0x00412D7D",
+      "evidence": "build/native-rewrite/pc1-native-ui-stage13/native-ui-producer-vectors.json"
+    },
+    "pc.grid.caption_payload": {
+      "description": "Current PC1 57 skips an arbitrary marker and always consumes raw NUL payload. When listCount>0, writes C0/C4/arg2 caption fields on the previous staged104-byte list item and invokes4123A0 with the raw source pointer. Glyph raster/input are separate consumers.",
+      "operands": [
+        "i16",
+        "i16",
+        "i16",
+        "i16",
+        "owned_raw_string"
+      ],
+      "status": "partial",
+      "native_handler_va": "0x00413661",
+      "evidence": "build/native-rewrite/pc1-native-ui-stage13/native-ui-producer-vectors.json"
     }
   },
   "profiles": {
@@ -568,7 +670,8 @@
           "36": 32
         },
         "stop_advances": false,
-        "text_verified": true
+        "text_verified": true,
+        "extension_at_fetch": true
       },
       "control": {
         "block_marker_opcode": 31,
@@ -665,7 +768,7 @@
         "0x21": "ui.flush",
         "0x31": "ui.focus",
         "0x33": "ui.navigation",
-        "0x34": "ui.navigation_extra",
+        "0x34": "ui.button_checkbox",
         "0x81": "ui.text",
         "0x70": "ui.button_text",
         "0x75": "ui.text_style",
@@ -693,7 +796,8 @@
         "0x7A": "dd.grid.text",
         "0xA7": "dd.grid.columns",
         "0xA3": "dd.audio.seek",
-        "0x32": "ui.option_flag"
+        "0x32": "ui.option_flag",
+        "0x56": "dd.ui.modal_notice"
       },
       "evidence_ranges": {
         "loader_decoder": [
@@ -769,7 +873,22 @@
           4370859
         ]
       },
-      "state_contract": "dc3dd-state.json"
+      "state_contract": "dc3dd-state.json",
+      "native_rule_evidence": [
+        {
+          "target_sha256": "ff119f4396cc1382e349fb1ed2c2eb77191db8ec699cb1352ca021cc73407e8d",
+          "rule": "modal56-and-checkbox34",
+          "handler56": "0x00430606",
+          "wait56": "0x004331BE",
+          "checkbox34": "0x00431899",
+          "checkbox_set": "0x00412DE0",
+          "artifacts": [
+            "dd-opcode56-contract.json",
+            "dd56-stage2/start-template20.json"
+          ],
+          "contract": "56 uses saved template20 and checkbox kind19;34 marks current button.checkbox, not panel navigation. Builder/input/draw integration and platform limitations are tracked separately; this binding alone is not completeness proof."
+        }
+      ]
     },
     "dc3wy-a09f": {
       "native_sha256": "88bfebae5e99adcf4d520775c6a1d9f035c17f070401aeb680ef53a298521da0",
@@ -799,7 +918,8 @@
         "encoded_string_key": 32,
         "encoded_string_postmap": null,
         "stop_advances": false,
-        "text_verified": true
+        "text_verified": true,
+        "extension_at_fetch": true
       },
       "control": {
         "block_marker_opcode": 30,
@@ -941,7 +1061,39 @@
           4305744,
           4305807
         ]
-      }
+      },
+      "native_variants": [
+        {
+          "role": "translated_executable",
+          "sha256": "2cb4b366b16b4492575f845b59d682743facedcff849c1f8ef54bcafbdf82f9a",
+          "verified_rules": [
+            "fetch framing",
+            "STOP does not advance",
+            "extension dispatch model"
+          ],
+          "historical_span": [
+            "0x42f910",
+            "0x42fb5f"
+          ],
+          "observed_machine_bytes": 591,
+          "matched_machine_bytes": 591,
+          "historical_asm_sha256": "8d047d2eb0afe3b6f03dfa4784d249d94fa52cb6d2a42b13f9431c7290df00b8",
+          "scope": "Independent translated-target location and exact covered fetch-byte comparison only; no whole-executable or host-effect equivalence claim."
+        }
+      ],
+      "native_rule_evidence": [
+        {
+          "target_sha256": "2cb4b366b16b4492575f845b59d682743facedcff849c1f8ef54bcafbdf82f9a",
+          "rule": "readonly99:3",
+          "getter": "0x0040BF90",
+          "constructor": "0x004311A0",
+          "mode_service": "0x004312D0",
+          "contract": "Getter returns*(4A954C+18); constructor sets1 and checked init helpers preserve it. Member8/current mode is distinct.99:3 writes ignored.",
+          "artifacts": [
+            "pp-wy-cn-query99-3-contract.json"
+          ]
+        }
+      ]
     },
     "dc2dm-9d72": {
       "native_sha256": "7414de26db3e9ce4fec331df7cb517947af7957fbc85abe96c51d6968a9ee0ee",
@@ -969,7 +1121,10 @@
         "extension_opcode": 87,
         "encoded_string_key": 32,
         "encoded_string_postmap": {},
-        "stop_advances": false
+        "stop_advances": false,
+        "signed_opcode_fetch": true,
+        "signed_fetch_evidence": "MOVSX 0042CB21; signed framing comparison 0042CB2A; unsigned dispatch bound 0042CD1B",
+        "extension_at_fetch": true
       },
       "control": {
         "block_marker_opcode": 29,
@@ -1126,7 +1281,26 @@
           4362802
         ]
       },
-      "host_status": "partial: native UI and startup bindings; unsupported submodes stop"
+      "host_status": "partial: native UI and startup bindings; unsupported submodes stop",
+      "native_variants": [
+        {
+          "role": "translated_executable",
+          "sha256": "3446bc4ef681c10b455f77843e58abcb42a673b69db664f7301976ef3efa49ee",
+          "verified_rules": [
+            "fetch framing",
+            "STOP does not advance",
+            "extension dispatch model"
+          ],
+          "historical_span": [
+            "0x42cac0",
+            "0x42cd31"
+          ],
+          "observed_machine_bytes": 625,
+          "matched_machine_bytes": 625,
+          "historical_asm_sha256": "420e95123638abc82c9ee62ca78f1de2bd011e98047a527a253fbfe67093764d",
+          "scope": "Independent translated-target location and exact covered fetch-byte comparison only; no whole-executable or host-effect equivalence claim."
+        }
+      ]
     },
     "dc2pc-5769": {
       "runtime_variable_model": "PC_WIDE",
@@ -1134,7 +1308,19 @@
       "decoder": {
         "version_bytes": 2,
         "extension_opcode": 82,
-        "encoded_string_postmap": {}
+        "encoded_string_postmap": {},
+        "signed_opcode_fetch": true,
+        "signed_fetch_evidence": "MOVSX 0041C57B; signed framing comparison 0041C582; unsigned dispatch bound 0041C637",
+        "allow_terminal_fragment": true,
+        "terminal_fragment_evidence": "A short STOP retains its raw bytes, actual operands and original PC. Native STOP does not advance or use its operands. A missing operand is not fabricated.",
+        "extension_at_fetch": false,
+        "extension_owners": [
+          80,
+          83,
+          85,
+          87
+        ],
+        "extension_evidence": "Fetch does not consume extensions. Listed native handlers unconditionally skip one following byte, read four little-endian i16, and advance nine bytes; payload opcode is not checked."
       },
       "control": {
         "label_opcode": 53,
@@ -1240,7 +1426,29 @@
       "decoder": {
         "version_bytes": 2,
         "extension_opcode": 82,
-        "encoded_string_postmap": {}
+        "encoded_string_postmap": {},
+        "signed_opcode_fetch": true,
+        "signed_fetch_evidence": "MOVSX 004125F4; signed framing comparison 00412618; unsigned dispatch bound 0041264A",
+        "allow_terminal_fragment": true,
+        "terminal_fragment_evidence": "A short STOP retains its raw bytes, actual operands and original PC. Native STOP does not advance or use its operands. A missing operand is not fabricated.",
+        "extension_at_fetch": false,
+        "extension_owners": [
+          80,
+          83,
+          84,
+          86
+        ],
+        "extension_evidence": "Fetch does not consume extensions. Listed native handlers unconditionally skip one following byte, read four little-endian i16, and advance nine bytes; payload opcode is not checked.",
+        "string_payload_owners": [
+          27,
+          37,
+          38,
+          79,
+          81,
+          87,
+          92
+        ],
+        "string_payload_evidence": "Current PC1_CN798897... handlers1B/25/26/4F/51/57/5C skip the next marker and consume rawNUL bytes without checking marker framing or encoding.1B captures raw candidate PC;26 captures system return;25 invalid selectors still consume;4F creates native560-byte button with raw action;51 retains original raw text pointer;57 expands prior staged grid caption only when listCount>0 but always consumes tail;5C creates native type10 draw entry. PC and complete raw/stale byte contracts: pc1-native-ui-stage13/native-ui-producer-vectors.json and earlier context/message/draw-producer evidence. Ownership does not imply all rendering/input consumers are implemented."
       },
       "control": {
         "label_opcode": 50,
@@ -1274,7 +1482,7 @@
         "0x18": "pc.fullscreen",
         "0x19": "pc.sprite_opaque",
         "0x1B": "pc.save_context",
-        "0x1C": "dm.system.return",
+        "0x1C": "pc.system.return",
         "0x1D": "pc.command",
         "0x1F": "block.marker",
         "0x21": "dm.ui.commit",
@@ -1312,7 +1520,7 @@
         "0x4C": "text.body",
         "0x4D": "choice.caption",
         "0x4E": "native.no_effect",
-        "0x4F": "host.command_with_string",
+        "0x4F": "pc.button_rect_payload",
         "0x50": "pc.button_sprite",
         "0x51": "ui.button_text",
         "0x52": "arguments.extend",
@@ -1330,16 +1538,71 @@
         "0x62": "dm.ui.palette",
         "0x54": "pc.grid.configure",
         "0x47": "pc.voice_group.add",
-        "0x1A": "pc.prompt_position"
+        "0x1A": "pc.prompt_position",
+        "0x26": "pc.system.call",
+        "0x57": "pc.grid.caption_payload",
+        "0x56": "pc.grid.item_payload",
+        "0x5F": "pc.grid.caption_bounds"
+      },
+      "native_variants": [
+        {
+          "role": "translated_executable",
+          "sha256": "7988971ff38f6b0fb2f21827b1ba38c3c7fe5cc824420b179ea9d9a838872057",
+          "verified_rules": [
+            "fetch framing",
+            "STOP does not advance",
+            "extension dispatch model"
+          ],
+          "historical_span": [
+            "0x4125b0",
+            "0x412950"
+          ],
+          "observed_machine_bytes": 929,
+          "matched_machine_bytes": 929,
+          "historical_asm_sha256": "33219478b3112362b867d5e3c2e28887ba2511fd29831737421cbc7ad6f1f777",
+          "scope": "Independent translated-target location and exact covered fetch-byte comparison only; no whole-executable or host-effect equivalence claim."
+        }
+      ],
+      "native_ui_producer_evidence": {
+        "target_sha256": "7988971ff38f6b0fb2f21827b1ba38c3c7fe5cc824420b179ea9d9a838872057",
+        "stage": "build/native-rewrite/pc1-native-ui-stage13",
+        "0x4F": {
+          "entry": "0x412D7D",
+          "raw_pc": "before40B900 rectangle creation, advance over arbitrary marker+rawNUL",
+          "condition": "BB8430 nonzero maps to button+4 literal1 then cleared; BB8444 always cleared"
+        },
+        "0x51": {
+          "entry": "0x412FA1",
+          "raw_pc": "increment before40BC20, store original pointer, scan rawNUL after callback even at full component count"
+        },
+        "0x57": {
+          "entry": "0x413661",
+          "raw_pc": "increment before optional4123A0, always consume rawNUL; expansion writes previous staged record when count>0"
+        },
+        "method": "38 selected actual machine instruction programs,5193 interpreted steps; private memory only, original executable never launched"
       }
     },
     "dc2-3363": {
-      "runtime_variable_model": "PC_WIDE",
-      "host_status": "framing, dispatch table and text codec verified; 35 of 65 observed opcodes bound on independent evidence, the rest stop as unknown",
+      "runtime_variable_model": "PC_BYTE",
+      "host_status": "native framing, variable bytes, dispatch and reviewed handlers; startup re-audited with strict unknown-handler failures; full performance and system fidelity incomplete",
       "decoder": {
         "version_bytes": 2,
         "extension_opcode": 81,
-        "encoded_string_postmap": {}
+        "encoded_string_postmap": {},
+        "signed_opcode_fetch": true,
+        "signed_fetch_evidence": "MOVSX 0041474C; signed framing comparison 00414755; unsigned dispatch bound 00414797; PE sha256 d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+        "allow_terminal_fragment": true,
+        "terminal_fragment_evidence": "A short STOP retains its raw bytes, actual operands and original PC. Native STOP does not advance or use its operands. A missing operand is not fabricated.",
+        "runtime_exact_version": true,
+        "runtime_exact_version_evidence": "4137D0 checks 63 then 33. Full loader span 4137D0..413A70 identical between current EXE and OLD, sha256 65b203c2e33e357990f6119b5f6060be79e602224c24792a0517a3f3dd46beb7. Alternate stamps are framing-only, not accepted by this native loader.",
+        "extension_at_fetch": false,
+        "extension_owners": [
+          79,
+          82,
+          84,
+          86
+        ],
+        "extension_evidence": "Fetch does not consume extensions. Listed native handlers unconditionally skip one following byte, read four little-endian i16, and advance nine bytes; payload opcode is not checked."
       },
       "control": {
         "label_opcode": 49,
@@ -1361,7 +1624,7 @@
         "0x0B": "dm.ui.grid_wait",
         "0x0D": "pc.transition",
         "0x0E": "system.exit",
-        "0x0F": "native.unmodelled",
+        "0x0F": "variable.clear_ordinary_bytes",
         "0x11": "dm.audio.fade_music",
         "0x12": "pc.wait",
         "0x13": "dm.ui.button_sound",
@@ -1387,14 +1650,15 @@
         "0x33": "pc.character_overlay",
         "0x34": "dm.audio.voice",
         "0x35": "pc.script.transfer",
-        "0x36": "pc.script.transfer",
-        "0x37": "native.unmodelled",
+        "0x36": "dm.script.transfer_alt",
+        "0x37": "script.entry_label",
         "0x38": "pc.movie",
         "0x39": "native.unmodelled",
         "0x3A": "jump.named_required",
-        "0x3B": "native.unmodelled",
-        "0x3C": "native.unmodelled",
-        "0x3D": "native.unmodelled",
+        "0x3B": "pc.action0",
+        "0x3C": "pc.action1",
+        "0x3D": "dc2.ui.button_voice",
+        "0x3E": "dc2.ui.button_hover_voice",
         "0x44": "choice.item",
         "0x45": "native.no_effect",
         "0x4A": "text.speaker",
@@ -1412,7 +1676,7 @@
         "0x5A": "variable.sum_list",
         "0x5B": "branch.compare",
         "0x5C": "dm.ui.text",
-        "0x5E": "native.unmodelled",
+        "0x5E": "dc2.scene.motion",
         "0x60": "pc.actor_position",
         "0x61": "native.unmodelled",
         "0x62": "dm.ui.palette"
@@ -1429,7 +1693,7 @@
           "0x33": "bst\\nnk_hat0_m accessory operands, i.e. a layer drawn over the character",
           "0x2E/0x2F/0x30": "system\\catchy_chip, SYSTEM\\yn_chip00, system\\sam_anz_NN UI chip art on layers 6/7/8",
           "0x4C": "follows 44h in 155 of 155 cases and 44h is never followed by anything else; the pair matches dc2pc-5769 68h choice.item + 77h choice.caption",
-          "0x52/0x51": "416151 stores eight fields per 32-byte slot in A09E60 (capacity 60, count A09E5C) and advances PC past its own 9-byte record plus the 51h extension, so the operands are [a0..a3]+[b0..b3]. Layout is {dest=(BE8BDC+a0, BE8BE0+a1), source=(a2,a3), size=40h?(b0,b1):(b0-a2,b1-a3), flags=b2, state=b3}. 417FB0 reads 0Ah as text, 09h as a texture blit, 40h/80h as colour fills, and low-6 bits index the texture. This is exactly the pc.quad contract PcHost.quad() already applies, so 52h maps onto it and the message window, toolbar strip and title art all come out pixel-identical to D.C.II P.C. All 124823 records use selector 1..4 (1:111357 2:13138 3:293 4:34) plus one 40h fill with colour 0, so slot() never rejects them.",
+          "0x52/0x51": "416151 appends eight fields to the 60-entry A09E60 batch and consumes one raw nine-byte payload. Existing quad/template rendering remains partial; structural correspondence to PC2 does not prove original final pixels.",
           "0x5B": "415D24 implements six comparisons via sete/setne/setg/setl/setge/setle then add edx,3 over the 02h companion",
           "0x21": "415EEE switches on a0: 0 clears the pending batch, 1..7 copy it to A08508/A08798/A02788/A08648/A08838/A02B48/A02F08 clamped at 10/5/30/10/5/30/30, anything else only clears. Same sub-mode set and same caps as dc2pc-5769 pc.quad_template, so the earlier pc.grid.sound binding was wrong.",
           "0x5A": "415C10 sums read(A+1,A+3) for every record after it until the next opcode is 02h, then calls 413C70(a0,a1,sum). START/title_main 0x18 is 5Ah[8,21] + six 5Ah term records + 02h, which is exactly variable.sum_list's companion-terminated list.",
@@ -1445,28 +1709,27 @@
           },
           "0x21 commit list": "415EEE copies the pending A09E60 batch into template 1..7 clamped at 10/5/30/10/5/30/30 and calls the matching blitter (417FB0 for 1, 418480 for 2, ...); sub-mode 0 only clears. START.mes builds template 1 (4,421,0,209,736,168,f=95) from 360h..3FAh, which now yields the same nine quads D.C.II P.C builds.",
           "0x0B/0x54/0x55 list pages": "4155FB opens a list page (page/content rects, clears 97564C, 9757FC and the 0x1658-dword item table), 4156E2 appends one {left,top,right,bottom} entry at 9756B8 with a 16-byte stride, 415867 stores the pending grid state, calls 414210(1,0) and sets wait code 0Bh. Only LOAD/SAVE and the eight meza_* scripts use them (18/90/18 records). D.C.II P.C binds the same screens one opcode higher as 55h/56h/0Ah, which is the cross-check for this triple.",
-          "0x36": "417237 releases the 9FCE48/9FCE4C/9FCE50 and 45E800 handles, copies the string to A08D04, calls 4137D0 and restores PC from 9DA2CC - the same navigation contract as 35h, without 35h's wait code. All 78 records name a system script (option 25, SAVE 25, LOAD 25, advmenu 3), which is what the advmenu config/save/load labels use to leave the menu.",
+          "0x36": "Dispatch41758A enters the transfer tail and invokes4137D0(string,2), preserving input action strings. Bound dm.script.transfer_alt(mode2); mode1 fallback from no string8 operands was wrong.",
           "0x1C": "414958 tail-calls 404F50(a0,a1), whose 50-way jump table at 4052D0 dispatches the system-screen commands. SAVE.mes sends (6,0) and LOAD.mes (6,1), which is the native source of the save/load page flag. Only 94 records exist and the modelled set covers 6; the remainder are recorded, not swallowed.",
           "0x1B": "417237 releases the system-menu graphics handles (45E800/9FCE48/9FCE4C/9FCE50) and sets the return wait, the same contract Dc2Host applies for dm.system.return. ADVMENU's return label ends with 1Bh 2,0, so binding it to native.unmodelled stopped the VM at the trailing 00h instead of handing the story back.",
           "0x50": "415124 reads two words plus the trailing string payload and calls 40DD50, which appends a text sprite to the previous button: it scans the twelve 40-byte sprite slots for a free one, stores x at +0x20 and y at +0x24, and writes width = 14*strlen+1 at +0x38. That is exactly the ui.button_text contract D.C.II P.C reaches through 51h (dc2pc = dc2 + 1 throughout this trio: 4Eh/4Fh/50h vs 4Fh/50h/51h). The old pc.payload.string guess discarded all 4685 records, which left every CG Mode thumbnail caption blank."
         },
         "open": {
           "0x45": "dispatch entry equals the shared epilogue, so the original engine ignores it; it is read as a payload by 32h (7629 cases) and 50h (4685 cases). Bound to native.no_effect to reproduce the original engine exactly; the sprite variant it carries is therefore dropped, which matches DC2 itself.",
-          "0x4E": "four-i16 rectangle plus a 3Ah required named-jump payload, 3540 cases; no dc2pc-5769 counterpart identified, left unknown",
-          "0x50": "four-i16 rectangle plus a 45h sprite payload, 9370 cases; the sprite variant is still unidentified",
+          "0x4E": "Resolved button construction:40DA30 owns the normal 560-byte region list; strings and owned payloads consumed by414F00. Full UI lifecycle remains separate from primitive binding.",
           "0x5C": "Resolved: text region, see high_confidence.",
-          "0x59/0x5A/0x60/0x61/0x3B/0x3C/0x54/0x55/0x5E": "small lists, transforms or menu actions; frequency ranks suggest dc2pc-5769 64h..66h but the evidence is not yet decisive, left unknown"
+          "0x61": "Native handler remains unmodelled; do not classify resolved37/3B/3C as unknown."
         },
         "framing_only": {
-          "0x24/0x4E/0x50/0x5C": "414B9D, 414F00, 415124 and 416344 all recompute the PC from the string that follows the record, so these four consume exactly one string record. 0x24 and 0x50 are no longer framing-only: they are dm.system.resource_handle and ui.button_text, and 0x4E is host.command_with_string. Only 0x5C is still unmodelled. 0x24 offsets 0,0 + 'system\\messwin' at START 0x5A; 0x4E offsets 743,420,799,452 + ':option' at START 0x85."
+          "0x24/0x4E/0x50/0x5C": "All four consume one trailing string record; their reviewed effects now bind resource_handle, ordinary button, button_text and text region respectively. Consumed payloads are data, not extra executed instructions."
         },
         "disassembly_confirmed": {
           "0x24": "414B9D reads the string at PC+1, advances PC by strlen+2 and switches on arg0 into three fixed engine handles: 0 -> 45E808, 2 -> 45E80C, 3 -> 45E810 (no handle for 1). Each is released and then reloaded through 401CC0. The shape resembles dc2pc-5769 42h pc.resource_payload but the slot ids are not a contiguous 0..3 array, so the PC implementation's 21+arg0 was a guess. The corpus contains exactly one use: start.mes 0x5A ('24 0,0' + 45h 'system\\messwin'), and that picture already reached slot 21 through another path, which is why the wrong slot map never showed on screen. Renamed to dm.system.resource_handle so the runtime maps 0/2/3 explicitly instead of reusing a PC-only slot formula.",
           "0x60": "416CE6 stores the four i16 operands into A09E4C/A09E50/A09E54/A09E58 with no other side effect; START 0x6D uses [0,0,0,0] and the story scripts use [-150,0,150,0], i.e. left and right actor origins.",
           "0x62": "41678B forwards the four operands to 408010, which bounds arg0 to 0..3Fh and writes the three remaining bytes into the 64-entry table at 451720/451721/451722. Only one occurrence in the corpus (START 0x76, palette slot 13). The byte-to-channel order of 408010 is not yet confirmed.",
-          "0x4E/0x50/0x5C": "only 0x5C remains framing-only: it consumes exactly one string record (416344) and the effect is unmodelled"
+          "0x4E/0x50/0x5C": "Their payload consumption and current primitive effects are bound; not a claim that full rendering/transition lifecycle is verified."
         },
-        "run_confirmed": {
+        "historical_pre_rewrite_launch_observations": {
           "method": "Each entry was added only after LaunchProbe re-ran START.mes and the opcode proved correct in place; the whole path START 0x5A -> 0xFD2 -> title_main 0x18 now executes.",
           "0x13": "dm.ui.button_sound: at START 0x87D it needed the button that 4Eh had just created, which pins both bindings to each other.",
           "0x17": "pc.button_template: 415C9B clears the button list; START 0x82 uses it before the first region.",
@@ -1480,9 +1743,122 @@
           "not_pc_quad": "0x52 carries 124823 instances over 938 scripts, one per dialogue line, so it cannot be an accumulating draw list like dc2pc-5769 83h.",
           "flow": "LaunchProbe D:/gal/DC2: START 0xF05 (wait) -> 0xFD2 menu -> title_main 0x18 -> title_02 'start' -> fst_1216_a1_cmn -> ... -> fst_1221_e1_otm with 19912 host round trips and no fault. Speaker and body text decode as GBK (e.g. 义之 「那么，我不客气了！」).",
           "0x5A": "title_main 0x18 faulted on it before the binding; afterwards title_02 reached its menu.",
-          "0x05": "fst_1216_b1_cmn 0x5B22 uses index 81, which is inside the 249-entry sound table and outside the 48-entry music table."
+          "0x05": "fst_1216_b1_cmn 0x5B22 uses index 81, which is inside the 249-entry sound table and outside the 48-entry music table.",
+          "status": "Historical permissive compatibility run, retained for provenance only. Superseded bindings and whole-path success claims below do not prove current strict execution or native rendering equivalence."
         }
-      }
+      },
+      "native_sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+      "addresses": {
+        "decoder": "0x00414700",
+        "dispatch_site": "0x004147A4",
+        "dispatch_table": "0x004179A8",
+        "read_variable": "0x00413A70",
+        "write_variable": "0x00413C70",
+        "fallback": "0x0041796C"
+      },
+      "dispatch_count": 99,
+      "variable_model_evidence": {
+        "analysis": "REA/Ghidra of dc2.OLD, cross-checked identical function bytes in dc2.exe",
+        "read_range": "00413A70..00413C70",
+        "read_sha256": "b2a4c5e3dfd6d424fd719232a077e40449bd1f9534f22e379555063b0fd49f2c",
+        "write_range": "00413C70..00414000",
+        "write_sha256": "3c203f2330a81ab647da3907b5f124979727fbc16a7af0da6a320c2fa57f8181",
+        "rule": "Ordinary banks 0..9; saturating bytes; no bank 10 or 200+ packed views; special banks delegated to version host."
+      },
+      "evidence_ranges": {
+        "script_loader": [
+          4274128,
+          4274800
+        ],
+        "variable_read": [
+          4274800,
+          4275312
+        ],
+        "variable_write": [
+          4275312,
+          4276224
+        ],
+        "fetch_and_dispatch": [
+          4278016,
+          4290984
+        ],
+        "system_command": [
+          4214608,
+          4215616
+        ]
+      },
+      "clear_ordinary_evidence": "Current d474... handler4149D5: ECX=FAh, EDI=A0996C, EAX=0, REP STOSD, then default continuation. Exactly1000 ordinary bytes; ignores instruction operands, no host/reset/history call.",
+      "native_rule_evidence": [
+        {
+          "target_sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+          "rule": "ordinary-clear0F",
+          "handler": "0x004149D5",
+          "contract": "Zero exactly1000 ordinary bytes by REP STOSD; preserve history shadow/log and all special/host state.",
+          "artifacts": [
+            "dc2-current-verified/fetch_and_dispatch.asm",
+            "dc2-original-current-function-comparison.json"
+          ]
+        },
+        {
+          "target_sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+          "rule": "motion5E",
+          "dispatcher": "0x00414700",
+          "continuations": [
+            "0x0041C440",
+            "0x00408160"
+          ],
+          "contract": "Immediate offset vs yielded10ms motion; integer feedback only for native format0(24bit). Shared BE8BC8 producers require explicit state; unmodelled producer state is a precise fault, not assumed clear.",
+          "artifacts": [
+            "dc2-current-pending-feedback-contract.json",
+            "dc2-current-verified/fetch_and_dispatch.asm"
+          ],
+          "handler": "0x00416499"
+        },
+        {
+          "target_sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+          "rule": "button-voice3D/3E",
+          "consumers": {
+            "hover": "0x0040C6F0",
+            "click": "0x0040C810",
+            "play": "0x0041F130",
+            "create_button": "0x0040DA30"
+          },
+          "contract": "PTR451D10/count988C9C is the ordinary560byte region list.3D sets+228/clickSoundFF;3E sets+224/hoverSoundFF; empty list no effect. Playback uses SE-gated channel2, separate from dialogue voice.",
+          "artifacts": [
+            "dc2-current-button-consumers.asm"
+          ]
+        },
+        {
+          "target_sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+          "rule": "pending-entry-label37",
+          "handler": "0x004174FA",
+          "loader": "0x004137D0",
+          "lookup": "0x00413700",
+          "contract": "37 copies the raw NUL string to BE8BF8; loader applies nonempty label through required lookup then clears both32-byte BE8BF8/BE8C18 fields. Empty37 clears; label not found is an error, not normal first entry.",
+          "artifacts": [
+            "dc2-current-verified/fetch_and_dispatch.asm",
+            "dc2-current-verified/script_loader.asm",
+            "dc2-current-entry-label.asm",
+            "dc2-original-current-function-comparison.json"
+          ]
+        },
+        {
+          "target_sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+          "rule": "input-actions3B/3C-and-transfer36",
+          "handlers": {
+            "0x35": "0x00417523",
+            "0x36": "0x0041758A",
+            "0x3B": "0x0041717B",
+            "0x3C": "0x004171A4"
+          },
+          "contract": "3B/3C copy includingNUL toA09D54/A09D74. Loader mode2 from36 preserves them;1/3 clears. Wait12 supports action0:right/Esc and action1:left/Enter; UI waits0A/0B accept only action0. Only successful label resolution consumes the binding.",
+          "artifacts": [
+            "dc2-current-verified/fetch_and_dispatch.asm",
+            "dc2-current-verified/script_loader.asm",
+            "dc2-modal-0x41b611.c"
+          ]
+        }
+      ]
     },
     "dc3pp-9872": {
       "native_sha256": "5474020ed4394df8d5a3b327f8aaa76e01926f59f7e0eb25b7ca33346201ad4c",
@@ -1503,7 +1879,10 @@
         "encoded_string_key": 32,
         "encoded_string_postmap": null,
         "stop_advances": false,
-        "text_verified": true
+        "text_verified": true,
+        "extension_at_fetch": true,
+        "signed_opcode_fetch": true,
+        "signed_fetch_evidence": "PP_CN_ruby.EXE sha256 19d9091a95613d757b7807af1ce839b65cbfd222e9a53422fd1010ba8ca210ab: independently located MOVSX 00428B61; one global extension 57 at 00428D06; unsigned bound 70 at 00428D5B. REA ev_1b542065f3fea471151e784b9e813fe6b6a4b7d5d613b544b3bbdf6a2942d7c0."
       },
       "control": {
         "block_marker_opcode": 30,
@@ -1517,7 +1896,7 @@
         "ordinary": {
           "banks": [
             0,
-            10
+            9
           ],
           "indices": [
             0,
@@ -1525,8 +1904,9 @@
           ],
           "width": 8,
           "read": "zero_extend",
-          "write": "low_8_bits",
-          "native_base_offset": "not located; PP handlers do not code-match DC3DD/DC3WY"
+          "write": "clamp_0_255",
+          "native_base": "0x00B94150",
+          "evidence": "PP translated PE 19d9091a..., read 004256A0 / write 004216B0; bank10 has separate persistent alias rules."
         },
         "special_banks": "version-specific host state; do not model as ordinary arrays"
       },
@@ -1535,7 +1915,7 @@
         "0x02": "control.marker",
         "0x03": "checkpoint",
         "0x04": "history.range",
-        "0x05": "audio.restore_volume",
+        "0x05": "pp.audio.music",
         "0x07": "wait.message",
         "0x08": "choice.begin",
         "0x09": "choice.show",
@@ -1608,8 +1988,67 @@
         "0x6C": "ui.message_position",
         "0x6D": "scene.character_move",
         "0x6E": "ui.palette",
-        "0x6F": "native.no_effect"
-      }
+        "0x6F": "native.no_effect",
+        "0x06": "pp.audio.duck"
+      },
+      "runtime_variable_model": "DC2_PACKED",
+      "native_variants": [
+        {
+          "role": "translated_executable",
+          "sha256": "19d9091a95613d757b7807af1ce839b65cbfd222e9a53422fd1010ba8ca210ab",
+          "evidence_id": "ev_1b542065f3fea471151e784b9e813fe6b6a4b7d5d613b544b3bbdf6a2942d7c0",
+          "addresses": {
+            "read_variable": "0x004256A0",
+            "write_variable": "0x004216B0",
+            "fetch": "0x00428B61"
+          },
+          "verified_rules": [
+            "signed fetch",
+            "single extension at fetch",
+            "ordinary saturating bytes",
+            "BE16/BE32 views",
+            "bank10/persistent alias",
+            "100 system bytes; 210/1200/650 bit flags"
+          ],
+          "scope": "Core rules from this translated PE; not a claim that every original or translated handler is identical."
+        }
+      ],
+      "audio_evidence": {
+        "target_sha256": "19d9091a95613d757b7807af1ce839b65cbfd222e9a53422fd1010ba8ca210ab",
+        "music_opcode_05": "Native dispatch case5; optional following06 consumes exactly three bytes and supplies its first u8 as duck; modes0/1/2 control track playback,10/11 call UI411450. No DD audio.restore_volume alias.",
+        "duck_opcode_06": "Standalone06 updates stored duck and calls4328B0; it is not a wait opcode.",
+        "voice": "Normal37 prepares, commit before next fetch; system36 commits immediately to same nativechannel3. PP role preference100:60..68 is mute when nonzero; global99:5 still gatesforced.",
+        "volume": "PP native0..30 DirectSound curve; per-resource metadata attenuation is independent of Windows mixer99:225; unknown99:203 is zero."
+      },
+      "native_rule_evidence": [
+        {
+          "target_sha256": "19d9091a95613d757b7807af1ce839b65cbfd222e9a53422fd1010ba8ca210ab",
+          "rule": "music05/06",
+          "dispatcher": "0x00428B00",
+          "helpers": [
+            "0x00432E80",
+            "0x00432870",
+            "0x004328B0",
+            "0x00431B10",
+            "0x00431B90",
+            "0x00433140"
+          ],
+          "artifacts": [
+            "pp-cn-music-native-contract.json"
+          ],
+          "scope": "Translated target independently decompiled; not inferred whole-executable equivalence."
+        },
+        {
+          "target_sha256": "19d9091a95613d757b7807af1ce839b65cbfd222e9a53422fd1010ba8ca210ab",
+          "rule": "readonly99:3",
+          "getter": "0x004256A0",
+          "initializer": "0x0041A3D0",
+          "contract": "483018 is1 iff screen at least1024x576 and BITSPIXEL>=9;99:4 separately reports current window mode.99:3 writes ignored.",
+          "artifacts": [
+            "pp-wy-cn-query99-3-contract.json"
+          ]
+        }
+      ]
     }
   }
 }

@@ -13,7 +13,13 @@ public final class Dc2State implements Variables.Special {
     private static void index(int value,int length)throws IOException{if(value<0||value>=length)throw new IOException("DC2DM variable index outside verified memory: "+value);}
     public int read(int bank,int index)throws IOException{
         if(bank==100){index(index,memory.length);return memory[index]&255;}
-        int base=bitBase(bank);if(base>=0){index(index,bitCount(bank));return (memory[base+index/8]>>>(index&7))&1;}
+        int base=bitBase(bank);if(base>=0){
+            if(index<0)throw new IOException("Negative DC2DM variable index");
+            int offset=base+index/8;index(offset,memory.length);
+            // 424870 has no logical flag-count check. Reads can see the next
+            // packed region and the final padding bits; setters have limits.
+            return (memory[offset]>>>(index&7))&1;
+        }
         if(bank==99&&index==255)return result;
         throw new IOException("Unimplemented DC2DM state query "+bank+":"+index);
     }

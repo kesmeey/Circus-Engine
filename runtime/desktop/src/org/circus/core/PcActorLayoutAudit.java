@@ -46,7 +46,7 @@ public final class PcActorLayoutAudit {
         check(e.host().scene.shown.slots[3].equalsIgnoreCase("bst\\skr_0c_200_b*"),"Reverse angle uses Sakura's large back-view in later slot");shot(e,output.resolve("reverse-angle.png"));
         // Independent solid pixels make the native slot order observable, without image-specific guesses.
         Dc2Host h=e.host();h.scene.reset();h.body=h.speaker="";h.ui.waiting=false;h.write(99,10,0);
-        for(int[] a:h.scene.characters){Arrays.fill(a,0);a[0]=a[1]=10;a[2]=100;}
+        for(int n=0;n<4;n++){int[] a=new int[6];a[0]=a[1]=10;a[2]=100;h.scene.character(n,a);}
         h.scene.slots[2]="@red";h.scene.slots[6]="@blue";h.scene.slots[3]="@green";h.scene.publish(h.ui,0,0);
         BufferedImage b=e.render();try{check((b.getRGB(15,15)&0xffffff)==0x00ff00,"Actor slot 1 covers slot 0 and its accessory");}finally{b.flush();}
         h.scene.slots[3]="";h.scene.publish(h.ui,0,0);b=e.render();try{check((b.getRGB(15,15)&0xffffff)==0x0000ff,"Accessory stays above its own actor");}finally{b.flush();}

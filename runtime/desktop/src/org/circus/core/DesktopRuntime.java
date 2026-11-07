@@ -15,7 +15,11 @@ public final class DesktopRuntime implements AutoCloseable {
     public final DesktopEngine engine;public final DesktopMedia media;
     private String problem="";private Object mediaVm;
     public DesktopRuntime(Path game,boolean audit)throws Exception{
-        GameResources files=new GameResources(new LocalGameStorage(game));
+        this(game,audit,"");
+    }
+    /** Select optional PE data tables explicitly; the EXE is never launched. */
+    public DesktopRuntime(Path game,boolean audit,String executable)throws Exception{
+        GameResources files=new GameResources(new LocalGameStorage(game),executable);
         if(UnityCircusResources.candidate(files))engine=new DesktopUnity(new UnityCircusResources(files),audit);
         else {
         GameVersion version=GameVersion.detect(files);
@@ -80,8 +84,9 @@ public final class DesktopRuntime implements AutoCloseable {
     }
     public static void main(String[] args)throws Exception{
         if(args.length==0){final Path[] selected={null};SwingUtilities.invokeAndWait(()->{try{UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());}catch(Exception ignored){}JFileChooser chooser=new JFileChooser();chooser.setDialogTitle("选择 D.C. 游戏目录（包含 AdvData）");chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);chooser.setAcceptAllFileFilterUsed(false);if(chooser.showOpenDialog(null)==JFileChooser.APPROVE_OPTION)selected[0]=chooser.getSelectedFile().toPath();});if(selected[0]==null)return;args=new String[]{selected[0].toString()};}
-        if(args.length!=1&&!(args.length==3&&args[1].equals("--audit")))throw new IllegalArgumentException("dc_runtime <game-directory> [--audit output]");
-        try{DesktopRuntime app=new DesktopRuntime(Paths.get(args[0]),args.length==3);if(args.length==3){try{app.audit(Paths.get(args[2]));}finally{app.close();}}else SwingUtilities.invokeLater(app::window);}
-        catch(Exception e){if(args.length==3)throw e;e.printStackTrace();JOptionPane.showMessageDialog(null,e.getMessage(),"DC Runtime 启动失败",JOptionPane.ERROR_MESSAGE);}
+        String executable="";Path auditOutput=null;
+        for(int at=1;at<args.length;at+=2){if(at+1>=args.length)throw new IllegalArgumentException("Missing value for "+args[at]);if(args[at].equals("--exe"))executable=args[at+1];else if(args[at].equals("--audit"))auditOutput=Paths.get(args[at+1]);else throw new IllegalArgumentException("dc_runtime <game-directory> [--exe relative.exe] [--audit output]");}
+        try{DesktopRuntime app=new DesktopRuntime(Paths.get(args[0]),auditOutput!=null,executable);if(auditOutput!=null){try{app.audit(auditOutput);}finally{app.close();}}else SwingUtilities.invokeLater(app::window);}
+        catch(Exception e){if(auditOutput!=null)throw e;e.printStackTrace();JOptionPane.showMessageDialog(null,e.getMessage(),"DC Runtime 启动失败",JOptionPane.ERROR_MESSAGE);}
     }
 }

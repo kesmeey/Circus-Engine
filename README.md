@@ -72,6 +72,14 @@ python tools/package_desktop.py --jdk <JDK21> --ffmpeg <ffmpeg.exe> --version 0.
 产物 `build/distribution/dc-runtime-0.14.4-common-workflows-dev-windows-x64/`，双击 `DC Runtime.cmd`，
 再选游戏目录。包内自带 JRE 和 FFmpeg，不需要另装 Java；存档写在包目录的 `saves/`。
 
+用当前源码构建的播放器可在同一目录有多个补丁EXE时，明确选择用于读取静态数据表的文件：
+
+```powershell
+& ".\DC Runtime.cmd" "D:\game" --exe "patched.exe"
+```
+
+EXE只作数据读取，不会执行；未指定时继续自动选择。
+
 ### 验证当前源码
 
 不需要原游戏文件的核心边界检查：

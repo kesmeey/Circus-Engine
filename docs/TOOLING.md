@@ -94,6 +94,19 @@ MES 的字节记录与人类文本编码也分别处理：无法确定编码时�
 - 复合参数、条件 companion、求和列表、UI 附属字符串识别与潜在控制流边检查。
 - SHA-256 锁定的 x86 静态证据导出工具（`pefile` + `capstone`），从不加载或运行 EXE。
 
+## 原脚本长流程检查
+
+`DesktopRouteAudit`与播放器共用宿主，可明确选择补丁EXE和原脚本启动动作，无需另写私人审计入口。先构建测试工具，再运行：
+
+```powershell
+python tools/build_desktop.py --java-home <JDK21> --with-tests
+java -Xmx192m "-Djava.awt.headless=true" -cp build/desktop-tests/classes org.circus.core.DesktopRouteAudit "D:\game" build/routes/first first 1 --exe patched.exe --action sce_start --action menu01
+```
+
+`--exe`只选择静态数据表，`--action`按顺序点击真实菜单已有的动作。`first`或`last`决定之后的选择策略，后面的数字选择章节入口；原有不带选项的调用仍可用。W.Y.的`menu01`启动页也有默认策略。可用`--steps N`限制推进预算；预算耗尽、未知指令或资源失败都报告失败。
+
+输出目录必须位于原游戏目录之外。报告保存脚本名、选择策略、指定EXE与预算，媒体完成和时间推进由测试控制，不作原版实时输出证明。
+
 ## 相关文档
 
 第一轮拆包报告见 [STATIC_ANALYSIS.md](STATIC_ANALYSIS.md)，语义表与复现方式见

@@ -1,0 +1,72 @@
+{
+  "scope": "Desktop EXE selection and public route audit only; original-data WY first policy uses controlled clock/media; no original EXE process.",
+  "source_sha256": {
+    "runtime/desktop/src/org/circus/core/DesktopRuntime.java": "e53dcbe7b818d772ed950d07c6f9ee6ea6555ef11b7c518eb5079d09f55d5cdf",
+    "runtime/desktop/src/org/circus/core/DesktopRouteAudit.java": "df65a8f5e332a80e21b7668c6797a62c0b81fc5aef74b0fd51ec6d4cac40bc5b"
+  },
+  "checks": {
+    "budget": {
+      "exit_code": 1,
+      "failure": "START@efa\njava.io.IOException: Route budget exhausted\n"
+    },
+    "wrong-action": {
+      "exit_code": 1,
+      "failure": "MAIN@1549\njava.io.IOException: Requested original startup action absent at MAIN@1549: this_action_is_absent from [sce_start, load, extra, config, end]\n"
+    },
+    "output-guard": {
+      "exit_code": 1,
+      "no_directory_created": true
+    },
+    "wy-first": {
+      "profile": "dc3wy-a09f",
+      "policy": "first",
+      "choice_loop_exits": [],
+      "dd_route": 1,
+      "startup_actions": [
+        "sce_start",
+        "menu01"
+      ],
+      "static_executable_selection": "DC3WY_CN.exe",
+      "step_budget": 1000000,
+      "dialogues": 2737,
+      "scripts": [
+        "START",
+        "WIN_SIZE",
+        "MAIN",
+        "SCESELECT",
+        "WY_1_0706_A1_RCC",
+        "WY_1_0706_E1_RCC",
+        "WY_1_0706_E2_RCC",
+        "WY_1_0706_F1_RCC",
+        "WY_1_0707_E1_RCC",
+        "WY_1_0708_B1_RCC",
+        "WY_1_0708_F1_RCC",
+        "WY_1_0709_A1_RCC",
+        "WY_1_0709_E1_RCC",
+        "WY_1_0713_A1_RCC",
+        "WY_1_0713_B1_RCC",
+        "WY_1_0716_B1_RCC",
+        "WY_1_0720_E1_RCC",
+        "WY_1_0720_F1_RCC",
+        "WY_1_0720_F2_RCC",
+        "WY_1_0721_A1_RCC",
+        "WY_1_0721_B1_RCC",
+        "WY_1_0721_B2_RCC",
+        "WY_1_0721_B21_RCC",
+        "WY_1_0721_C1_RCC",
+        "WY_1_0721_E1_RCC",
+        "WY_1_0721_F1_RCC",
+        "WY_1_0722_A1_RCC",
+        "WY_1_0903_E1_RCC",
+        "MED"
+      ],
+      "choices": [
+        "WY_1_0721_B2_RCC@2983=@choice:0"
+      ],
+      "returned_to_title": true,
+      "media_completion_simulated": true,
+      "original_exe_run": false
+    }
+  },
+  "base_source_checkpoint": "4b6d7dcd6170a5f794be417d6cc55031900e089c"
+}

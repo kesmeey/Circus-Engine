@@ -1,0 +1,72 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-07",
+  "feature": "PC1 independent portable candidate/session bridge",
+  "target_profile": "dcpc-2063",
+  "scope": "Portable CVS2 continuation and platform metadata paired with the real native candidate producer. This is not original Windows8004-byte story-slot import/export or a full41A620 physical reconstruction. Original game EXEs were not launched and original game directories were not written.",
+  "producer_contract": {
+    "prepared_1B": "Pc1Runtime.prepareSave notifies a deferred capture; MesVm boundary observer runs after instructionFinished/finally and before another fetch. The portable leaf resumes after the owned raw companion; the raw native candidate still retains the before-companion cursor.",
+    "current_persist": "Only flag0 persist4(argument1) notifies a current producer. A detached fresh pair consumes completeSave and elapse0 so the loadable leaf contains no pending-save replay. The live request remains pending until platform write success.",
+    "native_event": "Only successful flag0 captureNativeEvent triggers synchronous capture before enter(), with eventKind0/1/2 native voice-stop ordering retained. Flag1 and raw26 preserve an earlier independent candidate.",
+    "normal_loader": "Clearing native flag for mode1/3 preserves existing candidate bytes and the portable sidecar. Metadata object rebinding is not a new producer."
+  },
+  "session_contract": {
+    "format": "P1CS version1 envelope: active CVS2 leaf + optional independent candidate CVS2 leaf/provenance/opaque platform metadata + checksum. Candidate leaf never contains another session envelope.",
+    "identity": "Full typed candidate and masked raw native bytes form the provenance fingerprint. Only native404E70 metadata bytes ordinary902 and920..925 are excluded; source script/SHA/rawPC/portablePC and producer kind are checked.",
+    "restore": "Decode active and independent leaf into unpublished fresh VM/host pairs; validate both candidate identities and script execution contracts, then merge current persistent settings/account progress and publish. Corruption/source/provenance failure retains the prior published session.",
+    "legacy": "Pure CVS2 loads are accepted through the existing engine contract but have no sidecar. A protected candidate cannot be synthesized from the currently running VM.",
+    "platform_metadata": "Synchronous optional callback is sampled at producer and saved with its leaf. Metadata bytes are opaque, checksummed and limited to2MiB. Platform decoding/thumbnail/audio-cursor use is outside this core fixture scope.",
+    "bounds": "Each CVS2 leaf at most32MiB; envelope at most70MiB; one active plus one candidate leaf."
+  },
+  "native_metadata_preparation": "The SaveMetadata overload patches the live native candidate before platform I/O using existing prepareWrite. A detached leaf patches only ordinary9:2/20/21..25 and its native candidate; all other story/scene/audio state remains the producer state. year+0x30 is masked to a byte before Variables.write, retaining native wrap. No new callback or producer is created.",
+  "validation": {
+    "new_self_authored_core_assertions": 46,
+    "existing_pc1_runtime_owner_assertions": 86,
+    "heap_mib": 192,
+    "test_classes": {
+      "Pc1PortableCandidateTests": {
+        "exit_code": 0,
+        "stdout": "Pc1PortableCandidateTests 46 PASS"
+      },
+      "Pc1RuntimeTests": {
+        "exit_code": 0,
+        "stdout": "PASS 86 PC1 VM/host owner assertions"
+      }
+    },
+    "private_frozen_evidence": "build\\native-rewrite\\pc1-candidate-stage58",
+    "overlay_base": "build\\native-rewrite\\producer-integration-20261107T124253843060Z",
+    "source_deltas": [],
+    "cases": [
+      "Prepared candidate31/A/musicA survives live91/B/musicB and raw26 SAVE entry.",
+      "Active session and earlier candidate both survive an envelope roundtrip; original selected-slot request restores the story leaf.",
+      "Flag0 auto captures current and normalizes pending save only in its detached continuation.",
+      "All three input-event kinds retain their voice-stop order and store caller state before system entry.",
+      "Flag1 input event cannot replace earlier prepared leaf.",
+      "Normal-loader flag clearing preserves candidate sidecar.",
+      "Checksummed corruption, resealed invalid provenance and changed source SHA fail before publishing a new session pair.",
+      "Producer callback failure stops before next record; original live request is not consumed during slot preparation.",
+      "Existing CVS2 without sidecar cannot manufacture independent candidate.",
+      "Native metadata preparation retains story state, applies exact7 known ordinary bytes and does not recapture metadata."
+    ]
+  },
+  "boundaries": [
+    "Core producer selection and continuation are implemented; platform write/read atomicity, metadata pictures/audio cursors and long actual route outcomes are validated separately by the platform phase.",
+    "Native Windows story-slot interoperability, complete41A620 reconstruction/fade and arbitrary physical media cursor equivalence are not established.",
+    "Direct toolbar quick-save has no newly mapped native candidate producer and should remain explicitly unavailable rather than using current/menu VM as a substitute."
+  ],
+  "source_sha256": {
+    "runtime/core/src/org/circus/core/MesVm.java": "81407e498340866f66f20d5fb08eac936213b462860d5535616df92a1740acd7",
+    "runtime/core/src/org/circus/core/Pc1Runtime.java": "4a08ac1c81826b67be2b2507ecb9822204ef47ffaf148dbcf703a04dd1499c41",
+    "runtime/core/src/org/circus/core/Dc2Session.java": "d43b7a8af7a8064eec0549a93892d504bf8dd1130b768b26c9adcbd3d3e168ca",
+    "runtime/core/src/org/circus/core/Pc1PortableCandidate.java": "4d948bda4ed5ff3a0eb47968d7af3af1300c8add5782d110cfe426d60110d704",
+    "runtime/tests/org/circus/core/Pc1PortableCandidateTests.java": "3e8c3d54752357217ad301ee8b3a6e8ddaaa5482693610631e83a025925deab4"
+  },
+  "git_lf_source_sha256": {
+    "runtime/core/src/org/circus/core/MesVm.java": "a880319d6f722f3c995df6e688402ca3badb451e1399eae9849f162d2439f66b",
+    "runtime/core/src/org/circus/core/Pc1Runtime.java": "ac33fad6b8e60f4fbc3a25e921a8e3d069b991390b545f59d07834db1cc5af4c",
+    "runtime/core/src/org/circus/core/Dc2Session.java": "32a9f0e5e21bf3730205063a4d78949e18696addb3667bbcbb63b89dfa2d31b6",
+    "runtime/core/src/org/circus/core/Pc1PortableCandidate.java": "4d948bda4ed5ff3a0eb47968d7af3af1300c8add5782d110cfe426d60110d704",
+    "runtime/tests/org/circus/core/Pc1PortableCandidateTests.java": "0ad5fa716aad6624a0df810880b16449710cccb9da443767986e0f06315f5ccb"
+  },
+  "source_hash_note": "Working-copy byte identities and their CRLF-to-LF-only equivalents are recorded separately."
+}

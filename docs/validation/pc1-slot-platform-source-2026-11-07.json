@@ -1,0 +1,109 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-07",
+  "feature": "PC1 portable candidate slot platform bridge",
+  "target": {
+    "profile": "dcpc-2063",
+    "file": "DCPCDVD_CHS.exe",
+    "sha256": "7988971ff38f6b0fb2f21827b1ba38c3c7fe5cc824420b179ea9d9a838872057",
+    "original_executable_launched": false,
+    "original_game_directory_modified": false
+  },
+  "scope": "Portable runtime slot envelopes and producer platform metadata. Not original Windows8004 story-slot interchange or complete native41A620 reconstruction. Counts are scoped regression assertions, not a fidelity percentage.",
+  "validation": {
+    "platform_assertions": 60,
+    "controlled_producer_assertions": 54,
+    "actual_original_auto_assertions": 6,
+    "previous_platform_assertions": 51,
+    "counter_note": "60 supersedes and overlaps the earlier51; do not add them.",
+    "java_heap_mib": 192,
+    "controlled_program": "Four self-authored1B/persist4 producer pairs over actual read-only DCPC graphics and PE resources. No original program process is started.",
+    "contracts": [
+      "Producer A ordinary/scene/audio/caption/thumbnail remain independent from later live B and SAVE state.",
+      "Six-channel sampled audio cursors remain paired with each producer; same-name replay with a new generation has cursor0.",
+      "Overwriting the same slot refreshes cached metadata and thumbnail pixels.",
+      "The active session envelope preserves an earlier independent candidate metadata sidecar across snapshot/restore.",
+      "Windows FileInputStream sharing prevents replacement of the previous slot: the prior bytes/cache and pending native request survive; retry after release succeeds.",
+      "A restore replaces the VM while preserving identical resource names and audioGeneration values. The next actual1B, before a new audioPosition report, captures0 for all six old physical samples."
+    ],
+    "first_audio_cursors": [
+      1000,
+      2000,
+      3000,
+      0,
+      5000,
+      6000
+    ],
+    "second_audio_cursors": [
+      1000,
+      2000,
+      0,
+      4000,
+      5000,
+      6000
+    ],
+    "same_resource_generation_after_restore_cursors": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "regression_negative_control": {
+      "passed_as_expected_failure": true,
+      "old_player_lacks_execution_identity_guard": true,
+      "assertion_failed": "new execution cannot reuse old physical cursor even with same resource/generation0",
+      "player_source_note": "Independent prior stage58 base-classes copy, before DesktopEngine executionIdentity guard. Current audit source used in both runs."
+    },
+    "actual_original_auto": {
+      "dialogues_before_auto": 703,
+      "script_count": 12,
+      "written_script": "0224a_f00",
+      "written_pc": 2086,
+      "producer_script": "0224a_f00",
+      "producer_pc": 479,
+      "restored_script": "0224a_f00",
+      "restored_pc": 479,
+      "slot_bytes": 1506463,
+      "returned_to_title": false,
+      "media_completion_simulated": true,
+      "choice_policy": "last real story option; native toolbar actions excluded"
+    },
+    "artifact_directory": "build/native-rewrite/pc1-slot-platform-stage58/platform-execution-owner",
+    "captured_player_input_manifest": "build/native-rewrite/pc1-slot-platform-stage58/execution-owner-inputs-manifest.json",
+    "captured_player_input_manifest_sha256": "50ef472a339c62e1743c1f065fa8c65750dfad9a57512e9e15fb2248a492b8d7",
+    "critical_working_source_deltas_from_tested_class_inputs": []
+  },
+  "boundaries": [
+    "Physical replacement-failure injection is Windows-specific; this public audit expects Windows file-sharing behavior.",
+    "Audio cursors are platform-reported samples, not reconstructed DirectSound physical playback state. A new VM must report its own positions before they can be captured again.",
+    "The actual route segment ends at the first forced auto slot after703 dialogue waits; this audit does not certify a full or good ending.",
+    "Original native8004 interchange and platform quick-save producer mapping remain separate from this portable slot bridge."
+  ],
+  "source_sha256": {
+    "runtime/desktop/src/org/circus/core/DesktopEngine.java": "030b11b1cf9047f3da62cd9bcb38784eb6ceea9a1f0ec1ef16323ea30566148b",
+    "runtime/desktop/src/org/circus/core/DesktopLegacy.java": "5da7cfbbcaf97e934a8da8a199e5c69ae8e0853b81bf1bc25c3a92eed55b97c6",
+    "runtime/core/src/org/circus/core/Dc2Session.java": "d43b7a8af7a8064eec0549a93892d504bf8dd1130b768b26c9adcbd3d3e168ca",
+    "runtime/core/src/org/circus/core/MesVm.java": "81407e498340866f66f20d5fb08eac936213b462860d5535616df92a1740acd7",
+    "runtime/core/src/org/circus/core/Pc1Runtime.java": "4a08ac1c81826b67be2b2507ecb9822204ef47ffaf148dbcf703a04dd1499c41",
+    "runtime/core/src/org/circus/core/Pc1PortableCandidate.java": "4d948bda4ed5ff3a0eb47968d7af3af1300c8add5782d110cfe426d60110d704",
+    "runtime/core/src/org/circus/core/PcHost.java": "07087a938898724f029582b64147641d1c6e099c4943db7dc5f7002202cf17b0",
+    "runtime/desktop/src/org/circus/core/Pc1SlotPlatformAudit.java": "627e48a9430ead9089a23f24acce207b852edc403c6d39d0dfc0548a64fd4829"
+  },
+  "git_lf_source_sha256": {
+    "runtime/desktop/src/org/circus/core/DesktopEngine.java": "a25a552bd64cda3b4f31548e65d18bf882ef16248a93543d731bcf8096335835",
+    "runtime/desktop/src/org/circus/core/DesktopLegacy.java": "c02e56ae60103bd7f8e8f25a166900538dfbeacf77922e5e4a5d28fdf5054481",
+    "runtime/core/src/org/circus/core/Dc2Session.java": "32a9f0e5e21bf3730205063a4d78949e18696addb3667bbcbb63b89dfa2d31b6",
+    "runtime/core/src/org/circus/core/MesVm.java": "a880319d6f722f3c995df6e688402ca3badb451e1399eae9849f162d2439f66b",
+    "runtime/core/src/org/circus/core/Pc1Runtime.java": "ac33fad6b8e60f4fbc3a25e921a8e3d069b991390b545f59d07834db1cc5af4c",
+    "runtime/core/src/org/circus/core/Pc1PortableCandidate.java": "4d948bda4ed5ff3a0eb47968d7af3af1300c8add5782d110cfe426d60110d704",
+    "runtime/core/src/org/circus/core/PcHost.java": "8d650a8de98b53fa92be8a1720b9a7219d1177421c86052d06591e7f5a1fa063",
+    "runtime/desktop/src/org/circus/core/Pc1SlotPlatformAudit.java": "b882d04417ad10688a5733eccb53e45f871683208b5363448379bf281955a3a0"
+  },
+  "source_hash_note": "Raw working-copy hashes identify tested inputs. The LF hashes permit only CRLF-to-LF normalization when comparing committed source.",
+  "reproduce": [
+    "python tools/build_desktop.py --java-home <JDK21> --with-tests",
+    "java -Xmx192m -Djava.awt.headless=true -cp <test-classes> org.circus.core.Pc1SlotPlatformAudit <DCPC-game> <owned-output>"
+  ]
+}

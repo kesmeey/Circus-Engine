@@ -5,6 +5,11 @@ import java.util.*;
 
 /** Cooperative, bounded interpreter. Unknown instructions stop with a precise diagnostic. */
 public final class MesVm {
+    /** Optional session observer, called after a successful instruction attempt
+     * has closed all host-local dispatch scopes and before another fetch. */
+    public interface BoundaryListener {void reached()throws IOException;}
+    private BoundaryListener boundaryListener;
+    public void boundaryListener(BoundaryListener listener){boundaryListener=listener;}
     public interface Library { MesScript script(String name)throws IOException; }
     public interface Host extends Variables.Special {
         boolean command(String semantic,int[] args,byte[] bytes)throws IOException;
@@ -181,7 +186,7 @@ public final class MesVm {
         // A native frame can release its wait without producing a named jump.
         resumeReleasedHost();
         for(int i=0;i<budget && status==Status.RUNNING;i++){
-            try{step();}catch(IOException|RuntimeException e){status=Status.FAULT;error=script.name+" @0x"+Integer.toHexString(pc)+": "+e.getMessage();}
+            try{step();if(boundaryListener!=null)boundaryListener.reached();}catch(IOException|RuntimeException e){status=Status.FAULT;error=script.name+" @0x"+Integer.toHexString(pc)+": "+e.getMessage();}
         }
         return status;
     }

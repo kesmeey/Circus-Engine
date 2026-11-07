@@ -65,6 +65,13 @@ public final class Pc1Runtime {
     private final Pc1SaveContext saves=new Pc1SaveContext();
     private Pc1Frame requestedSave;
     private int requestedSlot=-1;
+    /** Portable leaves belong to Dc2Session, outside this native wire. These
+     * transient notifications identify real producers, never metadata rebinding. */
+    interface PortableCapture {void captured(int kind)throws IOException;}
+    private PortableCapture portableCapture;
+    private int pendingPortableCapture;
+    void portableCapture(PortableCapture capture){portableCapture=capture;pendingPortableCapture=0;}
+    void capturePortableBoundary()throws IOException{if(pendingPortableCapture!=0){int kind=pendingPortableCapture;if(portableCapture!=null)portableCapture.captured(kind);pendingPortableCapture=0;}}
     Pc1Runtime(final PcHost host){this(host,false);}
     Pc1Runtime(final PcHost host,boolean beforeWinMain){this.host=host;nativeFrame=beforeWinMain?Pc1NativeFrame.zeroBss():initialNativeFrame();textLog=Pc1TextLog.backed(nativeFrame);host.scene.bindCoordinates(new Dc2Scene.LiveCoordinates(){
         public int background(int axis){return nativeFrame.dword(axis==0?Pc1NativeSlot.Dword.BACKGROUND_X:Pc1NativeSlot.Dword.BACKGROUND_Y);}
@@ -399,7 +406,7 @@ public final class Pc1Runtime {
         if(system!=null)throw new IOException("Nested native PC1 system context is not mapped");
         if(host.nativeFrameCapture==null)throw new IOException("Native PC1 system call requires a complete framebuffer capture adapter");
         if(eventKind!=0)host.play(5,"",false);
-        saves.captureNativeEvent(host,caller,returnPc,packedSoundRequest());
+        if(saves.captureNativeEvent(host,caller,returnPc,packedSoundRequest())&&portableCapture!=null)portableCapture.captured(3);
         if(eventKind!=2)host.play(5,"",false);
         enter(caller,returnPc,0,rawTarget);
     }
@@ -455,11 +462,12 @@ public final class Pc1Runtime {
         if(host.read(99,15)==0||index>=host.resources.names.table("sound").size())return;
         host.play(1,host.resources.named("sound",index),true);
     }
-    void prepareSave()throws IOException{saves.prepare(host,host.pc,packedSoundRequest());}
+    void prepareSave()throws IOException{saves.prepare(host,host.pc,packedSoundRequest());pendingPortableCapture=1;}
     void requestSave(int argument)throws IOException {
         Pc1Frame current=saves.needsCurrentFrame(argument)?Pc1Frame.capturePersistCurrent(host,host.pc,packedSoundRequest()):null;
         Pc1SaveContext.Selection selected=saves.selectForPersist4(argument,host.read(99,254),current);
         requestedSave=selected.frame;requestedSlot=selected.slot;host.saveRequest=selected.slot;host.nextTicket();
+        if(current!=null)pendingPortableCapture=2;
     }
     public void completeSave(){requestedSave=null;requestedSlot=-1;}
     void restored(MesScript active)throws IOException {
@@ -509,7 +517,7 @@ public final class Pc1Runtime {
         workingFrame.copyFrom(loadedWorking);systemFrame.copyFrom(loadedSystem);system=next==null?null:next.bindNativeFrame(systemFrame);saves.copyFrom(nextSaves);requestedSlot=slot;requestedSave=requestedShared?frame.bindNativeFrame(saves.nativeCandidate()):frame;nativeFrame.copyFrom(loadedFrame);codeBuffer.copyFrom(loadedCode);drawMemory.restore(loadedDraw);nativeUi.restore(loadedUi);layoutMemory.restore(loadedLayout);pathGlobals.restore(loadedPaths);resourceLiterals.restore(loadedLiterals);graphicsMemory.restore(loadedGraphics);vmGlobals.restore(loadedVmGlobals);effectsMemory.restore(loadedEffects);presentationMemory.restore(loadedPresentation);uiPageMemory.restore(loadedUiPage);eventMemory.restore(loadedEvents);crxMemory.restore(loadedCrx);checkpointMemory.restore(loadedCheckpoints);effectPeMemory.restore(loadedEffectPe);catalogMemory.restore(loadedCatalog);startupMemory.restore(loadedStartup);timer5Memory.restore(loadedTimer5);inputMemory.restore(loadedInput);waitMemory.restore(loadedWait);scriptMemory.restore(loadedScript);systemMemory.restore(loadedSystemMemory);windowMemory.restore(loadedWindowMemory);geometry=nextGeometry;textBuffers=buffers;
         mmPhysicalMemory().restore(loadedPhysical);
         if(nativeDispatchFrame!=null)nativeDispatchFrame.restoreFrom(loadedDispatchFrame);
-        initialScriptBound=bound;dispatcherReentry=reentry;pendingCondition=conditional;nativeDrawUsed=drawUsed;rawStringPointer=rawPointer;dispatching=false;previousOpcode=previous;currentOpcode=current;lastYieldOpcode=yielded;fetchedAt=at;
+        initialScriptBound=bound;dispatcherReentry=reentry;pendingCondition=conditional;nativeDrawUsed=drawUsed;rawStringPointer=rawPointer;dispatching=false;previousOpcode=previous;currentOpcode=current;lastYieldOpcode=yielded;fetchedAt=at;pendingPortableCapture=0;
         layoutAliases=aliases;canonicalLayout=null;activeDictionaryCount=dictionaryCount;redrawGeneration=epoch;layoutIsHistory=historic;glyphBatches.clear();glyphBatches.addAll(nextBatches);textPatches.clear();textPatches.addAll(patches);
         storyPrefixCount=prefix;storyFullCount=full;storyButtons.clear();storyButtons.addAll(story);
         returnSurface=surface;returnPaintSerial=returnRevision;

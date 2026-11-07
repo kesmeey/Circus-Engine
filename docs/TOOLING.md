@@ -103,7 +103,7 @@ python tools/build_desktop.py --java-home <JDK21> --with-tests
 java -Xmx192m "-Djava.awt.headless=true" -cp build/desktop-tests/classes org.circus.core.DesktopRouteAudit "D:\game" build/routes/first first 1 --exe patched.exe --action sce_start --action menu01
 ```
 
-`--exe`只选择静态数据表，`--action`按顺序点击真实菜单已有的动作。`first`或`last`决定之后的选择策略，后面的数字选择章节入口；原有不带选项的调用仍可用。W.Y.的`menu01`启动页也有默认策略。可用`--steps N`限制推进预算；预算耗尽、未知指令或资源失败都报告失败。
+`--exe`只选择静态数据表，`--action`按顺序点击真实菜单已有的动作。`first`或`last`决定之后的选择策略，后面的数字选择章节入口；原有不带选项的调用仍可用。W.Y.的`menu01`启动页也有默认策略。可重复传入`--choose SCRIPT@HEX=LABEL`指定某一处真实菜单选择，例如PC1音梦正常片尾在first策略基础上使用`--choose 0326a_n01@1c86=02 --choose 0429a_n02@860=02`。位置使用等待指令结束后的VM文件偏移；不存在、未遇到或重复指定的位置都报错。PC1剧情选择会排除同屏工具栏按钮。可用`--steps N`限制推进预算；预算耗尽、未知指令或资源失败都报告失败。
 
 输出目录必须位于原游戏目录之外。报告保存脚本名、选择策略、指定EXE与预算，媒体完成和时间推进由测试控制，不作原版实时输出证明。
 

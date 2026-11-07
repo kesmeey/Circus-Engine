@@ -15,13 +15,14 @@ public final class DesktopRouteAudit {
         Files.createDirectories(destination);return destination;
     }
     public static void main(String[] args)throws Exception{
-        if(args.length<2)throw new IllegalArgumentException("DesktopRouteAudit GAME OUTPUT [first|last] [ROUTE] [--exe relative.exe] [--action LABEL]... [--steps N]");
-        int at=2,route=1,stepBudget=1000000;boolean last=false;String executable="";List<String> startup=new ArrayList<>();
+        if(args.length<2)throw new IllegalArgumentException("DesktopRouteAudit GAME OUTPUT [first|last] [ROUTE] [--exe relative.exe] [--action LABEL]... [--choose SCRIPT@HEX=LABEL]... [--steps N]");
+        int at=2,route=1,stepBudget=1000000;boolean last=false;String executable="";List<String> startup=new ArrayList<>();Map<String,String> overrides=new LinkedHashMap<>();Set<String> consumedOverrides=new HashSet<>();
         if(at<args.length&&!args[at].startsWith("--")){if(!args[at].equals("first")&&!args[at].equals("last"))throw new IllegalArgumentException("Expected first or last choice policy");last=args[at++].equals("last");}
         if(at<args.length&&!args[at].startsWith("--"))route=Integer.parseInt(args[at++]);
-        for(;at<args.length;at+=2){if(at+1>=args.length)throw new IllegalArgumentException("Missing value for "+args[at]);switch(args[at]){case "--exe":executable=args[at+1];break;case "--action":startup.add(args[at+1]);break;case "--steps":stepBudget=Integer.parseInt(args[at+1]);break;default:throw new IllegalArgumentException("Unknown route audit option "+args[at]);}}
+        for(;at<args.length;at+=2){if(at+1>=args.length)throw new IllegalArgumentException("Missing value for "+args[at]);switch(args[at]){case "--exe":executable=args[at+1];break;case "--action":startup.add(args[at+1]);break;case "--choose":{String choice=args[at+1];int split=choice.lastIndexOf('=');if(split<=0||split==choice.length()-1||!choice.substring(0,split).matches("[^@]+@[0-9a-fA-F]+"))throw new IllegalArgumentException("Expected --choose SCRIPT@HEX=LABEL");String site=choice.substring(0,split).toLowerCase(Locale.ROOT);if(overrides.put(site,choice.substring(split+1))!=null)throw new IllegalArgumentException("Duplicate choice override "+site);break;}case "--steps":stepBudget=Integer.parseInt(args[at+1]);break;default:throw new IllegalArgumentException("Unknown route audit option "+args[at]);}}
         if(route<1||stepBudget<1)throw new IllegalArgumentException("Route and step budget must be positive");
         Path game=Paths.get(args[0]).toRealPath(),out=outputOutsideGame(game,args[1]);
+        Files.deleteIfExists(out.resolve("result.json"));Files.deleteIfExists(out.resolve("failure.txt"));
         Set<String> scripts=new LinkedHashSet<>();List<String> choices=new ArrayList<>();Map<String,Integer> menuVisits=new HashMap<>();List<String> loopEscapes=new ArrayList<>();int lines=0;String previous="",lastWhere="";int stuck=0;boolean started=false,ended=false;
         int startupAt=0;
         try(DesktopRuntime app=new DesktopRuntime(game,true,executable);BufferedWriter log=Files.newBufferedWriter(out.resolve("trace.jsonl"),StandardCharsets.UTF_8)){
@@ -33,6 +34,7 @@ public final class DesktopRouteAudit {
                     if(scripts.add(m.scriptName())){System.out.println("SCRIPT "+m.scriptName()+" lines="+lines);e.render();}
                     if(e.menuWaiting()){
                         List<String> actions=new ArrayList<>();for(DesktopEngine.Control b:e.controls())actions.add(b.action);
+                        if(e instanceof DesktopLegacy&&((DesktopLegacy)e).host() instanceof PcHost){PcHost h=(PcHost)((DesktopLegacy)e).host();if(h.pc1!=null&&h.pc1.waitKind()==9&&!h.pc1.historyActive()){Set<String> labels=new HashSet<>();for(int n=h.pc1.storyPrefix().size();n<h.ui.buttons.size();n++)if(!h.ui.buttons.get(n).action.isEmpty())labels.add(h.ui.buttons.get(n).action);actions.retainAll(labels);}}
                         String selected=null;
                         if(lines==0&&startupAt<startup.size()){selected=startup.get(startupAt++);if(!actions.contains(selected))throw new IOException("Requested original startup action absent at "+where+": "+selected+" from "+actions);if(selected.equals("start")||selected.equals("sce_start"))started=true;}
                         else if(!started){for(String a:new String[]{"window","03","sce_start","start"})if(actions.contains(a)){selected=a;break;}if(selected!=null&&(selected.equals("start")||selected.equals("sce_start")))started=true;}
@@ -40,10 +42,12 @@ public final class DesktopRouteAudit {
                         else if(lines==0&&actions.contains("sceselect01"))selected="sceselect01";
                         else if(lines==0&&actions.contains("menu01"))selected="menu01";
                         else if(lines>0&&(actions.contains("start")||actions.contains("sce_start"))){ended=true;break;}
-                        else if(lines>0&&!actions.isEmpty()){selected=actions.contains("@map:yes")?"@map:yes":actions.get(last?actions.size()-1:0);choices.add(where+"="+selected);e.render();}
+                        else if(lines>0&&!actions.isEmpty()){selected=actions.contains("@map:yes")?"@map:yes":actions.contains("@dc2map:yes")?"@dc2map:yes":actions.get(last?actions.size()-1:0);e.render();}
                         if(e instanceof DesktopLegacy&&((DesktopLegacy)e).host() instanceof PcHost){PcHost h=(PcHost)((DesktopLegacy)e).host();int actor=Integer.getInteger("dc.mapCharacter",-1);if(h.map.active&&h.map.selected<0&&actor>=0){int preferred=e.vm().variables.read(5,actor)!=0?e.vm().variables.read(5,20+actor):-1;if(preferred<0)for(int k=0;k<10;k++)if(e.vm().variables.read(5,k)!=0){preferred=e.vm().variables.read(5,20+k);break;}String a="@map:"+preferred;if(actions.contains(a))selected=a;javax.imageio.ImageIO.write(e.render(),"png",out.resolve("map.png").toFile());}String point="pos"+Integer.getInteger("dc.pcPoint",-1);if(actions.contains(point))selected=point;}
+                        String site=where.toLowerCase(Locale.ROOT);if(overrides.containsKey(site)){selected=overrides.get(site);if(!actions.contains(selected))throw new IOException("Requested original choice absent at "+where+": "+selected+" from "+actions);consumedOverrides.add(site);}
                         if(selected==null)throw new IOException("Unresolved original menu "+where+" "+actions);
                         int visits=menuVisits.getOrDefault(where,0)+1;menuVisits.put(where,visits);if(visits>8){if(!Boolean.getBoolean("dc.breakChoiceLoops")||actions.size()<2)throw new IOException("Choice policy loops at "+where+"; alternate original choice required");selected=actions.get((actions.indexOf(selected)+1)%actions.size());loopEscapes.add(where+"="+selected);menuVisits.put(where,0);}
+                        if(lines>0)choices.add(where+"="+selected);
                         log.write(Json.text(Json.obj("menu",where,"selected",selected,"actions",actions)));log.newLine();e.choose(selected);continue;
                     }
                     boolean stable=e instanceof DesktopLegacy?((DesktopLegacy)e).host().textWaiting:e.textWaiting();
@@ -56,9 +60,10 @@ public final class DesktopRouteAudit {
                 }
                 if(!ended)throw new IOException("Route budget exhausted");
                 if(startupAt!=startup.size())throw new IOException("Unused requested startup actions");
+                if(consumedOverrides.size()!=overrides.size())throw new IOException("Unused requested choice overrides");
                 if(e.resources.profile.id.equals("dcpc-2063")&&!scripts.stream().anyMatch(s->s.equalsIgnoreCase("STAFF")||s.equalsIgnoreCase("BADEND")))throw new IOException("Title return without a verified PC1 ending; error fallback is not a completed route");
             }catch(Exception failure){Files.write(out.resolve("failure.txt"),(e.vm().scriptName()+"@"+Integer.toHexString(e.vm().offset())+"\n"+failure+"\n").getBytes(StandardCharsets.UTF_8));throw failure;}
-            Map<String,Object> result=Json.obj("profile",e.resources.profile.id,"policy",last?"last":"first","choice_loop_exits",loopEscapes,"dd_route",route,"startup_actions",startup,"static_executable_selection",executable,"step_budget",stepBudget,"dialogues",lines,"scripts",scripts,"choices",choices,"returned_to_title",ended,"media_completion_simulated",true,"original_exe_run",false);
+            Map<String,Object> result=Json.obj("profile",e.resources.profile.id,"policy",last?"last":"first","choice_loop_exits",loopEscapes,"choice_overrides",overrides,"dd_route",route,"startup_actions",startup,"static_executable_selection",executable,"step_budget",stepBudget,"dialogues",lines,"scripts",scripts,"choices",choices,"returned_to_title",ended,"media_completion_simulated",true,"original_exe_run",false);
             Files.write(out.resolve("result.json"),(Json.text(result)+"\n").getBytes(StandardCharsets.UTF_8));System.out.println("PASS lines="+lines+" scripts="+scripts.size()+" choices="+choices.size());
         }
     }

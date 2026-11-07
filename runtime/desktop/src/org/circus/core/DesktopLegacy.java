@@ -26,7 +26,7 @@ public final class DesktopLegacy extends DesktopEngine {
     private int savedAutoGeneration;
     public int hovered=-1;
     public String problem="";
-    static final class Picture {final Crx.Image raw;final BufferedImage image;Picture(BufferedImage b){raw=new Crx.Image(0,0,b.getWidth(),b.getHeight(),32,new byte[0],null);image=b;}Picture(Crx.Image r){raw=r;image=new BufferedImage(r.width,r.height,BufferedImage.TYPE_INT_ARGB);image.setRGB(0,0,r.width,r.height,r.argb(true),0,r.width);}static long constructionBytes(Crx.Image r){return rawBytes(r)+8L*r.width*r.height;}private static long rawBytes(Crx.Image r){return 1024L+r.pixels.length+(r.palette==null?0:4L*r.palette.length);}long residentBytes(){return rawBytes(raw)+4L*image.getWidth()*image.getHeight();}}
+    static final class Picture {final Crx.Image raw;final BufferedImage image;BufferedImage opaque;Picture(BufferedImage b){raw=new Crx.Image(0,0,b.getWidth(),b.getHeight(),32,new byte[0],null);image=b;}Picture(Crx.Image r){raw=r;image=new BufferedImage(r.width,r.height,BufferedImage.TYPE_INT_ARGB);image.setRGB(0,0,r.width,r.height,r.argb(true),0,r.width);}static long constructionBytes(Crx.Image r){return rawBytes(r)+8L*r.width*r.height;}private static long rawBytes(Crx.Image r){return 1024L+r.pixels.length+(r.palette==null?0:4L*r.palette.length);}long residentBytes(){return rawBytes(raw)+4L*image.getWidth()*image.getHeight()+(opaque==null?0:4L*opaque.getWidth()*opaque.getHeight());}}
 
     private boolean toolbar;private Dc2Ui.Button dragged;private int dragKind,pressedButton=-1;
     private String pendingSystemAction;
@@ -44,6 +44,7 @@ public final class DesktopLegacy extends DesktopEngine {
             if(nativeFiles!=null&&!audit&&Files.exists(nativeFiles.directory().resolve("system.dat")))((PcHost)h).reloadNativeSettingsFromBoundIo();
         });captures=new DesktopCaptures(width,height,this::drawCapture);host().captureRenderer=captures;nativeData=PcHost.supports(data.profile)?null:new Dc2NativeData(data,codec);
         if(data.profileId.equals("dc2-3363")||data.profileId.equals("dcpc-2063"))((PcHost)host()).nativeFrameCapture=this::captureFramebuffer;
+        if(pc1()!=null)session.pc1CandidateCapture=()->captureSaveMetadata(false).encode();
         scanSaves();
     }
     private UiCapture captureFramebuffer()throws IOException{BufferedImage front=render();try{return UiCapture.pixels(width,height,front.getRGB(0,0,width,height,null,0,width));}finally{front.flush();}}
@@ -62,7 +63,7 @@ public final class DesktopLegacy extends DesktopEngine {
         if(openPendingSystem())return;
         if(h.history.rewindRequest>=0){session.rewindHistory(h.history.rewindRequest);auto=rapid=false;}
         if(h.saveRequest>=0){writeSlot(h.saveRequest);h.completeSave();session.vm.elapse(0);}
-        if(h.loadRequest>=0)readSlot(h.loadRequest);
+        if(h.loadRequest>=0){readSlot(h.loadRequest);return;}
         if(h.autosaveGeneration!=savedAutoGeneration&&!session.inSystem()&&h.textWaiting){savedAutoGeneration=h.autosaveGeneration;if(!audit)writeSlot(h instanceof PcHost?0:2);}
         if(pendingSystemAction==null&&(pc1()==null||!pc1().historyActive())&&!h.ui.waiting&&(rapid&&h.skipAllowed||(auto||h instanceof PcHost&&h.read(99,13)>=2)&&textClock>autoDelay()&&!h.audioActive[5]))session.vm.signalHost(h.waitTicket(),MesVm.HostSignal.ADVANCE);
     }
@@ -183,11 +184,22 @@ public final class DesktopLegacy extends DesktopEngine {
     public void audioCompleted(int ch,int generation){host().audioCompleted(ch,generation);}
     public int pan(int ch){return ch==5?host().voicePan:0;}
     public float volume(int ch)throws IOException{if(ch==5&&resources.profileId.equals("dc2-3363"))return host().voiceGain();int enabled=ch==0?14:ch==5?5:15,level=ch==0?7:ch==5?9:8;return host().read(99,enabled)==0?0:(ch==0?host().musicFadeGain():ch==5?host().voiceGain():1)*Math.max(0,Math.min(1,host().read(99,level)/30f));}
-    public byte[] snapshot()throws IOException{return session.storySnapshot();}
+    public byte[] snapshot()throws IOException{return pc1()==null?session.storySnapshot():session.snapshot();}
     public void restore(byte[] bytes)throws IOException{cancelPointer();session.restore(bytes);host().ui.pressed=-1;savedAutoGeneration=host().autosaveGeneration;textTicket=-1;hidden=toolbar=auto=rapid=false;pendingSystemAction=null;scanSaves();}
     private Path slot(int n)throws IOException{if(n<0||n>255)throw new IOException("Invalid save slot "+n);return saveDirectory.resolve("slot-"+n+".sav");}
-    private void writeSlot(int n)throws IOException{if(host() instanceof PcHost&&((PcHost)host()).pc1!=null)throw new IOException("Native PC1 slot write requires the independent candidate and complete41A620 reconstruction; this bridge is not implemented");save(slot(n));scanSaves();persist();}
-    private void readSlot(int n)throws IOException{if(host() instanceof PcHost&&((PcHost)host()).pc1!=null)throw new IOException("Native PC1 slot load requires complete41A620 reconstruction; this bridge is not implemented");restore(slot(n));}
+    private void writeSlot(int n)throws IOException{
+        if(pc1()==null)save(slot(n));
+        else{
+            if(host().saveRequest!=n)throw new IOException("PC1 quick-save input capture is not mapped; use the original Save menu or F5");
+            session.requirePc1SaveCandidate();byte[] metadata=session.pc1CandidateMetadata();
+            if(metadata.length==0)throw new IOException("PC1 checkpoint has no platform preview/audio metadata");
+            DesktopSave s=DesktopSave.decode(metadata);if(s.state.length!=0)throw new IOException("PC1 checkpoint metadata contains an unexpected VM");
+            Calendar now=new GregorianCalendar();Pc1Frame.SaveMetadata local=new Pc1Frame.SaveMetadata(now.get(Calendar.YEAR),now.get(Calendar.MONTH)+1,now.get(Calendar.DAY_OF_MONTH),now.get(Calendar.HOUR_OF_DAY),now.get(Calendar.MINUTE));
+            s.state=session.pc1CandidateSnapshot(local);s.icon=vm().variables.read(9,20);s.created=System.currentTimeMillis();writeSave(slot(n),s);
+        }
+        scanSaves();persist();
+    }
+    private void readSlot(int n)throws IOException{restore(slot(n));}
     private void scanSaves()throws IOException{host().availableSaves.clear();host().saveLabels.clear();thumbnails.clear();for(int n=0;n<256;n++)if(Files.exists(slot(n))){host().availableSaves.add(n);host().saveLabels.put(n,new java.text.SimpleDateFormat("MM/dd HH:mm").format(new Date(Files.getLastModifiedTime(slot(n)).toMillis())));scanThumbnail(n,slot(n));}}
     public String saveCaption(){return host().checkpointLabel.isEmpty()?(body().isEmpty()?lastLine:body()):codec.apply(host().checkpointLabel);}
     public BufferedImage preview()throws IOException{BufferedImage image=new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);Graphics2D g=image.createGraphics();try{if(host().systemScene==null&&host().scene.nativeMotion!=null)g.drawImage(motion(host().scene.nativeMotion),0,0,null);else scene(g,host().systemScene!=null?host().systemScene:host().scene.shown);}finally{g.dispose();}return image;}
@@ -334,8 +346,12 @@ public final class DesktopLegacy extends DesktopEngine {
     public BufferedImage render()throws IOException {
         if(pc1()!=null){UiCapture.Pixels front=pc1().returnPixels();if(front!=null){if(front.width!=width||front.height!=height)throw new IOException("PC1 return framebuffer canvas mismatch");BufferedImage copy=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);copy.setRGB(0,0,width,height,front.argb,0,width);return copy;}}
         BufferedImage result=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D g=result.createGraphics();try{
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);Dc2Host h=host();if(h instanceof PcHost&&((PcHost)h).frozenOriginalBatch()!=null){g.drawImage(captures.resolve(((PcHost)h).frozenOriginalBatch()),0,0,null);return result;}if(h instanceof PcHost&&((PcHost)h).map.active){drawMap(g,(PcHost)h);return result;}if(h.scene.nativeMotion!=null)g.drawImage(motion(h.scene.nativeMotion),0,0,null);else scene(g,h.scene.shown);if(h instanceof PcHost&&((PcHost)h).sceneCommandDeferred())return result;drawTransition(g);if(h instanceof PcHost&&((PcHost)h).pcCredits.active){PcCredits c=((PcHost)h).pcCredits;int first=(int)c.scroll()/c.stripHeight();g.setColor(Color.BLACK);g.fillRect(0,0,width,height);for(int n=first;n<=Math.min(c.lastStrip(),first+1);n++)at(g,c.image(n),0,(int)(n*c.stripHeight()-c.scroll()));return result;}if(h.credits.active()){drawCredits(g);return result;}
-            if(!h.body.isEmpty()&&!hidden){
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);Dc2Host h=host();
+            boolean mapBackdrop=h instanceof PcHost&&((PcHost)h).dc2Map.backdrop;
+            if(h instanceof PcHost&&(((PcHost)h).dc2Map.active||mapBackdrop)){drawDc2Map(g,(PcHost)h);if(((PcHost)h).dc2Map.active)return result;}
+            else{if(h instanceof PcHost&&((PcHost)h).frozenOriginalBatch()!=null){g.drawImage(captures.resolve(((PcHost)h).frozenOriginalBatch()),0,0,null);return result;}if(h instanceof PcHost&&((PcHost)h).map.active){drawMap(g,(PcHost)h);return result;}if(h.scene.nativeMotion!=null)g.drawImage(motion(h.scene.nativeMotion),0,0,null);else scene(g,h.scene.shown);if(h instanceof PcHost&&((PcHost)h).sceneCommandDeferred())return result;drawTransition(g);}
+            if(h instanceof PcHost&&((PcHost)h).pcCredits.active){PcCredits c=((PcHost)h).pcCredits;int first=(int)c.scroll()/c.stripHeight();g.setColor(Color.BLACK);g.fillRect(0,0,width,height);for(int n=first;n<=Math.min(c.lastStrip(),first+1);n++)at(g,c.image(n),0,(int)(n*c.stripHeight()-c.scroll()));return result;}if(h.credits.active()){drawCredits(g);return result;}
+            if(!mapBackdrop&&!h.body.isEmpty()&&!hidden){
                 boolean nativePc1=h instanceof PcHost&&((PcHost)h).pc1!=null;
                 Dc2Ui.Quad body=null,name=null;for(Dc2Ui.Quad q:h.ui.quadTemplates.get(h.messageMode()==0?1:4)){if(!nativePc1||q.type!=2)quad(g,q,h.scene.slots,false);if(visibleQuad(q)&&q.type==2&&q.width>2)body=q;}
                 if(!h.speaker.isEmpty())for(Dc2Ui.Quad q:h.ui.quadTemplates.get(h.messageMode()==0?2:5)){if(!nativePc1||q.type!=2)quad(g,q,h.scene.slots,false);if(visibleQuad(q)&&q.type==2&&q.width>2)name=q;}
@@ -363,6 +379,13 @@ public final class DesktopLegacy extends DesktopEngine {
     public void typeText(String text){if(editingText())((PcHost)host()).nameInput.insert(text);}
     public void editKey(int code)throws IOException{if(!editingText())return;PcHost p=(PcHost)host();if(code==KeyEvent.VK_BACK_SPACE||code==KeyEvent.VK_DELETE)p.nameAction("@name:button:4");else if(code==KeyEvent.VK_LEFT)p.nameAction("@name:button:6");else if(code==KeyEvent.VK_RIGHT)p.nameAction("@name:button:5");else if(code==KeyEvent.VK_ENTER)p.nameAction("@name:button:7");else if(code==KeyEvent.VK_ESCAPE)p.nameAction("@name:cancel");}
     private void mapChip(Graphics2D g,String name,int x,int y,int sx,int sy,int w,int h)throws IOException{Picture p=picture(name);if(p!=null)g.drawImage(p.image,x,y,x+w,y+h,sx,sy,sx+w,sy+h,null);}
+    private void drawDc2Map(Graphics2D g,PcHost h)throws IOException{
+        for(Dc2Map.Sprite sprite:h.dc2Map.sprites(vm().variables)){
+            Picture p=picture(sprite.resource);if(p==null)continue;BufferedImage image=p.image;
+            if(sprite.opaque){if(p.opaque==null){images.reserve(p.residentBytes()+8L*p.raw.width*p.raw.height);int[] pixels=p.raw.argb();for(int n=0;n<pixels.length;n++)pixels[n]|=0xff000000;p.opaque=new BufferedImage(p.raw.width,p.raw.height,BufferedImage.TYPE_INT_ARGB);p.opaque.setRGB(0,0,p.raw.width,p.raw.height,pixels,0,p.raw.width);images.put(sprite.resource,p);}image=p.opaque;}
+            g.drawImage(image,sprite.x,sprite.y,sprite.x+sprite.width,sprite.y+sprite.height,sprite.sx,sprite.sy,sprite.sx+sprite.width,sprite.sy+sprite.height,null);
+        }
+    }
     private void drawMap(Graphics2D g,PcHost h)throws IOException{
         Pc2Map m=h.map;at(g,m.background(),0,0);int hover=m.selected>=0?m.selected:m.hovered;
         for(int n=0;n<10;n++){if(session.vm.variables.read(5,n)==0)continue;int location=session.vm.variables.read(5,n+20);if(location<0||location>=7)throw new IOException("Map actor location "+location);int[] r=(m.school?Pc2Map.SCHOOL_ACTOR:Pc2Map.ISLAND_ACTOR)[location];if(r[2]==r[0])continue;

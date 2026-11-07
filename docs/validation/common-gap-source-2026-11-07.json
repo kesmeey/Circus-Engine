@@ -1,0 +1,239 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-07",
+  "base_commit": "2f285ca",
+  "feature": "Independent PC1 portable candidates, original Save/Load UI and auto slots; version-owned DC2 map",
+  "scope": "Source milestone and internal Android validation. Real original game files were read only and original EXEs were not executed. Controlled route input/media/time is not original realtime audiovisual equivalence. Assertion counts are scoped and do not establish a fidelity percentage.",
+  "jvm": {
+    "core_assertions": 1110019,
+    "heap_mib": 192,
+    "frozen_input_count": 561,
+    "frozen_manifest": "build/native-rewrite/producer-integration-20261107T135331994699Z/manifest.json",
+    "frozen_manifest_sha256": "d61e9dbc4948d32401d3c6e571732459409ea39bdbffccad6629edf33fde9b4c",
+    "source_deltas": [],
+    "excluded_unfinished_java": [],
+    "startups": {
+      "startup-dc2-3363": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 2521,
+        "error": ""
+      },
+      "startup-dc2dm-9d72": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 861,
+        "error": ""
+      },
+      "startup-dc2pc-5769": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 665,
+        "error": ""
+      },
+      "startup-dc3dd-a5a8": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 1468,
+        "error": ""
+      },
+      "startup-dc3pp-9872": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 893,
+        "error": ""
+      },
+      "startup-dc3wy-a09f": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 1439,
+        "error": ""
+      },
+      "startup-dcpc-2063": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 560,
+        "error": ""
+      }
+    }
+  },
+  "pc1_routes": {
+    "pc1-first": {
+      "dialogues": 7077,
+      "choice_overrides": {},
+      "returned_to_title": true,
+      "media_completion_simulated": true,
+      "static_executable_selection": "DCPCDVD_CHS.exe",
+      "original_exe_run": false,
+      "scripts": 174,
+      "choices": 51,
+      "ending": "BADEND"
+    },
+    "pc1-last": {
+      "dialogues": 1091,
+      "choice_overrides": {},
+      "returned_to_title": true,
+      "media_completion_simulated": true,
+      "static_executable_selection": "DCPCDVD_CHS.exe",
+      "original_exe_run": false,
+      "scripts": 22,
+      "choices": 6,
+      "ending": "BADEND"
+    },
+    "pc1-nemu": {
+      "dialogues": 10358,
+      "choice_overrides": {
+        "0326a_n01@1c86": "02",
+        "0429a_n02@860": "02"
+      },
+      "returned_to_title": true,
+      "media_completion_simulated": true,
+      "static_executable_selection": "DCPCDVD_CHS.exe",
+      "original_exe_run": false,
+      "scripts": 211,
+      "choices": 56,
+      "ending": "STAFF"
+    }
+  },
+  "dc2_remaining_route_blocks": {
+    "dc2-first": {
+      "completed_route": false,
+      "blocked_at": "meza_nin_20@85",
+      "error": "java.io.IOException: meza_nin_20 @0x85: Unimplemented D.C.II system service 50(0) at meza_nin_20 @0x85; native 00404F50 -> copy native script context 00A08D00 -> 009FE0E0",
+      "map_confirmations_before_stop": 4,
+      "result_json_absent": true
+    },
+    "dc2-last": {
+      "completed_route": false,
+      "blocked_at": "meza_obk_20@85",
+      "error": "java.io.IOException: meza_obk_20 @0x85: Unimplemented D.C.II system service 50(0) at meza_obk_20 @0x85; native 00404F50 -> copy native script context 00A08D00 -> 009FE0E0",
+      "map_confirmations_before_stop": 4,
+      "result_json_absent": true
+    }
+  },
+  "focused": {
+    "Pc1SlotPlatformAudit": {
+      "checks": 60,
+      "result_sha256": "ea0a19a8e5e9abbd05a97a0b880eadca183789ea83f4b16cbda5f4bd09ebbf24",
+      "actual_original_auto": {
+        "dialogues_before_auto": 703,
+        "script_count": 12,
+        "written_script": "0224a_f00",
+        "written_pc": 2086,
+        "producer_script": "0224a_f00",
+        "producer_pc": 479,
+        "restored_script": "0224a_f00",
+        "restored_pc": 479,
+        "slot_bytes": 1506463,
+        "returned_to_title": false,
+        "media_completion_simulated": true,
+        "choice_policy": "last real story option; native toolbar actions excluded"
+      }
+    },
+    "Dc2MapAudit": {
+      "checks": 265,
+      "result_sha256": "093039289fb213734e764784202e79df3a8b42c8a6c1ab13ecbde80c86fa1367"
+    },
+    "Dc2MapRendererAudit": {
+      "checks": 232,
+      "result_sha256": "07f168e3800f9585e2eccd604d65948395b4bf1ad436fa8da165294e12eb1e15",
+      "frames": 16,
+      "pixels_compared": 7680000,
+      "max_rgb_rounding": 1
+    }
+  },
+  "core_modules": {
+    "Pc1PortableCandidateTests": 46,
+    "Dc2MapTests": 684,
+    "Dc2MapHostTests": 15
+  },
+  "route_tool": {
+    "explicit_choice_and_stale_result_checks": 4,
+    "actual_positive_override": "pc1-nemu; both original choice labels consumed and STAFF visited",
+    "toolbar_actions_excluded_from_pc1_story_choices": true,
+    "output_must_be_outside_game": true
+  },
+  "android": {
+    "passed": true,
+    "core_assertions": 1110019,
+    "canvas_contract_groups": 8,
+    "transition_mask_pixel_comparisons": 484,
+    "apk_sha256": "0f8b8d8b31ee2debd5444023685419d195476808ff91a929a3f936e1f9d1e351",
+    "art_log_sha256": "7cadad8bab10c036bd9f727f633fae7a3f563159c115416112dd6b3606574e21",
+    "frozen_directory": "build/native-rewrite/android-source-20261107T135504700655Z",
+    "internal_apk_only": true,
+    "installed_with": "adb install -r; application data retained",
+    "source_changes_during_build": [],
+    "core_test_resource_bytes_identical_to_jvm_freeze": true
+  },
+  "wire_compatibility": {
+    "PC1": "P1CS version1 wrapper retains active CVS2 and one independent candidate leaf plus provenance and producer metadata; no recursive candidates. Old pureCVS2 is accepted, but a missing independent candidate cannot be recreated from a later menu.",
+    "DC2": "PCH12 stores the six-actor map and accepts old PCH7 as inactive map state. Other profile wire versions remain distinct."
+  },
+  "known_limits": [
+    "Original Windows8004 story-slot interoperability and full41A620 reconstruction remain outside this portable bridge.",
+    "PC1 toolbar quick-save input capture remains explicitly unsupported; original Save menu, forced story auto slots and F5/F9 are distinct paths.",
+    "Unreported physical audio cursors, replay generation changes and a replaced VM restart at zero; original DirectSound buffer equivalence is not claimed.",
+    "DC2 system50 borrowed-context save/load remains an explicit stop in the common alarm scripts; its8004-byte producer/slot-write consumers require a separate session bridge.",
+    "DC2 map reference validates native geometry and actual assets; physical GDI/COM/front-buffer behavior is not claimed. Java2D alpha rounding is separately quantified.",
+    "No exhaustive branch coverage across other PC1 endings or all game variants."
+  ],
+  "source_sha256": {
+    "runtime/core/src/org/circus/core/Dc2Map.java": "ec065759115b6a45a38f5e53ad9072f24fa07cba2f8b621af2402e11fff266ce",
+    "runtime/core/src/org/circus/core/Dc2Session.java": "d43b7a8af7a8064eec0549a93892d504bf8dd1130b768b26c9adcbd3d3e168ca",
+    "runtime/core/src/org/circus/core/Dc2SystemCommands.java": "58d18c205e8dde3df99bdd46e83e578c6523d065deb5c431ab3ad7735ba5a165",
+    "runtime/core/src/org/circus/core/MesVm.java": "81407e498340866f66f20d5fb08eac936213b462860d5535616df92a1740acd7",
+    "runtime/core/src/org/circus/core/Pc1PortableCandidate.java": "4d948bda4ed5ff3a0eb47968d7af3af1300c8add5782d110cfe426d60110d704",
+    "runtime/core/src/org/circus/core/Pc1Runtime.java": "4a08ac1c81826b67be2b2507ecb9822204ef47ffaf148dbcf703a04dd1499c41",
+    "runtime/core/src/org/circus/core/PcHost.java": "07087a938898724f029582b64147641d1c6e099c4943db7dc5f7002202cf17b0",
+    "runtime/desktop/src/org/circus/core/Dc2MapAudit.java": "7f1e30796b7a027116e1a3fd63d99ffdbb5b7186c6c3e0ef818d4d3791b0b13f",
+    "runtime/desktop/src/org/circus/core/Dc2MapRendererAudit.java": "49b2d10936247eb3ee74e9f4cc7c9d96fb85de3c35083bf2662f6ce7e2051a84",
+    "runtime/desktop/src/org/circus/core/DesktopEngine.java": "030b11b1cf9047f3da62cd9bcb38784eb6ceea9a1f0ec1ef16323ea30566148b",
+    "runtime/desktop/src/org/circus/core/DesktopLegacy.java": "5da7cfbbcaf97e934a8da8a199e5c69ae8e0853b81bf1bc25c3a92eed55b97c6",
+    "runtime/desktop/src/org/circus/core/DesktopRouteAudit.java": "72cb235f8bebd91fe45d2561abca60ff850f853976075b5a39f8d72881cf0a28",
+    "runtime/desktop/src/org/circus/core/Pc1SlotPlatformAudit.java": "627e48a9430ead9089a23f24acce207b852edc403c6d39d0dfc0548a64fd4829",
+    "runtime/tests/org/circus/core/CoreTests.java": "38f46372d7a438618f1848fffdeaf6732ffeb48f56f60154c9ea8a845d5879a1",
+    "runtime/tests/org/circus/core/Dc2MapHostTests.java": "805d6238332b86262cf9c5b8045d308e863db89c64892bcd9e35d8ebcf7e0431",
+    "runtime/tests/org/circus/core/Dc2MapTests.java": "a27922cf578ed391ef2a58a4231fe5e791eef5c7e18ae1567b642376898ed95a",
+    "runtime/tests/org/circus/core/Dc2ParticleHostTests.java": "cedba090e7c6356145d25bfbb7b48df4d89a74c8d55c8f4a5100d6efd817490a",
+    "runtime/tests/org/circus/core/Dc2SystemTests.java": "24f2216b52f4eedd823a779e638fbd1f3f3c9daa4ef2c1d7d4a15bf8f66c75dc",
+    "runtime/tests/org/circus/core/Pc1PortableCandidateTests.java": "3e8c3d54752357217ad301ee8b3a6e8ddaaa5482693610631e83a025925deab4"
+  },
+  "git_lf_source_sha256": {
+    "runtime/core/src/org/circus/core/Dc2Map.java": "e207e5388d0bd60c39015ff793e8b7662ad1ba8c7ec6f2a251b69cba64a8e3a8",
+    "runtime/core/src/org/circus/core/Dc2Session.java": "32a9f0e5e21bf3730205063a4d78949e18696addb3667bbcbb63b89dfa2d31b6",
+    "runtime/core/src/org/circus/core/Dc2SystemCommands.java": "3b42a71fedea817e47ac82663a56724b0ceffc02a6bb31a10ddc485399d14936",
+    "runtime/core/src/org/circus/core/MesVm.java": "a880319d6f722f3c995df6e688402ca3badb451e1399eae9849f162d2439f66b",
+    "runtime/core/src/org/circus/core/Pc1PortableCandidate.java": "4d948bda4ed5ff3a0eb47968d7af3af1300c8add5782d110cfe426d60110d704",
+    "runtime/core/src/org/circus/core/Pc1Runtime.java": "ac33fad6b8e60f4fbc3a25e921a8e3d069b991390b545f59d07834db1cc5af4c",
+    "runtime/core/src/org/circus/core/PcHost.java": "8d650a8de98b53fa92be8a1720b9a7219d1177421c86052d06591e7f5a1fa063",
+    "runtime/desktop/src/org/circus/core/Dc2MapAudit.java": "eed723b33387a10e14131d4f1a00d9739bfead8ed44a82035b9f1ff5448c69ed",
+    "runtime/desktop/src/org/circus/core/Dc2MapRendererAudit.java": "90ba7d56a0fd13107fffb99451b4e1339aca2aa2c150264687077404ecda9c0b",
+    "runtime/desktop/src/org/circus/core/DesktopEngine.java": "a25a552bd64cda3b4f31548e65d18bf882ef16248a93543d731bcf8096335835",
+    "runtime/desktop/src/org/circus/core/DesktopLegacy.java": "c02e56ae60103bd7f8e8f25a166900538dfbeacf77922e5e4a5d28fdf5054481",
+    "runtime/desktop/src/org/circus/core/DesktopRouteAudit.java": "9100db0e330f132112aa5d2f453b8adee2691cc01e797edb0e47041778a6404c",
+    "runtime/desktop/src/org/circus/core/Pc1SlotPlatformAudit.java": "b882d04417ad10688a5733eccb53e45f871683208b5363448379bf281955a3a0",
+    "runtime/tests/org/circus/core/CoreTests.java": "563c3a92ca95c1ac700ed06c5e0083c7024fbac137aa6a2a3f716f2906afb773",
+    "runtime/tests/org/circus/core/Dc2MapHostTests.java": "6daac1f17ecef3b99d586d9cad4108d8756c9a345b5a2d17546137bd8c865d0a",
+    "runtime/tests/org/circus/core/Dc2MapTests.java": "a2b11863082dedfa3eb6bd34bc860b69146d0d802cb4a1a176a09efa95084f9e",
+    "runtime/tests/org/circus/core/Dc2ParticleHostTests.java": "570cce92a30a767bda13f542fa9d324c8305188411804e4d3b09e70ca89e0753",
+    "runtime/tests/org/circus/core/Dc2SystemTests.java": "ff0e7131d68a0e6f5d8d63ebab497dd21b5f365d16733749071c16299b7f7b0f",
+    "runtime/tests/org/circus/core/Pc1PortableCandidateTests.java": "0ad5fa716aad6624a0df810880b16449710cccb9da443767986e0f06315f5ccb"
+  },
+  "source_hash_note": "source_sha256 identifies captured Windows bytes; git_lf_source_sha256 permits only CRLF-to-LF normalization for committed-source comparison.",
+  "reproduce": [
+    "python tools/check_native_core.py --java-home <JDK21> --heap-mb 192",
+    "java -Xmx192m -cp <test-classes> org.circus.core.DesktopRouteAudit <DCPC-game> <owned-output> first 1 --exe DCPCDVD_CHS.exe --choose 0326a_n01@1c86=02 --choose 0429a_n02@860=02",
+    "java -Xmx192m -cp <test-classes> org.circus.core.Pc1SlotPlatformAudit <DCPC-game> <owned-output>",
+    "java -Xmx192m -cp <test-classes> org.circus.core.Dc2MapAudit <DC2-game> <owned-output>",
+    "java -Xmx192m -cp <test-classes> org.circus.core.Dc2MapRendererAudit <DC2-game> <owned-output>",
+    "adb -s <serial> shell am instrument -w org.circus.runtime/.CoreInstrumentation"
+  ]
+}

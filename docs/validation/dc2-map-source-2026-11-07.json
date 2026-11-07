@@ -1,0 +1,137 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-07",
+  "feature": "DC2 2006 original map service20 and original inline map menu",
+  "target": {
+    "file": "dc2.exe",
+    "sha256": "d4748bc7a4c385b893ff16f4ef76c95e8759bfe8ffad22a6b728706965c5e345",
+    "profile": "dc2-3363",
+    "original_executable_launched": false,
+    "original_game_directory_modified": false
+  },
+  "scope": {
+    "native_functions": [
+      "0x404F50",
+      "0x404780",
+      "0x40A0E0",
+      "0x40A2D0",
+      "0x40B1D0",
+      "0x40B370",
+      "0x40B190"
+    ],
+    "implementation": "Independent six-actor map owner with native variable indices, stored atlas frames and per-actor timers, native hit rectangles, confirmation, SE220/221, strict unsigned clock comparisons, stateful drawing journal, old PCH7 migration and new PCH12 snapshots.",
+    "variables": {
+      "visible": "5:0..5",
+      "locations": "5:10..15",
+      "result": "5:20",
+      "mode": "5:21 (0 school, nonzero island)",
+      "per_actor_special_shift": "5:50..55"
+    },
+    "right_menu": "Native bare right is gated by unsigned elapsed>=500; sets5:20=99. Each actual map MES branches to its own rMenu, then its original Return action jumps to main and reopens20; no external ADVMENU insertion.",
+    "map_draw_order": "Background, highlight, confirmation controls, caption, six markers, six actor slots, portrait. Original full-image/cropped copy arguments form the portable sprite journal.",
+    "right_backdrop": "Portable inactive backdrop retains the last map frames until the original inline menu returns or normal story transfer resets it."
+  },
+  "method": {
+    "fresh_rea_evidence_id": "ev_a859fafed6b97c2215a776edfaea288d6ac3daf195d1c50a26c52277a4fac636",
+    "rea_root": "D:/gal/rea",
+    "provider": "Ghidra12.1.4",
+    "machine_reference": "Bounded independent Python interpretation of selected original x86 instructions over private byte arrays. Resource load/release, clock, clipping/draw submission, sound and helper leaves are controlled; no original process or Win32 service is started.",
+    "source_target_identity": "Current dc2.exe, not inferred from another CIRCUS build. The selected old-PE map and modal spans were independently byte-compared against current target.",
+    "public_contains_original_machine_or_asset_bytes": false
+  },
+  "selected_machine_spans": [
+    {
+      "name": "map selected functions",
+      "start": "0x40a0b0",
+      "end_exclusive": "0x40b610",
+      "length": 5472,
+      "sha256": "e79df95cf19f3a1439696176269d2f9bc5af94426478cc420350bf63f3483712",
+      "identical_to_prior_dc2_OLD": true
+    },
+    {
+      "name": "map constants and resource names",
+      "start": "0x451820",
+      "end_exclusive": "0x451d00",
+      "length": 1248,
+      "sha256": "b46410ee5b1a648087a4e059f9d6e109e9ff635f38004e7c5ffa88d2ca99f85e",
+      "identical_to_prior_dc2_OLD": true
+    },
+    {
+      "name": "modal poll switch",
+      "start": "0x404780",
+      "end_exclusive": "0x404858",
+      "length": 216,
+      "sha256": "5e3d36e22c6da989b734149abbe184feaaf29300e0897176438468b6870eb184",
+      "identical_to_prior_dc2_OLD": true
+    },
+    {
+      "name": "native system command dispatch",
+      "start": "0x404f50",
+      "end_exclusive": "0x405340",
+      "length": 1008,
+      "sha256": "0b88f2b59b5c7ea1e7e443f96667a2a5fd9f3d00f3fe9333fc7126d599bde2be",
+      "identical_to_prior_dc2_OLD": true
+    }
+  ],
+  "validation": {
+    "native_cases": 4,
+    "native_state_samples": 52,
+    "native_draw_journals": 48,
+    "interpreted_instructions": 33368,
+    "core_map_assertions": 684,
+    "core_host_vm_assertions": 15,
+    "actual_map_script_count": 24,
+    "actual_script_assertions": 265,
+    "actual_script_outcomes": "All24 original callers: startup state, choose/no/yes to next real story MES, byte-identical midway CVS2 restoration, gated right99 to original inline rMenu and original Return back to map. Not whole-game routes.",
+    "actual_renderer_assertions": 232,
+    "actual_resource_count": 13,
+    "actual_render_frames": 16,
+    "actual_pixels_compared": 7680000,
+    "maximum_observed_java2d_alpha_rounding": 1,
+    "manual_pixel_oracle": "Direct decoded BGR/BGRA bytes, per-sprite source crop and source-over arithmetic. Threshold2 RGB values for Java2D integer alpha rounding; observed maximum1. No drawImage or argb() call builds the oracle.",
+    "render_restore": "Full DesktopLegacy snapshot restores current map pixels and future501ms pixels exactly.",
+    "heap_mib": 192
+  },
+  "private_evidence_directory": "build/native-rewrite/dc2-map-stage58",
+  "boundaries": [
+    "This is the portable common-player map implementation. Original COM/resource handles, literal GDI front-buffer state, physical input/timer delivery and their failure prefixes are not reproduced.",
+    "One platform map poll advances an actor by at most one frame after its strict native duration comparison. Exact real-time Windows poll scheduling is not claimed.",
+    "Inline-menu map backdrop is reconstructed from the frozen draw journal rather than serialized literal native display pixels.",
+    "Malformed visible actor locations outside0..6 fail explicitly; arbitrary raw out-of-bounds native memory access is outside this portable service.",
+    "Independent map/service/24-script checks and renderer pixels do not establish every original DC2 story route, alarm/minigame/ending service or other engine feature.",
+    "Root representative first/last routes pass four maps, then precisely stop at meza_nin_20@0x85 / meza_obk_20@0x85 system50(0). Borrowed caller-frame/save integration remains a separate known gap; no complete DC2 route is claimed."
+  ],
+  "source_sha256": {
+    "runtime/core/src/org/circus/core/Dc2Map.java": "ec065759115b6a45a38f5e53ad9072f24fa07cba2f8b621af2402e11fff266ce",
+    "runtime/core/src/org/circus/core/PcHost.java": "07087a938898724f029582b64147641d1c6e099c4943db7dc5f7002202cf17b0",
+    "runtime/core/src/org/circus/core/Dc2SystemCommands.java": "58d18c205e8dde3df99bdd46e83e578c6523d065deb5c431ab3ad7735ba5a165",
+    "runtime/tests/org/circus/core/Dc2MapTests.java": "a27922cf578ed391ef2a58a4231fe5e791eef5c7e18ae1567b642376898ed95a",
+    "runtime/tests/org/circus/core/Dc2MapHostTests.java": "805d6238332b86262cf9c5b8045d308e863db89c64892bcd9e35d8ebcf7e0431",
+    "runtime/desktop/src/org/circus/core/Dc2MapAudit.java": "7f1e30796b7a027116e1a3fd63d99ffdbb5b7186c6c3e0ef818d4d3791b0b13f",
+    "runtime/desktop/src/org/circus/core/Dc2MapRendererAudit.java": "49b2d10936247eb3ee74e9f4cc7c9d96fb85de3c35083bf2662f6ce7e2051a84"
+  },
+  "git_lf_source_sha256": {
+    "runtime/core/src/org/circus/core/Dc2Map.java": "e207e5388d0bd60c39015ff793e8b7662ad1ba8c7ec6f2a251b69cba64a8e3a8",
+    "runtime/core/src/org/circus/core/PcHost.java": "8d650a8de98b53fa92be8a1720b9a7219d1177421c86052d06591e7f5a1fa063",
+    "runtime/core/src/org/circus/core/Dc2SystemCommands.java": "3b42a71fedea817e47ac82663a56724b0ceffc02a6bb31a10ddc485399d14936",
+    "runtime/tests/org/circus/core/Dc2MapTests.java": "a2b11863082dedfa3eb6bd34bc860b69146d0d802cb4a1a176a09efa95084f9e",
+    "runtime/tests/org/circus/core/Dc2MapHostTests.java": "6daac1f17ecef3b99d586d9cad4108d8756c9a345b5a2d17546137bd8c865d0a",
+    "runtime/desktop/src/org/circus/core/Dc2MapAudit.java": "eed723b33387a10e14131d4f1a00d9739bfead8ed44a82035b9f1ff5448c69ed",
+    "runtime/desktop/src/org/circus/core/Dc2MapRendererAudit.java": "90ba7d56a0fd13107fffb99451b4e1339aca2aa2c150264687077404ecda9c0b"
+  },
+  "source_hash_note": "Working-copy bytes are frozen above. git_lf_source_sha256 permits only CRLF-to-LF normalization for committed blobs. DesktopLegacy renderer is owned/integrated by parent phase; root will record its final whole-source freeze.",
+  "reproduce": [
+    "java -Xmx192m -cp <test-classes> org.circus.core.Dc2MapTests",
+    "java -Xmx192m -cp <test-classes> org.circus.core.Dc2MapHostTests",
+    "java -Xmx192m -cp <test-classes> org.circus.core.Dc2MapAudit <DC2-game> <owned-output>",
+    "java -Xmx192m -Djava.awt.headless=true -cp <test-classes> org.circus.core.Dc2MapRendererAudit <DC2-game> <owned-output>"
+  ],
+  "next_gap": {
+    "service": 50,
+    "argument": 0,
+    "native_effect": "Copy liveA08D00 -> borrowed9FE0E0 (8004B), then normalize saved caller filename. Original slot writer41CF70 consumes the actual borrowed frame.",
+    "why_deferred": "Requires independent DC2 Session caller/envelope and original inline SAVE/LOAD consumers, preview/audio metadata and producer provenance; an unused shadow is not an implementation.",
+    "actual_alarm_script_count": 8,
+    "current_corpus_service30_or31_calls": 0
+  }
+}

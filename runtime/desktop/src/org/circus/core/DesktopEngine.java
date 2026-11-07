@@ -24,6 +24,8 @@ public abstract class DesktopEngine {
     public boolean fullscreenRequested,windowSizeReset;
     private final long[] mediaPosition=new long[6],resumePosition=new long[6];
     private final String[] mediaResource={"","","","","",""};
+    private final int[] mediaGeneration={-1,-1,-1,-1,-1,-1};
+    private final Object[] mediaExecution=new Object[6];
     private String[] systemAudio;private long[] systemAudioPosition;
     private final Map<Path,DesktopSave> saveMetadata=new HashMap<>();
     public final Map<Integer,BufferedImage> thumbnails=new HashMap<>();
@@ -90,9 +92,10 @@ public abstract class DesktopEngine {
     public abstract void audioCompleted(int ch,int generation);
     public int audioSeekGeneration(int ch){return 0;}
     public int audioSeekPercent(int ch){return 0;}
-    public void audioPosition(int ch,long position,long duration)throws IOException{mediaPosition[ch]=Math.max(0,position);mediaResource[ch]=audio(ch);}
-    protected void beginSystemAudio(){systemAudio=new String[6];systemAudioPosition=new long[6];for(int ch=0;ch<6;ch++){systemAudio[ch]=audio(ch);systemAudioPosition[ch]=audio(ch).equals(mediaResource[ch])?mediaPosition[ch]:0;}}
-    protected void finishSystemAudio(){if(systemAudio!=null){for(int ch=0;ch<6;ch++)if(systemAudio[ch].equals(audio(ch)))resumePosition[ch]=audio(ch).equals(mediaResource[ch])?mediaPosition[ch]:systemAudioPosition[ch];systemAudio=null;systemAudioPosition=null;}}
+    public void audioPosition(int ch,long position,long duration)throws IOException{mediaPosition[ch]=Math.max(0,position);mediaResource[ch]=audio(ch);mediaGeneration[ch]=audioGeneration(ch);mediaExecution[ch]=executionIdentity();}
+    private boolean currentMediaPosition(int ch,String resource){return mediaExecution[ch]==executionIdentity()&&resource.equals(mediaResource[ch])&&resource.equals(audio(ch))&&mediaGeneration[ch]==audioGeneration(ch);}
+    protected void beginSystemAudio(){systemAudio=new String[6];systemAudioPosition=new long[6];for(int ch=0;ch<6;ch++){systemAudio[ch]=audio(ch);systemAudioPosition[ch]=currentMediaPosition(ch,audio(ch))?mediaPosition[ch]:0;}}
+    protected void finishSystemAudio(){if(systemAudio!=null){for(int ch=0;ch<6;ch++)if(systemAudio[ch].equals(audio(ch)))resumePosition[ch]=currentMediaPosition(ch,audio(ch))?mediaPosition[ch]:systemAudioPosition[ch];systemAudio=null;systemAudioPosition=null;}}
     public long takeAudioResume(int ch){long result=resumePosition[ch];resumePosition[ch]=0;return result;}
     public abstract BufferedImage preview()throws IOException;
     public String saveCaption(){return body();}
@@ -107,11 +110,16 @@ public abstract class DesktopEngine {
         public boolean contains(int x,int y){return x>=left&&x<right&&y>=top&&y<bottom;}
     }
     public void choose(String action)throws Exception{for(Control b:controls())if(b.action.equalsIgnoreCase(action)){click((b.left+b.right)/2,(b.top+b.bottom)/2,false);return;}throw new IOException("Missing original action "+action+" in "+scriptName());}
-    public void save(Path path)throws IOException{
-        DesktopSave s=new DesktopSave();s.state=snapshot();s.textElapsed=playbackMillis();s.created=System.currentTimeMillis();s.icon=saveIcon();String caption=saveCaption();s.caption=caption.length()>200?caption.substring(0,200):caption;
-        BufferedImage image=preview();try{s.preview=DesktopSave.thumbnail(image,256,256*height/width);}finally{image.flush();}for(int ch=0;ch<6;ch++){s.audio[ch]=systemAudio==null?audio(ch):systemAudio[ch];s.position[ch]=s.audio[ch].equals(mediaResource[ch])?mediaPosition[ch]:systemAudioPosition==null?0:systemAudioPosition[ch];}
-        atomic(path,s.encode());s.state=null;saveMetadata.put(path,s);
+    /** Capture platform data at the same producer boundary as a portable checkpoint.
+     * The native menu may later replace the visible scene, text and audio. */
+    protected DesktopSave captureSaveMetadata(boolean suspendedAudio)throws IOException{
+        DesktopSave s=new DesktopSave();s.state=new byte[0];s.textElapsed=playbackMillis();s.created=System.currentTimeMillis();s.icon=saveIcon();String caption=saveCaption();s.caption=caption.length()>200?caption.substring(0,200):caption;
+        BufferedImage image=preview();try{s.preview=DesktopSave.thumbnail(image,256,256*height/width);}finally{image.flush();}
+        for(int ch=0;ch<6;ch++){s.audio[ch]=suspendedAudio&&systemAudio!=null?systemAudio[ch]:audio(ch);s.position[ch]=currentMediaPosition(ch,s.audio[ch])?mediaPosition[ch]:suspendedAudio&&systemAudio!=null&&s.audio[ch].equals(systemAudio[ch])?systemAudioPosition[ch]:0;}
+        return s;
     }
+    protected final void writeSave(Path path,DesktopSave s)throws IOException{atomic(path,s.encode());s.state=null;saveMetadata.put(path,s);}
+    public void save(Path path)throws IOException{byte[] state=snapshot();DesktopSave s=captureSaveMetadata(true);s.state=state;writeSave(path,s);}
     public void restore(Path path)throws IOException{DesktopSave s=DesktopSave.decode(Files.readAllBytes(path));restore(s.state);systemAudio=null;systemAudioPosition=null;playbackMillis(s.textElapsed);for(int ch=0;ch<6;ch++)resumePosition[ch]=s.audio[ch].equals(audio(ch))?s.position[ch]:0;}
     public DesktopSave metadata(Path path)throws IOException{DesktopSave s=saveMetadata.get(path);if(s==null&&Files.exists(path)){s=DesktopSave.decode(Files.readAllBytes(path));s.state=null;saveMetadata.put(path,s);}return s;}
     public void scanThumbnail(int slot,Path path)throws IOException{DesktopSave s=metadata(path);if(s!=null){BufferedImage image=s.image();if(image!=null)thumbnails.put(slot,image);}}

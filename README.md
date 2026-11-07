@@ -7,7 +7,7 @@
 仓库：[kesmeey/Circus-Engine](https://github.com/kesmeey/Circus-Engine)。
 项目目录与命令行工具仍沿用 `circus-runtime`／`dc_runtime` 命名。
 
-本批 Windows 开发包为 **0.14.5-common-workflows-dev**，使用 rev8 执行契约，优先主要功能和常见流程；[包哈希与实包复查](docs/validation/windows-common-workflows-0.14.5.json)，见[各游戏实际检查范围](docs/COMMON_WORKFLOWS.md)、[重写状态与缺口](docs/NATIVE_REWRITE_STATUS.md)及下方存档边界。
+本批 Windows 开发包为 **0.14.6-common-workflows-dev**，使用 rev8 执行契约，优先主要功能和常见流程；[包哈希与实包复查](docs/validation/windows-common-workflows-0.14.6.json)，见[各游戏实际检查范围](docs/COMMON_WORKFLOWS.md)、[重写状态与缺口](docs/NATIVE_REWRITE_STATUS.md)及下方存档边界。
 
 当前目标已调整为约80%的主要功能与大多数常见游戏流程，允许延期少量难处理的版本和边缘行为；这是工程范围，尚不是完成率声明。见[当前交付目标](docs/ENGINE_SCOPE.md)。
 
@@ -26,7 +26,7 @@
 
 | 作品 | 数据格式 | 目前能跑到哪 |
 |---|---|---|
-| D.C. 〜ダ・カーポ〜 P.C. | `dcpc-2063` | 本轮真实启动20句、typed系统菜单返回、原生字节文本日志与历史游标已接入；原版槽位及部分cache仍明确拒绝，完整平台与时序未等价验证 |
+| D.C. 〜ダ・カーポ〜 P.C. | `dcpc-2063` | 独立便携自动槽与原版存读菜单；两项合法选择调整后音梦10,358句经STAFF回标题；Windows槽文件互通仍未实现 |
 | D.C.II 〜ダ・カーポII〜 P.C. | `dc2pc-5769` | 启动／正文／选择／存读档／到片尾 |
 | D.C.II 〜ダ・カーポII〜（2006 原版） | `dc2-3363` | 重写开发中；未完成的原生系统服务会精确停止，部分剧情／片尾／闹钟流程尚不支持，暂不承诺整作可玩 |
 | D.C.II Dearest Marriage | `dc2dm-9d72` | 启动／正文／存读档／回看与语音重播／CG·场景·音乐鉴赏／到片尾 |
@@ -66,10 +66,10 @@ SAF 只申请读取权限；存档和解码缓存写应用私有目录。
 ### Windows
 
 ```powershell
-python tools/package_desktop.py --jdk <JDK21> --ffmpeg <ffmpeg.exe> --version 0.14.5-common-workflows-dev
+python tools/package_desktop.py --jdk <JDK21> --ffmpeg <ffmpeg.exe> --version 0.14.6-common-workflows-dev
 ```
 
-产物 `build/distribution/dc-runtime-0.14.5-common-workflows-dev-windows-x64/`，双击 `DC Runtime.cmd`，
+产物 `build/distribution/dc-runtime-0.14.6-common-workflows-dev-windows-x64/`，双击 `DC Runtime.cmd`，
 再选游戏目录。包内自带 JRE 和 FFmpeg，不需要另装 Java；存档写在包目录的 `saves/`。
 
 用当前源码构建的播放器可在同一目录有多个补丁EXE时，明确选择用于读取静态数据表的文件：
@@ -115,7 +115,7 @@ python tools/build_windows_native.py --java-home <JDK21> --vcvars "<Visual Studi
 本轮非 Unity 剧情快照使用 `CVS2`，保存执行规则身份；旧非示例 `CVS1` 剧情槽会明确拒绝，
 因为旧变量模型和取指规则已造成的执行差异不能仅凭存档长度证明可迁移。系统持久进度单独处理。
 
-PC1的原版存/读/快速槽位依赖独立1B候选与完整41A620重建，本轮尚未接通，现明确报未实现。
+PC1原版存读菜单和剧情自动槽已接入独立便携检查点，F5/F9会保留该候选。原Windows游戏槽文件的8004字节重建与互通、工具栏快速保存事件仍未接通；原文件保持不变。
 F5/F9使用的独立CVS2便携快照与原版菜单槽位不同，不能相互替代。当前执行合同rev8会拒绝不同执行身份的旧快照。
 P.P. 重写已改用原生位图和持久变量别名，新版可迁移合法旧手机系统进度。
 新 P.P. 状态以版本前缀保存完整持久字节（含可读填充位），旧版程序不能读取；DD/WY 的系统进度格式不变。

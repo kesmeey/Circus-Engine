@@ -45,7 +45,7 @@ public final class Dc2SystemCommands {
         case 10:throw missing(host,service,mode,"00405340");
         case 11:throw missing(host,service,mode,"native wait 1C/type 1");
         case 12:throw missing(host,service,mode,"004057B0 and native wait 1C/type 2");
-        case 20:throw missing(host,service,mode,"native wait 1C/type 3");
+        case 20:if(!(host instanceof PcHost))throw new IOException("DC2 map requires original PC host");((PcHost)host).openOriginalMap();return true;
         case 30:throw missing(host,service,mode,"0040B700");
         case 31:throw missing(host,service,mode,"native wait 1C/type 5");
         case 40:throw missing(host,service,mode,"write 00BE8BA8 = 0; consumer not yet modelled");

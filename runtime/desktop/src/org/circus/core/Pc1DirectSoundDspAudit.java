@@ -29,7 +29,7 @@ public final class Pc1DirectSoundDspAudit {
                 captured=backend.snapshotBoundary(()->backend.capture(audio));byte[] raw=encode(captured);Pc1DirectSound.Snapshot detached=Pc1DirectSound.Snapshot.load(new DataInputStream(new ByteArrayInputStream(raw)));check(Arrays.equals(raw,encode(detached)),"PDB5/PDS6 include decoder bytes losslessly without copying PE tables");
             }
             try(Pc1DirectSound staged=Pc1DirectSound.stage(Paths.get(args[0]),0,null,captured)){
-                check(Binary.sha256(data(staged.borrowDecoderRegion(0x455574))).equals(expected),"Stopped stage preserves full table and stale decoder globals");Pc1Audio restored=Pc1Audio.restore(staged,empty(),captured.control());Pc1NativeMemory bus=memory();restored.bindNativeMemory(bus);staged.bindNativeMemory(bus);check(bus.readAddress(0x465574)==(staged.borrowDecoderRegion(0x455574).get(0x10000)&255),"Restored bus borrows staged owner without reseeding");check(!staged.pcmInitialized(),"BSS decoder adoption never creates a PCM device");
+                check(Binary.sha256(staged.decoderBytesForAudit(0x455574)).equals(expected),"Stopped stage preserves full table and stale decoder globals");Pc1Audio restored=Pc1Audio.restore(staged,empty(),captured.control());Pc1NativeMemory bus=memory();restored.bindNativeMemory(bus);staged.bindNativeMemory(bus);check(bus.readAddress(0x465574)==(staged.borrowDecoderRegion(0x455574).get(0x10000)&255),"Restored bus borrows staged owner without reseeding");check(!staged.pcmInitialized(),"BSS decoder adoption never creates a PCM device");
             }
         }
         System.out.println("Pc1DirectSoundDspAudit PASS "+checks+"; actual C leaf and exact decoder snapshot views; no device/window/EXE");

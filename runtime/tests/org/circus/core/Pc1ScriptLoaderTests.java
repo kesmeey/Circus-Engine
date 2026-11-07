@@ -42,7 +42,7 @@ public final class Pc1ScriptLoaderTests {
         public void resetEffects40F560(int a,int b)throws IOException{event("effects",a,b);}
         public void releaseGraphics411080(int slot,int mode)throws IOException{event("release",slot,mode);}
         public Pc1ScriptLoader.Opened open(Pc1ScriptLoader.AddressedPath path)throws IOException{
-            event("path",path.category,path.name,path.extension,path.pathCapacity);byte[] local="fixture-path".getBytes("US-ASCII");for(int n=0;n<local.length;n++)path.write(path.path+n,local[n]);path.write(path.path+local.length,0);check(Arrays.equals(local,path.pathBytes()),fixture.id+" addressed local path");event("open",0x8000);if(fixture.fd==-1)return null;
+            event("path",path.category,path.name,path.extension,path.pathCapacity);byte[] local="fixture-path".getBytes("US-ASCII");for(int n=0;n<local.length;n++)path.destination().writeByte(n,local[n]);path.destination().writeByte(local.length,0);check(Arrays.equals(local,path.pathBytes()),fixture.id+" addressed local path");event("open",0x8000);if(fixture.fd==-1)return null;
             return new Pc1ScriptLoader.Opened(){public int descriptor(){return fixture.fd;}public int read(Pc1ScriptLoader.Destination dest,int requested)throws IOException{event("read",fixture.fd,dest.address(),requested);byte[] raw=fixture.reads[readIndex];for(int n=0;n<raw.length;n++)dest.write(n,raw[n]);return fixture.results[readIndex++];}public int close()throws IOException{event("close",fixture.fd);return fixture.closed;}};
         }
         byte[] bytes(int at,int n)throws IOException{byte[] raw=new byte[n];for(int p=0;p<n;p++)raw[p]=(byte)bus.readAddress(at+p);return raw;}

@@ -28,6 +28,9 @@ public final class Pc1GraphicsResources implements Pc1DrawBatch.Resources {
          * case-insensitively and set the matching persistent CG byte. This is
          * called before opening a file, including opens which later fail. */
         void visitCg(byte[] beforeFirstDot)throws IOException;
+        /**41ADA0 receives the same live source, before401CC0 copies its name.
+         *The legacy leaf only receives a first-dot prefix convenience value.*/
+        default void visitCgSource(Pc1ByteSource source)throws IOException{ByteArrayOutputStream out=new ByteArrayOutputStream();for(int n=0;;n++){int b=source.unsignedByte(n)&255;if(n>=260)throw new IOException("PC1 CG-name local260 overflow");if(b==0||b=='.'){visitCg(out.toByteArray());return;}out.write(b);}}
         /**Required40E5A0/open/4015D0/close owner. Null means the native load
          * returned−1. No ARGB flattening, fallback image or implicit success.
          * Category/extension are exact bytes; name has only its terminal
@@ -37,7 +40,7 @@ public final class Pc1GraphicsResources implements Pc1DrawBatch.Resources {
         /** Addressed production boundary. The default exists only for older
          *narrow fixtures; eagerly materializing arguments cannot represent
          *40E5A0's conditional native read order. */
-        default Source readImage(AddressedImage request)throws IOException{return readImage(request.legacyCString(request.category),request.legacyCString(request.name),request.legacyCString(request.extension));}
+        default Source readImage(AddressedImage request)throws IOException{return readImage(request.legacyGlobalCString(request.category),request.legacyCString(request.name),request.legacyGlobalCString(request.extension));}
         /** Production decoders must publish directly into the one pool before
          *temporary allocation/read leaves. False is only a logical fixture. */
         default boolean usesCanonicalPool(){return false;}
@@ -49,19 +52,31 @@ public final class Pc1GraphicsResources implements Pc1DrawBatch.Resources {
          *A full pool leaves401050's allocation orphaned in the original. */
         default void allocationResult(Source source,int handle)throws IOException{}
     }
-    /** A transient managed stack view. Its name address is an internal local
-     *owner address, not a claim about the original Win32 stack pointer. Global
-     *addresses are actual native addresses over the same canonical byte bus. */
+    /** Typed private local: no numeric coordinate may shadow a real global. */
+    private static final class Local implements Pc1ByteSource.Pointer {
+        private final byte[] bytes;private final boolean[] known;
+        Local(int capacity){bytes=new byte[capacity];known=new boolean[capacity];}
+        private int at(int offset)throws IOException{if(offset<0||offset>=bytes.length)throw new IOException("PC1 image filename outside unknown local"+bytes.length+" caller ABI");return offset;}
+        public int unsignedByte(int offset)throws IOException{int n=at(offset);if(!known[n])throw new IOException("PC1 image filename reads unknown local"+bytes.length+" stack tail");return bytes[n]&255;}
+        public void writeByte(int offset,int value)throws IOException{int n=at(offset);bytes[n]=(byte)value;known[n]=true;}
+    }
+    /** The image filename is a borrowed local260 Pointer. read/write and word
+     *methods refer solely to real global addresses in the canonical State. */
     public static final class AddressedImage implements Pc1NativePaths.Memory {
-        public final int category=Pc1ResourceLiterals.GRAPHICS_CATEGORY,name=0xe0100000,extension=Pc1ResourceLiterals.GRAPHICS_EXTENSION,pathCapacity=260;
+        public final int category=Pc1ResourceLiterals.GRAPHICS_CATEGORY,extension=Pc1ResourceLiterals.GRAPHICS_EXTENSION,pathCapacity=260;
+        public final Pc1ByteSource.Pointer name;
         private final Pc1Compositor.State globals;
-        private final byte[] local=new byte[260];private final boolean[] known=new boolean[260];
-        private AddressedImage(Pc1Compositor.State globals,byte[] filename,int copiedBytes){this.globals=globals;System.arraycopy(filename,0,local,0,filename.length);for(int n=0;n<copiedBytes;n++)known[n]=true;}
-        private int localOffset(int address){long at=(address&0xffffffffL)-(name&0xffffffffL);return at>=0&&at<local.length?(int)at:-1;}
-        public int read(int address)throws IOException{int at=localOffset(address);if(at>=0){if(!known[at])throw new IOException("PC1 image filename reads unknown local260 stack tail");return local[at]&255;}if(globals instanceof Pc1InlineText.Memory)return ((Pc1InlineText.Memory)globals).read(address);if(globals instanceof Pc1NativePaths.Memory)return ((Pc1NativePaths.Memory)globals).read(address);throw new IOException("PC1 addressed image requires canonical byte memory at0x"+Integer.toHexString(address));}
-        public void write(int address,int value)throws IOException{int at=localOffset(address);if(at>=0){local[at]=(byte)value;known[at]=true;return;}globals.writeByte(address,value);}
-        private int legacyRead(int address)throws IOException{if(localOffset(address)>=0||globals instanceof Pc1InlineText.Memory||globals instanceof Pc1NativePaths.Memory)return read(address);return globals.readInt(address&~3)>>>((address&3)*8)&255;}
-        private byte[] legacyCString(int address)throws IOException{ByteArrayOutputStream out=new ByteArrayOutputStream();for(int n=0;n<1024*1024;n++){int value=legacyRead(address+n);if(value==0)return out.toByteArray();out.write(value);}throw new IOException("PC1 legacy image fixture literal exceeds bounded memory");}
+        private AddressedImage(Pc1Compositor.State globals,Pc1ByteSource.Pointer name){this.globals=globals;this.name=name;}
+        public int read(int address)throws IOException{if(globals instanceof Pc1InlineText.Memory)return ((Pc1InlineText.Memory)globals).read(address);if(globals instanceof Pc1NativePaths.Memory)return ((Pc1NativePaths.Memory)globals).read(address);throw new IOException("PC1 addressed image requires canonical byte memory at0x"+Integer.toHexString(address));}
+        public void write(int address,int value)throws IOException{globals.writeByte(address,value);}
+        public int readInt32(int address)throws IOException{return globals.readInt(address);}
+        public void writeInt32(int address,int value)throws IOException{globals.writeInt(address,value);}
+        public int classifySpace(int signedChar)throws IOException{if(globals instanceof Pc1NativePaths.Memory)return ((Pc1NativePaths.Memory)globals).classifySpace(signedChar);return Pc1NativePaths.classifySpaceRaw(this,signedChar);}
+        public Pc1ByteSource categorySource()throws IOException{return Pc1NativePaths.pointer(this,category);}
+        public Pc1ByteSource extensionSource()throws IOException{return Pc1NativePaths.pointer(this,extension);}
+        private int legacyRead(int address)throws IOException{if(globals instanceof Pc1InlineText.Memory||globals instanceof Pc1NativePaths.Memory)return read(address);return globals.readInt(address&~3)>>>((address&3)*8)&255;}
+        private byte[] legacyGlobalCString(final int address)throws IOException{return legacyCString(offset->legacyRead(address+offset));}
+        private byte[] legacyCString(Pc1ByteSource source)throws IOException{ByteArrayOutputStream out=new ByteArrayOutputStream();for(int n=0;n<1024*1024;n++){int value=source.unsignedByte(n)&255;if(value==0)return out.toByteArray();out.write(value);}throw new IOException("PC1 legacy image fixture literal exceeds bounded memory");}
     }
     private final Pc1Compositor compositor;
     private final Pc1Compositor.State state;
@@ -90,20 +105,27 @@ public final class Pc1GraphicsResources implements Pc1DrawBatch.Resources {
     public int unsignedNameByte(int handle,int offset)throws IOException{handle(handle);if(offset<0||offset>=NAME_BYTES)throw new IOException("PC1 resident name view reaches neighboring image metadata");return compositor.pool().readU8(handle*128+24+offset);}
     public void writeNameByte(int handle,int offset,int value)throws IOException{handle(handle);if(offset<0||offset>=NAME_BYTES)throw new IOException("PC1 resident name view reaches neighboring image metadata");compositor.pool().writeU8(handle*128+24+offset,value);}
     private static int extensionPoint(byte[] name,boolean slashAware){int at=0;for(int n=0;n<name.length;n++)if(name[n]=='.'||slashAware&&(name[n]=='/'||name[n]=='\\'))at=n;return name.length>0&&name[at]=='.'?at:name.length;}
-    /**401CC0 exact byte cache; mode does not constrain the cache-hit pool. */
-    @Override public int load(byte[] rawName,int allocationMode,Pc1Compositor compositor)throws IOException{
-        same(compositor);byte[] original=cstring(rawName);if(original.length==0)return -1;
-        for(int h=0;h<COUNT;h++)if(compositor.loaded(h)&&Arrays.equals(name(h),original))return h;
-        int dot=0;while(dot<original.length&&original[dot]!='.')dot++;if(dot>=260)throw new IOException("PC1 CG-name local260 overflow");required().visitCg(Arrays.copyOf(original,dot));
-        if(original.length>=260)throw new IOException("PC1 image path local260 overflow");
-        byte[] file=original.clone();int point=extensionPoint(file,true),modifier=0;
-        // For a leading dot, local208[-1] is the high byte of the explicitly
-        // zeroed local20C modifier DWORD (401CD5), not unknown caller memory.
-        int previous=point==0?0:file[point-1]&255;if(previous=='@'||previous=='*'){modifier=previous=='@'?1:2;byte[] stripped=new byte[file.length-1];System.arraycopy(file,0,stripped,0,point-1);System.arraycopy(file,point,stripped,point-1,file.length-point);file=stripped;}
-        AddressedImage request=new AddressedImage(state,file,original.length+1);int h;
+    /** Explicit byte-array convenience; supplied suffix bytes stay live and
+     *one terminal NUL is known. Raw callers use loadSource without a scan. */
+    private static Pc1ByteSource value(final byte[] raw)throws IOException{if(raw==null)throw new IOException("PC1 raw resource name missing");return offset->{if(offset<0||offset>raw.length)throw new IOException("PC1 resource value reads unowned source suffix");return offset==raw.length?0:raw[offset]&255;};}
+    private static Pc1ByteSource.Pointer slice(final Pc1ByteSource.Pointer pointer,final int delta){return new Pc1ByteSource.Pointer(){public int unsignedByte(int offset)throws IOException{return pointer.unsignedByte(delta+offset);}public int nativeWord(int offset)throws IOException{return pointer.nativeWord(delta+offset);}public void writeByte(int offset,int value)throws IOException{pointer.writeByte(delta+offset,value);}public void writeWord(int offset,int value)throws IOException{pointer.writeWord(delta+offset,value);}};}
+    private Pc1ByteSource.Pointer poolName(final int handle){return new Pc1ByteSource.Pointer(){private int at(int offset){return(handle<<7)+24+offset;}public int unsignedByte(int offset)throws IOException{return compositor.pool().readU8(at(offset));}public int nativeWord(int offset)throws IOException{return compositor.pool().readI32(at(offset));}public void writeByte(int offset,int value)throws IOException{compositor.pool().writeU8(at(offset),value);}public void writeWord(int offset,int value)throws IOException{compositor.pool().writeI32(at(offset),value);}};}
+    /** Native paired strcmp: left byte is loaded before its corresponding
+     *right byte; a differing prefix never scans either remaining CString. */
+    private static boolean equal(Pc1ByteSource left,Pc1ByteSource right)throws IOException{for(int at=0;;at+=2){int a=left.unsignedByte(at)&255,b=right.unsignedByte(at)&255;if(a!=b)return false;if(a==0)return true;a=left.unsignedByte(at+1)&255;b=right.unsignedByte(at+1)&255;if(a!=b)return false;if(a==0)return true;}}
+    private static int imageExtension(Pc1ByteSource source)throws IOException{int at=0,last=0,current=source.unsignedByte(0)&255;if(current!=0)do{if(current=='.'||current=='\\'||current=='/')last=at;current=source.unsignedByte(at+1)&255;at++;}while(current!=0);return(source.unsignedByte(last)&255)=='.'?last:at;}
+    /**401CC0 exact cache/CG/copy/admission order. No name snapshot before its
+     *initial byte/cache comparisons/CG call, or after the actual load call. */
+    @Override public int load(byte[] rawName,int allocationMode,Pc1Compositor compositor)throws IOException{return loadSource(value(rawName),allocationMode,compositor);}
+    public int loadSource(Pc1ByteSource original,int allocationMode,Pc1Compositor compositor)throws IOException{
+        same(compositor);if(original==null)throw new IOException("PC1 image live source missing");if((original.unsignedByte(0)&255)==0)return -1;
+        for(int h=0;h<COUNT;h++)if(compositor.pool().occupied(h)&&equal(poolName(h),original))return h;
+        required().visitCgSource(original);Local file=new Local(260);Pc1NativePaths.copy(file,original);
+        int point=imageExtension(file),modifier=0,previous=point==0?0:file.unsignedByte(point-1);if(previous=='@'||previous=='*'){modifier=previous=='@'?1:2;Pc1NativePaths.copy(slice(file,point-1),slice(file,point));}
+        AddressedImage request=new AddressedImage(state,file);int h;
         if(required().usesCanonicalPool())h=required().readImageInto(request,compositor.pool(),allocationMode);
         else{Source source=required().readImage(request);if(source==null)return -1;h=source.rgb!=null?compositor.allocateRgb(source.rgb,allocationMode):compositor.allocateAlpha(source.alpha,allocationMode);}if(h==-1)return -1;
-        name(h,original);if(modifier!=0)transform(h,modifier);int index=state.readInt(0x94c61c);int address=0x94c62c+index*4;if(state.readInt(address)!=0)transform(h,3);return h;
+        Pc1NativePaths.copy(poolName(h),original);if(modifier!=0)transform(h,modifier);int index=state.readInt(0x94c61c);int address=0x94c62c+index*4;if(state.readInt(address)!=0)transform(h,3);return h;
     }
     @Override public int duplicate(int handle,Pc1Compositor compositor)throws IOException{
         same(compositor);if(handle==-1||!compositor.loaded(handle))return -1;int h=compositor.duplicate(handle);if(h!=-1)name(h,name(handle));return h;
@@ -148,6 +170,44 @@ public final class Pc1GraphicsResources implements Pc1DrawBatch.Resources {
         }
         if(incoming.length>=128)throw new IOException("PC1 path producer local128 overflow");byte[] local=incoming.clone();release(slot,1);int loaded=Arrays.equals(local,SPECIAL)?duplicate(state.readInt(0x43d430),compositor):load(local,0,compositor);state.writeInt(HANDLES[slot],loaded);writePath(slot,local);
         if(slot==1||slot==2){int mask=slot==1?ACTOR1_MASK:ACTOR2_MASK,overlay=slot==1?ACTOR1_OVERLAY:ACTOR2_OVERLAY;int current=state.readInt(HANDLES[slot]);if(current==-1||!compositor.loaded(current)||compositor.format(current)!=1){int point=extensionPoint(local,false);if(point==0)throw new IOException("PC1 mask suffix reads unknown saved-register byte before local path");if(local[point-1]=='@')point--;if(point==0)throw new IOException("PC1 mask suffix reads unknown saved-register byte before local path");if(local[point-1]=='*')point--;byte[] name=Arrays.copyOf(local,point+1);name[point]='m';state.writeInt(mask,load(name,0,compositor));}byte[] overlayName=overlayName(slot);if(overlayName.length!=0)state.writeInt(overlay,load(overlayName,0,compositor));}
+        else if(slot==0)state.writeInt(Pc1Compositor.PENDING_BAKED,0);return 1;
+    }
+    private Pc1ByteSource.Pointer global(final int address){return new Pc1ByteSource.Pointer(){public int unsignedByte(int offset)throws IOException{return Pc1GraphicsResources.this.unsignedByte(address+offset);}public int nativeWord(int offset)throws IOException{return state.readInt(address+offset);}public void writeByte(int offset,int value)throws IOException{state.writeByte(address+offset,value);}public void writeWord(int offset,int value)throws IOException{state.writeInt(address+offset,value);}};}
+    private boolean caseEqual(Pc1ByteSource first,Pc1ByteSource second)throws IOException{int locale=state.readInt(Pc1CgVisit.CRT_LOCALE);for(int n=0;;n++){int a=first.unsignedByte(n)&255,b=second.unsignedByte(n)&255;if(a!=b){if(locale!=0)throw new IOException("PC1 graphics lookup CRT requires42534C owner");int lowerA=a>='A'&&a<='Z'?a+32:a,lowerB=b>='A'&&b<='Z'?b+32:b;if(lowerA!=lowerB)return false;}if(a==0)return true;}}
+    /**410FF0 uses the suffix after the FIRST backslash, or the terminal NUL
+     *when none exists, then walks43D0C0(namePointer,value) on the live bus.
+     *This table is unrelated to401CC0's resident image-name cache. */
+    public int lookupSource(Pc1ByteSource source)throws IOException{if(source==null)throw new IOException("PC1 graphics lookup requires live source");int at=0,current=source.unsignedByte(0)&255;if(current!=0)while(current!='\\'){current=source.unsignedByte(at+1)&255;at++;if(current==0)break;}if((source.unsignedByte(at)&255)=='\\')at++;Pc1ByteSource suffix=Pc1ByteSource.offset(source,at);if(state.readInt(0x43d0c0)==0)return -1;for(int row=0;;row++){int name=state.readInt(0x43d0c0+(row<<3));if(caseEqual(global(name),suffix))return state.readInt(0x43d0c4+(row<<3));if(state.readInt(0x43d0c8+(row<<3))==0)return -1;}}
+    private int pathAddress(int slot)throws IOException{return state.readInt(0x43d478+(slot<<3));}
+    private int handleAddress(int slot)throws IOException{return state.readInt(0x43d47c+(slot<<3));}
+    private static long countSource(Pc1ByteSource source)throws IOException{for(long n=0;n<0xffffffffL;n++)if((source.unsignedByte((int)n)&255)==0)return n+1;return 0xffffffffL;}
+    private static void forward(Pc1ByteSource.Pointer destination,Pc1ByteSource source,long count)throws IOException{long n=0;for(;n+4<=count;n+=4)destination.writeWord((int)n,source.nativeWord((int)n));for(;n<count;n++)destination.writeByte((int)n,source.unsignedByte((int)n)&255);}
+    /**411080 with live pointer-table entries. No frame-table snapshot and no
+     *synthetic range check replaces the actual read/failure position. */
+    public void releaseNative(int slot,int mode)throws IOException{
+        if(slot==-1){for(int n=0;n<6;n++)releaseNative(n,0);compositor.freeChecked(0);state.writeInt(0x9b96e0,-1);state.writeInt(0x9dbab8,-1);return;}
+        compositor.freeChecked(state.readInt(handleAddress(slot)));int path=pathAddress(slot);state.writeByte(path,0);state.writeInt(handleAddress(slot),-1);
+        if(slot==1||slot==2){int mask=slot==1?ACTOR1_MASK:ACTOR2_MASK,overlay=slot==1?ACTOR1_OVERLAY:ACTOR2_OVERLAY,overlayPath=slot==1?0x9d878c:0x9d880c;compositor.freeChecked(state.readInt(mask));state.writeInt(mask,-1);if(mode==0){int previous=state.readInt(overlay);state.writeByte(overlayPath,0);compositor.freeChecked(previous);state.writeInt(overlay,-1);}}
+        else if(slot==0){state.writeInt(Pc1Compositor.PENDING_BAKED,0);state.writeInt(Pc1Compositor.PENDING_COUNT,0);}
+    }
+    /**4011B0 tests the raw bottom pointer before reading pixel format. This
+     *entry requires real addressed metadata; opaque portable arrays use the
+     *older byte[] convenience path rather than invented raw pointer values. */
+    private int nativeFormat(int handle)throws IOException{if(handle==-1)return -1;int record=IMAGE_BASE+(handle<<7);if(state.readInt(record+4)==0)return -1;return state.readInt(record+20);}
+    /**4111A0 production entry. The incoming Source is borrowed through the
+     *early paired strcmp. Only the actual miss path copies into private128B.
+     *Both table pointers are reloaded at their native consumption points. */
+    public int pathSource(int slot,Pc1ByteSource incoming)throws IOException{
+        if(incoming==null)throw new IOException("PC1 path requires live source");boolean compare=true;if(slot==0&&state.readInt(Pc1Compositor.PENDING_BAKED)!=0)compare=false;
+        if(compare&&state.readInt(handleAddress(slot))!=-1&&equal(global(pathAddress(slot)),incoming)){
+            if(slot==1||slot==2){int overlayPath=slot==1?0x9d878c:0x9d880c,overlay=slot==1?ACTOR1_OVERLAY:ACTOR2_OVERLAY;if(unsignedByte(overlayPath)!=0&&state.readInt(overlay)==-1)state.writeInt(overlay,loadSource(global(overlayPath),0,compositor));}return 0;
+        }
+        Local local=new Local(128);Pc1NativePaths.copy(local,incoming);releaseNative(slot,1);
+        int loaded=equal(local,global(0x43d8dc))?duplicate(state.readInt(0x43d430),compositor):loadSource(local,0,compositor);
+        state.writeInt(handleAddress(slot),loaded);long bytes=countSource(local);int destination=pathAddress(slot);forward(global(destination),local,bytes);
+        int at=0,point=0,current=local.unsignedByte(0);if(current!=0)do{if(current=='.')point=at;current=local.unsignedByte(at+1);at++;}while(current!=0);if(local.unsignedByte(point)!='.')point=at;
+        if(point==0)throw new IOException("PC1 mask suffix reads unknown saved-register byte before local path");if(local.unsignedByte(point-1)=='@')point--;if(point==0)throw new IOException("PC1 mask suffix reads unknown saved-register byte before local path");if(local.unsignedByte(point-1)=='*')point--;
+        if(slot==1||slot==2){int handlePointer=state.readInt(slot==1?0x43d484:0x43d48c),currentHandle=state.readInt(handlePointer);if(nativeFormat(currentHandle)!=1){Pc1NativePaths.copy(slice(local,point),global(0x43d8d8));state.writeInt(slot==1?ACTOR1_MASK:ACTOR2_MASK,loadSource(local,0,compositor));}int overlayPath=slot==1?0x9d878c:0x9d880c;if(unsignedByte(overlayPath)!=0)state.writeInt(slot==1?ACTOR1_OVERLAY:ACTOR2_OVERLAY,loadSource(global(overlayPath),0,compositor));}
         else if(slot==0)state.writeInt(Pc1Compositor.PENDING_BAKED,0);return 1;
     }
     /**41A570 reads each source path immediately before that call, so aliases

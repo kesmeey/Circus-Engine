@@ -35,10 +35,10 @@ public final class Pc1NativeUi implements Pc1Compositor.State {
         for(int address:SCALARS){final int[] value={address==BUTTON_POINTER?MAIN_BUTTONS:address==0x4305f8||address==0x4305fc||address==0x430600?-1:address==0x430604||address==0x430608?255:0};scalars.put(address,value);bind(address,new Pc1DrawMemory.Dword(){public int read(){return value[0];}public void write(int next){value[0]=next;}});}
         bind(0xbb8450,counters.storyPrefixCount());bind(0x9b8e1c,counters.storyFullCount());
     }
-    private void bind(int address,final Pc1DrawMemory.Dword value)throws IOException{memory.bind(address,4,new Pc1NativeMemory.Region(){public int read(int at)throws IOException{return value.read()>>>(at*8)&255;}public void write(int at,int next)throws IOException{int shift=at*8;value.write(value.read()&~(255<<shift)|(next&255)<<shift);}});}
+    private void bind(int address,final Pc1DrawMemory.Dword value)throws IOException{memory.bind(address,4,new Pc1NativeMemory.Region(){public int read(int at)throws IOException{return value.read()>>>(at*8)&255;}public void write(int at,int next)throws IOException{int shift=at*8;value.write(value.read()&~(255<<shift)|(next&255)<<shift);}public int readInt32(int at)throws IOException{return value.read();}public void writeInt32(int at,int next)throws IOException{value.write(next);}});}
     public int unsignedByte(int address)throws IOException{return memory.readAddress(address);}
-    @Override public int readInt(int address)throws IOException{int value=0;for(int n=0;n<4;n++)value|=memory.readAddress(address+n)<<(n*8);return value;}
-    @Override public void writeInt(int address,int value)throws IOException{for(int n=0;n<4;n++)memory.readAddress(address+n);for(int n=0;n<4;n++)memory.writeAddress(address+n,value>>>(n*8));}
+    @Override public int readInt(int address)throws IOException{return memory.readInt32(address);}
+    @Override public void writeInt(int address,int value)throws IOException{memory.writeInt32(address,value);}
     @Override public void writeByte(int address,int value)throws IOException{memory.writeAddress(address,value&255);}
     public byte[] bytes(int address,int count)throws IOException{if(count<0||count>1024*1024)throw new IOException("PC1 UI raw byte range");byte[] value=new byte[count];for(int n=0;n<count;n++)value[n]=(byte)memory.readAddress(address+n);return value;}
     /** Byte-exact C source; limits bound host allocation, not native indexing. */

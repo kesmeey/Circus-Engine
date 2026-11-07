@@ -16,13 +16,17 @@ public final class Pc1CatalogMemory {
     }
     private static final int[][] RANGES={{CATEGORY,20},{Table.SYSTEM.address,Table.SYSTEM.knownBytes},{Table.MUSIC.address,Table.MUSIC.knownBytes},{Table.SOUND.address,Table.SOUND.knownBytes},{Table.CG.address,Table.CG.knownBytes},{Table.SCENARIO.address,Table.SCENARIO.knownBytes},{MUSIC_COUNT,4},{SOUND_COUNT,4},{CG_COUNT,8},{CRT_LOCALE,4}};
     private final byte[][] raw=new byte[RANGES.length][];
+    private final Pc1MmPhysicalMemory.Slice[] shared=new Pc1MmPhysicalMemory.Slice[RANGES.length];
     private final Pc1NativeMemory memory;
     private boolean active;
     public Pc1CatalogMemory(Pc1NativeMemory memory)throws IOException{
         if(memory==null)throw new IOException("PC1 NAMES canonical byte memory missing");this.memory=memory;
-        for(int n=0;n<RANGES.length;n++){final byte[] bytes=raw[n]=new byte[RANGES[n][1]];memory.bind(RANGES[n][0],bytes.length,new Pc1NativeMemory.Region(){public int read(int at){return bytes[at]&255;}public void write(int at,int value){bytes[at]=(byte)value;}});}
+        for(int n=0;n<RANGES.length;n++){if(n==2||n==3){shared[n]=memory.mmPhysicalMemory().claim(RANGES[n][0],new byte[RANGES[n][1]],true);memory.bind(RANGES[n][0],RANGES[n][1],shared[n]);}else{final byte[] bytes=raw[n]=new byte[RANGES[n][1]];memory.bind(RANGES[n][0],bytes.length,new Pc1NativeMemory.Region(){public int read(int at){return bytes[at]&255;}public void write(int at,int value){bytes[at]=(byte)value;}});}}
         byte[] literals={'D','A','T',0,'n','a','m','e','s',0,0,0,'.','d','a','t',0,0,0,0};System.arraycopy(literals,0,raw[0],0,literals.length);
     }
+    /** Borrow the sole canonical bus; consumers must not clone catalog/CRT
+     *bytes or replace native DWORD reads with their own byte-only overlay. */
+    public Pc1NativeMemory nativeMemory(){return memory;}
     public int read(int address)throws IOException{return memory.readAddress(address);}
     public void write(int address,int value)throws IOException{memory.writeAddress(address,value);}
     public int dword(int address)throws IOException{int value=0;for(int n=0;n<4;n++)value|=read(address+n)<<(n*8);return value;}
@@ -51,7 +55,7 @@ public final class Pc1CatalogMemory {
     void begin()throws IOException{if(active)throw new IOException("PC1 NAMES loader reentry");active=true;}
     void end(){active=false;}
     public boolean active(){return active;}
-    public void save(DataOutput out)throws IOException{if(active)throw new IOException("PC1 NAMES snapshot during native file/local-stack call");out.writeInt(FORMAT);for(byte[] bytes:raw)out.write(bytes);}
+    public void save(DataOutput out)throws IOException{if(active)throw new IOException("PC1 NAMES snapshot during native file/local-stack call");out.writeInt(FORMAT);for(int n=0;n<raw.length;n++)out.write(shared[n]==null?raw[n]:shared[n].bytes());}
     public static byte[] loadImage(DataInput in)throws IOException{if(in.readInt()!=FORMAT)throw new IOException("PC1 NAMES globals format");int size=0;for(int[] range:RANGES)size+=range[1];byte[] image=new byte[size];in.readFully(image);return image;}
-    public void restore(byte[] image)throws IOException{if(active)throw new IOException("PC1 NAMES restore during native file/local-stack call");int size=0;for(int[] range:RANGES)size+=range[1];if(image==null||image.length!=size)throw new IOException("PC1 NAMES globals size");int at=0;for(byte[] bytes:raw){System.arraycopy(image,at,bytes,0,bytes.length);at+=bytes.length;}}
+    public void restore(byte[] image)throws IOException{if(active)throw new IOException("PC1 NAMES restore during native file/local-stack call");int size=0;for(int[] range:RANGES)size+=range[1];if(image==null||image.length!=size)throw new IOException("PC1 NAMES globals size");int at=0;for(int n=0;n<raw.length;n++){int length=RANGES[n][1];if(shared[n]==null)System.arraycopy(image,at,raw[n],0,length);else shared[n].restore(java.util.Arrays.copyOfRange(image,at,at+length));at+=length;}}
 }

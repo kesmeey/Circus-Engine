@@ -16,7 +16,7 @@ import javax.swing.*;
 public final class DesktopLegacy extends DesktopEngine {
     public final Dc2Session session;
     private final DesktopNativeFiles nativeFiles;
-    private final Map<String,Picture> images=new LinkedHashMap<String,Picture>(32,.75f,true){protected boolean removeEldestEntry(Map.Entry<String,Picture> e){return size()>48;}};
+    private final DesktopImageCache<Picture> images=new DesktopImageCache<>(Picture::residentBytes);
     private final DesktopCaptures captures;private SceneCaptures.Legacy captureState;
     private static final class MotionRaster {int count,backgroundWidth,backgroundHeight;int[] pixels,prepared,background;boolean backgroundLoaded;BufferedImage image;}
     private final Map<Dc2Motion,MotionRaster> motionRasters=new LinkedHashMap<Dc2Motion,MotionRaster>(4,.75f,true){protected boolean removeEldestEntry(Map.Entry<Dc2Motion,MotionRaster> entry){return size()>4;}};
@@ -26,7 +26,7 @@ public final class DesktopLegacy extends DesktopEngine {
     private int savedAutoGeneration;
     public int hovered=-1;
     public String problem="";
-    static final class Picture {final Crx.Image raw;final BufferedImage image;Picture(BufferedImage b){raw=new Crx.Image(0,0,b.getWidth(),b.getHeight(),32,new byte[0],null);image=b;}Picture(Crx.Image r){raw=r;image=new BufferedImage(r.width,r.height,BufferedImage.TYPE_INT_ARGB);image.setRGB(0,0,r.width,r.height,r.argb(true),0,r.width);}}
+    static final class Picture {final Crx.Image raw;final BufferedImage image;Picture(BufferedImage b){raw=new Crx.Image(0,0,b.getWidth(),b.getHeight(),32,new byte[0],null);image=b;}Picture(Crx.Image r){raw=r;image=new BufferedImage(r.width,r.height,BufferedImage.TYPE_INT_ARGB);image.setRGB(0,0,r.width,r.height,r.argb(true),0,r.width);}static long constructionBytes(Crx.Image r){return rawBytes(r)+8L*r.width*r.height;}private static long rawBytes(Crx.Image r){return 1024L+r.pixels.length+(r.palette==null?0:4L*r.palette.length);}long residentBytes(){return rawBytes(raw)+4L*image.getWidth()*image.getHeight();}}
 
     private boolean toolbar;private Dc2Ui.Button dragged;private int dragKind,pressedButton=-1;
     private String pendingSystemAction;
@@ -195,7 +195,7 @@ public final class DesktopLegacy extends DesktopEngine {
     private Picture picture(String name)throws IOException {
         if(name==null||name.isEmpty())return null;if(name.equals("@ui-capture"))return new Picture(captures.resolve(host().uiCapture));
         Picture p=images.get(name);if(p==null){
-            try{p=new Picture(resources.image(name));}catch(java.io.FileNotFoundException|java.nio.file.NoSuchFileException missing){
+            try{images.beforeLoad();Crx.Image raw=resources.image(name);images.reserve(Picture.constructionBytes(raw));p=new Picture(raw);}catch(java.io.FileNotFoundException|java.nio.file.NoSuchFileException missing){
                 // A repacked install can lack an optional sheet; the native loader also leaves the
                 // slot empty. Keep the name so audits can list it instead of failing the frame.
                 missingImages.add(name);return null;

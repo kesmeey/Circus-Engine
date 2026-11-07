@@ -25,11 +25,12 @@ public final class Pc1ResourceLiterals {
         {0,0,0,0,'G','R','P',0,'.','c','r','x',0,0,0,0}
     };
     private final byte[][] bytes=new byte[SEED.length][];
+    private final Pc1MmPhysicalMemory.Slice[] shared=new Pc1MmPhysicalMemory.Slice[SEED.length];
     public Pc1ResourceLiterals(Pc1NativeMemory memory)throws IOException{
         if(memory==null)throw new IOException("PC1 resource literals byte bus missing");
-        for(int n=0;n<bytes.length;n++){final byte[] raw=bytes[n]=SEED[n].clone();memory.bind(ADDRESS[n],raw.length,new Pc1NativeMemory.Region(){public int read(int at){return raw[at]&255;}public void write(int at,int value){raw[at]=(byte)value;}});}
+        for(int n=0;n<bytes.length;n++){if(ADDRESS[n]==GRAPHICS_STRINGS||ADDRESS[n]==WAV_EXTENSION){shared[n]=memory.mmPhysicalMemory().claim(ADDRESS[n],SEED[n],true);memory.bind(ADDRESS[n],SEED[n].length,shared[n]);}else{final byte[] raw=bytes[n]=SEED[n].clone();memory.bind(ADDRESS[n],raw.length,new Pc1NativeMemory.Region(){public int read(int at){return raw[at]&255;}public void write(int at,int value){raw[at]=(byte)value;}});}}
     }
-    public void save(DataOutput out)throws IOException{out.writeInt(FORMAT);for(byte[] raw:bytes)out.write(raw);}
+    public void save(DataOutput out)throws IOException{out.writeInt(FORMAT);for(int n=0;n<bytes.length;n++)out.write(shared[n]==null?bytes[n]:shared[n].bytes());}
     public static byte[][] loadImage(DataInput in)throws IOException{if(in.readInt()!=FORMAT)throw new IOException("PC1 resource literal format");byte[][] raw=new byte[SEED.length][];for(int n=0;n<raw.length;n++){raw[n]=new byte[SEED[n].length];in.readFully(raw[n]);}return raw;}
-    public void restore(byte[][] image)throws IOException{if(image==null||image.length!=bytes.length)throw new IOException("PC1 resource literal rows");for(int n=0;n<bytes.length;n++)if(image[n]==null||image[n].length!=bytes[n].length)throw new IOException("PC1 resource literal size");for(int n=0;n<bytes.length;n++)System.arraycopy(image[n],0,bytes[n],0,bytes[n].length);}
+    public void restore(byte[][] image)throws IOException{if(image==null||image.length!=bytes.length)throw new IOException("PC1 resource literal rows");for(int n=0;n<bytes.length;n++)if(image[n]==null||image[n].length!=SEED[n].length)throw new IOException("PC1 resource literal size");for(int n=0;n<bytes.length;n++){if(shared[n]==null)System.arraycopy(image[n],0,bytes[n],0,SEED[n].length);else shared[n].restore(image[n]);}}
 }

@@ -28,7 +28,8 @@ public final class Pc1CgVisitTests {
     public static int run()throws Exception{
         count=0;check(VECTORS.length==12,"all CG machine programs");
         for(String vector:VECTORS){String[] f=vector.split("\\|",-1);Catalog catalog=new Catalog();String[] names=f[2].isEmpty()?(Integer.parseInt(f[3])>0?new String[]{""}:new String[0]):f[2].split(",",-1);catalog.rows=new byte[names.length][128];for(int n=0;n<names.length;n++){byte[] value=bytes(names[n]);System.arraycopy(value,0,catalog.rows[n],0,value.length);}catalog.count=Integer.parseInt(f[3]);List<Integer> changes=new ArrayList<>();Pc1CgVisit.visit(bytes(f[1]),catalog,(index,value)->{check(value==1,"native CG low-byte mark");changes.add(index);});StringBuilder changed=new StringBuilder();for(int index:changes){if(changed.length()>0)changed.append(',');changed.append(index);}check(changed.toString().equals(f[4]),f[0]+" original marked index/first match");if(catalog.count<=0)check(catalog.localeReads==0,"empty catalog does not touch CRT locale");}
-        Catalog locale=new Catalog();locale.rows=new byte[1][128];locale.count=1;locale.locale=1;boolean failed=false;try{Pc1CgVisit.visit(new byte[0],locale,(i,v)->{});}catch(IOException precise){failed=precise.getMessage().contains("42534C");}check(failed,"non-C CRT locale is required, not approximated by Unicode");
+        Catalog locale=new Catalog();locale.rows=new byte[1][128];locale.count=1;locale.locale=1;boolean failed=false;try{Pc1CgVisit.visit(new byte[]{'A'},locale,(i,v)->{});}catch(IOException precise){failed=precise.getMessage().contains("42534C");}check(failed,"non-C CRT locale is required, not approximated by Unicode");
+        final int[] exact={0};Pc1CgVisit.visit(new byte[0],locale,(i,v)->exact[0]++);check(exact[0]==1,"non-C locale exact bytes bypass42534C");
         return count;
     }
     public static void main(String[] args)throws Exception{System.out.println("Pc1CgVisitTests assertions: "+run());}

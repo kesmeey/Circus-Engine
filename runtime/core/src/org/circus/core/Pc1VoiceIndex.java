@@ -56,18 +56,18 @@ public final class Pc1VoiceIndex {
     public static boolean prefix(Pc1NativePaths.Memory memory,int left,int right,int count,int nativeLocaleFlag,Converter converter)throws IOException{
         for(int n=0;n<count;n++){int a=memory.read(left+n)&255,b=memory.read(right+n)&255;if(a==0||b==0)return a==b;if(nativeLocaleFlag==0){a=fold(a);b=fold(b);}else{int convertedRight=converter.lowerCase42534C(b);a=converter.lowerCase42534C(a);b=convertedRight;}if(a!=b)return false;}return true;
     }
-    private static int liveLength(Pc1NativePaths.Memory memory,int source)throws IOException{for(int n=0;n<1024*1024;n++)if((memory.read(source+n)&255)==0)return n;throw new IOException("PC1 voice raw source leaves known scan backing");}
-    /**41BD50 addressed route: scan first separator, then strlen and forward
-     *DWORD/remainder copy into the actual80B local before forcing extension.
-     *No admission-time CString or cached literal is manufactured. */
-    public long lookupRaw(final Pc1NativePaths.Memory memory,int rawName,final int rawPcmExtension,int nativeLocaleFlag)throws IOException{
-        locale(nativeLocaleFlag);if(memory==null)throw new IOException("PC1 voice raw lookup memory missing");int source=rawName,n=0,b=memory.read(source)&255;while(b!=0&&b!='\\'){if(++n>=1024*1024)throw new IOException("PC1 voice first separator exceeds known scan backing");source++;b=memory.read(source)&255;}if((memory.read(source)&255)=='\\')source++;
-        int count=liveLength(memory,source)+1;final int local=0xe1000000;final byte[] scratch=new byte[80];final boolean[] known=new boolean[80];final Pc1NativePaths.Memory localMemory=new Pc1NativePaths.Memory(){
-            public int read(int at)throws IOException{long offset=(at&0xffffffffL)-(local&0xffffffffL);if(offset>=0&&offset<80){if(!known[(int)offset])throw new IOException("PC1 voice lookup reads unknown native stack suffix");return scratch[(int)offset]&255;}return memory.read(at);}
-            public void write(int at,int value)throws IOException{long offset=(at&0xffffffffL)-(local&0xffffffffL);if(offset<0||offset>=80)throw new IOException("PC1 voice lookup writes beyond native80B stack owner");scratch[(int)offset]=(byte)value;known[(int)offset]=true;}
-        };int at=0;for(;at+4<=count;at+=4){int word=0;for(int k=0;k<4;k++)word|=(memory.read(source+at+k)&255)<<(k*8);for(int k=0;k<4;k++)localMemory.write(local+at+k,word>>>(k*8));}for(;at<count;at++)localMemory.write(local+at,memory.read(source+at));
-        Pc1NativePaths.forceExtension(localMemory,local,rawPcmExtension);int lo=0,hi=this.count;while(lo<=hi){int mid=lo+(hi-lo)/2;row(mid);int cmp=compare(scratch,0,sorted,mid*64);if(cmp==0)return offset(mid);if(cmp<0)hi=mid-1;else lo=mid+1;}return 0;
+    public static boolean prefix(Pc1ByteSource left,Pc1ByteSource right,int count,int nativeLocaleFlag,Converter converter)throws IOException{
+        for(int n=0;n<count;n++){int a=left.unsignedByte(n)&255,b=right.unsignedByte(n)&255;if(a==0||b==0)return a==b;if(nativeLocaleFlag==0){a=fold(a);b=fold(b);}else{int convertedRight=converter.lowerCase42534C(b);a=converter.lowerCase42534C(a);b=convertedRight;}if(a!=b)return false;}return true;
     }
+    /**41BD50 first-separator scan and the actual80B stack copy. Both the
+     *source and forced-extension literal remain live; no stack VA is invented. */
+    public long lookupSource(Pc1NativePaths.Memory globals,Pc1ByteSource name,Pc1ByteSource pcmExtension,int nativeLocaleFlag)throws IOException{
+        locale(nativeLocaleFlag);if(globals==null||name==null||pcmExtension==null)throw new IOException("PC1 typed voice lookup owner missing");int at=0,b=name.unsignedByte(at)&255;for(int n=0;b!=0&&b!='\\';n++){if(n>=1024*1024)throw new IOException("PC1 voice first separator exceeds known scan backing");b=name.unsignedByte(++at)&255;}if((name.unsignedByte(at)&255)=='\\')at++;
+        Pc1AudioScratch scratch=new Pc1AudioScratch(80);Pc1NativePaths.copy(scratch,Pc1ByteSource.offset(name,at));Pc1NativePaths.forceExtension(globals,scratch,pcmExtension);
+        int lo=0,hi=count;while(lo<=hi){int mid=lo+(hi-lo)/2;row(mid);int cmp=compareKnown(scratch,sorted,mid*64);if(cmp==0)return offset(mid);if(cmp<0)hi=mid-1;else lo=mid+1;}return 0;
+    }
+    private static int compareKnown(Pc1ByteSource a,byte[] b,int at)throws IOException{for(int n=0;;n++){if(at+n<0||at+n>=b.length)throw new IOException("PC1 voice strcmpi source leaves known C-string backing");int x=fold(a.unsignedByte(n)&255),y=fold(b[at+n]&255);if(x!=y)return x<y?-1:1;if(x==0)return 0;}}
+    public long lookupRaw(Pc1NativePaths.Memory memory,int rawName,int rawPcmExtension,int nativeLocaleFlag)throws IOException{return lookupSource(memory,Pc1NativePaths.pointer(memory,rawName),Pc1NativePaths.pointer(memory,rawPcmExtension),nativeLocaleFlag);}
     /** The raw lookup function applies no VOICE prefix filter. No backslash
      *means the empty suffix. The caller's80byte stack buffer is a real bound. */
     public long lookup(byte[] rawName,byte[] rawPcmExtension,int nativeLocaleFlag)throws IOException{

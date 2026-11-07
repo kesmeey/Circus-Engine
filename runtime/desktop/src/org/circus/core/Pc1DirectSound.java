@@ -14,6 +14,11 @@ public final class Pc1DirectSound implements Pc1Audio.Backend,AutoCloseable {
         Source open(byte[] rawResource)throws IOException;
         /**41BE20 live pointer. No byte[] adapter may move source reads. */
         default Source openRaw(Pc1Audio.NativeName raw)throws IOException{throw new IOException("PC1 live41BE20 raw resource resolver required");}
+        default Source openSource(final Pc1ByteSource source)throws IOException{
+            if(source instanceof Pc1Audio.NativeName)return openRaw((Pc1Audio.NativeName)source);
+            if(source instanceof Pc1ByteSource.Addressed){final Pc1ByteSource.Addressed a=(Pc1ByteSource.Addressed)source;return openRaw(new Pc1Audio.NativeName(){public int address(){return a.address();}public int unsignedByte(int n)throws IOException{return a.unsignedByte(n);}public int nativeWord(int n)throws IOException{return a.nativeWord(n);}});}
+            throw new IOException("PC1 complete41BE20 typed local resource resolver required");
+        }
         /**Restore a recorded actual path, not a mutable current raw filename. */
         default Source reopenNative(byte[] path,long offset,String identity)throws IOException{throw new IOException("PC1 live-source snapshot requires exact native-path rebinder");}
         byte[] midiPath(byte[] rawMusicName)throws IOException;
@@ -64,6 +69,8 @@ public final class Pc1DirectSound implements Pc1Audio.Backend,AutoCloseable {
     public synchronized void initializeDecoderTables()throws IOException{requireReady();initializeDecoderNative(handle);record("403B40",-1,0,0,0);}
     public synchronized ByteBuffer borrowDecoderRegion(int address)throws IOException{requireOpen();ByteBuffer raw=dspRegionNative(handle,address);if(raw==null)throw new IOException("PC1 decoder native direct storage absent");return raw.order(ByteOrder.LITTLE_ENDIAN);}
 
+    public synchronized int physicalWordForAudit(int address,boolean write,int value)throws IOException{requireOpen();return physicalWordForAuditNative(handle,address,write,value);}
+    public synchronized byte[] decoderBytesForAudit(int address)throws IOException{requireOpen();return decoderSeedNative(handle,address);}
     private static String loadedLibrarySha;
     private long handle;
     private final Thread ownerThread=Thread.currentThread();
@@ -73,7 +80,7 @@ public final class Pc1DirectSound implements Pc1Audio.Backend,AutoCloseable {
     public synchronized void bindNativeMessages(NativeMessages required)throws IOException{requireOpen();if(required==null)throw new IOException("PC1 required407020 consumer missing");messages=required;}
     @Override public synchronized void nativeMessage(int rawTextAddress)throws IOException{requireReady();record("407020",-1,0,rawTextAddress,0);if(messages==null)throw new IOException("PC1 required407020 audio message at0x"+Integer.toHexString(rawTextAddress));messages.show(rawTextAddress);}
     private int[] initialization;
-    private Pc1NativeMemory nativeMemory;
+    private Pc1NativeMemory nativeMemory,standaloneHeaderTags;
     private Pc1OsRegistry fileRegistry;
     /**The same world's OS scalar domain; no private pointer allocator. */
     public synchronized void bindFileRegistry(Pc1OsRegistry registry)throws IOException{requireOpen();if(registry==null||nativeMemory==null||registry.guestAddressSpace()!=nativeMemory.guestAddressSpace())throw new IOException("PC1 FILE registry must borrow this exact native world");if(fileRegistry!=null&&fileRegistry!=registry)throw new IOException("PC1 FILE registry already bound");fileRegistry=registry;}
@@ -99,7 +106,7 @@ public final class Pc1DirectSound implements Pc1Audio.Backend,AutoCloseable {
     private final ChannelData[] channels=new ChannelData[10];
     private final List<Input> inputs=new ArrayList<>();
     private ChannelData streamData;
-    private byte[] stagedControl;
+    private byte[] stagedControl,stagedStreamWords;
     private final Map<String,byte[]> mciAliases=new LinkedHashMap<>();
     private boolean unknownMciOwner;
     private static final class ChannelData {
@@ -137,13 +144,30 @@ public final class Pc1DirectSound implements Pc1Audio.Backend,AutoCloseable {
     public synchronized void borrowMainWindow(long hwnd)throws IOException{requireReady();if(!deferred)throw new IOException("PC1 legacy private audio endpoint is not a main-window provider");borrowWindowNative(handle,hwnd);}
     @Override public synchronized void bindControl(Pc1Audio control)throws IOException{
         requireOpen();if(control==null)throw new IOException("PC1 canonical audio control required");if(controlBound&&controlOwner!=control)throw new IOException("PC1 backend already has a different canonical control owner");if(controlBound&&controlOwner==control)return;controlOwner=control;
-        if(stagedControl==null){bindStreamBytesNative(handle,control.borrowStreamingBytes());bindDspExtraNative(handle,control.borrowStreamingExtra());controlBound=true;}
+        if(stagedControl==null&&!control.nativePhysicalBound()){bindStreamBytesNative(handle,control.borrowStreamingBytes());bindDspExtraNative(handle,control.borrowStreamingExtra());controlBound=true;}
     }
+    private final Pc1MmPhysicalMemory.Platform physicalPlatform=new Pc1MmPhysicalMemory.Platform(){
+        public long address(ByteBuffer raw)throws IOException{return directAddressNative(raw);}
+        public int readInt32(ByteBuffer raw,int at)throws IOException{return directWordNative(raw,at,false,0);}
+        public void writeInt32(ByteBuffer raw,int at,int value)throws IOException{directWordNative(raw,at,true,value);}
+    };
     public synchronized void bindNativeMemory(Pc1NativeMemory memory)throws IOException{
-        requireOpen();if(memory==null||nativeMemory!=null)throw new IOException("PC1 backend native views require unique canonical bus");nativeMemory=memory;
-        for(final int[] range:DECODER_RANGES){final ByteBuffer raw=borrowDecoderRegion(range[0]);if(raw.capacity()!=range[1])throw new IOException("PC1 decoder direct owner extent");memory.bind(range[0],range[1],new Pc1NativeMemory.Region(){public int read(int offset)throws IOException{requireOpen();return raw.get(offset)&255;}public void write(int offset,int value)throws IOException{requireOpen();raw.put(offset,(byte)value);}public int readInt32(int offset)throws IOException{requireOpen();return decoderWordNative(handle,range[0],offset,false,0);}public void writeInt32(int offset,int value)throws IOException{requireOpen();decoderWordNative(handle,range[0],offset,true,value);}});}
-        for(final int address:new int[]{0xbc12c8,0xbc1d64,0x43dbe0})memory.bind(address,4,new Pc1NativeMemory.Region(){public int read(int offset)throws IOException{requireOpen();return backendByteNative(handle,address,offset,-1);}public void write(int offset,int value)throws IOException{requireOpen();backendByteNative(handle,address,offset,value&255);}public int readInt32(int offset)throws IOException{requireOpen();if(offset!=0)throw new IOException("PC1 backend scalar word offset");return backendWordNative(handle,address,false,0);}public void writeInt32(int offset,int value)throws IOException{requireOpen();if(offset!=0)throw new IOException("PC1 backend scalar word offset");backendWordNative(handle,address,true,value);}});
+        requireOpen();if(memory==null||nativeMemory!=null||standaloneHeaderTags!=null||controlOwner==null||!controlOwner.nativePhysicalBound())throw new IOException("PC1 backend native views require unique canonical bus and addressed Audio owner");
+        Pc1MmPhysicalMemory manager=memory.mmPhysicalMemory();manager.declareBackendIslands();
+        final List<Pc1MmPhysicalMemory.Slice> slices=new ArrayList<>();
+        for(int[] range:DECODER_RANGES){byte[] seed=decoderSeedNative(handle,range[0]);if(seed.length!=range[1])throw new IOException("PC1 decoder seed extent");slices.add(manager.claim(range[0],seed,true));}
+        for(int address:new int[]{0xbc12c8,0xbc1d64,0x43dbe0}){int word=backendWordNative(handle,address,false,0);byte[] seed=new byte[4];for(int n=0;n<4;n++)seed[n]=(byte)(word>>>(8*n));slices.add(manager.claim(address,seed,true));}
+        manager.prepareNative(physicalPlatform);int[][] ranges=manager.islands();ByteBuffer[] raw=new ByteBuffer[ranges.length],masks=new ByteBuffer[ranges.length];
+        for(int n=0;n<ranges.length;n++){raw[n]=manager.slice(ranges[n][0],ranges[n][1]-ranges[n][0]).borrow();masks[n]=manager.accessMask(ranges[n][0]);}
+        if(stagedControl!=null)stagedStreamWords=sharedBytesNative(handle);
+        bindPhysicalNative(handle,raw,masks);
+        for(final Pc1MmPhysicalMemory.Slice view:slices)memory.bind(view.address(),view.length(),view);
+        nativeMemory=memory;if(stagedControl==null)controlBound=true;
     }
+    /**Explicit component fixture only. It cannot be mixed with a canonical
+     *world and is not saved by the physical backend's PDB/PDS packet. */
+    public synchronized void bindStandaloneHeaderTagsForAudit(Pc1NativeMemory tags)throws IOException{requireOpen();if(nativeMemory!=null||tags==null||tags.staticImage()==null||!tags.staticImage().finalized()||standaloneHeaderTags!=null&&standaloneHeaderTags!=tags)throw new IOException("PC1 standalone header fixture requires its admitted StaticImage and no canonical world");standaloneHeaderTags=tags;}
+    private int headerTag(int address)throws IOException{Pc1NativeMemory globals=nativeMemory!=null?nativeMemory:standaloneHeaderTags;if(globals==null)throw new IOException("PC1 header tag requires admitted canonical PE (or explicit standalone audit image)");return globals.readInt32(address);}
     /**Diagnostic counts only; retained COM references stay physically live.
      *Their portable reconstruction is a required snapshot boundary. */
     public synchronized int[] retiredReferences()throws IOException{requireOpen();return retiredNative(handle);}
@@ -223,60 +247,61 @@ public final class Pc1DirectSound implements Pc1Audio.Backend,AutoCloseable {
     }
     /**Full41BE20 raw entry. The argument pointer is captured once while its
      *bytes remain live through path selection, metadata and final strcpy. */
-    @Override public synchronized Pc1Audio.Loaded loadPcmRaw(int requested,Pc1Audio.NativeName name,boolean streaming)throws IOException{
+    @Override public synchronized Pc1Audio.Loaded loadPcmRaw(int requested,Pc1Audio.NativeName name,boolean streaming)throws IOException{return loadPcmSource(requested,name,streaming);}
+    @Override public synchronized Pc1Audio.Loaded loadPcmSource(int requested,Pc1ByteSource name,boolean streaming)throws IOException{
         requireReady();rawDepth++;try{if(controlOwner==null||nativeMemory==null)throw new IOException("PC1 raw loader requires canonical Audio/native bus");
         if(controlOwner.readNativeInt(0xbc1d10)==0)return null;
         if(requested==-1){if(controlOwner.readNativeInt(0xbc12cc)==0){controlOwner.writeNativeInt(0xbc1d04,-1);int free=-1;for(int n=0;n<10;n++)if(controlOwner.readNativeInt(0xbbaafc+n*4)==0){free=n;controlOwner.writeNativeInt(0xbc1d04,n);break;}if(free==-1){nativeMessage(0x43dde8);return null;}}}
         else{if(controlOwner.readNativeInt(0xbbaafc+requested*4)!=0)return null;controlOwner.writeNativeInt(0xbc1d04,requested);}
-        if(name==null)throw new IOException("PC1 raw native source owner missing after loader-channel prefix");final int fixedAddress=name.address();final Pc1Audio.NativeName fixed=new Pc1Audio.NativeName(){public int address(){return fixedAddress;}public int unsignedByte(int offset)throws IOException{return name.unsignedByte(offset);}public int nativeWord(int offset)throws IOException{return name.nativeWord(offset);}};
-        if(resources==null)throw new IOException("PC1 native PCM raw resource resolver required");try{return loadSource(0,null,fixed,streaming,resources.openRaw(fixed));}catch(FileNotFoundException ordinaryMissing){record("resolveMissing",requested,2,0,0);return null;}
+        if(name==null)throw new IOException("PC1 raw native source owner missing after loader-channel prefix");if(name instanceof Pc1ByteSource.Addressed&&((Pc1ByteSource.Addressed)name).bus()!=nativeMemory)throw new IOException("PC1 loader source belongs to another canonical bus");final Pc1ByteSource fixed;if(name instanceof Pc1Audio.NativeName){final Pc1Audio.NativeName raw=(Pc1Audio.NativeName)name;final int address=raw.address();fixed=new Pc1Audio.NativeName(){public int address(){return address;}public int unsignedByte(int n)throws IOException{return raw.unsignedByte(n);}public int nativeWord(int n)throws IOException{return raw.nativeWord(n);}};}else fixed=name;
+        if(resources==null)throw new IOException("PC1 native PCM raw resource resolver required");try{return loadSource(0,null,fixed,streaming,resources.openSource(fixed));}catch(FileNotFoundException ordinaryMissing){record("resolveMissing",requested,2,0,0);return null;}
         }finally{rawDepth--;}
     }
     //These logically adjacent words still have independent physical MM
     //owners. A split MOVSD cannot be replaced by4byte reads or a new lock.
     //The future continuous backing bridge must remove this precise gate.
     private static final int[][] SPLIT_MM_WORDS={{0x42a058,0x42fca8-0x42a058},{0xbbaaf8,4},{0xbbab24,4},{0xbbab50,4},{0xbbab7c,4},{0x43dbdc,4},{0xbc12c8,4},{0xbc1d64,4},{0x43dbe0,4}};
-    private static void requireRawWordOwner(int address)throws IOException{long at=address&0xffffffffL,end=at+4;for(int pass=0;pass<2;pass++)for(int[] range:pass==0?DECODER_RANGES:SPLIT_MM_WORDS){long low=range[0]&0xffffffffL,high=low+range[1];if(at<high&&low<end&&(at<low||end>high))throw new IOException("PC1 finalMOVSD spans independently backed MM owners at0x"+Integer.toHexString(address)+"; continuous native DWORD bridge required");}}
-    private static int rawLength(Pc1Audio.NativeName source)throws IOException{for(int n=0;n<1024*1024;n++)if(source.unsignedByte(n)==0)return n;throw new IOException("PC1 native PCM raw string exceeds known scan backing");}
-    private Pc1Audio.Loaded publishRaw(ChannelData data,int channel,Pc1Audio.NativeName name,boolean streaming)throws IOException{
+    private void requireRawWordOwner(int address)throws IOException{if(nativeMemory!=null&&nativeMemory.mmPhysicalMemory().hasWord(address))return;long at=address&0xffffffffL,end=at+4;for(int pass=0;pass<2;pass++)for(int[] range:pass==0?DECODER_RANGES:SPLIT_MM_WORDS){long low=range[0]&0xffffffffL,high=low+range[1];if(at<high&&low<end&&(at<low||end>high))throw new IOException("PC1 finalMOVSD spans independently backed MM owners at0x"+Integer.toHexString(address)+"; continuous native DWORD bridge required");}}
+    private static int rawLength(Pc1ByteSource source)throws IOException{for(int n=0;n<1024*1024;n++)if(source.unsignedByte(n)==0)return n;throw new IOException("PC1 native PCM raw string exceeds known scan backing");}
+    private Pc1Audio.Loaded publishRaw(ChannelData data,int channel,Pc1ByteSource name,boolean streaming)throws IOException{
         //41C13B samples the flag again after all metadata/loaded writes. EDX
         //and the destination index remain local even if the copy aliases it.
         boolean cached=controlOwner.readNativeInt(0xbc12cc)!=0;boolean success=channel!=-1;
-        if(!cached){int length=rawLength(name);if(length>255){nativeMessage(0x43dd9c);success=false;}else{int count=rawLength(name)+1,destination=0xbc1304+(channel<<8),at=0;for(;at+4<=count;at+=4){requireRawWordOwner(name.address()+at);int word=name.nativeWord(at);controlOwner.writeNativeInt(destination+at,word);}for(;at<count;at++)nativeMemory.writeAddress(destination+at,name.unsignedByte(at));}}
+        if(!cached){int length=rawLength(name);if(length>255){nativeMessage(0x43dd9c);success=false;}else{int count=rawLength(name)+1,destination=0xbc1304+(channel<<8),at=0;for(;at+4<=count;at+=4){if(name instanceof Pc1Audio.NativeName)requireRawWordOwner(((Pc1Audio.NativeName)name).address()+at);else if(name instanceof Pc1ByteSource.Addressed)requireRawWordOwner(((Pc1ByteSource.Addressed)name).address()+at);int word=name.nativeWord(at);controlOwner.writeNativeInt(destination+at,word);}for(;at<count;at++)nativeMemory.writeAddress(destination+at,name.unsignedByte(at));}}
         return new Pc1Audio.Loaded(data.decodedBytes,controlOwner.readNativeInt(0xbb8550+channel*4),controlOwner.readNativeInt(0xbbab28+channel*4),controlOwner.readNativeInt(0xbbab54+channel*4),controlOwner.readNativeInt(0xbbab80+channel*4),cached,controlOwner.readNativeInt(0xbbaafc+channel*4),success,streaming?channel:Integer.MIN_VALUE,null).alreadyPublished();
     }
     private Pc1Audio.Loaded loadSource(int channel,byte[] raw,boolean streaming,Source source)throws IOException{return loadSource(channel,raw,null,streaming,source);}
-    private Pc1Audio.Loaded loadSource(int channel,byte[] raw,Pc1Audio.NativeName live,boolean streaming,Source source)throws IOException{
+    private Pc1Audio.Loaded loadSource(int channel,byte[] raw,Pc1ByteSource live,boolean streaming,Source source)throws IOException{
         if(live==null&&raw==null)throw new IOException("PC1 raw PCM filename missing");if(raw!=null)for(byte b:raw)if(b==0)throw new IOException("PC1 raw PCM prefix contains NUL");
         Input input=new Input(source);if(!input.opened()){Source fallback=source.fallback();return fallback==null?null:loadSource(channel,raw,live,streaming,fallback);}ChannelData data=new ChannelData();data.source=source;data.raw=raw==null?new byte[0]:raw.clone();data.rawPointer=live!=null;data.nativePath=nativePath(source);data.sourceSize=input.id==0?source.bytes.size():sourceInfoNative(handle,input.id)[1];data.streaming=streaming;data.sourceId=input.id;
         try{
-            byte[] header=input.read(12);if(header.length!=12)return rejectSource(input);byte[] format=null,pcm=null;long decoded=0,packedSize=0;int mode=0,extra=0;ByteArrayOutputStream encoded=new ByteArrayOutputStream();encoded.write(header);
-            if(Binary.u32(header,0)==0x4d435058L){
-                decoded=Binary.u32(header,4);mode=(byte)header[8];extra=header[9]&255;byte[] rawFormat=input.read(16);encoded.write(rawFormat);if(rawFormat.length!=16)return rejectSource(input);format=Arrays.copyOf(rawFormat,18);
+            byte[] header=input.read(12);if(header.length!=12)return rejectSource(input,streaming);byte[] format=null,pcm=null;long decoded=0,packedSize=0;int mode=0,extra=0;ByteArrayOutputStream encoded=new ByteArrayOutputStream();encoded.write(header);
+            if(Binary.u32(header,0)==Integer.toUnsignedLong(headerTag(0x43dea4))){
+                decoded=Binary.u32(header,4);mode=(byte)header[8];extra=header[9]&255;byte[] rawFormat=input.read(16);encoded.write(rawFormat);if(rawFormat.length!=16)return rejectSource(input,streaming);format=Arrays.copyOf(rawFormat,18);
                 if(mode==1||mode==3){
-                    byte[] packedBytes=input.read(4);encoded.write(packedBytes);if(packedBytes.length!=4)return rejectSource(input);long packed=Binary.u32(packedBytes,0);packedSize=packed;data.dataOffset=input.position;
+                    byte[] packedBytes=input.read(4);encoded.write(packedBytes);if(packedBytes.length!=4)return rejectSource(input,streaming);long packed=Binary.u32(packedBytes,0);packedSize=packed;data.dataOffset=input.position;
                     if(streaming){if(fileRegistry==null)throw new IOException("PC1 compressed streaming requires same-world typed FILE registry");data.strategy="NATIVE_LZ_FFT_FILE_16K_MODE"+mode;}
-                    else{if(packed>Integer.MAX_VALUE)throw new IOException("PC1 packed audio exceeds Java input backing");byte[] payload=input.read((int)packed);encoded.write(payload);if(payload.length!=packed)return rejectSource(input);pcm=Xpcm.decode(encoded.toByteArray()).payload;data.strategy="JAVA_XPCM_STATIC_"+mode;}
+                    else{if(packed>Integer.MAX_VALUE)throw new IOException("PC1 packed audio exceeds Java input backing");byte[] payload=input.read((int)packed);encoded.write(payload);if(payload.length!=packed)return rejectSource(input,streaming);pcm=Xpcm.decode(encoded.toByteArray()).payload;data.strategy="JAVA_XPCM_STATIC_"+mode;}
                 }else if(mode==2){
                     data.dataOffset=input.position;
                     if(!streaming)throw new IOException("PC1 nonstream mode2 native41D2E3..41D30B reads decodedSize into a half-sized allocation; heap owner not reconstructed");
                     data.strategy="NATIVE_DELTA_FILE_8K";
                 }else{
                     data.dataOffset=input.position;data.strategy="NATIVE_RAW_FILE_16K";
-                    if(!streaming){if(decoded>Integer.MAX_VALUE)throw new IOException("PC1 decoded audio exceeds Java input backing");pcm=input.read((int)decoded);if(pcm.length!=decoded)return rejectSource(input);}
+                    if(!streaming){if(decoded>Integer.MAX_VALUE)throw new IOException("PC1 decoded audio exceeds Java input backing");pcm=input.read((int)decoded);if(pcm.length!=decoded)return rejectSource(input,streaming);}
                 }
-            }else if(Binary.u32(header,0)==0x46464952L||Binary.u32(header,8)==0x45564157L){
+            }else if(Binary.u32(header,0)==Integer.toUnsignedLong(headerTag(0x43de94))||Binary.u32(header,8)==Integer.toUnsignedLong(headerTag(0x43de8c))){
                 int remaining=(int)Binary.u32(header,4)-4;boolean found=false;
                 for(int records=0;records<100000;records++){
-                    byte[] chunk=input.read(8);if(chunk.length!=8)return rejectSource(input);encoded.write(chunk);long tag=Binary.u32(chunk,0),size=Binary.u32(chunk,4);int next=remaining-8;
-                    if(tag==0x20746d66L){byte[] fmt=input.read(16);encoded.write(fmt);if(fmt.length!=16)return rejectSource(input);format=Arrays.copyOf(fmt,18);next=remaining-24;if(size>16){if(size-16>Integer.MAX_VALUE)throw new IOException("PC1 WAV fmt scratch write exceeds known portable backing");byte[] rest=input.read((int)size-16);encoded.write(rest);if(rest.length!=size-16)return rejectSource(input);}}
-                    else if(tag==0x61746164L){decoded=size;data.dataOffset=input.position;found=true;break;}
+                    byte[] chunk=input.read(8);if(chunk.length!=8)return rejectSource(input,streaming);encoded.write(chunk);long tag=Binary.u32(chunk,0),size=Binary.u32(chunk,4);int next=remaining-8;
+                    if(tag==Integer.toUnsignedLong(headerTag(0x43de84))){byte[] fmt=input.read(16);encoded.write(fmt);if(fmt.length!=16)return rejectSource(input,streaming);format=Arrays.copyOf(fmt,18);next=remaining-24;if((int)size>16){if(size-16>Integer.MAX_VALUE)throw new IOException("PC1 WAV fmt scratch write exceeds known portable backing");byte[] rest=input.read((int)size-16);encoded.write(rest);if(rest.length!=size-16)return rejectSource(input,streaming);}}
+                    else if(tag==Integer.toUnsignedLong(headerTag(0x43de7c))){decoded=size;data.dataOffset=input.position;found=true;break;}
                     else{if(size>Integer.MAX_VALUE)throw new IOException("PC1 WAV scratch write exceeds known portable backing");byte[] skip=input.read((int)size);encoded.write(skip);}
-                    if(next<1)return rejectSource(input);remaining=next;
+                    if(next<1)return rejectSource(input,streaming);remaining=next;
                 }
-                if(!found)return rejectSource(input);if(format==null)throw new IOException("PC1 native WAV data has no known fmt allocation contents");data.strategy="NATIVE_RIFF_RAW_FILE_16K";
-                if(!streaming){if(decoded>Integer.MAX_VALUE)throw new IOException("PC1 WAV decoded audio exceeds Java input backing");pcm=input.read((int)decoded);if(pcm.length!=decoded)return rejectSource(input);}
-            }else return rejectSource(input);
+                if(!found)return rejectSource(input,streaming);if(format==null)throw new IOException("PC1 native WAV data has no known fmt allocation contents");data.strategy="NATIVE_RIFF_RAW_FILE_16K";
+                if(!streaming){if(decoded>Integer.MAX_VALUE)throw new IOException("PC1 WAV decoded audio exceeds Java input backing");pcm=input.read((int)decoded);if(pcm.length!=decoded)return rejectSource(input,streaming);}
+            }else return rejectSource(input,streaming);
             data.format=format;data.decodedBytes=(int)decoded;data.mode=mode;data.extra=extra;data.available=Math.max(0,data.sourceSize-data.dataOffset);
             data.encodedLength=(mode==1||mode==3)?streaming?data.dataOffset-source.offset+Math.min(packedSize,data.available):input.position-source.offset:data.dataOffset-source.offset+Math.min(mode==2?decoded/2:decoded,data.available);data.checksum=input.id==0?checksum(source.bytes,source.offset,data.encodedLength):actualSourceChecksum(input.id,source.offset,data.encodedLength);
             if(streaming){if(input.id==0)throw new IOException("PC1 Windows file streaming requires an owned native file source; no eager-memory fallback");prepareDecoderNative(handle,input.id,(int)decoded,mode==2?2:mode==1||mode==3?1:0,Binary.u16(format,2),(int)packedSize,(byte)extra);}
@@ -288,7 +313,7 @@ public final class Pc1DirectSound implements Pc1Audio.Backend,AutoCloseable {
             int hr=createBuffer(channel,(int)decoded,0x40ea,format);
             if(hr!=0){nativeMessage(0x43ddc4);return new Pc1Audio.Loaded((int)decoded,slot<0?0:baseVolume[slot],slot<0?0:baseFrequency[slot],slot<0?0:frequency[slot],slot<0?0:pan[slot],false,0,false,Integer.MIN_VALUE,null).alreadyPublished();}
             if(live!=null)channel=controlOwner.readNativeInt(0xbc1d04);
-            if(streaming){if(live!=null)controlOwner.writeNativeInt(0xbbaaf8,(int)decoded);int[] result=bindStreamNative(handle,channel,input.id,(int)decoded,null,16384,true);streamData=data;record("41BBF0",channel,result[0],result[2],result[4]);if(result[3]!=0)throw new IOException("PC1 native stream reached an unmodelled read/Lock boundary:"+Arrays.toString(result));}
+            if(streaming){if(controlOwner!=null)controlOwner.writeNativeInt(0xbbaaf8,(int)decoded);int[] result=bindStreamNative(handle,channel,input.id,(int)decoded,null,16384,true);streamData=data;record("41BBF0",channel,result[0],result[2],result[4]);if(result[3]!=0)throw new IOException("PC1 native stream reached an unmodelled read/Lock boundary:"+Arrays.toString(result));}
             else{int[] result=writeBuffer(channel,0,pcm,0,pcm.length);if(result[0]!=0)throw new IOException("PC1 native Lock failed before unchecked memcpy:0x"+Integer.toHexString(result[0]));}
             boolean cached=controlOwner!=null&&controlOwner.readNativeInt(0xbc12cc)!=0;
             if(live!=null){
@@ -305,9 +330,9 @@ public final class Pc1DirectSound implements Pc1Audio.Backend,AutoCloseable {
             if(controlOwner!=null){controlOwner.publishLoaded(channel,raw,streaming,projected);projected=projected.alreadyPublished();}
             if(!cached&&raw.length>255)nativeMessage(0x43dd9c);
             return projected;
-        }finally{if(!streaming)input.close();}
+        }finally{/*Required/unknown boundaries retain the already-open handle. Known static paths close explicitly above.*/}
     }
-    private static Pc1Audio.Loaded rejectSource(Input input)throws IOException{input.close();return null;}
+    private static Pc1Audio.Loaded rejectSource(Input input,boolean streaming)throws IOException{if(!streaming)input.close();return null;}
     private static String checksum(Archive.Source source,long offset,long count)throws IOException{
         try{MessageDigest hash=MessageDigest.getInstance("SHA-256");try(Archive.Reader reader=source.openReader()){for(long at=0;at<count;){int n=(int)Math.min(65536,count-at);byte[] bytes=reader.read(offset+at,n);if(bytes.length!=n)throw new EOFException("PC1 immutable audio backing identity short read");hash.update(bytes);at+=n;}}StringBuilder text=new StringBuilder();for(byte b:hash.digest())text.append(String.format(Locale.ROOT,"%02x",b&255));return text.toString();}catch(NoSuchAlgorithmException impossible){throw new AssertionError(impossible);}
     }
@@ -317,7 +342,7 @@ public final class Pc1DirectSound implements Pc1Audio.Backend,AutoCloseable {
     public synchronized void closeStream()throws IOException{requireReady();int[] result=timerNative(handle,3,0,0);record("timeKillEvent",-1,result[0],0,0);}
     @Override public synchronized boolean prepareRestoredState(Pc1Audio control,Pc1Audio.State state)throws IOException{
         requireOpen();if(stagedControl==null||state==null||controlOwner!=control||!Arrays.equals(stagedControl,controlBytes(state)))return false;
-        if(!Arrays.equals(streamControlBytes(state),sharedBytesNative(handle)))throw new IOException("PC1 staged stream/control bytes differ");bindStreamBytesNative(handle,control.borrowStreamingBytes());bindDspExtraNative(handle,control.borrowStreamingExtra());controlBound=true;return true;
+        if(!Arrays.equals(streamControlBytes(state),stagedStreamWords!=null?stagedStreamWords:sharedBytesNative(handle)))throw new IOException("PC1 staged stream/control bytes differ");if(nativeMemory==null){bindStreamBytesNative(handle,control.borrowStreamingBytes());bindDspExtraNative(handle,control.borrowStreamingExtra());}controlBound=true;return true;
     }
     private static byte[] streamControlBytes(Pc1Audio.State state){byte[] raw=Arrays.copyOf(state.rawStreamingBytes(),20);int channel=state.words()[13];for(int n=0;n<4;n++)raw[16+n]=(byte)(channel>>>(8*n));return raw;}
     public synchronized boolean adoptRestoredState(Pc1Audio.State control)throws IOException{
@@ -415,6 +440,11 @@ public final class Pc1DirectSound implements Pc1Audio.Backend,AutoCloseable {
     private static native void bindDspPeNative(long handle,ByteBuffer raw)throws IOException;
     private static native void dspCoefficientsNative(long handle,int extra)throws IOException;
     private static native void dspTransformNative(long handle,int outputOffset,int extra)throws IOException;
+    private static native int physicalWordForAuditNative(long handle,int address,boolean write,int value)throws IOException;
+    private static native long directAddressNative(ByteBuffer raw)throws IOException;
+    private static native int directWordNative(ByteBuffer raw,int offset,boolean write,int value)throws IOException;
+    private static native byte[] decoderSeedNative(long handle,int address)throws IOException;
+    private static native void bindPhysicalNative(long handle,ByteBuffer[] buffers,ByteBuffer[] masks)throws IOException;
     private static native int[] dspLzAuditNative(long handle,int operation,int packed,byte[] input,int position,int readLimit)throws IOException;
     private static native long[] fileTagsAuditNative(long handle,byte[] rawPath)throws IOException;
     private static native ByteBuffer dspRegionNative(long handle,int address)throws IOException;

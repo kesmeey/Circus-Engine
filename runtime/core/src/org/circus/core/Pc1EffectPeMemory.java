@@ -16,9 +16,12 @@ public final class Pc1EffectPeMemory {
     private static final int[][] RANGES={{SPAN_BASE,0x42a000-SPAN_BASE},{0x42a000,48},{0x42a058,SPAN_END-0x42a058},{FRAMES,FRAMES_END-FRAMES}};
     private final Pc1NativeMemory memory;
     private final ByteBuffer[] raw=new ByteBuffer[RANGES.length];
+    private final Pc1MmPhysicalMemory.Slice[] shared=new Pc1MmPhysicalMemory.Slice[RANGES.length];
     public Pc1EffectPeMemory(Pc1NativeMemory memory)throws IOException{
         if(memory==null)throw new IOException("PC1 effect PE bytes require canonical bus");this.memory=memory;byte[] span=currentChsSeedSpan(),frames=currentChsSeedFrames();
-        for(int n=0;n<RANGES.length;n++){final int base=RANGES[n][0],length=RANGES[n][1];final boolean writable=n!=0;ByteBuffer storage=ByteBuffer.allocateDirect(length).order(ByteOrder.LITTLE_ENDIAN);storage.put(n==3?frames:span,n==3?0:base-SPAN_BASE,length);storage.clear();final ByteBuffer bytes=raw[n]=writable?storage:storage.asReadOnlyBuffer().order(ByteOrder.LITTLE_ENDIAN);
+        for(int n=0;n<RANGES.length;n++){final int base=RANGES[n][0],length=RANGES[n][1];final boolean writable=n!=0;
+            if(n==2){shared[n]=memory.mmPhysicalMemory().claim(base,Arrays.copyOfRange(span,base-SPAN_BASE,base-SPAN_BASE+length),true);memory.bind(base,length,shared[n]);continue;}
+            ByteBuffer storage=ByteBuffer.allocateDirect(length).order(ByteOrder.LITTLE_ENDIAN);storage.put(n==3?frames:span,n==3?0:base-SPAN_BASE,length);storage.clear();final ByteBuffer bytes=raw[n]=(writable?storage:storage.asReadOnlyBuffer()).order(ByteOrder.LITTLE_ENDIAN);
             memory.bind(base,length,new Pc1NativeMemory.Region(){public int read(int offset){return bytes.get(offset)&255;}public void write(int offset,int value)throws IOException{if(!writable)throw new IOException("PC1 effect alias writes read-only PE at0x"+Integer.toHexString(base+offset));bytes.put(offset,(byte)value);}public int readInt32(int offset){return bytes.getInt(offset);}public void writeInt32(int offset,int value)throws IOException{if(!writable)throw new IOException("PC1 effect alias writes read-only PE at0x"+Integer.toHexString(base+offset));bytes.putInt(offset,value);}});
         }
     }
@@ -28,11 +31,11 @@ public final class Pc1EffectPeMemory {
     /**Borrow the actual live PE storage for native DSP. The owner remains
      *this Runtime; callbacks and whole snapshots share the audio boundary.
      *No span can cross another owner or expose a read-only page to native writes.*/
-    public ByteBuffer borrowedDirectView(int address,int length)throws IOException{long at=address&0xffffffffL;if(length<=0||at+length>0x100000000L)throw new IOException("PC1 PE direct view bounds");for(int n=1;n<RANGES.length;n++){long start=RANGES[n][0]&0xffffffffL;if(at>=start&&at+length<=start+RANGES[n][1]){ByteBuffer view=raw[n].duplicate();view.position((int)(at-start));view.limit((int)(at-start)+length);return view.slice().order(ByteOrder.LITTLE_ENDIAN);}}throw new IOException("PC1 PE direct view crosses readonly, unknown or independently owned bytes");}
-    public void save(DataOutput out)throws IOException{out.writeInt(FORMAT);out.writeInt(VERSION);for(int n=1;n<raw.length;n++)for(int at=0;at<raw[n].capacity();at++)out.writeByte(raw[n].get(at));}
+    public ByteBuffer borrowedDirectView(int address,int length)throws IOException{long at=address&0xffffffffL;if(length<=0||at+length>0x100000000L)throw new IOException("PC1 PE direct view bounds");for(int n=1;n<RANGES.length;n++){long start=RANGES[n][0]&0xffffffffL;if(at>=start&&at+length<=start+RANGES[n][1]){ByteBuffer view=shared[n]==null?raw[n].duplicate():shared[n].borrow();view.position((int)(at-start));view.limit((int)(at-start)+length);return view.slice().order(ByteOrder.LITTLE_ENDIAN);}}throw new IOException("PC1 PE direct view crosses readonly, unknown or independently owned bytes");}
+    public void save(DataOutput out)throws IOException{out.writeInt(FORMAT);out.writeInt(VERSION);for(int n=1;n<raw.length;n++)for(int at=0;at<RANGES[n][1];at++)out.writeByte(shared[n]==null?raw[n].get(at):shared[n].read(at));}
     public static final class Image {private final byte[][] bytes;private Image(byte[][] bytes){this.bytes=bytes;}}
     public static Image loadImage(DataInput in)throws IOException{if(in.readInt()!=FORMAT||in.readInt()!=VERSION)throw new IOException("PC1 effect PE image format");byte[][] bytes=new byte[RANGES.length-1][];for(int n=0;n<bytes.length;n++){bytes[n]=new byte[RANGES[n+1][1]];in.readFully(bytes[n]);}return new Image(bytes);}
-    public void restore(Image image)throws IOException{if(image==null)throw new IOException("PC1 effect PE image missing");for(int n=1;n<raw.length;n++)for(int at=0;at<raw[n].capacity();at++)raw[n].put(at,image.bytes[n-1][at]);}
+    public void restore(Image image)throws IOException{if(image==null)throw new IOException("PC1 effect PE image missing");for(int n=1;n<raw.length;n++)for(int at=0;at<RANGES[n][1];at++){if(shared[n]==null)raw[n].put(at,image.bytes[n-1][at]);else shared[n].write(at,image.bytes[n-1][at]);};}
     // Explicit immutable PE seeds for independent byte-fixture/audit owners.
     // Production reads after construction ALWAYS use addressed live owners.
     static byte[] currentChsSeedSpan(){return Arrays.copyOf(SEED,SPAN_END-SPAN_BASE);}

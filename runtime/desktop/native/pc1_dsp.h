@@ -244,20 +244,21 @@ static void dspFft(Context *c,uint32_t a1,volatile uint32_t *a2,volatile uint32_
 static void dspSelectCoefficients(Context *c,DWORD extra){DWORD n,source=0x42ab60u+(extra&15u)*64u;for(n=0;n<16;n++)dspPeStore(c,0x42ab20u+n*4u,dspPeWord(c,source+n*4u));}
 static volatile BYTE *dspPointer(Context *c,DWORD address,DWORD *length){
     static const DWORD base[]={0x455574u,0xbc5f80u,0x42fca8u,0x43de78u,0xbc1d78u,0xbc1d7cu,0xbc1d88u,0xbc1da4u,0xbc3da4u,0xbc5da4u};DWORD n,total;BYTE *pointer;
+    if(c->physicalBound)return physicalPointer(c,address,1,1,length);
     if(c->dspPe&&address-0x42ab1cu<c->dspPeLength){*length=c->dspPeLength-(address-0x42ab1cu);return c->dspPe+(address-0x42ab1cu);}
     for(n=0;n<sizeof(base)/sizeof(base[0]);n++){pointer=dspRegion(c,base[n],&total);if(address-base[n]<total){*length=total-(address-base[n]);return pointer+(address-base[n]);}}
     c->dspFaultAddress=address;*length=0;return NULL;
 }
-static int dspByte(Context *c,DWORD address,BYTE *value){DWORD length;volatile BYTE *pointer=dspPointer(c,address,&length);if(!pointer)return 0;*value=*pointer;return 1;}
-static int dspByteStore(Context *c,DWORD address,BYTE value){DWORD length;volatile BYTE *pointer=dspPointer(c,address,&length);if(!pointer)return 0;*pointer=value;return 1;}
+static int dspByte(Context *c,DWORD address,BYTE *value){DWORD length;volatile BYTE *pointer=c->physicalBound?physicalPointer(c,address,1,1,NULL):dspPointer(c,address,&length);if(!pointer)return 0;*value=*pointer;return 1;}
+static int dspByteStore(Context *c,DWORD address,BYTE value){DWORD length;volatile BYTE *pointer=c->physicalBound?physicalPointer(c,address,1,2,NULL):dspPointer(c,address,&length);if(!pointer)return 0;*pointer=value;return 1;}
 typedef int (*DspRead)(Context *,void *,DWORD,DWORD,DWORD,DWORD);
 #define LZWORD(c,offset) (*(volatile DWORD *)((c)->dspLz+(offset)))
 /*403E40 clears only these six words. Ring, buffered input and source pointer
  *are deliberately stale; the first403DF0 refill owns the pointer store. */
 static void dspInitLz(Context *c,DWORD packed){LZWORD(c,0x10004)=0;LZWORD(c,0x14024)=0;LZWORD(c,0x14020)=packed;LZWORD(c,0x1402c)=0;LZWORD(c,0x10000)=0;LZWORD(c,0x14028)=0;}
 static int dspInputByte(Context *c,DspRead read,void *opaque,DWORD *result){BYTE value;
-    if(LZWORD(c,0x10004)==0){if(!read(c,opaque,dspPeWord(c,0x42ab1c),0xbd5fa0u,0x4000u,0xbd5f84u))return 0;c->dspInputPointer=0xbd5fa0u;}
-    LZWORD(c,0x10004)--;if(!dspByte(c,c->dspInputPointer,&value))return 0;c->dspInputPointer++;*result=(LZWORD(c,0x10004)&0xffffff00u)|value;return 1;
+    if(LZWORD(c,0x10004)==0){if(!read(c,opaque,dspPeWord(c,0x42ab1c),0xbd5fa0u,0x4000u,0xbd5f84u))return 0;(*c->dspInputPointer)=0xbd5fa0u;}
+    LZWORD(c,0x10004)--;if(!dspByte(c,(*c->dspInputPointer),&value))return 0;(*c->dspInputPointer)++;*result=(LZWORD(c,0x10004)&0xffffff00u)|value;return 1;
 }
 /*403E70 uses signed packed/overflow tests and a local write cursor inside
  *each match. Its first raw write precedes the16-bit mask, including aliases. */
@@ -280,7 +281,7 @@ static int dspLzBlock(Context *c,DspRead read,void *opaque,DWORD *result){DWORD 
     }
     LZWORD(c,0x14024)-=8192u;*result=LZWORD(c,0x14024)+LZWORD(c,0x14020);return 1;
 }
-static int dspSample(Context *c,DWORD address,WORD *value,int write){DWORD length;volatile BYTE *pointer=dspPointer(c,address,&length);BYTE low,high;if(!pointer)return 0;if(length>=2){if(write)*(volatile WORD *)pointer=*value;else *value=*(volatile WORD *)pointer;return 1;}if(write){*pointer=(BYTE)*value;pointer=dspPointer(c,address+1,&length);if(!pointer)return 0;*pointer=(BYTE)(*value>>8);}else{low=*pointer;if(!dspByte(c,address+1,&high))return 0;*value=(WORD)(low|high<<8);}return 1;}
+static int dspSample(Context *c,DWORD address,WORD *value,int write){DWORD length=2;volatile BYTE *pointer=c->physicalBound?physicalPointer(c,address,2,write?2:1,NULL):dspPointer(c,address,&length);BYTE low,high;if(!pointer)return 0;if(length>=2){if(write)*(volatile WORD *)pointer=*value;else *value=*(volatile WORD *)pointer;return 1;}if(write){*pointer=(BYTE)*value;pointer=c->physicalBound?physicalPointer(c,address+1,1,2,&length):dspPointer(c,address+1,&length);if(!pointer)return 0;*pointer=(BYTE)(*value>>8);}else{low=*pointer;if(!dspByte(c,address+1,&high))return 0;*value=(WORD)(low|high<<8);}return 1;}
 /*Original404060 ->403480 ->404140 over the actual shared global arrays.
  *The memory reads/stores use the same fixed VA owners and live PE tables. */
 static int dspStreamTransform(Context *c,DWORD output,DWORD extra){
@@ -303,11 +304,11 @@ static int dspStreamTransform(Context *c,DWORD output,DWORD extra){
 typedef int (*DspClose)(Context *,void *,DWORD);
 /*41CF00 compressed branch. The two8,128-byte blocks intentionally overlap
  *64 bytes; previous holds untrimmed produced bytes, even on a short tail. */
-static int dspCompressedPacket(Context *c,DspRead read,DspClose close,void *opaque,DWORD *count){DWORD n,previous=(DWORD)c->stream.channels,produced=0,result,extra;BYTE bytes[4];
-    if(c->stream.remaining==0){memset(c->stream.scratch,0,sizeof(c->stream.scratch));*count=0;if(!close(c,opaque,dspPeWord(c,0x42ab1c)))return -1;dspPeStore(c,0x42ab1c,0xffffffffu);return 0;}
+static int dspCompressedPacket(Context *c,DspRead read,DspClose close,void *opaque,DWORD *count){DWORD n,previous=(DWORD)(*c->stream.channels),produced=0,result,extra;BYTE bytes[4];
+    if((*c->stream.remaining)==0){memset(c->stream.scratch,0,0x4000u);*count=0;if(!close(c,opaque,dspPeWord(c,0x42ab1c)))return -1;dspPeStore(c,0x42ab1c,0xffffffffu);return 0;}
     if(previous!=0)for(n=0;n<64;n+=4){if(!dspByte(c,0xbc1da4u+previous+n,&bytes[0])||!dspByte(c,0xbc1da4u+previous+n+1,&bytes[1])||!dspByte(c,0xbc1da4u+previous+n+2,&bytes[2])||!dspByte(c,0xbc1da4u+previous+n+3,&bytes[3]))return -1;memcpy(c->stream.scratch+n,bytes,4);}
     extra=*c->dspStreamingExtra;dspSelectCoefficients(c,extra);
     do{if(!dspLzBlock(c,read,opaque,&result)||!dspStreamTransform(c,produced,*c->dspStreamingExtra))return -1;produced+=8128u;if(result==0)break;}while(produced<8192u);
-    c->stream.channels=(int)produced;dspSelectCoefficients(c,c->dspStaticExtra);if(c->stream.remaining<produced)produced=c->stream.remaining;c->stream.remaining-=produced;*count=produced;return 1;
+    (*c->stream.channels)=(int)produced;dspSelectCoefficients(c,(*c->dspStaticExtra));if((*c->stream.remaining)<produced)produced=(*c->stream.remaining);(*c->stream.remaining)-=produced;*count=produced;return 1;
 }
 #endif

@@ -10,6 +10,88 @@ import java.util.Arrays;
 public final class Pc1TextExpander {
     private Pc1TextExpander(){}
     public static final int BODY_CAPACITY=1024,SPEAKER_CAPACITY=256;
+    /** Complete addressed4123A0 route. The existing byte[] Context API below
+     *is a convenience projection; it cannot retain native source aliases. */
+    public interface LiveState {
+        int read(int address)throws IOException;void write(int address,int value)throws IOException;
+        default int readInt32(int address)throws IOException{int value=0;for(int n=0;n<4;n++)value|=(read(address+n)&255)<<(n*8);return value;}
+    }
+    public interface LiveServices {
+        default int atoi420BDA(Pc1GlyphCache.Source source)throws IOException{throw liveRequired(0x420bda);}
+        default int isDigit420AD0(int signedByte)throws IOException{throw liveRequired(0x420ad0);}
+        default int variable411910(int bank,int index)throws IOException{throw liveRequired(0x411910);}
+        /**Actual local80B destination and mutable native format pointer.
+         *Neither its initial bytes nor a missing NUL are manufactured.*/
+        default void sprintf420661(Local destination,int rawFormat,int value)throws IOException{throw liveRequired(0x420661);}
+    }
+    /** The linked420BDA/420B4F and420AD0 paths. Every classification
+     *reloads MB_CUR_MAX and the native ctype pointer. Multi-byte locale work
+     *remains an explicit423486 call, rather than a Java character predicate. */
+    public static class LinkedCrt implements LiveServices {
+        private final LiveState memory;
+        public LinkedCrt(LiveState memory)throws IOException{if(memory==null)throw new IOException("PC1 linked CRT requires canonical memory");this.memory=memory;}
+        public LinkedCrt(final Pc1NativeMemory bus)throws IOException{this(bus==null?null:new LiveState(){public int read(int at)throws IOException{return bus.readAddress(at);}public void write(int at,int value)throws IOException{bus.writeAddress(at,value);}public int readInt32(int at)throws IOException{return bus.readInt32(at);}});}
+        protected int classify423486(int value,int mask)throws IOException{throw liveRequired(0x423486);}
+        private int table(int value,int mask)throws IOException{int pointer=memory.readInt32(0x4403c0);return memory.read(pointer+value*2)&mask;}
+        public int isDigit420AD0(int signedByte)throws IOException{if(memory.readInt32(0x4405cc)>1)return classify423486(signedByte,4);return table(signedByte,4);}
+        private int unsignedDigit(int value)throws IOException{if(memory.readInt32(0x4405cc)>1)return classify423486(value,4);return table(value,4);}
+        public int atoi420BDA(Pc1GlyphCache.Source source)throws IOException{
+            if(source==null)throw new IOException("PC1 atoi requires live typed source");int at=0;
+            for(;;){int mb=memory.readInt32(0x4405cc),c=source.unsignedByte(at)&255;int space=mb>1?classify423486(c,8):table(c,8);if(space==0)break;at++;}
+            int current=source.unsignedByte(at++)&255,sign=current;if(current=='-'||current=='+')current=source.unsignedByte(at++)&255;
+            int value=0;while(unsignedDigit(current)!=0){value=value*10+current-'0';current=source.unsignedByte(at++)&255;}return sign=='-'?-value:value;
+        }
+    }
+    private static IOException liveRequired(int target){return new IOException("PC1 live expansion required native leaf0x"+Integer.toHexString(target));}
+    public static final class Local {
+        private final byte[] bytes=new byte[80],known=new byte[80];
+        public int unsignedByte(int at)throws IOException{if(at<0||at>=bytes.length)throw new IOException("PC1 expansion crosses unknown caller ABI outside local80");if(known[at]==0)throw new IOException("PC1 expansion reads unknown local80 byte");return bytes[at]&255;}
+        public void write(int at,int value)throws IOException{if(at<0||at>=bytes.length)throw new IOException("PC1 expansion crosses unknown caller ABI outside local80");bytes[at]=(byte)value;known[at]=1;}
+    }
+    public static final class Live {
+        private final LiveState memory;private final LiveServices services;private Pc1NativeMemory bus;private int depth;
+        public Live(LiveState memory,LiveServices services)throws IOException{if(memory==null)throw new IOException("PC1 live expansion requires canonical memory");this.memory=memory;this.services=services==null?new LiveServices(){}:services;}
+        public Live(final Pc1NativeMemory memory,LiveServices services)throws IOException{this(memory==null?null:new LiveState(){public int read(int at)throws IOException{return memory.readAddress(at);}public void write(int at,int value)throws IOException{memory.writeAddress(at,value);}public int readInt32(int at)throws IOException{return memory.readInt32(at);}},services);bus=memory;}
+        public void requireBus(Pc1NativeMemory memory)throws IOException{if(memory==null||memory!=bus)throw new IOException("PC1 live expansion requires its canonical bus");}
+        public void requireBoundary()throws IOException{if(depth!=0)throw new IOException("PC1 live expansion snapshot during native local/CRT callback");}
+        private int b(int at)throws IOException{return memory.read(at)&255;}private int d(int at)throws IOException{return memory.readInt32(at);}
+        private static int b(Pc1GlyphCache.Source source,int at)throws IOException{return source.unsignedByte(at)&255;}
+        private static Pc1GlyphCache.Source shifted(Pc1GlyphCache.Source source,int at){return offset->b(source,at+offset);}
+        private int digits(Pc1GlyphCache.Source source,int at)throws IOException{int digit=services.isDigit420AD0((byte)b(source,at));while(digit!=0){int next=(byte)b(source,at+1);at++;digit=services.isDigit420AD0(next);}return at;}
+        private int copyCString(int address,int destination)throws IOException{int value=b(address);while(value!=0){memory.write(destination,value);value=b(address+1);destination++;address++;}return destination;}
+        /** Source is already transformed by fetch for4A..4D. This function
+         *does not decode, pre-scan, clone or bound output by a destination DTO.
+         *Each byte store reaches the addressed owner at its actual position.*/
+        public void expand(Pc1GlyphCache.Source source,int destination)throws IOException{
+            if(source==null)throw new IOException("PC1 live expansion source missing");depth++;
+            try{
+                Local local=new Local();int at=0,out=destination,value=b(source,0);
+                if(value==0){memory.write(out,0);memory.write(out+1,0);return;}
+                for(;;){
+                    if(value!='$'){memory.write(out,value);out++;}
+                    else{
+                        value=b(source,at+1);at++;
+                        if(value=='n')out=copyCString(0x454d34,out);
+                        else if(value=='f')out=copyCString(0x454d20,out);
+                        else if(value=='t'||value=='m'){
+                            boolean text=value=='t';at++;int index=services.atoi420BDA(shifted(source,at));at=digits(source,at);
+                            int count=d(text?0xbb84c4:0xbc1d14);
+                            if(index<count)out=copyCString((text?0x9717f8:0xbb85f8)+index*(text?188:192),out);
+                            at--;
+                        }else if(services.isDigit420AD0((byte)value)!=0){
+                            int bank=services.atoi420BDA(shifted(source,at));at=digits(source,at);
+                            if(b(source,at)==','){
+                                at++;int index=services.atoi420BDA(shifted(source,at));at=digits(source,at);
+                                int number=services.variable411910(bank,index);services.sprintf420661(local,0x43d988,number);
+                                int p=0,c=local.unsignedByte(0);while(c!=0){memory.write(out,c);c=local.unsignedByte(p+1);out++;p++;}at--;
+                            }
+                        }
+                    }
+                    value=b(source,at+1);at++;if(value==0){memory.write(out,0);memory.write(out+1,0);return;}
+                }
+            }finally{depth--;}
+        }
+    }
     /** Current raw substitution owners. Names/labels are validated owned C
      *strings (their final NUL may be omitted); a missing record terminator is
      *not permission to truncate a native read at an arbitrary table boundary. */

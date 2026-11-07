@@ -32,7 +32,7 @@ public final class Pc1DirectSoundSourceAudit {
         };
         Pc1Audio.Catalog catalog=new Pc1Audio.Catalog(){public int musicCount(){return 1;}public Pc1Audio.Entry music(int n)throws IOException{return new Pc1Audio.Entry("MUSIC".getBytes(StandardCharsets.US_ASCII),0);}public int soundCount(){return 0;}public Pc1Audio.Entry sound(int n)throws IOException{throw new IOException("none");}};
         byte[] preferences=Pc1NativeSettings.currentChsDefaults().nativeBytes();Arrays.fill(preferences,0x2c,0x30,(byte)0);Pc1NativeSettings settings=Pc1NativeSettings.parse(preferences);Pc1DirectSound.Snapshot musicSaved;Pc1Audio.State musicControl;
-        try(Pc1DirectSound output=new Pc1DirectSound(dll,0,resources)){
+        try(Pc1DirectSound output=new Pc1DirectSound(dll,0,resources)){Pc1DirectSoundAuditFixtures.standalone(output);
             if(!output.pcmInitialized())throw new IOException("Actual DirectSound device unavailable:"+Arrays.toString(output.initialization()));
             Pc1Audio.Loaded sample=output.loadPcm(1,"STATIC".getBytes(StandardCharsets.US_ASCII),false);check(sample!=null&&sample.successful&&sample.bytes==payload.length,"Native static source admission and physical buffer creation");check(Arrays.equals(payload,output.bufferBytes(1)),"Entire self-authored file payload transferred to DirectSound without a Clip");
             List<Pc1DirectSound.Result> events=output.journal();int close=-1,create=-1;for(int n=0;n<events.size();n++){if(events.get(n).operation.equals("CloseHandle"))close=n;if(events.get(n).operation.equals("CreateSoundBuffer"))create=n;}check(close>=0&&close<create&&events.get(close).result!=0,"Static original read closes its actual file before CreateSoundBuffer");output.release(1);

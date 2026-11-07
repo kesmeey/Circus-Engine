@@ -21,6 +21,7 @@ public final class Pc1GraphicsFiles implements Pc1GraphicsResources.Backend {
     @Override public void visitCg(byte[] beforeFirstDot)throws IOException{
         Pc1CgVisit.visit(beforeFirstDot,catalog,settings);
     }
+    @Override public void visitCgSource(Pc1ByteSource source)throws IOException{Pc1CgVisit.visitSource(source,catalog,settings);}
     @Override public Pc1GraphicsResources.Source readImage(byte[] category,byte[] name,byte[] extension)throws IOException{
         throw new IOException("PC1 production image backend requires an addressed native call");
     }
@@ -29,7 +30,7 @@ public final class Pc1GraphicsFiles implements Pc1GraphicsResources.Backend {
     }
     @Override public boolean usesCanonicalPool(){return true;}
     @Override public int readImageInto(Pc1GraphicsResources.AddressedImage request,Pc1ImagePool pool,int mode)throws IOException{
-        if(request==null||pool==null)throw new IOException("PC1 addressed image/pool request missing");Pc1ResourcePaths.Resolved path=paths.assetAddressed(request,request.category,request.name,request.extension,request.pathCapacity);Pc1CrxDecoder.Input file=io.open(path.rawPath());if(file==null)return -1;try{return decoder.decodeInto(file,io,pool,mode);}finally{io.close(file);}
+        if(request==null||pool==null)throw new IOException("PC1 addressed image/pool request missing");Pc1ResourcePaths.Resolved path=paths.assetTyped(request.categorySource(),request.name,request.extensionSource(),request.pathCapacity);Pc1CrxDecoder.Input file=io.open(path.rawPath());if(file==null)return -1;try{return decoder.decodeInto(file,io,pool,mode);}finally{io.close(file);}
     }
     @Override public Pc1GraphicsResources.Source allocateImage(int width,int height,int format)throws IOException{
         throw new IOException("PC1 production allocation must retain its canonical pool lease");

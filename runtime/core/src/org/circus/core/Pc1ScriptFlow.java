@@ -8,6 +8,7 @@ import java.io.IOException;
 public final class Pc1ScriptFlow implements Pc1UiServices.ScriptAndSlots {
     public interface Files extends Pc1ScriptLoader.NativeIo {
         int prepareScenario41AEA0(int rawName)throws IOException;
+        default int prepareScenario41AEA0(Pc1ByteSource source)throws IOException{throw new IOException("PC1 scenario41AEA0 typed live-source file consumer required");}
         void error411050(int rawMessage)throws IOException;
     }
     public interface Persistent {
@@ -29,6 +30,7 @@ public final class Pc1ScriptFlow implements Pc1UiServices.ScriptAndSlots {
         capture=new Pc1Capture(runtime.nativeMemory(),graphics.render().compositor());text=new Pc1TextRedraw(runtime,graphics);
         loader=new Pc1ScriptLoader(runtime.nativeMemory(),runtime.scriptMemory(),files,new Pc1ScriptLoader.Services(){
             public int prepareScenario41AEA0(int raw)throws IOException{return files.prepareScenario41AEA0(raw);}
+            public int prepareScenario41AEA0(Pc1ByteSource source)throws IOException{return files.prepareScenario41AEA0(source);}
             public void error411050(int raw)throws IOException{files.error411050(raw);}
             public void resetEffects40F560(int kind,int strength)throws IOException{graphics.commandEffect(kind,strength);}
             public void releaseGraphics411080(int slot,int mode)throws IOException{graphics.render().release(slot,mode);}
@@ -49,11 +51,14 @@ public final class Pc1ScriptFlow implements Pc1UiServices.ScriptAndSlots {
         runtime.bindNativeBoundary(this::requireBoundary);
     }
     public Pc1ScriptLoader loader(){return loader;}
+    public void requireGraph(Pc1Runtime expected,Pc1GraphicsPipeline scene,Pc1Audio output)throws IOException{if(runtime!=expected||graphics!=scene||audio!=output)throw new IOException("PC1 script consumer requires its canonical runtime/graphics/audio graph");}
     public Pc1SystemNative system(){return system;}
     public void requireBoundary()throws IOException{runtime.scriptMemory().requireBoundary();system.requireBoundary();capture.requireBoundary();}
     public int enterSystem(int rawName,int mode)throws IOException{return system.enter(rawName,mode);}
     public void loadScript(int rawName,int mode)throws IOException{loader.load(rawName,mode);}
+    public void loadScript(Pc1ByteSource source,int mode)throws IOException{loader.load(source,mode);}
     public void externalScript(int rawName)throws IOException{loader.jumpLabel(rawName);}
     public void jumpLabel(int rawName)throws IOException{loader.jumpLabel(rawName);}
+    public void jumpLabel(Pc1ByteSource source)throws IOException{loader.jumpLabel(source);}
     public void writeSlot(int slot)throws IOException{persistent.writeSlot41AAD0(slot);}
 }

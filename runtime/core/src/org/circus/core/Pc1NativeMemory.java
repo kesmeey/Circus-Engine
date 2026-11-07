@@ -29,6 +29,8 @@ public final class Pc1NativeMemory implements Variables.NativeByteMemory {
     private final List<Binding> additional=new ArrayList<>();
     private Pc1GuestAddressSpace guest;
     private Pc1StaticImage staticImage;
+    private Pc1MmPhysicalMemory mmPhysical;
+    public Pc1MmPhysicalMemory mmPhysicalMemory()throws IOException{if(mmPhysical==null)mmPhysical=new Pc1MmPhysicalMemory(this);return mmPhysical;}
     public Pc1NativeMemory(Pc1NativeFrame frame,Pc1CodeBuffer code,SettingsBytes settings){if(frame==null||code==null||settings==null)throw new IllegalArgumentException("PC1 native memory owners missing");this.frame=frame;this.code=code;this.settings=settings;}
     /** Additional reviewed BSS/global owners may publish their existing bytes.
      * Overlap is rejected; binding never creates a second copy of memory. */
@@ -51,7 +53,7 @@ public final class Pc1NativeMemory implements Variables.NativeByteMemory {
     public List<FixedRegion> fixedRegions(){List<FixedRegion> result=new ArrayList<>();result.add(new FixedRegion(LIVE_BASE,Pc1FrameLayout.FRAME_BYTES));result.add(new FixedRegion(CODE_BASE,CODE_BYTES));result.add(new FixedRegion(SETTINGS_BASE,Pc1NativeSettings.SIZE));for(Binding binding:additional)result.add(new FixedRegion((int)binding.base,binding.length));result.sort(Comparator.comparingLong(value->value.address&0xffffffffL));return Collections.unmodifiableList(result);}
     /** Optional and last: claim preferred-section holes after every fixed view.
      * This never constructs an initialized Windows process or duplicates views. */
-    public void finalizeStaticImage(Pc1StaticImage image)throws IOException{if(image==null)throw new IOException("PC1 static image required");if(staticImage==image)return;if(staticImage!=null)throw new IOException("PC1 native bus already finalized with another static image");if(guest!=null)for(FixedRegion range:image.sectionRanges())guest.requireStaticDisjoint(range.address,range.length);image.attach(this,fixedRegions());if(guest!=null)for(FixedRegion range:image.ownedRanges())guest.rememberStatic(range.address,range.length);staticImage=image;}
+    public void finalizeStaticImage(Pc1StaticImage image)throws IOException{if(image==null)throw new IOException("PC1 static image required");if(staticImage==image)return;if(staticImage!=null)throw new IOException("PC1 native bus already finalized with another static image");if(guest!=null)for(FixedRegion range:image.sectionRanges())guest.requireStaticDisjoint(range.address,range.length);if(mmPhysical!=null)mmPhysical.admitPreferred(image);image.attach(this,fixedRegions());if(guest!=null)for(FixedRegion range:image.ownedRanges())guest.rememberStatic(range.address,range.length);staticImage=image;}
     public Pc1StaticImage staticImage(){return staticImage;}
     public Pc1GuestAddressSpace guestAddressSpace(){return guest;}
     private static boolean overlap(long start,long end,long base,int length){return start<base+length&&base<end;}
@@ -76,10 +78,12 @@ public final class Pc1NativeMemory implements Variables.NativeByteMemory {
         throw unknown(address);
     }
     public int readInt32(int address)throws IOException{
+        if(mmPhysical!=null&&mmPhysical.managesWord(address))return mmPhysical.readInt32(address);
         long at=address&0xffffffffL;if(at>=LIVE_BASE&&at+4<=LIVE_BASE+Pc1FrameLayout.FRAME_BYTES)return frame.readI32((int)at-LIVE_BASE);if(at>=CODE_BASE&&at+4<=CODE_BASE+CODE_BYTES){int offset=(int)at-CODE_BASE;return code.readU8(offset)|code.readU8(offset+1)<<8|code.readU8(offset+2)<<16|code.readU8(offset+3)<<24;}if(at>=SETTINGS_BASE&&at+4<=SETTINGS_BASE+Pc1NativeSettings.SIZE){int offset=(int)at-SETTINGS_BASE,value=0;for(int n=0;n<4;n++)value|=settings.read(offset+n)<<(n*8);return value;}
         for(Binding binding:additional)if(at>=binding.base&&at+4<=binding.base+binding.length)return binding.region.readInt32((int)(at-binding.base));int value=0;for(int n=0;n<4;n++)value|=readAddress(address+n)<<(n*8);return value;
     }
     public void writeInt32(int address,int value)throws IOException{
+        if(mmPhysical!=null&&mmPhysical.managesWord(address)){mmPhysical.writeInt32(address,value);return;}
         long at=address&0xffffffffL;if(at>=LIVE_BASE&&at+4<=LIVE_BASE+Pc1FrameLayout.FRAME_BYTES){frame.writeI32((int)at-LIVE_BASE,value);return;}if(at>=CODE_BASE&&at+4<=CODE_BASE+CODE_BYTES){code.writeBytes((int)at-CODE_BASE,new byte[]{(byte)value,(byte)(value>>>8),(byte)(value>>>16),(byte)(value>>>24)});return;}if(at>=SETTINGS_BASE&&at+4<=SETTINGS_BASE+Pc1NativeSettings.SIZE){int offset=(int)at-SETTINGS_BASE;for(int n=0;n<4;n++)settings.write(offset+n,value>>>(n*8)&255);return;}
         for(Binding binding:additional)if(at>=binding.base&&at+4<=binding.base+binding.length){binding.region.writeInt32((int)(at-binding.base),value);return;}for(int n=0;n<4;n++)writeAddress(address+n,value>>>(n*8));
     }

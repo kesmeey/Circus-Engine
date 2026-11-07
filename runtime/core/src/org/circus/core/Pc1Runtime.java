@@ -5,7 +5,7 @@ import java.util.*;
 
 /** PC1 native frame owners. System return, save candidate and live audio differ. */
 public final class Pc1Runtime {
-    private static final int FORMAT=0x50315258; //P1RX: canonical window BITMAPINFOHEADER
+    private static final int FORMAT=0x50315259; //P1RY: MM neighborhood and explicit caller locals
     private final PcHost host;
     private final Pc1NativeFrame nativeFrame;
     private final Pc1NativeFrame workingFrame=Pc1NativeFrame.zeroBss(),systemFrame=Pc1NativeFrame.zeroBss();
@@ -30,7 +30,10 @@ public final class Pc1Runtime {
     private final Pc1SystemMemory systemMemory;
     private final Pc1WindowMemory windowMemory;
     private Pc1Variables nativeVariables;
+    private Pc1TextExpander.Live nativeTextExpansion;
     private Pc1SettingsIo nativeSettingsIo;
+    private Pc1RawDispatch nativeDispatch;
+    private Pc1Fetch.Frame nativeDispatchFrame;
     private final Pc1NativeUi nativeUi;
     private final Pc1LayoutMemory layoutMemory;
     private final Pc1UiProducer uiProducer;
@@ -113,9 +116,20 @@ public final class Pc1Runtime {
     public Pc1ScriptMemory scriptMemory(){return scriptMemory;}
     public Pc1SystemMemory systemMemory(){return systemMemory;}
     public Pc1WindowMemory windowMemory(){return windowMemory;}
+    public Pc1MmPhysicalMemory mmPhysicalMemory()throws IOException{return nativeMemory.mmPhysicalMemory();}
     public Pc1Variables nativeVariables(){return nativeVariables;}
+    public Pc1TextExpander.Live nativeTextExpansion(){return nativeTextExpansion;}
+    public void bindNativeTextExpansion(Pc1TextExpander.Live expansion)throws IOException{if(expansion==null||nativeTextExpansion!=null)throw new IOException("PC1 text expansion requires one canonical native consumer");expansion.requireBus(nativeMemory);expansion.requireBoundary();nativeTextExpansion=expansion;bindNativeBoundary(expansion::requireBoundary);}
     public void bindNativeVariables(Pc1Variables variables)throws IOException{if(variables==null||nativeVariables!=null)throw new IOException("PC1 variables require one canonical native consumer");variables.requireBus(nativeMemory);nativeVariables=variables;host.nativeSettingsRamOnly();bindNativeBoundary(variables::requireBoundary);}
     public Pc1SettingsIo nativeSettingsIo(){return nativeSettingsIo;}
+    public Pc1RawDispatch nativeDispatch(){return nativeDispatch;}
+    public Pc1Fetch.Frame nativeDispatchFrame(){return nativeDispatchFrame;}
+    /**The caller supplies its actual known local-frame state. No numeric ESP
+     *or unproved reuse of a previous invocation's native stack is inferred. */
+    public void bindNativeDispatch(Pc1RawDispatch dispatcher,Pc1Fetch.Frame callerLocals)throws IOException{
+        if(dispatcher==null||callerLocals==null||nativeDispatch!=null)throw new IOException("PC1 raw dispatcher requires one explicit caller-local owner");dispatcher.requireBus(nativeMemory);dispatcher.requireBoundary();requireDispatchFrameBoundary(callerLocals);nativeDispatch=dispatcher;nativeDispatchFrame=callerLocals;bindNativeBoundary(()->{dispatcher.requireBoundary();requireDispatchFrameBoundary(nativeDispatchFrame);});
+    }
+    private static void requireDispatchFrameBoundary(Pc1Fetch.Frame frame)throws IOException{if(frame!=null&&frame.active()&&!frame.atNextBoundary())throw new IOException("PC1 raw caller locals are inside an unresolved native continuation");}
     public void bindNativeSettingsIo(Pc1SettingsIo settings)throws IOException{if(settings==null||nativeSettingsIo!=null)throw new IOException("PC1 settings IO requires one canonical native consumer");settings.requireBus(nativeMemory);nativeSettingsIo=settings;host.nativeSettingsRamOnly();bindNativeBoundary(settings::requireBoundary);}
     public int prepareNativeScenarioLabel(byte[] target)throws IOException{return new Pc1ScenarioCatalog(catalogMemory).prepare(target);}
     public Pc1TextExpander.Context nativeCatalogTextContext()throws IOException{return catalogMemory.textContext(new Pc1CatalogMemory.LiveText(){public byte[] givenName()throws IOException{return host.nativeGivenName();}public byte[] familyName()throws IOException{return host.nativeFamilyName();}public int read(int bank,int index)throws IOException{return nativeVariable(bank,index);}}); }
@@ -132,9 +146,9 @@ public final class Pc1Runtime {
     void beforeRecordFetch(int opcode,int codeOffset){if(opcode>=0x2d&&opcode<0x4e)rawStringPointer=Pc1NativeMemory.CODE_BASE+codeOffset+1;}
     int rawStringPointer(){return rawStringPointer;}
     void expandUi(int source,int destination)throws IOException{
-        expandUi(source,destination,textContext);
+        if(nativeTextExpansion!=null)nativeTextExpansion.expand(offset->nativeMemory.readAddress(source+offset),destination);else expandUi(source,destination,textContext);
     }
-    void expandNativeUi(int source,int destination)throws IOException{expandUi(source,destination,nativeCatalogTextContext());}
+    void expandNativeUi(int source,int destination)throws IOException{if(nativeTextExpansion!=null)nativeTextExpansion.expand(offset->nativeMemory.readAddress(source+offset),destination);else expandUi(source,destination,nativeCatalogTextContext());}
     private void expandUi(int source,int destination,Pc1TextExpander.Context context)throws IOException{
         byte[] expanded=Pc1TextExpander.expand(nativeUi.cstring(source),context,1024*1024);
         for(int n=0;n<expanded.length;n++)nativeMemory.writeAddress(destination+n,expanded[n]&255);
@@ -462,6 +476,8 @@ public final class Pc1Runtime {
         out.writeInt(FORMAT);workingFrame.save(out);systemFrame.save(out);out.writeBoolean(system!=null);if(system!=null)system.saveBound(out);saves.save(out);
         out.writeInt(requestedSlot);out.writeBoolean(requestedSave!=null);if(requestedSave!=null){boolean shared=requestedSave.hasNativeFrame(saves.nativeCandidate());out.writeBoolean(shared);if(shared)requestedSave.saveBound(out);else requestedSave.save(out);}
         nativeFrame.save(out);codeBuffer.save(out);drawMemory.save(out);nativeUi.save(out);layoutMemory.save(out);pathGlobals.save(out);resourceLiterals.save(out);graphicsMemory.save(out);vmGlobals.save(out);effectsMemory.save(out);presentationMemory.save(out);uiPageMemory.save(out);eventMemory.save(out);crxMemory.save(out);checkpointMemory.save(out);effectPeMemory.save(out);catalogMemory.save(out);startupMemory.save(out);timer5Memory.save(out);inputMemory.save(out);waitMemory.save(out);scriptMemory.save(out);systemMemory.save(out);windowMemory.save(out);geometry.save(out);textBuffers.save(out);
+        mmPhysicalMemory().save(out);
+        out.writeBoolean(nativeDispatchFrame!=null);if(nativeDispatchFrame!=null)nativeDispatchFrame.save(out);
         out.writeBoolean(initialScriptBound);out.writeBoolean(dispatcherReentry);out.writeInt(pendingCondition);out.writeBoolean(nativeDrawUsed);out.writeInt(rawStringPointer);
         out.writeInt(previousOpcode);out.writeInt(currentOpcode);out.writeInt(lastYieldOpcode);out.writeInt(fetchedAt);
         out.writeBoolean(layoutAliases!=null);if(layoutAliases!=null)layoutAliases.save(out);out.writeBoolean(activeDictionaryCount!=null);if(activeDictionaryCount!=null)out.writeInt(activeDictionaryCount);
@@ -476,6 +492,8 @@ public final class Pc1Runtime {
         int slot=in.readInt();boolean hasRequested=in.readBoolean(),requestedShared=hasRequested&&in.readBoolean();Pc1Frame frame=!hasRequested?null:requestedShared?Pc1Frame.loadBound(in,nextSaves.nativeCandidate()):Pc1Frame.load(in);
         if(slot< -1||(slot>=0)!=(frame!=null)||slot!=host.saveRequest)throw new IOException("Native PC1 pending save state");
         Pc1NativeFrame loadedFrame=Pc1NativeFrame.load(in);Pc1CodeBuffer loadedCode=Pc1CodeBuffer.load(in);Pc1DrawMemory.Image loadedDraw=Pc1DrawMemory.load(in);Pc1NativeUi.Image loadedUi=Pc1NativeUi.load(in);Pc1LayoutMemory.Image loadedLayout=Pc1LayoutMemory.load(in);byte[] loadedPaths=Pc1PathGlobals.loadImage(in);byte[][] loadedLiterals=Pc1ResourceLiterals.loadImage(in);Pc1GraphicsMemory.Image loadedGraphics=Pc1GraphicsMemory.load(in);byte[] loadedVmGlobals=Pc1VmGlobals.loadImage(in);Pc1Effects.Memory.Image loadedEffects=Pc1Effects.Memory.load(in);byte[] loadedPresentation=Pc1PresentationMemory.loadImage(in);Pc1UiPage.Memory.Image loadedUiPage=Pc1UiPage.Memory.load(in);byte[] loadedEvents=Pc1EventMemory.loadImage(in);byte[] loadedCrx=Pc1CrxMemory.loadImage(in);Pc1CheckpointMemory.Image loadedCheckpoints=Pc1CheckpointMemory.loadImage(in);Pc1EffectPeMemory.Image loadedEffectPe=Pc1EffectPeMemory.loadImage(in);byte[] loadedCatalog=Pc1CatalogMemory.loadImage(in);Pc1StartupMemory.Image loadedStartup=Pc1StartupMemory.loadImage(in);byte[] loadedTimer5=Pc1Timer5.Memory.loadImage(in);Pc1InputMemory.Image loadedInput=Pc1InputMemory.load(in);byte[] loadedWait=Pc1WaitDispatcher.Memory.loadImage(in);Pc1ScriptMemory.Image loadedScript=Pc1ScriptMemory.loadImage(in);Pc1SystemMemory.Image loadedSystemMemory=Pc1SystemMemory.loadImage(in);Pc1WindowMemory.Image loadedWindowMemory=Pc1WindowMemory.loadImage(in);Pc1MessageGeometry nextGeometry=Pc1MessageGeometry.load(in);Pc1TextBuffers buffers=Pc1TextBuffers.load(in);
+        Pc1MmPhysicalMemory.Image loadedPhysical=Pc1MmPhysicalMemory.loadImage(in);
+        Pc1Fetch.Frame loadedDispatchFrame=in.readBoolean()?Pc1Fetch.Frame.load(in):null;
         boolean bound=in.readBoolean(),reentry=in.readBoolean();int conditional=in.readInt();boolean drawUsed=in.readBoolean();int rawPointer=in.readInt(),previous=in.readInt(),current=in.readInt(),yielded=in.readInt(),at=in.readInt();
         if(previous< -1||previous>255||current< -1||current>255||at< -1)throw new IOException("Native PC1 saved dispatcher/history state");
         Pc1TextLayout.Aliases aliases=in.readBoolean()?Pc1TextLayout.Aliases.load(in):null;Integer dictionaryCount=in.readBoolean()?Integer.valueOf(in.readInt()):null;
@@ -485,8 +503,12 @@ public final class Pc1Runtime {
         int prefix=in.readInt(),full=in.readInt();List<Dc2Ui.Button> story=Dc2Ui.loadButtons(in);
         long returnRevision=in.readLong();Pc1ReturnSurface surface=in.readBoolean()?Pc1ReturnSurface.load(in):null;
         if(surface==null?returnRevision!=-1:returnRevision<0||returnRevision>0xffffffffL||!surface.committed()&&next==null||surface.committed()&&next!=null)throw new IOException("PC1 return surface lifecycle");
+        mmPhysicalMemory().requireRestoreImage(loadedPhysical);
+        if((loadedDispatchFrame!=null)!=(nativeDispatchFrame!=null))throw new IOException("PC1 saved raw caller locals require the same explicitly constructed dispatcher graph");requireDispatchFrameBoundary(loadedDispatchFrame);
         // Publish only a complete decoded owner. The host/VM pair itself is still unpublished.
         workingFrame.copyFrom(loadedWorking);systemFrame.copyFrom(loadedSystem);system=next==null?null:next.bindNativeFrame(systemFrame);saves.copyFrom(nextSaves);requestedSlot=slot;requestedSave=requestedShared?frame.bindNativeFrame(saves.nativeCandidate()):frame;nativeFrame.copyFrom(loadedFrame);codeBuffer.copyFrom(loadedCode);drawMemory.restore(loadedDraw);nativeUi.restore(loadedUi);layoutMemory.restore(loadedLayout);pathGlobals.restore(loadedPaths);resourceLiterals.restore(loadedLiterals);graphicsMemory.restore(loadedGraphics);vmGlobals.restore(loadedVmGlobals);effectsMemory.restore(loadedEffects);presentationMemory.restore(loadedPresentation);uiPageMemory.restore(loadedUiPage);eventMemory.restore(loadedEvents);crxMemory.restore(loadedCrx);checkpointMemory.restore(loadedCheckpoints);effectPeMemory.restore(loadedEffectPe);catalogMemory.restore(loadedCatalog);startupMemory.restore(loadedStartup);timer5Memory.restore(loadedTimer5);inputMemory.restore(loadedInput);waitMemory.restore(loadedWait);scriptMemory.restore(loadedScript);systemMemory.restore(loadedSystemMemory);windowMemory.restore(loadedWindowMemory);geometry=nextGeometry;textBuffers=buffers;
+        mmPhysicalMemory().restore(loadedPhysical);
+        if(nativeDispatchFrame!=null)nativeDispatchFrame.restoreFrom(loadedDispatchFrame);
         initialScriptBound=bound;dispatcherReentry=reentry;pendingCondition=conditional;nativeDrawUsed=drawUsed;rawStringPointer=rawPointer;dispatching=false;previousOpcode=previous;currentOpcode=current;lastYieldOpcode=yielded;fetchedAt=at;
         layoutAliases=aliases;canonicalLayout=null;activeDictionaryCount=dictionaryCount;redrawGeneration=epoch;layoutIsHistory=historic;glyphBatches.clear();glyphBatches.addAll(nextBatches);textPatches.clear();textPatches.addAll(patches);
         storyPrefixCount=prefix;storyFullCount=full;storyButtons.clear();storyButtons.addAll(story);

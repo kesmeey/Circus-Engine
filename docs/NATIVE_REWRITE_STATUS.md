@@ -1,6 +1,7 @@
 # 非 Unity 引擎重写状态
 
 更新：2026-11-07。最后一批固定开发包为 **0.14.3-native-rewrite-dev**；当前源码继续重写，尚未重新发布，执行契约已推进到 rev8，不能用旧包验证这些源码改动。
+用户于本日将目标调整为约80%的主要功能与绝大多数常见游戏流程。接下来优先剧情、画面、音频、选择、菜单和便携存读档的完整可用链；成本很高的个别版本、罕见平台状态和边缘行为可明确跳过。这里的80%是范围与投入目标，尚无能证明“引擎已复刻80%”的统一分母，不用断言数、已命名opcode数或启动成功率代替它。具体范围见[当前交付目标](ENGINE_SCOPE.md)。
 **整个引擎尚未忠实复刻完成。** 当前是在原生证据基础上重写的兼容运行时；能读取素材、绑定opcode、启动或跑到片尾，都不能证明剩余行为正确。
 用户暂时排除的DC3XR/Unity不在本轮范围；已有Unity前端没有改写。
 
@@ -10,7 +11,15 @@
 原Windows EXE没有执行，原游戏目录没有写入。解释器只在私有字节数组里解释选定算术块，不提供Windows服务或原进程内存。
 跨版本共用规则只引用实际比对过的跨度，不能由同属CIRCUS推断整份引擎相同。
 
-最近一次同时完成核心与七组启动检查的冻结源码为 `build/native-rewrite/producer-integration-20261107T081848972995Z/manifest.json`：192MiB 堆下核心 **826,261** 项断言通过，七个非 Unity 样本各通过开头 20 次文本等待，未排除 Java 家族，冻结后的源码变化为空。包含 raw fetch、变量、设置 I/O、语音分派、等待演出及最终 Window capsule 源码，尚未包含下一阶段的 RawDispatch 候选。公共验证摘要和源码哈希见 [native-source-2026-11-07.json](validation/native-source-2026-11-07.json)。Android ART 对同一 core/tests 的独立冻结通过 **826,261** 项核心断言、7项 Canvas 与484项转场像素比较，以及字符映射、存档/库回滚检查，见 `build/native-rewrite/android-source-20261107T080118248377Z/art-validation.json`；模拟器 heap growth limit为192m，未清除应用数据，未覆盖 Windows 物理服务或固定分发包。这些结果不表示整引擎或整条路线已验收。
+最新的核心与七组启动冻结为 `build/native-rewrite/producer-integration-20261107T103006702626Z/manifest.json`：192MiB堆下 **1,108,567** 项核心断言通过，七个非Unity入口各通过20次文本等待，未排除Java家族，源码变化为空。公共记录见[本阶段验证与源码哈希](validation/majority-source-2026-11-07.json)。它包含实际目标地址的RawDispatch及文本、脚本、UI、常用图形、双角色和音频handler接线；原版取指局部缓冲保持实时Source，未用虚构地址代替。整个WinMain/WndProc生产入口仍未全部替换，不能把这些接线测试当作原版全路线证明。
+
+Runtime wire现为P1RY，保存MM邻接字节和显式调用者局部帧；恢复先检查PE阶段及分派图身份，再发布各owner。连续音频存储已有93个跨owner DWORD位置的真实JNI检查，另外3个跨未知CRT范围的位置仍拒绝。可写容器标签、流准备顺序、typed文件路径和语音链已有独立专项冻结；匹配当前C/header的八个Windows JNI目标均通过MSVC `/W4 /WX` 构建。静态mode3语音的原解码器等价性限制见[范围说明](ENGINE_SCOPE.md)。
+
+长流程检查修复了原48项图片LRU在192MiB下的内存耗尽：现在按raw像素、不同ARGB面及构造临时空间计费，预算为堆上限的1/8且不超过32MiB。相同192MiB下，DC2DM首/末策略分别37,741/37,663句、DC2PC分别5,496/5,115句、DC3DD分别3,352/3,354句，均回到标题。这些审计使用控制选择、时间和媒体完成，未声称原版实时帧序列等价。
+
+P.P.新增原生system206的五项好感度选择和99:250的常规BGM完成查询，原机20组程序、2,790步对照通过；已越过原来的5,900句阻点。首/末策略继续分别到第4章的scene.effect4与MED的system210后停止，尚无完整路线PASS。W.Y.的独立片尾、DC2地图、PC1原版剧情槽位等仍列为明确缺口，没有为取得通过结果静默放行。
+
+上一阶段的826,261项冻结及Android ART记录保留在 [native-source-2026-11-07.json](validation/native-source-2026-11-07.json)，对应提交`4f6abc4`。本阶段未覆盖固定分发包；新源码的Android检查与确切APK哈希单独列在本阶段公共验证记录中。
 
 `Pc1StagedRenderTests` 另有 11 项恢复检查，真实 GDI/render 分阶段重建有 7 项检查；它们保留同一 Pool/Compositor/FontMemory，不能重放初始化替代物理恢复。DirectSound stage31 冻结通过 **12,373** 项专项检查，覆盖 raw source、实际 voice/SE/大音乐文件和实际 ANSI 文件句柄恢复；跨独立 MM backing、静态 decoder/COM 图等边界仍未完成。公共复查入口为 `tools/check_native_core.py` 和 `tools/build_windows_native.py`，构建冻结实际输入并记录哈希。当前源码阶段没有替换已有发布包。
 

@@ -18,6 +18,10 @@ public final class Pc1WindowsPaths {
     public int ansiCodePage(){return codePageNative();}
     /** OnlyFFFFFFFF means missing to40E5A0, including ordinary OS errors. */
     public int attributes(byte[] rawCString)throws IOException{if(rawCString==null)throw new IOException("PC1 GetFileAttributesA path missing");return attributesNative(rawCString);}
+    /** CString is consumed only at the actual OS-query leaf. There is no
+     *invented native address for a caller-owned typed local. */
+    public int attributes(Pc1ByteSource liveCString)throws IOException{return attributesNative(cstring(liveCString));}
+    public static byte[] cstring(Pc1ByteSource source)throws IOException{if(source==null)throw new IOException("PC1 ANSI live source missing");ByteArrayOutputStream out=new ByteArrayOutputStream();for(int n=0;;n++){int value=source.unsignedByte(n)&255;if(value==0)return out.toByteArray();out.write(value);}}
     public byte[] encode(String value)throws IOException{if(value==null||value.indexOf(0)>=0)throw new IOException("PC1 ANSI path contains embeddedNUL");return encodeNative(value);}
     public String decode(byte[] raw)throws IOException{if(raw==null)throw new IOException("PC1 ANSI path missing");for(byte b:raw)if(b==0)throw new IOException("PC1 logical ANSI path contains embeddedNUL");return decodeNative(raw);}
     /** Existing Java stream APIs are admitted only for an exact ACP round trip.

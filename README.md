@@ -9,6 +9,8 @@
 
 最后一批固定开发包为 **0.14.3-native-rewrite-dev**。当前源码继续按原生证据重写，已进入尚未发布的 rev8 执行契约，尚未完成整个引擎复刻；见 [重写状态与缺口](docs/NATIVE_REWRITE_STATUS.md)、[执行核心契约](docs/NATIVE_DECODER_CONTRACT.md)及下方存档边界。
 
+当前目标已调整为约80%的主要功能与大多数常见游戏流程，允许延期少量难处理的版本和边缘行为；这是工程范围，尚不是完成率声明。见[当前交付目标](docs/ENGINE_SCOPE.md)。
+
 此前分发的 Android 开发包 **0.13.15** 修复 W.Y. 夏露露剧情中的重复目录分隔符报错，同时覆盖 P.P. 的同类图片引用。旧安装包：`build/distribution/circus-runtime-0.13.15-android-dev.apk`，见 [修复说明](docs/ANDROID_01315.md)。保留 [0.13.14 的 W.Y.／P.P. 原版系统进度导入](docs/ANDROID_01314.md)和 [0.13.13 的手机启动与中文补丁兼容](docs/ANDROID_01313.md)。
 
 ## 运行入口与历史验证范围
@@ -85,7 +87,7 @@ python -m unittest discover -s tests
 python tools/build_windows_native.py --java-home <JDK21> --vcvars "<Visual Studio>\VC\Auxiliary\Build\vcvarsall.bat"
 ```
 
-每次原生构建冻结所用 C/header，记录源码与 DLL 哈希。实际审计必须搭配同次源码对应的 DLL；核心测试、真实 Win32 服务检查和真实游戏启动分别记录，不能相互替代。当前已验范围及剩余工作见 [重写状态](docs/NATIVE_REWRITE_STATUS.md)，本轮源码哈希见 [验证摘要](docs/validation/native-source-2026-11-07.json)。
+每次原生构建冻结所用 C/header，记录源码与 DLL 哈希。实际审计必须搭配同次源码对应的 DLL；核心测试、真实 Win32 服务检查和真实游戏启动分别记录，不能相互替代。当前已验范围及剩余工作见 [重写状态](docs/NATIVE_REWRITE_STATUS.md)，本阶段源码哈希见 [验证摘要](docs/validation/majority-source-2026-11-07.json)。
 
 ## 操作（Android）
 

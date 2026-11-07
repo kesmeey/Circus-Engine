@@ -26,8 +26,8 @@ public final class Pc1GraphicsMemory implements Pc1Compositor.State,Pc1InlineTex
     public void requireUnboundViews()throws IOException{if(namesBound||metadataBound||glyphsBound||compositorBound)throw new IOException("PC1 graphics restore requires fresh unbound borrowed views");}
     @Override public int read(int address)throws IOException{return memory.readAddress(address);}
     @Override public void write(int address,int value)throws IOException{memory.writeAddress(address,value);}
-    @Override public int readInt(int address)throws IOException{return Pc1InlineText.readI32(this,address);}
-    @Override public void writeInt(int address,int value)throws IOException{for(int n=0;n<4;n++)read(address+n);Pc1InlineText.writeI32(this,address,value);}
+    @Override public int readInt(int address)throws IOException{return memory.readInt32(address);}
+    @Override public void writeInt(int address,int value)throws IOException{memory.writeInt32(address,value);}
     @Override public void writeByte(int address,int value)throws IOException{write(address,value);}
     /** One canonical12800-byte pool plus its CRX row pointer cell. Proven32
      *pointer bytes are directly readable; opaque64/managed pointer bytes retain

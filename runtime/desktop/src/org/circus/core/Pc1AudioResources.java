@@ -32,15 +32,16 @@ public final class Pc1AudioResources implements Pc1DirectSound.Resources {
     public interface Locale {int nativeLocaleFlag()throws IOException;default int lowerCase42534C(int unsignedByte)throws IOException{throw new IOException("PC1 raw resource non-C locale42534C converter required");}}
     private final Pc1NativePaths.Memory globals;
     private final Pc1ResourcePaths paths;
+    private final Pc1WindowsPaths windows;
     private final RawFiles files;
     public interface IndexOwner {Pc1VoiceIndex current()throws IOException;}
     private final IndexOwner voice;
     private final Locale locale;
     public Pc1AudioResources(Pc1NativePaths.Memory borrowedGlobals,Pc1WindowsPaths windows,RawFiles files,Pc1VoiceIndex voice,Locale locale)throws IOException{
-        if(borrowedGlobals==null||windows==null||files==null||locale==null)throw new IOException("PC1 audio resource path/file/CRT owners required");globals=borrowedGlobals;paths=new Pc1ResourcePaths(globals,windows);this.files=files;this.voice=()->voice;this.locale=locale;
+        if(borrowedGlobals==null||windows==null||files==null||locale==null)throw new IOException("PC1 audio resource path/file/CRT owners required");globals=borrowedGlobals;this.windows=windows;paths=new Pc1ResourcePaths(globals,windows);this.files=files;this.voice=()->voice;this.locale=locale;
     }
     private Pc1AudioResources(Pc1NativePaths.Memory globals,Pc1WindowsPaths windows,RawFiles files,IndexOwner voice,Locale locale,boolean borrowed)throws IOException{
-        if(globals==null||windows==null||files==null||voice==null||locale==null)throw new IOException("PC1 audio resource live owners required");this.globals=globals;paths=new Pc1ResourcePaths(globals,windows);this.files=files;this.voice=voice;this.locale=locale;
+        if(globals==null||windows==null||files==null||voice==null||locale==null)throw new IOException("PC1 audio resource live owners required");this.globals=globals;this.windows=windows;paths=new Pc1ResourcePaths(globals,windows);this.files=files;this.voice=voice;this.locale=locale;
     }
     /** Native41B7F0 initializes the index only after successful device setup
      *and403B40. The caller owns that lifetime; this adapter never preloads it. */
@@ -70,15 +71,21 @@ public final class Pc1AudioResources implements Pc1DirectSound.Resources {
      *NativeName offsets may wrap to roots/literals, never a copied source.
      *The stack-local resolved path becomes independent only where native
      *40E5A0/41D0C0 has actually copied it. */
-    @Override public Pc1DirectSound.Source openRaw(final Pc1Audio.NativeName name)throws IOException{
-        if(name==null)throw new IOException("PC1 addressed audio name missing");final int fixed=name.address();Pc1NativePaths.Memory live=new Pc1NativePaths.Memory(){public int read(int address)throws IOException{return name.unsignedByte(address-fixed);}public void write(int address,int value)throws IOException{globals.write(address,value);}};
-        int nativeLocale=locale.nativeLocaleFlag();long offset=0;byte[] path;
-        if(Pc1VoiceIndex.prefix(live,fixed,VOICE_PREFIX,6,nativeLocale,locale::lowerCase42534C)){
-            Pc1VoiceIndex index=voice.current();if(index!=null)offset=index.lookupRaw(live,fixed,PCM,locale.nativeLocaleFlag());
-            path=offset!=0?paths.assetAddressed(live,EMPTY,VOICE_DAT,EMPTY,256).rawPath():paths.assetAddressed(live,EMPTY,fixed,EMPTY,256).rawPath();
-        }else path=paths.assetAddressed(live,EMPTY,fixed,PCM,256).rawPath();
+    @Override public Pc1DirectSound.Source openRaw(final Pc1Audio.NativeName name)throws IOException{return openSource(name);}
+    private static Pc1ByteSource ownedCString(final byte[] bytes)throws IOException{if(bytes==null)throw new IOException("PC1 copied local Cstring missing");return n->{if(n<0||n>bytes.length)throw new IOException("PC1 copied local source extent");return n==bytes.length?0:bytes[n]&255;};}
+    private static byte[] cstring(Pc1ByteSource source)throws IOException{ByteArrayOutputStream b=new ByteArrayOutputStream();for(int n=0;n<1024*1024;n++){int v=source.unsignedByte(n)&255;if(v==0)return b.toByteArray();b.write(v);}throw new IOException("PC1 audio local Cstring scan bound");}
+    private byte[] asset(Pc1ByteSource category,Pc1ByteSource name,Pc1ByteSource extension)throws IOException{return paths.assetTyped(category,name,extension,256).rawPath();}
+    private byte[] extension(byte[] original,Pc1ByteSource extension)throws IOException{Pc1AudioScratch local=new Pc1AudioScratch(260);Pc1NativePaths.copy(local,ownedCString(original));Pc1NativePaths.forceExtension(globals,local,extension);return local.cstring();}
+    /**Source may be a real canonical pointer or the actual Frame.local. It is
+     *never remapped to a coordinate overlay or prefetched complete string. */
+    @Override public Pc1DirectSound.Source openSource(final Pc1ByteSource name)throws IOException{
+        if(name==null)throw new IOException("PC1 typed audio name missing");Pc1ByteSource empty=Pc1NativePaths.pointer(globals,EMPTY),pcm=Pc1NativePaths.pointer(globals,PCM);int nativeLocale=locale.nativeLocaleFlag();long offset=0;byte[] path;
+        if(Pc1VoiceIndex.prefix(name,Pc1NativePaths.pointer(globals,VOICE_PREFIX),6,nativeLocale,locale::lowerCase42534C)){
+            Pc1VoiceIndex index=voice.current();if(index!=null)offset=index.lookupSource(globals,name,pcm,locale.nativeLocaleFlag());
+            path=offset!=0?asset(empty,Pc1NativePaths.pointer(globals,VOICE_DAT),empty):asset(empty,name,empty);
+        }else path=asset(empty,name,pcm);
         if(offset!=0)return source(path,offset);
-        final byte[] pcmPath=extension(path,literal(PCM));return source(pcmPath,0).withLazyOpenFallback(()->source(extension(pcmPath,literal(WAV)),0));
+        final byte[] pcmPath=extension(path,pcm);return source(pcmPath,0).withLazyOpenFallback(()->source(extension(pcmPath,Pc1NativePaths.pointer(globals,WAV)),0));
     }
     /**Snapshot staging reopens the recorded native A-path. Re-expanding the
      *current source/string/roots would invent new resource selection. */

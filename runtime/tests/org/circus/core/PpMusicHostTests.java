@@ -67,6 +67,9 @@ public final class PpMusicHostTests {
         enableOnly.command("pp.audio.music",new int[]{0,17,0},new byte[0]);enableOnly.write(99,14,1);
         check(enableOnly.audioIsActive(0)&&enableOnly.read(96,0)==0,"Preference enable replays default-mode request without inventing a script music unlock");
         host.audio[1]="SE/test";near(host.ppOutputGain(1),Math.pow(10,-1462/2000.0),"SE metadata extra0=3 is applied once, after native23-level preference");
+        Dc3Host query=new Dc3Host(resources,TextCodec.identity(),true);MesVm queryVm=new MesVm(name->code,query,code.name);queryVm.run(1);
+        check(query.read(99,250)==0,"PP250 observes actual playing PCM rather than default register zero");int queryGeneration=query.audioGeneration[0];query.audioCompleted(0,queryGeneration-1);check(query.read(99,250)==0,"stale completion cannot end current PP250 playback");query.audioCompleted(0,queryGeneration);check(query.read(99,250)==1&&query.read(99,244)==1,"natural completion changes PP250 but preserves requested track and allocated buffer");
+        Dc3Host muted=new Dc3Host(resources,TextCodec.identity(),true);MesVm mutedVm=new MesVm(name->code,muted,code.name);mutedVm.run(1);muted.write(99,14,0);check(muted.audioIsActive(0)&&muted.read(99,250)==1,"PP250 checks disabled preference before still-playing fade buffer");muted.write(99,14,1);check(muted.read(99,250)==0,"nonzero preference queries playing old buffer during queued replacement");
         return count;
     }
     public static void main(String[] args)throws Exception{System.out.println("PP music host assertions: "+run());}

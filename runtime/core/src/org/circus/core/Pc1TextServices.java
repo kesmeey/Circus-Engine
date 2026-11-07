@@ -39,6 +39,7 @@ public final class Pc1TextServices implements Pc1TextPresentation.Host {
         this.runtime=runtime;this.graphics=graphics;this.audio=audio;this.settings=settings;this.platform=platform;this.redraw=redraw;this.transition=transition;
     }
     public Pc1TextPresentation.Owners owners()throws IOException{return new Pc1TextPresentation.Owners(runtime.nativeFrame(),runtime.textBuffers());}
+    public void requireGraph(Pc1Runtime expected,Pc1GraphicsPipeline scene,Pc1Audio output)throws IOException{if(runtime!=expected||graphics!=scene||audio!=output)throw new IOException("PC1 text consumer requires its canonical runtime/graphics/audio graph");}
     /** Keep the complete native paint entry fenced across its globals,
      *layout, audio and platform callbacks, including gaps between draws. */
     public int paint(Pc1TextPresentation painter)throws IOException{if(painter==null)throw new IOException("PC1 text painter missing");final int[] result={0};graphics.render().nativeCall(()->result[0]=painter.paint(owners(),this));return result[0];}

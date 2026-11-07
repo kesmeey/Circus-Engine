@@ -21,15 +21,20 @@ typedef struct MmRegistration {UINT timer;int once;struct MmRegistration *next;}
 typedef struct Retired {IUnknown *object;int kind;struct Retired *next;} Retired;
 typedef struct SourceFile {jlong id;HANDLE file;ULONGLONG size,position;DWORD requested,count,error,rawWord;int hasWord,wordAdopted,closeResult;DWORD closeError;char *path;struct SourceFile *next;} SourceFile;
 typedef struct Stream {
-    int error,mode,channels;
-    DWORD remaining,decodedCursor,unit,lastCursor,lastCount,lastLock,lastUnlock;
+    int error; volatile DWORD *mode,*channels;
+    volatile DWORD *remaining; DWORD decodedCursor,unit,lastCursor,lastCount,lastLock,lastUnlock;
     SourceFile *source;
     BYTE *memory;
     DWORD memoryBytes;
-    BYTE scratch[0x4000];
+    BYTE *scratch;
     BYTE *encodedScratch; /*NativeBC3DA4 aliases scratch+0x2000.*/
-    DWORD delta[6];
+    DWORD *delta;
 } Stream;
+typedef struct LegacyMemory {
+ BYTE globals[0x38008],lz[0x14030],scratch[0x4000]; DWORD delta[6];
+ DWORD input,extra,streamExtra,mode,channels,remaining,words[5],packet,busy,mm;
+} LegacyMemory;
+typedef struct PhysicalIsland {DWORD base,length;BYTE *bytes,*access;jobject buffer,mask;} PhysicalIsland;
 typedef struct Context {
     DWORD magic,thread;
     HWND window,cooperative;
@@ -44,7 +49,7 @@ typedef struct Context {
     Retired *retired;
     UINT_PTR userTimer;
     UINT mmTimer;
-    volatile DWORD mmStored;
+    volatile DWORD *mmStored;
     DWORD userInterval,mmStopEpoch;
     MmRegistration *mmRegistrations;
     ULONGLONG userDue,mmDue;
@@ -58,22 +63,22 @@ typedef struct Context {
     SourceFile *sources;
     jlong nextSource;
     Stream stream;
-    DWORD localStreamWords[5];
-    volatile DWORD *streamWords;
+    LegacyMemory *legacy;int legacyBorrowed;PhysicalIsland islands[7];int physicalBound;
+    volatile DWORD *streamWord[5];
     jobject streamBuffer;
-    volatile DWORD callbackBusy,packetCount;
+    volatile DWORD *callbackBusy,*packetCount;
     /*One native decoder owner. All these spans are verified CHS PE/BSS.
      *Do not initialize LUT at construction:403B40 owns that transition. */
-    BYTE dspGlobals[0x38008];
-    BYTE dspLz[0x14030];
-    DWORD dspInputPointer,dspStaticExtra;
+    BYTE *dspGlobals;
+    BYTE *dspLz;
+    volatile DWORD *dspInputPointer,*dspStaticExtra;
     jobject dspPeBuffer;
     volatile BYTE *dspPe;DWORD dspPeLength,dspFaultAddress;
-    jobject dspExtraBuffer;volatile DWORD *dspStreamingExtra;DWORD dspExtraFallback;
+    jobject dspExtraBuffer;volatile DWORD *dspStreamingExtra;
     DWORD snapshotDepth,restoreUserToken;
     struct Context *next;
 } Context;
-#define SW(c,n) ((c)->streamWords[(n)])
+#define SW(c,n) (*(c)->streamWord[(n)])
 static SRWLOCK registryLock=SRWLOCK_INIT;
 static Context *registry;
 static LONG64 nextId;
@@ -104,13 +109,13 @@ static BOOL CALLBACK registerWindow(PINIT_ONCE once,PVOID parameter,PVOID *conte
 static void CALLBACK streamTick(UINT timer,UINT message,DWORD_PTR user,DWORD_PTR one,DWORD_PTR two){
     Context *c;(void)message;(void)one;(void)two;AcquireSRWLockExclusive(&registryLock);
     for(c=registry;c;c=c->next)if(c->registryId==(jlong)user){
-        int result=1,first=c->mmFirst&&c->mmTimer==timer;DWORD stop=c->mmStopEpoch;DWORD raw=c->mmStored;
+        int result=1,first=c->mmFirst&&c->mmTimer==timer;DWORD stop=c->mmStopEpoch;DWORD raw=(*c->mmStored);
         if(first){c->mmFirst=0;forgetMm(c,timer);}
-        if(c->callbackBusy==0){c->callbackBusy=1;result=fillStreamLocked(c,1,0,0);c->callbackBusy=0;}
+        if((*c->callbackBusy)==0){(*c->callbackBusy)=1;result=fillStreamLocked(c,1,0,0);(*c->callbackBusy)=0;}
         /*Restored first phase is a one-shot adapter for a periodic timer.
          *Rearm even if fill skipped (busy/rawstate2), unless the actual leaf
          *cancelled this registration. Preserve a concurrently aliased token. */
-        if(first){c->mmTimer=0;if(stop==c->mmStopEpoch){c->mmTimer=setMmLocked(c,200,200,TIME_PERIODIC);if(raw==timer&&c->mmStored==raw)c->mmStored=c->mmTimer;}}
+        if(first){c->mmTimer=0;if(stop==c->mmStopEpoch){c->mmTimer=setMmLocked(c,200,200,TIME_PERIODIC);if(raw==timer&&(*c->mmStored)==raw)(*c->mmStored)=c->mmTimer;}}
         c->mmDue=GetTickCount64()+200;eventLocked(c,2,(jlong)timer,result,SW(c,1));break;
     }
     ReleaseSRWLockExclusive(&registryLock);
@@ -124,8 +129,8 @@ static SourceFile *sourceFile(Context *c,jlong id){SourceFile *s;for(s=c->source
 static void closeSource(SourceFile *s){if(s&&s->file!=INVALID_HANDLE_VALUE){s->closeResult=CloseHandle(s->file);s->closeError=s->closeResult?0:GetLastError();s->file=INVALID_HANDLE_VALUE;}}
 /*41CE70. Each call starts at channel0. DWORD arithmetic and the reserved
  *third word of each channel are retained, including stale shift values. */
-static void deltaDecode(BYTE *out,DWORD count,const BYTE *encoded,DWORD state[6],int channels){
-    DWORD n,channel=0;for(n=0;n<count;n++){DWORD *s=state+channel*3;int v=(int)(signed char)encoded[n];
+static void deltaDecode(BYTE *out,DWORD count,const BYTE *encoded,volatile DWORD state[6],int channels){
+    DWORD n,channel=0;for(n=0;n<count;n++){volatile DWORD *s=state+channel*3;int v=(int)(signed char)encoded[n];
         s[0]+=(DWORD)v<<(s[1]&31u);if(v==0){if(s[1]!=0)s[1]--;}else if((v==127||v==-128)&&s[1]!=8)s[1]++;
         out[n*2]=(BYTE)s[0];out[n*2+1]=(BYTE)(s[0]>>8);if(channels==2)channel=1-channel;
     }
@@ -134,15 +139,15 @@ static void deltaDecode(BYTE *out,DWORD count,const BYTE *encoded,DWORD state[6]
  *unsafe/stalled native boundary, never an invented successful EOF. */
 static int streamPacket(Context *c,DWORD *count){
     Stream *s=&c->stream;DWORD wanted,got=0,produced;BYTE *target;BOOL ok=TRUE;
-    if(s->mode!=0&&s->mode!=2||s->source&&s->source->hasWord)return registeredStreamPacket(c,count);
-    if(s->remaining==0){memset(s->scratch,0,sizeof(s->scratch));*count=0;c->packetCount=0;closeSource(s->source);return 0;}
-    wanted=s->remaining<s->unit?s->remaining:s->unit;target=s->scratch;
-    if(s->mode==2){wanted=s->remaining/2;if(wanted>0x2000u)wanted=0x2000u;target=s->encodedScratch;}
+    if((*s->mode)!=0&&(*s->mode)!=2||s->source&&s->source->hasWord)return registeredStreamPacket(c,count);
+    if((*s->remaining)==0){memset(s->scratch,0,0x4000u);*count=0;(*c->packetCount)=0;closeSource(s->source);return 0;}
+    wanted=(*s->remaining)<s->unit?(*s->remaining):s->unit;target=s->scratch;
+    if((*s->mode)==2){wanted=(*s->remaining)/2;if(wanted>0x2000u)wanted=0x2000u;target=s->encodedScratch;}
     if(s->source){SourceFile *file=s->source;file->requested=wanted;file->count=0;file->error=0;
         ok=ReadFile(file->file,target,wanted,&got,NULL);if(!ok)file->error=GetLastError();file->count=got;file->position+=got;
     }else{DWORD available=s->decodedCursor<s->memoryBytes?s->memoryBytes-s->decodedCursor:0;got=wanted<available?wanted:available;if(got)memcpy(target,s->memory+s->decodedCursor,got);}
-    produced=got;if(s->mode==2){deltaDecode(s->scratch,got,s->encodedScratch,s->delta,s->channels);produced=got*2;}
-    s->remaining-=produced;s->decodedCursor+=produced;*count=produced;c->packetCount=produced;
+    produced=got;if((*s->mode)==2){deltaDecode(s->scratch,got,s->encodedScratch,s->delta,(*s->channels));produced=got*2;}
+    (*s->remaining)-=produced;s->decodedCursor+=produced;*count=produced;(*c->packetCount)=produced;
     /* The native ignores ReadFile BOOL, publishes its count, then returns1.
      *A0 count would continue into an unsafe zero Lock/stall. Stop only AFTER
      *the proved decoder/output-count prefix, not before publishing it. */
@@ -157,8 +162,8 @@ static int fillStreamLocked(Context *c,int periodic,int overrideCursor,DWORD cur
     if(((int)SW(c,4))==-2){
         /*BC12D0[-2] aliases the actual BC12C8 output-count DWORD. Its zero
          *test precedes fillstate, but nonzero is not a made-up COM object. */
-        if(c->packetCount==0||SW(c,2)!=0)return 1;
-        s->error=3;eventLocked(c,4,3,0xbc12c8u,c->packetCount);return -1;
+        if((*c->packetCount)==0||SW(c,2)!=0)return 1;
+        s->error=3;eventLocked(c,4,3,0xbc12c8u,(*c->packetCount));return -1;
     }
     if(SW(c,4)*4u>=CHANNELS*4u){s->error=3;eventLocked(c,4,3,0xbc12d0u+SW(c,4)*4u,SW(c,4));return -1;}
     b=&c->buffers[(SW(c,4)*4u)/4u];if(!b->object)return 1;if(SW(c,2)!=0||s->error)return 1;SW(c,2)=1;
@@ -166,8 +171,8 @@ static int fillStreamLocked(Context *c,int periodic,int overrideCursor,DWORD cur
     else cursor=0;s->lastCursor=cursor;
     for(;;){
         packet=streamPacket(c,&count);if(packet<0)return -1;
-        if(packet==0){SW(c,2)=2;killMm(c,c->mmStored);c->mmStored=0xffffffffu;return 1;}
-        copy=count;if(SW(c,0)-SW(c,1)<copy)copy=SW(c,0)-SW(c,1);one=two=NULL;n1=n2=0;s->lastCount=copy;c->packetCount=copy;
+        if(packet==0){SW(c,2)=2;killMm(c,(*c->mmStored));(*c->mmStored)=0xffffffffu;return 1;}
+        copy=count;if(SW(c,0)-SW(c,1)<copy)copy=SW(c,0)-SW(c,1);one=two=NULL;n1=n2=0;s->lastCount=copy;(*c->packetCount)=copy;
         hr=IDirectSoundBuffer_Lock(b->object,SW(c,1),copy,&one,&n1,&two,&n2,0);s->lastLock=(DWORD)hr;
         if(hr!=DS_OK||(uint64_t)n1+(uint64_t)n2!=(uint64_t)copy){s->error=2;eventLocked(c,4,2,hr,SW(c,1));return -1;}
         if(n1)memcpy(one,s->scratch,n1);if(n2)memcpy(two,s->scratch+n1,n2);hr=IDirectSoundBuffer_Unlock(b->object,one,n1,two,n2);s->lastUnlock=(DWORD)hr;SW(c,1)+=copy;
@@ -183,11 +188,18 @@ static void destroy(JNIEnv *env,Context *c){
     /*Native pointer overwrites leak these references until process exit.
      *Keep them alive/playable across init, release only at provider teardown. */
     for(retired=c->retired;retired;retired=nextRetired){nextRetired=retired->next;IUnknown_Release(retired->object);free(retired);}
-    if(c->ownsWindow&&c->window)DestroyWindow(c->window);for(e=c->head;e;e=next){next=e->next;free(e);}for(s=c->sources;s;s=nextSource){nextSource=s->next;if(s->file!=INVALID_HANDLE_VALUE)CloseHandle(s->file);free(s->path);free(s);}free(c->stream.memory);if(c->dspExtraBuffer)(*env)->DeleteGlobalRef(env,c->dspExtraBuffer);if(c->dspPeBuffer)(*env)->DeleteGlobalRef(env,c->dspPeBuffer);if(c->streamBuffer)(*env)->DeleteGlobalRef(env,c->streamBuffer);c->magic=0;free(c);
+    if(c->ownsWindow&&c->window)DestroyWindow(c->window);for(e=c->head;e;e=next){next=e->next;free(e);}for(s=c->sources;s;s=nextSource){nextSource=s->next;if(s->file!=INVALID_HANDLE_VALUE)CloseHandle(s->file);free(s->path);free(s);}free(c->stream.memory);if(c->dspExtraBuffer)(*env)->DeleteGlobalRef(env,c->dspExtraBuffer);if(c->dspPeBuffer)(*env)->DeleteGlobalRef(env,c->dspPeBuffer);if(c->streamBuffer)(*env)->DeleteGlobalRef(env,c->streamBuffer);for(n=0;n<7;n++){if(c->islands[n].buffer)(*env)->DeleteGlobalRef(env,c->islands[n].buffer);if(c->islands[n].mask)(*env)->DeleteGlobalRef(env,c->islands[n].mask);}free(c->legacy);c->magic=0;free(c);
 }
 static Context *allocateContext(JNIEnv *env,HWND hwnd,int privateWindow){
     Context *c=(Context *)calloc(1,sizeof(Context));if(!c){fail(env,"PC1 audio context allocation");return NULL;}
-    c->magic=MAGIC;c->thread=GetCurrentThreadId();c->streamWords=c->localStreamWords;c->stream.encodedScratch=c->stream.scratch+0x2000;c->dspExtraFallback=1;c->dspStreamingExtra=&c->dspExtraFallback;c->dspInputPointer=0xbd5fa0u;c->dspStaticExtra=1;c->mmStored=0xffffffffu;SW(c,4)=0xffffffffu;
+    c->legacy=(LegacyMemory *)calloc(1,sizeof(LegacyMemory));if(!c->legacy){free(c);fail(env,"PC1 legacy audio allocation");return NULL;}
+    c->magic=MAGIC;c->thread=GetCurrentThreadId();c->dspGlobals=c->legacy->globals;c->dspLz=c->legacy->lz;
+    c->stream.scratch=c->legacy->scratch;c->stream.encodedScratch=c->stream.scratch+0x2000;c->stream.delta=c->legacy->delta;
+    c->stream.mode=&c->legacy->mode;c->stream.channels=&c->legacy->channels;c->stream.remaining=&c->legacy->remaining;
+    c->dspInputPointer=&c->legacy->input;c->dspStaticExtra=&c->legacy->extra;c->dspStreamingExtra=&c->legacy->streamExtra;
+    c->mmStored=&c->legacy->mm;c->callbackBusy=&c->legacy->busy;c->packetCount=&c->legacy->packet;
+    {int n;for(n=0;n<5;n++)c->streamWord[n]=&c->legacy->words[n];}
+    *c->dspInputPointer=0xbd5fa0u;*c->dspStaticExtra=1;*c->dspStreamingExtra=1;*c->mmStored=0xffffffffu;SW(c,4)=0xffffffffu;
     c->createHr=c->cooperativeHr=c->primaryHr=c->formatHr=c->capsHr=c->deviceIdentityHr=NOT_CALLED;
     if(privateWindow){
         if(!InitOnceExecuteOnce(&windowOnce,registerWindow,NULL,NULL)){free(c);fail(env,"PC1 audio service window class unavailable");return NULL;}
@@ -237,7 +249,46 @@ JNIEXPORT jint JNICALL Java_org_circus_core_Pc1DirectSound_initializeNative(JNIE
     default:fail(env,"PC1 audio native initialization phase");break;
     }return(jint)result;
 }
-static BYTE *dspRegion(Context *c,DWORD address,DWORD *length){switch(address){case 0x455574u:*length=sizeof(c->dspGlobals);return c->dspGlobals;case 0xbc5f80u:*length=sizeof(c->dspLz);return c->dspLz;case 0x42fca8u:*length=4;return(BYTE *)&c->dspInputPointer;case 0x43de78u:*length=4;return(BYTE *)&c->dspStaticExtra;case 0xbc1d78u:*length=4;return(BYTE *)&c->stream.mode;case 0xbc1d7cu:*length=4;return(BYTE *)&c->stream.remaining;case 0xbc1d88u:*length=24;return(BYTE *)c->stream.delta;case 0xbc1da4u:*length=sizeof(c->stream.scratch);return c->stream.scratch;case 0xbc3da4u:*length=0x2000;return c->stream.encodedScratch;case 0xbc5da4u:*length=4;return(BYTE *)&c->stream.channels;default:*length=0;return NULL;}}
+static const DWORD physicalBases[7]={0x42a048u,0x43dbc0u,0x43de74u,0x455570u,0xbb8550u,0xbc1d60u,0xbc5f7cu};
+static const DWORD physicalLengths[7]={0x5c68u,40u,56u,0x38010u,0x8d80u,0x4048u,0x14038u};
+static BYTE *physicalPointer(Context *c,DWORD address,DWORD count,int permission,DWORD *available){int n;DWORD at,k;
+ if(!c->physicalBound)return NULL;for(n=0;n<7;n++){PhysicalIsland *p=&c->islands[n];at=address-p->base;if(at<p->length){
+  if(count>p->length-at)break;for(k=0;k<count;k++)if((p->access[at+k]&permission)!=permission)break;if(k!=count)break;
+  if(available){k=count;while(k<p->length-at&&(p->access[at+k]&permission)==permission)k++;*available=k;}return p->bytes+at;
+ }}c->dspFaultAddress=address;if(available)*available=0;return NULL;
+}
+JNIEXPORT jlong JNICALL Java_org_circus_core_Pc1DirectSound_directAddressNative(JNIEnv *env,jclass owner,jobject raw){void *p;(void)owner;p=raw?(*env)->GetDirectBufferAddress(env,raw):NULL;if(!p)fail(env,"PC1 native physical address requires direct allocation");return(jlong)(intptr_t)p;}
+JNIEXPORT jint JNICALL Java_org_circus_core_Pc1DirectSound_directWordNative(JNIEnv *env,jclass owner,jobject raw,jint offset,jboolean write,jint value){BYTE *p;volatile DWORD *word;jlong length;(void)owner;p=raw?(*env)->GetDirectBufferAddress(env,raw):NULL;length=raw?(*env)->GetDirectBufferCapacity(env,raw):0;if(!p||offset<0||(jlong)offset+4>length){fail(env,"PC1 native physical DWORD leaves exact allocation");return 0;}word=(volatile DWORD *)(p+offset);if(write){*word=(DWORD)value;return value;}return(jint)*word;}
+JNIEXPORT jbyteArray JNICALL Java_org_circus_core_Pc1DirectSound_decoderSeedNative(JNIEnv *env,jclass owner,jlong handle,jint address);
+JNIEXPORT void JNICALL Java_org_circus_core_Pc1DirectSound_bindPhysicalNative(JNIEnv *env,jclass owner,jlong handle,jobjectArray buffers,jobjectArray masks){
+ Context *c=context(env,handle);PhysicalIsland staged[7];int n,k;DWORD length;BYTE *p;(void)owner;if(!c)return;
+ if(c->physicalBound||c->mmRegistrations||c->legacyBorrowed||!buffers||!masks||(*env)->GetArrayLength(env,buffers)!=7||(*env)->GetArrayLength(env,masks)!=7){fail(env,"PC1 physical adoption requires stopped, unloaned legacy context and seven exact islands");return;}
+ memset(staged,0,sizeof(staged));for(n=0;n<7;n++){jobject b=(*env)->GetObjectArrayElement(env,buffers,n),m=(*env)->GetObjectArrayElement(env,masks,n);staged[n].base=physicalBases[n];staged[n].length=physicalLengths[n];staged[n].bytes=b?(*env)->GetDirectBufferAddress(env,b):NULL;staged[n].access=m?(*env)->GetDirectBufferAddress(env,m):NULL;
+  if(!staged[n].bytes||!staged[n].access||(*env)->GetDirectBufferCapacity(env,b)!=staged[n].length||(*env)->GetDirectBufferCapacity(env,m)!=staged[n].length||((uintptr_t)staged[n].bytes&0xfffu)!=(staged[n].base&0xfffu)){fail(env,"PC1 shared island extent/alignment proof");break;}
+  staged[n].buffer=(*env)->NewGlobalRef(env,b);staged[n].mask=(*env)->NewGlobalRef(env,m);(*env)->DeleteLocalRef(env,b);(*env)->DeleteLocalRef(env,m);if(!staged[n].buffer||!staged[n].mask)break;
+ }
+ if(n!=7){for(k=0;k<7;k++){if(staged[k].buffer)(*env)->DeleteGlobalRef(env,staged[k].buffer);if(staged[k].mask)(*env)->DeleteGlobalRef(env,staged[k].mask);}return;}
+ {static const DWORD required[][2]={{0x455574u,0x38008u},{0xbc5f80u,0x14030u},{0x42fca8u,4},{0x43de78u,4},{0xbc1d78u,4},{0xbc1d7cu,4},{0xbc1d88u,24},{0xbc1da4u,0x4000},{0xbc5da4u,4},{0xbc12c8u,4},{0xbc1d64u,4},{0x43dbe0u,4},{0x43de74u,4},{0xbbaaf8u,4},{0xbbab24u,4},{0xbbab50u,4},{0xbbab7cu,4},{0x43dbdcu,4}};DWORD r,at,j;int found;
+  for(r=0;r<sizeof(required)/sizeof(required[0]);r++){found=0;for(n=0;n<7;n++){at=required[r][0]-staged[n].base;if(at<staged[n].length&&required[r][1]<=staged[n].length-at){found=1;for(j=0;j<required[r][1];j++)if((staged[n].access[at+j]&3)!=3){found=0;break;}break;}}if(!found){for(k=0;k<7;k++){(*env)->DeleteGlobalRef(env,staged[k].buffer);(*env)->DeleteGlobalRef(env,staged[k].mask);}fail(env,"PC1 physical adoption has unknown logical owner bytes");return;}}
+ }
+ /*Only Java's owned seeds enter the shared allocation; no second live copy.
+  *No MM registration exists, and this adoption performs no opcode callback.*/
+ memcpy(c->islands,staged,sizeof(staged));c->physicalBound=1;
+ #define PWORD(a) ((volatile DWORD *)physicalPointer(c,(a),4,3,NULL))
+ c->dspGlobals=physicalPointer(c,0x455574u,0x38008u,3,&length);c->dspLz=physicalPointer(c,0xbc5f80u,0x14030u,3,&length);
+ c->dspInputPointer=PWORD(0x42fca8u);c->dspStaticExtra=PWORD(0x43de78u);c->dspStreamingExtra=PWORD(0x43de74u);
+ c->stream.mode=PWORD(0xbc1d78u);c->stream.remaining=PWORD(0xbc1d7cu);c->stream.channels=PWORD(0xbc5da4u);
+ c->stream.delta=(DWORD *)physicalPointer(c,0xbc1d88u,24,3,&length);c->stream.scratch=physicalPointer(c,0xbc1da4u,0x4000u,3,&length);c->stream.encodedScratch=c->stream.scratch?c->stream.scratch+0x2000:NULL;
+ c->packetCount=PWORD(0xbc12c8u);c->callbackBusy=PWORD(0xbc1d64u);c->mmStored=PWORD(0x43dbe0u);
+ {static const DWORD words[5]={0xbbaaf8u,0xbbab24u,0xbbab50u,0xbbab7cu,0x43dbdcu};for(n=0;n<5;n++)c->streamWord[n]=PWORD(words[n]);}
+ #undef PWORD
+ p=c->stream.scratch;if(!p||!c->dspGlobals||!c->dspLz||!c->dspStreamingExtra||!c->dspInputPointer||!c->dspStaticExtra||!c->stream.mode||!c->stream.remaining||!c->stream.channels||!c->stream.delta||!c->packetCount||!c->callbackBusy||!c->mmStored){fail(env,"PC1 physical adoption missing admitted logical owner");return;}
+ for(n=0;n<5;n++)if(!c->streamWord[n]){fail(env,"PC1 physical interleave owner missing");return;}
+ if(c->streamBuffer){(*env)->DeleteGlobalRef(env,c->streamBuffer);c->streamBuffer=NULL;}if(c->dspExtraBuffer){(*env)->DeleteGlobalRef(env,c->dspExtraBuffer);c->dspExtraBuffer=NULL;}free(c->legacy);c->legacy=NULL;
+}
+static BYTE *dspRegion(Context *c,DWORD address,DWORD *length){switch(address){case 0x455574u:*length=0x38008u;return c->dspGlobals;case 0xbc5f80u:*length=0x14030u;return c->dspLz;case 0x42fca8u:*length=4;return(BYTE *)c->dspInputPointer;case 0x43de78u:*length=4;return(BYTE *)c->dspStaticExtra;case 0xbc1d78u:*length=4;return(BYTE *)c->stream.mode;case 0xbc1d7cu:*length=4;return(BYTE *)c->stream.remaining;case 0xbc1d88u:*length=24;return(BYTE *)c->stream.delta;case 0xbc1da4u:*length=0x4000u;return c->stream.scratch;case 0xbc3da4u:*length=0x2000;return c->stream.encodedScratch;case 0xbc5da4u:*length=4;return(BYTE *)c->stream.channels;default:*length=0;return NULL;}}
+JNIEXPORT jint JNICALL Java_org_circus_core_Pc1DirectSound_physicalWordForAuditNative(JNIEnv *env,jclass owner,jlong handle,jint address,jboolean write,jint value){Context *c=context(env,handle);BYTE *p;volatile DWORD *word;(void)owner;if(!c)return 0;p=physicalPointer(c,(DWORD)address,4,write?2:1,NULL);if(!p){fail(env,"PC1 exact physical DWORD requires known single island");return 0;}word=(volatile DWORD *)p;if(write){*word=(DWORD)value;return value;}return(jint)*word;}
+JNIEXPORT jbyteArray JNICALL Java_org_circus_core_Pc1DirectSound_decoderSeedNative(JNIEnv *env,jclass owner,jlong handle,jint address){Context *c=context(env,handle);DWORD length;BYTE *p;jbyteArray out;(void)owner;if(!c)return NULL;if(c->mmRegistrations){fail(env,"PC1 decoder seed requires stopped physical provider");return NULL;}p=dspRegion(c,(DWORD)address,&length);if(!p){fail(env,"PC1 decoder seed range");return NULL;}out=(*env)->NewByteArray(env,(jsize)length);if(out)(*env)->SetByteArrayRegion(env,out,0,(jsize)length,(const jbyte *)p);return out;}
 #include "pc1_dsp.h"
 /*FILE is an OS scalar, not a readable COM object. Java's sole world registry
  *publishes these associations; the MM thread performs only native IO/DSP. */
@@ -246,14 +297,14 @@ static int registeredReadBytes(Context *c,DWORD raw,BYTE *target,DWORD requested
     if(file&&file->file!=INVALID_HANDLE_VALUE)physical=(HANDLE)((uintptr_t)file->file|(raw&3u));else if(raw==0)physical=NULL;
     *count=0;result=ReadFile(physical,target,requested,count,NULL);error=result?0:GetLastError();if(file){file->requested=requested;file->count=*count;file->error=error;file->position+=*count;}return result!=0;
 }
-static int registeredRead(Context *c,void *unused,DWORD raw,DWORD target,DWORD requested,DWORD countAddress){DWORD available,count=0,n;volatile BYTE *pointer=dspPointer(c,target,&available);(void)unused;if(!pointer||available<requested){c->dspFaultAddress=target;return 0;}registeredReadBytes(c,raw,(BYTE *)pointer,requested,&count);for(n=0;n<4;n++)if(!dspByteStore(c,countAddress+n,(BYTE)(count>>(n*8))))return 0;/*ReadFile BOOL is ignored by original403DF0.*/return 1;}
+static int registeredRead(Context *c,void *unused,DWORD raw,DWORD target,DWORD requested,DWORD countAddress){DWORD available=requested,count=0,n;volatile BYTE *pointer=c->physicalBound?physicalPointer(c,target,requested,2,NULL):dspPointer(c,target,&available);(void)unused;if(!pointer||available<requested){c->dspFaultAddress=target;return 0;}registeredReadBytes(c,raw,(BYTE *)pointer,requested,&count);for(n=0;n<4;n++)if(!dspByteStore(c,countAddress+n,(BYTE)(count>>(n*8))))return 0;/*ReadFile BOOL is ignored by original403DF0.*/return 1;}
 static int registeredClose(Context *c,void *unused,DWORD raw){SourceFile *file=registeredFile(c,raw);HANDLE physical=INVALID_HANDLE_VALUE;BOOL result;DWORD error;(void)unused;if(file&&file->file!=INVALID_HANDLE_VALUE)physical=(HANDLE)((uintptr_t)file->file|(raw&3u));else if(raw==0)physical=NULL;result=CloseHandle(physical);error=result?0:GetLastError();if(file){file->closeResult=result;file->closeError=error;if(result)file->file=INVALID_HANDLE_VALUE;}return 1;/*Original ignores BOOL.*/}
 static int registeredStreamPacket(Context *c,DWORD *count){Stream *s=&c->stream;DWORD requested,got=0,produced;int result;c->dspFaultAddress=0;
     if(!c->dspPe){s->error=3;eventLocked(c,4,4,0x42ab1cu,0);return -1;}
-    if(s->mode!=0&&s->mode!=2){result=dspCompressedPacket(c,registeredRead,registeredClose,NULL,count);if(result<0){s->error=3;eventLocked(c,4,4,c->dspFaultAddress,0);}else{c->packetCount=*count;s->decodedCursor+=*count;}return result;}
-    if(s->remaining==0){memset(s->scratch,0,sizeof(s->scratch));*count=0;c->packetCount=0;registeredClose(c,NULL,dspPeWord(c,0x42ab1c));dspPeStore(c,0x42ab1c,0xffffffffu);return 0;}
-    requested=s->remaining<s->unit?s->remaining:s->unit;if(s->mode==2){requested=s->remaining/2u;if(requested>0x2000u)requested=0x2000u;}
-    registeredReadBytes(c,dspPeWord(c,0x42ab1c),s->mode==2?s->encodedScratch:s->scratch,requested,&got);produced=got;if(s->mode==2){deltaDecode(s->scratch,got,s->encodedScratch,s->delta,s->channels);produced=got*2u;}s->remaining-=produced;s->decodedCursor+=produced;*count=produced;c->packetCount=produced;
+    if((*s->mode)!=0&&(*s->mode)!=2){result=dspCompressedPacket(c,registeredRead,registeredClose,NULL,count);if(result<0){s->error=3;eventLocked(c,4,4,c->dspFaultAddress,0);}else{(*c->packetCount)=*count;s->decodedCursor+=*count;}return result;}
+    if((*s->remaining)==0){memset(s->scratch,0,0x4000u);*count=0;(*c->packetCount)=0;registeredClose(c,NULL,dspPeWord(c,0x42ab1c));dspPeStore(c,0x42ab1c,0xffffffffu);return 0;}
+    requested=(*s->remaining)<s->unit?(*s->remaining):s->unit;if((*s->mode)==2){requested=(*s->remaining)/2u;if(requested>0x2000u)requested=0x2000u;}
+    registeredReadBytes(c,dspPeWord(c,0x42ab1c),(*s->mode)==2?s->encodedScratch:s->scratch,requested,&got);produced=got;if((*s->mode)==2){deltaDecode(s->scratch,got,s->encodedScratch,s->delta,(*s->channels));produced=got*2u;}(*s->remaining)-=produced;s->decodedCursor+=produced;*count=produced;(*c->packetCount)=produced;
     if(got==0){s->error=1;s->lastCount=0;eventLocked(c,4,1,ERROR_HANDLE_EOF,s->decodedCursor);return -1;}return 1;
 }
 typedef struct DspFixture {const BYTE *bytes;DWORD length,position,limit,calls,lastHandle,requested;} DspFixture;
@@ -261,26 +312,26 @@ static int dspFixtureRead(Context *c,void *opaque,DWORD file,DWORD target,DWORD 
 static int dspFixtureClose(Context *c,void *opaque,DWORD file){DspFixture *fixture=(DspFixture *)opaque;(void)c;fixture->lastHandle=file;return 1;}
 /*Private-array ReadFile fixture only. Production MM never calls Java. The
  *returned fault address is after the actual ordered native-memory prefix. */
-JNIEXPORT jintArray JNICALL Java_org_circus_core_Pc1DirectSound_dspLzAuditNative(JNIEnv *env,jclass owner,jlong handle,jint operation,jint packed,jbyteArray input,jint position,jint readLimit){Context *c=context(env,handle);DspFixture fixture;BYTE *bytes;jsize length;DWORD result=0;int ok=1;jint values[7];(void)owner;if(!c)return NULL;if(!c->dspPe||!input){fail(env,"PC1 LZ audit requires canonical PE and explicit ReadFile fixture");return NULL;}length=(*env)->GetArrayLength(env,input);bytes=(BYTE *)malloc(length?length:1);if(!bytes){fail(env,"PC1 LZ audit fixture allocation");return NULL;}if(length)(*env)->GetByteArrayRegion(env,input,0,length,(jbyte *)bytes);memset(&fixture,0,sizeof(fixture));fixture.bytes=bytes;fixture.length=(DWORD)length;fixture.position=(DWORD)position;fixture.limit=(DWORD)readLimit;c->dspFaultAddress=0;if(operation==0)dspInitLz(c,(DWORD)packed);else if(operation==1)ok=dspInputByte(c,dspFixtureRead,&fixture,&result);else if(operation==2)ok=dspLzBlock(c,dspFixtureRead,&fixture,&result);else if(operation==3){ok=dspCompressedPacket(c,dspFixtureRead,dspFixtureClose,&fixture,&result);c->packetCount=result;/*Audit returns native function result separately from outputcount.*/}else{free(bytes);fail(env,"PC1 LZ audit operation");return NULL;}free(bytes);values[0]=(jint)result;values[1]=(jint)fixture.position;values[2]=(jint)fixture.calls;values[3]=(jint)fixture.lastHandle;values[4]=(jint)fixture.requested;values[5]=(jint)c->dspFaultAddress;values[6]=ok;return integers(env,values,7);}
+JNIEXPORT jintArray JNICALL Java_org_circus_core_Pc1DirectSound_dspLzAuditNative(JNIEnv *env,jclass owner,jlong handle,jint operation,jint packed,jbyteArray input,jint position,jint readLimit){Context *c=context(env,handle);DspFixture fixture;BYTE *bytes;jsize length;DWORD result=0;int ok=1;jint values[7];(void)owner;if(!c)return NULL;if(!c->dspPe||!input){fail(env,"PC1 LZ audit requires canonical PE and explicit ReadFile fixture");return NULL;}length=(*env)->GetArrayLength(env,input);bytes=(BYTE *)malloc(length?length:1);if(!bytes){fail(env,"PC1 LZ audit fixture allocation");return NULL;}if(length)(*env)->GetByteArrayRegion(env,input,0,length,(jbyte *)bytes);memset(&fixture,0,sizeof(fixture));fixture.bytes=bytes;fixture.length=(DWORD)length;fixture.position=(DWORD)position;fixture.limit=(DWORD)readLimit;c->dspFaultAddress=0;if(operation==0)dspInitLz(c,(DWORD)packed);else if(operation==1)ok=dspInputByte(c,dspFixtureRead,&fixture,&result);else if(operation==2)ok=dspLzBlock(c,dspFixtureRead,&fixture,&result);else if(operation==3){ok=dspCompressedPacket(c,dspFixtureRead,dspFixtureClose,&fixture,&result);(*c->packetCount)=result;/*Audit returns native function result separately from outputcount.*/}else{free(bytes);fail(env,"PC1 LZ audit operation");return NULL;}free(bytes);values[0]=(jint)result;values[1]=(jint)fixture.position;values[2]=(jint)fixture.calls;values[3]=(jint)fixture.lastHandle;values[4]=(jint)fixture.requested;values[5]=(jint)c->dspFaultAddress;values[6]=ok;return integers(env,values,7);}
 /*Controlled caller-owned file only. Each variant gets a fresh HANDLE, so
  *successful tagged CloseHandle cannot accidentally close a reused resource. */
 JNIEXPORT jlongArray JNICALL Java_org_circus_core_Pc1DirectSound_fileTagsAuditNative(JNIEnv *env,jclass owner,jlong handle,jbyteArray raw){Context *c=context(env,handle);jsize length;char *path;HANDLE file,tagged;DWORD tag,count,error,closeError;BOOL readResult,closeResult;BYTE byte;jlong values[40];jlongArray out;(void)owner;if(!c||!raw)return NULL;length=(*env)->GetArrayLength(env,raw);path=(char *)calloc((size_t)length+1,1);if(!path){fail(env,"PC1 file tag audit path allocation");return NULL;}(*env)->GetByteArrayRegion(env,raw,0,length,(jbyte *)path);for(tag=0;tag<4;tag++){file=CreateFileA(path,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);if(file==INVALID_HANDLE_VALUE){free(path);fail(env,"PC1 controlled file tag audit open failed");return NULL;}tagged=(HANDLE)((uintptr_t)file|tag);count=0;byte=0;SetLastError(0);readResult=ReadFile(tagged,&byte,1,&count,NULL);error=readResult?0:GetLastError();SetLastError(0);closeResult=CloseHandle(tagged);closeError=closeResult?0:GetLastError();if(!closeResult)CloseHandle(file);values[tag*10]=tag;values[tag*10+1]=(jlong)(intptr_t)file;values[tag*10+2]=(jlong)(intptr_t)tagged;values[tag*10+3]=readResult;values[tag*10+4]=error;values[tag*10+5]=count;values[tag*10+6]=byte;values[tag*10+7]=closeResult;values[tag*10+8]=closeError;values[tag*10+9]=GetCurrentProcessId();}free(path);out=(*env)->NewLongArray(env,40);if(out)(*env)->SetLongArrayRegion(env,out,0,40,values);return out;}
 JNIEXPORT void JNICALL Java_org_circus_core_Pc1DirectSound_bindDspPeNative(JNIEnv *env,jclass owner,jlong handle,jobject raw){Context *c=context(env,handle);void *pointer;jlong length;jobject strong;(void)owner;if(!c)return;if(!raw){fail(env,"PC1 DSP requires canonical effect PE direct backing");return;}pointer=(*env)->GetDirectBufferAddress(env,raw);length=(*env)->GetDirectBufferCapacity(env,raw);if(!pointer||length!=0x42fca8u-0x42ab1cu||((uintptr_t)pointer&3u)){fail(env,"PC1 DSP PE view must be aligned exact42AB1C..42FCA8 owner");return;}strong=(*env)->NewGlobalRef(env,raw);if(!strong)return;AcquireSRWLockExclusive(&registryLock);if(c->mmRegistrations){ReleaseSRWLockExclusive(&registryLock);(*env)->DeleteGlobalRef(env,strong);fail(env,"PC1 cannot switch shared DSP PE owner while MM registered");return;}if(c->dspPeBuffer)(*env)->DeleteGlobalRef(env,c->dspPeBuffer);c->dspPeBuffer=strong;c->dspPe=(volatile BYTE *)pointer;c->dspPeLength=(DWORD)length;ReleaseSRWLockExclusive(&registryLock);}
 JNIEXPORT void JNICALL Java_org_circus_core_Pc1DirectSound_dspCoefficientsNative(JNIEnv *env,jclass owner,jlong handle,jint extra){Context *c=context(env,handle);(void)owner;if(!c)return;if(!c->dspPe){fail(env,"PC1 DSP coefficients require canonical PE owner");return;}dspSelectCoefficients(c,(DWORD)extra);}
 JNIEXPORT void JNICALL Java_org_circus_core_Pc1DirectSound_dspTransformNative(JNIEnv *env,jclass owner,jlong handle,jint output,jint extra){Context *c=context(env,handle);(void)owner;if(!c)return;if(!c->dspPe){fail(env,"PC1 native404140 requires canonical PE owner");return;}c->dspFaultAddress=0;if(!dspStreamTransform(c,(DWORD)output,(DWORD)extra)){char message[128];sprintf_s(message,sizeof(message),"PC1 native DSP memory view required at0x%08lx after actual prefix",(unsigned long)c->dspFaultAddress);fail(env,message);}}
-JNIEXPORT void JNICALL Java_org_circus_core_Pc1DirectSound_bindDspExtraNative(JNIEnv *env,jclass owner,jlong handle,jobject raw){Context *c=context(env,handle);void *address;jobject strong;(void)owner;if(!c)return;address=raw?(*env)->GetDirectBufferAddress(env,raw):NULL;if(!address||(*env)->GetDirectBufferCapacity(env,raw)!=4||((uintptr_t)address&3u)){fail(env,"PC1 DSP43DE74 requires aligned canonical4B direct owner");return;}strong=(*env)->NewGlobalRef(env,raw);if(!strong)return;AcquireSRWLockExclusive(&registryLock);if(c->mmRegistrations){ReleaseSRWLockExclusive(&registryLock);(*env)->DeleteGlobalRef(env,strong);fail(env,"PC1 active MM cannot switch canonical extra owner");return;}if(c->dspExtraBuffer)(*env)->DeleteGlobalRef(env,c->dspExtraBuffer);c->dspExtraBuffer=strong;c->dspStreamingExtra=(volatile DWORD *)address;ReleaseSRWLockExclusive(&registryLock);}
-JNIEXPORT jobject JNICALL Java_org_circus_core_Pc1DirectSound_dspRegionNative(JNIEnv *env,jclass owner,jlong handle,jint address){Context *c=context(env,handle);DWORD length;BYTE *pointer;(void)owner;if(!c)return NULL;pointer=dspRegion(c,(DWORD)address,&length);if(!pointer){fail(env,"PC1 decoder direct view requires reviewed native owner range");return NULL;}return(*env)->NewDirectByteBuffer(env,pointer,length);}
+JNIEXPORT void JNICALL Java_org_circus_core_Pc1DirectSound_bindDspExtraNative(JNIEnv *env,jclass owner,jlong handle,jobject raw){Context *c=context(env,handle);void *address;jobject strong;(void)owner;if(!c)return;address=raw?(*env)->GetDirectBufferAddress(env,raw):NULL;if(!address||(*env)->GetDirectBufferCapacity(env,raw)!=4||((uintptr_t)address&3u)){fail(env,"PC1 DSP43DE74 requires aligned canonical4B direct owner");return;}strong=(*env)->NewGlobalRef(env,raw);if(!strong)return;AcquireSRWLockExclusive(&registryLock);if(c->mmRegistrations||c->physicalBound){ReleaseSRWLockExclusive(&registryLock);(*env)->DeleteGlobalRef(env,strong);fail(env,"PC1 active/shared MM cannot switch canonical extra owner");return;}if(c->dspExtraBuffer)(*env)->DeleteGlobalRef(env,c->dspExtraBuffer);c->dspExtraBuffer=strong;c->dspStreamingExtra=(volatile DWORD *)address;ReleaseSRWLockExclusive(&registryLock);}
+JNIEXPORT jobject JNICALL Java_org_circus_core_Pc1DirectSound_dspRegionNative(JNIEnv *env,jclass owner,jlong handle,jint address){Context *c=context(env,handle);DWORD length;BYTE *pointer;(void)owner;if(!c)return NULL;pointer=dspRegion(c,(DWORD)address,&length);if(!c->physicalBound)c->legacyBorrowed=1;if(!pointer){fail(env,"PC1 decoder direct view requires reviewed native owner range");return NULL;}return(*env)->NewDirectByteBuffer(env,pointer,length);}
 JNIEXPORT void JNICALL Java_org_circus_core_Pc1DirectSound_initializeDecoderNative(JNIEnv *env,jclass owner,jlong handle){Context *c=context(env,handle);volatile DWORD *ready;volatile WORD *table;WORD positive=0,negative=0;DWORD n;(void)owner;if(!c)return;ready=(volatile DWORD *)(c->dspGlobals+(0x48d578u-0x455574u));if(*ready!=0)return;*ready=1;table=(volatile WORD *)(c->dspGlobals+(0x465574u-0x455574u));for(n=0;n<32768u;n++){positive++;table[n*2]=negative;table[n*2+1]=positive;negative--;}}
 JNIEXPORT jintArray JNICALL Java_org_circus_core_Pc1DirectSound_retiredNative(JNIEnv *env,jclass owner,jlong handle){Context *c=context(env,handle);Retired *node;jint values[3]={0};(void)owner;if(!c)return NULL;for(node=c->retired;node;node=node->next)values[node->kind]++;return integers(env,values,3);}
 JNIEXPORT void JNICALL Java_org_circus_core_Pc1DirectSound_bindStreamBytesNative(JNIEnv *env,jclass owner,jlong handle,jobject raw){
     Context *c=context(env,handle);void *address;jlong capacity;jobject hold;(void)owner;if(!c)return;
     if(!raw){fail(env,"PC1 canonical stream direct bytes missing");return;}address=(*env)->GetDirectBufferAddress(env,raw);capacity=(*env)->GetDirectBufferCapacity(env,raw);
     if(!address||capacity!=20||((uintptr_t)address&3u)!=0){fail(env,"PC1 canonical stream bytes require aligned20B direct backing");return;}hold=(*env)->NewGlobalRef(env,raw);if(!hold)return;
-    AcquireSRWLockExclusive(&registryLock);if(c->mmRegistrations){ReleaseSRWLockExclusive(&registryLock);(*env)->DeleteGlobalRef(env,hold);fail(env,"PC1 cannot rebind an active MM stream owner");return;}
-    if(c->streamBuffer)(*env)->DeleteGlobalRef(env,c->streamBuffer);c->streamBuffer=hold;c->streamWords=(volatile DWORD *)address;ReleaseSRWLockExclusive(&registryLock);
+    AcquireSRWLockExclusive(&registryLock);if(c->mmRegistrations||c->physicalBound){ReleaseSRWLockExclusive(&registryLock);(*env)->DeleteGlobalRef(env,hold);fail(env,"PC1 cannot rebind active/shared MM stream owner");return;}
+    if(c->streamBuffer)(*env)->DeleteGlobalRef(env,c->streamBuffer);c->streamBuffer=hold;{int n;for(n=0;n<5;n++)c->streamWord[n]=(volatile DWORD *)address+n;}ReleaseSRWLockExclusive(&registryLock);
 }
-JNIEXPORT jbyteArray JNICALL Java_org_circus_core_Pc1DirectSound_sharedBytesNative(JNIEnv *env,jclass owner,jlong handle){Context *c=context(env,handle);jbyteArray out;(void)owner;if(!c)return NULL;out=(*env)->NewByteArray(env,20);if(out)(*env)->SetByteArrayRegion(env,out,0,20,(const jbyte *)c->streamWords);return out;}
-static volatile DWORD *backendWord(Context *c,jint address){switch((DWORD)address){case 0xbc12c8u:return &c->packetCount;case 0xbc1d64u:return &c->callbackBusy;case 0x43dbe0u:return &c->mmStored;default:return NULL;}}
+JNIEXPORT jbyteArray JNICALL Java_org_circus_core_Pc1DirectSound_sharedBytesNative(JNIEnv *env,jclass owner,jlong handle){Context *c=context(env,handle);jbyteArray out;(void)owner;if(!c)return NULL;out=(*env)->NewByteArray(env,20);if(out){DWORD words[5];int n;for(n=0;n<5;n++)words[n]=SW(c,n);(*env)->SetByteArrayRegion(env,out,0,20,(const jbyte *)words);}return out;}
+static volatile DWORD *backendWord(Context *c,jint address){switch((DWORD)address){case 0xbc12c8u:return c->packetCount;case 0xbc1d64u:return c->callbackBusy;case 0x43dbe0u:return c->mmStored;default:return NULL;}}
 JNIEXPORT jint JNICALL Java_org_circus_core_Pc1DirectSound_backendByteNative(JNIEnv *env,jclass owner,jlong handle,jint address,jint byteOffset,jint writeValue){
     Context *c=context(env,handle);volatile DWORD *word;volatile BYTE *bytes;(void)owner;if(!c)return 0;word=backendWord(c,address);if(!word||byteOffset<0||byteOffset>3){fail(env,"PC1 backend byte owner address");return 0;}bytes=(volatile BYTE *)word;
     if(writeValue>=0)bytes[byteOffset]=(BYTE)writeValue;return bytes[byteOffset];
@@ -345,14 +396,14 @@ JNIEXPORT jintArray JNICALL Java_org_circus_core_Pc1DirectSound_timerNative(JNIE
     switch(operation){
     case 0:c->userInterval=(DWORD)milliseconds;c->userDue=GetTickCount64()+(DWORD)milliseconds;c->userFirst=0;c->userTimer=SetTimer(c->window,(UINT_PTR)(uint32_t)token,(UINT)milliseconds,NULL);values[0]=(jint)c->userTimer;values[1]=c->userTimer?0:(jint)GetLastError();break;
     case 1:values[0]=KillTimer(c->window,(UINT_PTR)(uint32_t)token);values[1]=values[0]?0:(jint)GetLastError();if(c->userTimer==(UINT_PTR)(uint32_t)token)c->userTimer=0;break;
-    case 2:AcquireSRWLockExclusive(&registryLock);c->mmTimer=setMmLocked(c,200,200,TIME_PERIODIC);c->mmStored=c->mmTimer;c->mmDue=GetTickCount64()+200;values[0]=(jint)c->mmTimer;ReleaseSRWLockExclusive(&registryLock);break;
-    case 3:{DWORD previous=c->mmStored;
+    case 2:AcquireSRWLockExclusive(&registryLock);c->mmTimer=setMmLocked(c,200,200,TIME_PERIODIC);(*c->mmStored)=c->mmTimer;c->mmDue=GetTickCount64()+200;values[0]=(jint)c->mmTimer;ReleaseSRWLockExclusive(&registryLock);break;
+    case 3:{DWORD previous=(*c->mmStored);
         values[0]=(jint)(previous==0xffffffffu?TIMERR_NOERROR:timeKillEvent(previous));
-        c->mmStored=0xffffffffu;
+        (*c->mmStored)=0xffffffffu;
         AcquireSRWLockExclusive(&registryLock);if(previous==c->mmTimer){c->mmStopEpoch++;if(values[0]==TIMERR_NOERROR)c->mmTimer=0;}if(values[0]==TIMERR_NOERROR&&previous!=0xffffffffu)forgetMm(c,previous);ReleaseSRWLockExclusive(&registryLock);
         /*41B990(0): no registry lock while waiting, nor channel rewrite.
          *41C1A0 already wrote43DBDC=-1 before this leaf when releasing. */
-        while(c->callbackBusy!=0)Sleep(10);
+        while((*c->callbackBusy)!=0)Sleep(10);
         AcquireSRWLockExclusive(&registryLock);if(c->stream.source&&c->stream.source->hasWord&&c->dspPe){DWORD raw=dspPeWord(c,0x42ab1c);if(raw!=0xffffffffu){registeredClose(c,NULL,raw);dspPeStore(c,0x42ab1c,0xffffffffu);}}else closeSource(c->stream.source);ReleaseSRWLockExclusive(&registryLock);break;}
     default:fail(env,"PC1 audio timer operation selector");return NULL;
     }return integers(env,values,2);
@@ -390,9 +441,12 @@ JNIEXPORT void JNICALL Java_org_circus_core_Pc1DirectSound_sourceCloseNative(JNI
 JNIEXPORT jlongArray JNICALL Java_org_circus_core_Pc1DirectSound_sourceWordNative(JNIEnv *env,jclass owner,jlong handle,jlong id,jboolean publish,jint word){Context *c=context(env,handle);SourceFile *s,*other;jlong values[4];jlongArray out;(void)owner;if(!c)return NULL;s=sourceFile(c,id);if(!s){fail(env,"PC1 FILE registry source identity absent");return NULL;}if(!c->snapshotDepth)AcquireSRWLockExclusive(&registryLock);if(publish){if(word==0||word==-1){if(!c->snapshotDepth)ReleaseSRWLockExclusive(&registryLock);fail(env,"PC1 FILE registry cannot publish NULL/invalid sentinel");return NULL;}for(other=c->sources;other;other=other->next)if(other!=s&&other->hasWord&&(other->rawWord&~3u)==((DWORD)word&~3u)&&other->file!=INVALID_HANDLE_VALUE){if(!c->snapshotDepth)ReleaseSRWLockExclusive(&registryLock);fail(env,"PC1 FILE registry aliases two distinct live descriptors");return NULL;}s->rawWord=(DWORD)word;s->hasWord=s->wordAdopted=1;}values[0]=(jlong)(intptr_t)s->file;values[1]=s->rawWord;values[2]=s->hasWord;values[3]=s->wordAdopted;if(!c->snapshotDepth)ReleaseSRWLockExclusive(&registryLock);out=(*env)->NewLongArray(env,4);if(out)(*env)->SetLongArrayRegion(env,out,0,4,values);return out;}
 JNIEXPORT void JNICALL Java_org_circus_core_Pc1DirectSound_prepareDecoderNative(JNIEnv *env,jclass owner,jlong handle,jlong sourceId,jint bytes,jint mode,jint channels,jint packed,jint extra){
     Context *c=context(env,handle);SourceFile *source;(void)owner;if(!c)return;source=sourceFile(c,sourceId);if(!source||source->file==INVALID_HANDLE_VALUE){fail(env,"PC1 decoder preparation requires its open source");return;}
-    if(mode!=0&&mode!=1&&mode!=2){fail(env,"PC1 decoder preparation mode contract");return;}if(mode==1&&(!source->hasWord||!c->dspPe||!c->dspExtraBuffer)){fail(env,"PC1 compressed stream requires same-world FILE/PE/Audio owners");return;}if(source->hasWord&&!c->dspPe){fail(env,"PC1 registered FILE stream requires canonical PE rawword owner");return;}AcquireSRWLockExclusive(&registryLock);c->stream.source=source;c->stream.decodedCursor=0;
-    if(mode==1){*c->dspStreamingExtra=(DWORD)extra;c->stream.remaining=(DWORD)bytes;c->stream.mode=1;c->stream.channels=0;dspPeStore(c,0x42ab1c,source->rawWord);dspInitLz(c,(DWORD)packed);memset(c->stream.scratch,0,64);}
-    else{c->stream.remaining=(DWORD)bytes;c->stream.mode=mode;c->stream.channels=channels;if(mode==2)c->stream.delta[0]=c->stream.delta[1]=c->stream.delta[3]=c->stream.delta[4]=0;if(source->hasWord)dspPeStore(c,0x42ab1c,source->rawWord);}ReleaseSRWLockExclusive(&registryLock);
+    if(mode!=0&&mode!=1&&mode!=2){fail(env,"PC1 decoder preparation mode contract");return;}if(mode==1&&(!source->hasWord||!c->dspPe||(!c->dspExtraBuffer&&!c->physicalBound))){fail(env,"PC1 compressed stream requires same-world FILE/PE/Audio owners");return;}if(source->hasWord&&!c->dspPe){fail(env,"PC1 registered FILE stream requires canonical PE rawword owner");return;}AcquireSRWLockExclusive(&registryLock);c->stream.source=source;c->stream.decodedCursor=0;
+    /*41D1E0/38E/432/708: remaining,FILE,mode in this order. Mode0
+     *does not write BC5DA4. Mode2 preserves the reserved delta words. */
+    (*c->stream.remaining)=(DWORD)bytes;if(source->hasWord)dspPeStore(c,0x42ab1c,source->rawWord);(*c->stream.mode)=(DWORD)mode;
+    if(mode==1){DWORD n;(*c->stream.channels)=0;*c->dspStreamingExtra=(DWORD)extra;dspInitLz(c,(DWORD)packed);for(n=0;n<16;n++)((volatile DWORD *)c->stream.scratch)[n]=0;}
+    else if(mode==2){volatile DWORD *delta=c->stream.delta;delta[0]=0;(*c->stream.channels)=(DWORD)channels;delta[1]=0;delta[3]=0;delta[4]=0;}ReleaseSRWLockExclusive(&registryLock);
 }
 JNIEXPORT jintArray JNICALL Java_org_circus_core_Pc1DirectSound_bindStreamNative(JNIEnv *env,jclass owner,jlong handle,jint channel,jlong sourceId,jint bytes,jbyteArray memory,jint unit,jboolean automatic){
     Context *c=context(env,handle);SourceFile *source=NULL;Stream *s;Buffer *b;BYTE *data=NULL;jsize length=0;int result;jint values[5];(void)owner;if(!c)return NULL;b=buffer(env,c,channel);if(!b)return NULL;
@@ -400,15 +454,15 @@ JNIEXPORT jintArray JNICALL Java_org_circus_core_Pc1DirectSound_bindStreamNative
     else if(memory){length=(*env)->GetArrayLength(env,memory);data=(BYTE *)malloc(length?(size_t)length:1);if(!data){fail(env,"PC1 stream immutable PCM backing allocation");return NULL;}(*env)->GetByteArrayRegion(env,memory,0,length,(jbyte *)data);}
     else{fail(env,"PC1 stream file or immutable PCM owner required");return NULL;}
     AcquireSRWLockExclusive(&registryLock);s=&c->stream;
-    free(s->memory);s->memory=data;s->memoryBytes=(DWORD)length;s->source=source;SW(c,4)=(DWORD)channel;SW(c,2)=s->error=0;SW(c,0)=(DWORD)bytes;s->remaining=(DWORD)bytes;SW(c,1)=s->decodedCursor=0;s->unit=(DWORD)unit;s->lastCursor=s->lastCount=s->lastLock=s->lastUnlock=0;
-    result=fillStreamLocked(c,0,0,0);if(SW(c,2)!=2&&s->error==0&&automatic){c->mmTimer=setMmLocked(c,200,200,TIME_PERIODIC);c->mmStored=c->mmTimer;c->mmDue=GetTickCount64()+200;}
-    values[0]=result;values[1]=SW(c,2);values[2]=(jint)SW(c,1);values[3]=s->error;values[4]=(jint)c->mmStored;ReleaseSRWLockExclusive(&registryLock);return integers(env,values,5);
+    free(s->memory);s->memory=data;s->memoryBytes=(DWORD)length;s->source=source;SW(c,4)=(DWORD)channel;SW(c,2)=s->error=0;if(!c->streamBuffer&&!c->physicalBound)SW(c,0)=(DWORD)bytes;if(!source)(*s->remaining)=(DWORD)bytes;SW(c,1)=s->decodedCursor=0;s->unit=(DWORD)unit;s->lastCursor=s->lastCount=s->lastLock=s->lastUnlock=0;
+    result=fillStreamLocked(c,0,0,0);if(SW(c,2)!=2&&s->error==0&&automatic){c->mmTimer=setMmLocked(c,200,200,TIME_PERIODIC);(*c->mmStored)=c->mmTimer;c->mmDue=GetTickCount64()+200;}
+    values[0]=result;values[1]=SW(c,2);values[2]=(jint)SW(c,1);values[3]=s->error;values[4]=(jint)(*c->mmStored);ReleaseSRWLockExclusive(&registryLock);return integers(env,values,5);
 }
 JNIEXPORT jintArray JNICALL Java_org_circus_core_Pc1DirectSound_serviceStreamNative(JNIEnv *env,jclass owner,jlong handle,jboolean periodic,jboolean overrideCursor,jint cursor){
     Context *c=context(env,handle);jint values[4];(void)owner;if(!c)return NULL;AcquireSRWLockExclusive(&registryLock);values[0]=fillStreamLocked(c,periodic!=0,overrideCursor!=0,(DWORD)cursor);values[1]=SW(c,2);values[2]=(jint)SW(c,1);values[3]=c->stream.error;ReleaseSRWLockExclusive(&registryLock);return integers(env,values,4);
 }
 JNIEXPORT jlongArray JNICALL Java_org_circus_core_Pc1DirectSound_streamInfoNative(JNIEnv *env,jclass owner,jlong handle){
-    Context *c=context(env,handle);jlong values[16];jlongArray out;Stream *s;(void)owner;if(!c)return NULL;AcquireSRWLockExclusive(&registryLock);s=&c->stream;values[0]=((int)SW(c,4));values[1]=SW(c,2);values[2]=s->error;values[3]=SW(c,0);values[4]=s->remaining;values[5]=SW(c,1);values[6]=s->decodedCursor;values[7]=s->unit;values[8]=s->source?s->source->id:0;values[9]=s->memoryBytes;values[10]=s->lastCursor;values[11]=s->lastCount;values[12]=s->lastLock;values[13]=s->lastUnlock;values[14]=c->mmStored;values[15]=s->source?(jlong)s->source->position:0;ReleaseSRWLockExclusive(&registryLock);out=(*env)->NewLongArray(env,16);if(out)(*env)->SetLongArrayRegion(env,out,0,16,values);return out;
+    Context *c=context(env,handle);jlong values[16];jlongArray out;Stream *s;(void)owner;if(!c)return NULL;AcquireSRWLockExclusive(&registryLock);s=&c->stream;values[0]=((int)SW(c,4));values[1]=SW(c,2);values[2]=s->error;values[3]=SW(c,0);values[4]=(*s->remaining);values[5]=SW(c,1);values[6]=s->decodedCursor;values[7]=s->unit;values[8]=s->source?s->source->id:0;values[9]=s->memoryBytes;values[10]=s->lastCursor;values[11]=s->lastCount;values[12]=s->lastLock;values[13]=s->lastUnlock;values[14]=(*c->mmStored);values[15]=s->source?(jlong)s->source->position:0;ReleaseSRWLockExclusive(&registryLock);out=(*env)->NewLongArray(env,16);if(out)(*env)->SetLongArrayRegion(env,out,0,16,values);return out;
 }
 JNIEXPORT void JNICALL Java_org_circus_core_Pc1DirectSound_closeNative(JNIEnv *env,jclass owner,jlong handle){Context *c=context(env,handle);(void)owner;if(c)destroy(env,c);}
 
@@ -431,12 +485,12 @@ JNIEXPORT jbyteArray JNICALL Java_org_circus_core_Pc1DirectSound_captureNative(J
     Context *c=context(env,handle);Packet p={0};Stream *s;SourceFile *file;Event *e;DWORD n,count;ULONGLONG now;MSG message;jbyteArray out=NULL;(void)owner;if(!c)return NULL;
     while(!c->snapshotDepth&&c->ownsWindow&&PeekMessageW(&message,c->window,0,0,PM_REMOVE)){TranslateMessage(&message);DispatchMessageW(&message);}
     if(!c->snapshotDepth)AcquireSRWLockExclusive(&registryLock);if(c->retired){if(!c->snapshotDepth)ReleaseSRWLockExclusive(&registryLock);fail(env,"PC1 overwritten still-live COM graph needs retained-reference snapshot reconstruction");return NULL;}
-    {MmRegistration *mm=c->mmRegistrations;if(mm&&(mm->next||mm->timer!=c->mmTimer||c->mmStored!=c->mmTimer)||!mm&&(c->mmTimer||c->mmStored!=0xffffffffu&&c->mmStored!=0)){if(!c->snapshotDepth)ReleaseSRWLockExclusive(&registryLock);fail(env,"PC1 raw MM token differs from retained actual timer graph; required snapshot reconstruction");return NULL;}}
+    {MmRegistration *mm=c->mmRegistrations;if(mm&&(mm->next||mm->timer!=c->mmTimer||(*c->mmStored)!=c->mmTimer)||!mm&&(c->mmTimer||(*c->mmStored)!=0xffffffffu&&(*c->mmStored)!=0)){if(!c->snapshotDepth)ReleaseSRWLockExclusive(&registryLock);fail(env,"PC1 raw MM token differs from retained actual timer graph; required snapshot reconstruction");return NULL;}}
     if(c->staged||c->queueFailure){if(!c->snapshotDepth)ReleaseSRWLockExclusive(&registryLock);fail(env,"PC1 backend cannot capture staged or dropped service events");return NULL;}
-    now=GetTickCount64();put32(&p,0x36534450u);put32(&p,c->userTimer?1u:0u);put32(&p,c->userInterval);put32(&p,delayUntil(c->userDue,now));put32(&p,c->mmStored==0xffffffffu?0u:c->mmStored?1u:2u);put32(&p,delayUntil(c->mmDue,now));
-    s=&c->stream;put32(&p,(DWORD)((int)SW(c,4)));put32(&p,(DWORD)SW(c,2));put32(&p,(DWORD)s->error);put32(&p,(DWORD)s->mode);put32(&p,(DWORD)s->channels);
-    put32(&p,SW(c,0));put32(&p,s->remaining);put32(&p,SW(c,1));put32(&p,s->decodedCursor);put32(&p,s->unit);put32(&p,s->lastCursor);put32(&p,s->lastCount);put32(&p,s->lastLock);put32(&p,s->lastUnlock);put64(&p,s->source?(ULONGLONG)s->source->id:0);
-    putBytes(&p,s->scratch,sizeof(s->scratch));putBytes(&p,s->delta,sizeof(s->delta));put32(&p,SW(c,3));put32(&p,c->packetCount);put32(&p,c->callbackBusy);put32(&p,(DWORD)c->userTimer);putBytes(&p,c->dspGlobals,sizeof(c->dspGlobals));putBytes(&p,c->dspLz,sizeof(c->dspLz));put32(&p,c->dspInputPointer);put32(&p,c->dspStaticExtra);put32(&p,s->memoryBytes);putBytes(&p,s->memory,s->memoryBytes);
+    now=GetTickCount64();put32(&p,0x36534450u);put32(&p,c->userTimer?1u:0u);put32(&p,c->userInterval);put32(&p,delayUntil(c->userDue,now));put32(&p,(*c->mmStored)==0xffffffffu?0u:(*c->mmStored)?1u:2u);put32(&p,delayUntil(c->mmDue,now));
+    s=&c->stream;put32(&p,(DWORD)((int)SW(c,4)));put32(&p,(DWORD)SW(c,2));put32(&p,(DWORD)s->error);put32(&p,(DWORD)(*s->mode));put32(&p,(DWORD)(*s->channels));
+    put32(&p,SW(c,0));put32(&p,(*s->remaining));put32(&p,SW(c,1));put32(&p,s->decodedCursor);put32(&p,s->unit);put32(&p,s->lastCursor);put32(&p,s->lastCount);put32(&p,s->lastLock);put32(&p,s->lastUnlock);put64(&p,s->source?(ULONGLONG)s->source->id:0);
+    putBytes(&p,s->scratch,0x4000u);putBytes(&p,s->delta,24u);put32(&p,SW(c,3));put32(&p,(*c->packetCount));put32(&p,(*c->callbackBusy));put32(&p,(DWORD)c->userTimer);putBytes(&p,c->dspGlobals,0x38008u);putBytes(&p,c->dspLz,0x14030u);put32(&p,(*c->dspInputPointer));put32(&p,(*c->dspStaticExtra));put32(&p,s->memoryBytes);putBytes(&p,s->memory,s->memoryBytes);
     count=0;for(file=c->sources;file;file=file->next)count++;put32(&p,count);
     for(file=c->sources;file;file=file->next){size_t len=file->path?strlen(file->path):0;put64(&p,(ULONGLONG)file->id);put64(&p,file->size);put64(&p,file->position);put32(&p,file->requested);put32(&p,file->count);put32(&p,file->error);put32(&p,(DWORD)file->closeResult);put32(&p,file->closeError);put32(&p,file->file!=INVALID_HANDLE_VALUE);put32(&p,(DWORD)file->hasWord);put32(&p,file->rawWord);put32(&p,(DWORD)len);putBytes(&p,file->path,len);}
     for(n=0;n<CHANNELS;n++){
@@ -455,10 +509,10 @@ JNIEXPORT void JNICALL Java_org_circus_core_Pc1DirectSound_restoreNative(JNIEnv 
     Context *c=context(env,handle);Packet p={0};Stream *s;DWORD n,count,mm,sourceCount;ULONGLONG streamSource;const BYTE *value;size_t len;LARGE_INTEGER size,position;SourceFile **tail;HRESULT failureHr=NOT_CALLED;DWORD winError=0;const char *phase="packet";(void)owner;if(!c)return;
     if(!raw){fail(env,"PC1 backend snapshot packet missing");return;}p.size=(size_t)(*env)->GetArrayLength(env,raw);if(p.size>0x20000000u){fail(env,"PC1 backend snapshot packet bound");return;}p.data=(BYTE *)malloc(p.size?p.size:1);if(!p.data){fail(env,"PC1 backend snapshot packet allocation");return;}(*env)->GetByteArrayRegion(env,raw,0,(jsize)p.size,(jbyte *)p.data);
     if(get32(&p)!=0x36534450u||c->sources||c->staged){p.error=1;goto done;}for(n=0;n<CHANNELS;n++)if(c->buffers[n].object){p.error=1;goto done;}c->staged=1;
-    c->restoreUser=(int)get32(&p);c->restoreUserInterval=get32(&p);c->restoreUserDelay=get32(&p);mm=get32(&p);c->restoreMm=mm==1;c->restoreMmDelay=get32(&p);if(c->restoreUser<0||c->restoreUser>1||mm>2||c->restoreUserDelay>0x7fffffffu||c->restoreMmDelay>200){p.error=1;goto done;}c->mmStored=mm==2?0:0xffffffffu;
-    s=&c->stream;SW(c,4)=get32(&p);SW(c,2)=(int)get32(&p);s->error=(int)get32(&p);s->mode=(int)get32(&p);s->channels=(int)get32(&p);SW(c,0)=get32(&p);s->remaining=get32(&p);SW(c,1)=get32(&p);s->decodedCursor=get32(&p);s->unit=get32(&p);s->lastCursor=get32(&p);s->lastCount=get32(&p);s->lastLock=get32(&p);s->lastUnlock=get32(&p);streamSource=get64(&p);
+    c->restoreUser=(int)get32(&p);c->restoreUserInterval=get32(&p);c->restoreUserDelay=get32(&p);mm=get32(&p);c->restoreMm=mm==1;c->restoreMmDelay=get32(&p);if(c->restoreUser<0||c->restoreUser>1||mm>2||c->restoreUserDelay>0x7fffffffu||c->restoreMmDelay>200){p.error=1;goto done;}(*c->mmStored)=mm==2?0:0xffffffffu;
+    s=&c->stream;SW(c,4)=get32(&p);SW(c,2)=(int)get32(&p);s->error=(int)get32(&p);(*s->mode)=(int)get32(&p);(*s->channels)=(int)get32(&p);SW(c,0)=get32(&p);(*s->remaining)=get32(&p);SW(c,1)=get32(&p);s->decodedCursor=get32(&p);s->unit=get32(&p);s->lastCursor=get32(&p);s->lastCount=get32(&p);s->lastLock=get32(&p);s->lastUnlock=get32(&p);streamSource=get64(&p);
     if(s->error<0||s->error>3||s->unit>0x4000u){p.error=1;goto done;}
-    value=take(&p,sizeof(s->scratch));if(value)memcpy(s->scratch,value,sizeof(s->scratch));value=take(&p,sizeof(s->delta));if(value)memcpy(s->delta,value,sizeof(s->delta));SW(c,3)=get32(&p);c->packetCount=get32(&p);c->callbackBusy=get32(&p);c->restoreUserToken=get32(&p);value=take(&p,sizeof(c->dspGlobals));if(value)memcpy(c->dspGlobals,value,sizeof(c->dspGlobals));value=take(&p,sizeof(c->dspLz));if(value)memcpy(c->dspLz,value,sizeof(c->dspLz));c->dspInputPointer=get32(&p);c->dspStaticExtra=get32(&p);s->memoryBytes=get32(&p);value=take(&p,s->memoryBytes);if(p.error)goto done;if(s->memoryBytes){s->memory=(BYTE *)malloc(s->memoryBytes);if(!s->memory){p.error=1;goto done;}memcpy(s->memory,value,s->memoryBytes);}
+    value=take(&p,0x4000u);if(value)memcpy(s->scratch,value,0x4000u);value=take(&p,24u);if(value)memcpy(s->delta,value,24u);SW(c,3)=get32(&p);(*c->packetCount)=get32(&p);(*c->callbackBusy)=get32(&p);c->restoreUserToken=get32(&p);value=take(&p,0x38008u);if(value)memcpy(c->dspGlobals,value,0x38008u);value=take(&p,0x14030u);if(value)memcpy(c->dspLz,value,0x14030u);(*c->dspInputPointer)=get32(&p);(*c->dspStaticExtra)=get32(&p);s->memoryBytes=get32(&p);value=take(&p,s->memoryBytes);if(p.error)goto done;if(s->memoryBytes){s->memory=(BYTE *)malloc(s->memoryBytes);if(!s->memory){p.error=1;goto done;}memcpy(s->memory,value,s->memoryBytes);}
     sourceCount=get32(&p);if(sourceCount>100000u){p.error=1;goto done;}tail=&c->sources;
     for(n=0;n<sourceCount;n++){
         SourceFile *file=(SourceFile *)calloc(1,sizeof(SourceFile));DWORD opened;if(!file){p.error=1;goto done;}file->file=INVALID_HANDLE_VALUE;*tail=file;tail=&file->next;file->id=(jlong)get64(&p);file->size=get64(&p);file->position=get64(&p);file->requested=get32(&p);file->count=get32(&p);file->error=get32(&p);file->closeResult=(int)get32(&p);file->closeError=get32(&p);opened=get32(&p);file->hasWord=(int)get32(&p);file->rawWord=get32(&p);len=get32(&p);value=take(&p,len);
@@ -481,9 +535,9 @@ JNIEXPORT void JNICALL Java_org_circus_core_Pc1DirectSound_restoreNative(JNIEnv 
 }
 JNIEXPORT jintArray JNICALL Java_org_circus_core_Pc1DirectSound_adoptNative(JNIEnv *env,jclass owner,jlong handle){
     Context *c=context(env,handle);SourceFile *file;jint result[12];int n;(void)owner;if(!c)return NULL;if(!c->staged){fail(env,"PC1 backend has no staged output owner");return NULL;}
-    for(file=c->sources;file;file=file->next)if(file->hasWord&&file->file!=INVALID_HANDLE_VALUE&&!file->wordAdopted){fail(env,"PC1 staged FILE descriptor requires same-domain registry adoption before output/timers");return NULL;}if(c->stream.mode!=0&&c->stream.mode!=2&&(!c->dspPe||!c->dspExtraBuffer)){fail(env,"PC1 staged compressed stream requires canonical PE/extra before output/timers");return NULL;}
+    for(file=c->sources;file;file=file->next)if(file->hasWord&&file->file!=INVALID_HANDLE_VALUE&&!file->wordAdopted){fail(env,"PC1 staged FILE descriptor requires same-domain registry adoption before output/timers");return NULL;}if((*c->stream.mode)!=0&&(*c->stream.mode)!=2&&(!c->dspPe||(!c->dspExtraBuffer&&!c->physicalBound))){fail(env,"PC1 staged compressed stream requires canonical PE/extra before output/timers");return NULL;}
     memset(result,0,sizeof(result));for(n=0;n<CHANNELS;n++)if(c->restorePlay[n]){result[n]=(jint)IDirectSoundBuffer_Play(c->buffers[n].object,0,0,c->restoreFlags[n]);if(result[n]!=DS_OK){char message[160];sprintf_s(message,sizeof(message),"PC1 staged output Play failed channel=%d HRESULT=0x%08lx after actual partial activation",n,(unsigned long)(DWORD)result[n]);fail(env,message);return NULL;}}
-    if(c->restoreMm){c->mmFirst=1;AcquireSRWLockExclusive(&registryLock);c->mmTimer=setMmLocked(c,c->restoreMmDelay?c->restoreMmDelay:1,1,TIME_ONESHOT);c->mmStored=c->mmTimer;ReleaseSRWLockExclusive(&registryLock);c->mmDue=GetTickCount64()+c->restoreMmDelay;result[10]=(jint)c->mmTimer;if(!c->mmTimer){fail(env,"PC1 staged stream timer activation failed");return NULL;}}
+    if(c->restoreMm){c->mmFirst=1;AcquireSRWLockExclusive(&registryLock);c->mmTimer=setMmLocked(c,c->restoreMmDelay?c->restoreMmDelay:1,1,TIME_ONESHOT);(*c->mmStored)=c->mmTimer;ReleaseSRWLockExclusive(&registryLock);c->mmDue=GetTickCount64()+c->restoreMmDelay;result[10]=(jint)c->mmTimer;if(!c->mmTimer){fail(env,"PC1 staged stream timer activation failed");return NULL;}}
     if(c->restoreUser){c->userInterval=c->restoreUserInterval;c->userFirst=1;c->userTimer=SetTimer(c->window,c->restoreUserToken,c->restoreUserDelay?c->restoreUserDelay:1,NULL);c->userDue=GetTickCount64()+c->restoreUserDelay;result[11]=(jint)c->userTimer;if(!c->userTimer){fail(env,"PC1 staged timer2 activation failed");return NULL;}}
     c->staged=0;return integers(env,result,12);
 }

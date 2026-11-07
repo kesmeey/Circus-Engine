@@ -47,6 +47,7 @@ public final class Pc1UiServices implements Pc1Input.Services,Pc1UiRaster.InputS
     public Pc1History history(){return history;}
     public Pc1Modal modal(){return modal;}
     public Pc1Capture capture(){return capture;}
+    public void requireGraph(Pc1Runtime expected,Pc1GraphicsPipeline scene)throws IOException{if(runtime!=expected||graphics!=scene)throw new IOException("PC1 UI consumer requires its canonical runtime/graphics graph");}
     public void requireBoundary()throws IOException{input.requireBoundary();history.requireBoundary();modal.requireBoundary();capture.requireBoundary();}
     public void redraw(int mask,int l,int t,int r,int b)throws IOException{graphics.render().generalRedraw(mask,l,t,r,b);}
     public void storyControls()throws IOException{graphics.drawStoryControls();}

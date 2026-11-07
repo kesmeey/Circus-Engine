@@ -33,7 +33,7 @@ public final class Pc1GraphicsPipeline {
         public void specialListItem(int visible,int data,boolean selected)throws IOException{services.specialListItem(visible,data,selected);}
     };
     private final Pc1Effects.Services effectServices=new Pc1Effects.Services(){
-        public int loadImage(int raw,int mode)throws IOException{return render.resources().load(cstring(raw),mode,render.compositor());}
+        public int loadImage(int raw,int mode)throws IOException{return render.resources().loadSource(Pc1ByteSource.addressed(runtime.nativeMemory(),raw),mode,render.compositor());}
         public void freeImage(int handle)throws IOException{render.compositor().free(handle);}
         public void ensureTimer5()throws IOException{services.ensureTimer5();}
         public void redraw(int mask,int l,int t,int r,int b)throws IOException{render.generalRedraw(mask,l,t,r,b);}
@@ -64,7 +64,6 @@ public final class Pc1GraphicsPipeline {
         textControls=new Pc1TextControls(runtime.graphicsMemory(),mode->render.buttons(mode));
         render.compositor().bindInvalidation(services::invalidate);
     }
-    private byte[] cstring(int at)throws IOException{ByteArrayOutputStream out=new ByteArrayOutputStream();for(int n=0;n<1024*1024;n++){int b=runtime.nativeMemory().readAddress(at+n);if(b==0)return out.toByteArray();out.write(b);}throw new IOException("PC1 graphics C string leaves known bounded memory");}
     public Pc1RenderContext render(){return render;}
     public Pc1Runtime runtime(){return runtime;}
     public void requireBoundary()throws IOException{if(depth!=0)throw new IOException("PC1 graphics pipeline snapshot during native consumer");render.requireBoundary();}

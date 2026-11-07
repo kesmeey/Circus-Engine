@@ -118,17 +118,20 @@ public final class Pc1TextPresentation {
         }finally{painting=false;}
     }
     private static int yieldBatch(Owners o,Host h)throws IOException{o.frame.dword(Pc1NativeSlot.Dword.ARGUMENT0,o.frame.dword(Pc1NativeSlot.Dword.ARGUMENT0)+1);o.frame.dword(Pc1NativeSlot.Dword.HEAD_Y,state(h).y);h.invalidate();if(h.global(Global.DELAY)==0)h.global(Global.DELAY,1);return 1;}
+    /**Logical byte-array convenience; raw fetch uses Pc1TextProducer and its live Source.*/
     public static void produceSpeaker(Owners o,byte[] decoded,Pc1TextExpander.Context context)throws IOException{if(o==null)throw new IOException("PC1 speaker owner missing");o.buffers.writeExpanded(Pc1TextBuffers.LIVE_SPEAKER,Pc1TextExpander.expandSpeaker(decoded,context));}
     public static final class Body {
         private static final int FORMAT=0x50315442; //P1TB
         public enum Phase { TRANSITION,COMPLETE,INTERRUPTED,FAILED }
         private Phase phase;private boolean busy;
         private Body(Phase phase){this.phase=phase;}
+        /**Logical byte-array/cooperative convenience. Raw handlers use the
+         *live Pc1TextProducer call and exact direct-return flow.*/
         public static Body begin(Owners o,Host h,int previousOpcode,byte[] decoded,Pc1TextExpander.Context context)throws IOException{
             if(o==null||h==null)throw new IOException("PC1 body producer requires native owners/services");Body b=new Body(Phase.TRANSITION);b.busy=true;
             try{
-                if(previousOpcode!=0x4b)o.buffers.clearLiveSpeakerHead();o.buffers.writeExpanded(Pc1TextBuffers.LIVE_BODY,Pc1TextExpander.expand(decoded,context));h.global(Global.SELECTED_HISTORY,-1);layout(h).dictionaryCount(0);layout(h).resetRubyPhase();
-                if(h.global(Global.COMPOSITION_PENDING)!=0){h.releaseGraphic(1,0);h.releaseGraphic(2,0);h.bakePending();b.finish(o,h,h.beginTransition(h.global(Global.DRAW_TARGET),1));}
+                if(previousOpcode!=0x4b)o.buffers.clearLiveSpeakerHead();o.buffers.writeExpanded(Pc1TextBuffers.LIVE_BODY,Pc1TextExpander.expand(decoded,context));int pending=h.global(Global.COMPOSITION_PENDING);h.global(Global.SELECTED_HISTORY,-1);layout(h).dictionaryCount(0);layout(h).resetRubyPhase();
+                if(pending!=0){h.releaseGraphic(1,0);h.releaseGraphic(2,0);h.bakePending();b.finish(o,h,h.beginTransition(h.global(Global.DRAW_TARGET),1));}
                 else{o.frame.dword(Pc1NativeSlot.Dword.WAIT_KIND,0x4c);b.phase=Phase.COMPLETE;}return b;
             }catch(IOException|RuntimeException failure){b.phase=Phase.FAILED;throw failure;}finally{b.busy=false;}
         }
@@ -148,7 +151,10 @@ public final class Pc1TextPresentation {
             if(!h.skipRequested()){o.frame.dword(Pc1NativeSlot.Dword.WAIT_KIND,7);h.restoreControls(1);h.activateTextRegions();int mode=h.global(Global.TEXT_MODE),count=mode==2?strlen(o):mode==3?strlen(o)*2/3:0;o.frame.writeI32(AUTO_COUNT_OFFSET,count);}else h.stopVoices();
         }
     }
-    public static void produce09(Owners o,Host h)throws IOException{h.global(Global.UI_INPUT_MODE,0);o.frame.dword(Pc1NativeSlot.Dword.WAIT_KIND,9);h.global(Global.STORY_BUTTON_COUNT,h.global(Global.BUTTON_COUNT));h.redrawText(-1);}
+    /**Convenience entry samples the device before its first store. The raw
+     *dispatcher supplies its actual fetched ECX to the overload/producer.*/
+    public static void produce09(Owners o,Host h)throws IOException{produce09(o,h,h.global(Global.BUTTON_COUNT));}
+    public static void produce09(Owners o,Host h,int cachedDevice)throws IOException{h.global(Global.UI_INPUT_MODE,0);o.frame.dword(Pc1NativeSlot.Dword.WAIT_KIND,9);h.global(Global.STORY_BUTTON_COUNT,cachedDevice);h.redrawText(-1);}
     /** Native418B10 message07 consumer; auto count is invocation based, not
      *a millisecond timeout. A decrement to0 still returns1 for this call. */
     public static int wait07(Owners o,Host h)throws IOException{

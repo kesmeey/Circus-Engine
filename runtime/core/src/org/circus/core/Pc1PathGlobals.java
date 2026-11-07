@@ -20,6 +20,9 @@ public final class Pc1PathGlobals implements Pc1NativePaths.Memory {
     }
     public int read(int address)throws IOException{return memory.readAddress(address);}
     public void write(int address,int value)throws IOException{memory.writeAddress(address,value);}
+    public int readInt32(int address)throws IOException{return memory.readInt32(address);}
+    public void writeInt32(int address,int value)throws IOException{memory.writeInt32(address,value);}
+    public int classifySpace(int signedChar)throws IOException{return Pc1NativePaths.classifySpaceRaw(this,signedChar);}
     public void save(DataOutput out)throws IOException{out.writeInt(FORMAT);out.write(bytes);out.write(literals);}
     public static byte[] loadImage(DataInput in)throws IOException{if(in.readInt()!=FORMAT)throw new IOException("PC1 native path globals format");byte[] raw=new byte[BYTES+16];in.readFully(raw);return raw;}
     public void restore(byte[] image)throws IOException{if(image==null||image.length!=BYTES+literals.length)throw new IOException("PC1 native path globals size");System.arraycopy(image,0,bytes,0,BYTES);System.arraycopy(image,BYTES,literals,0,literals.length);}

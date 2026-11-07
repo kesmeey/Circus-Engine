@@ -123,7 +123,7 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
     private void playPpVoice(String source)throws IOException{PpVoice.Request request=PpVoice.request(source);if(!request.allowed(state))return;audio[5]=source;audioActive[5]=!request.resource.isEmpty();audioLoop[5]=false;audioGeneration[5]++;ppPlaybackGain=PpVoice.gain(0,state.read(99,9));}
     private void publishAudio(){for(int i=0;i<audio.length;i++)if(pendingAudio[i]!=null&&!(isPp()&&i==5&&ppPendingVoice)){audio[i]=pendingAudio[i];audioActive[i]=!audio[i].isEmpty()&&(i!=5||isPp()||voiceEnabled(audio[i]));pendingAudio[i]=null;audioGeneration[i]++;}
     }
-    public int read(int bank,int index)throws IOException{if(bank==99&&index==3){if(isPp())return ppDisplayCapable?1:0;if(state.profileId.equals("dc3wy-a09f"))return 1;}if(isPp()&&bank==99&&index==244)return musicId;if(isPp()&&bank==99&&index==249)return state.read(99,5)==0||!audioActive[5]?1:0;if(originalSystem&&bank==99){if(index==21)return availableSaves.contains(2)?1:0;if(index==4)return fullscreen?1:0;}return state.read(bank,index);}
+    public int read(int bank,int index)throws IOException{if(bank==99&&index==3){if(isPp())return ppDisplayCapable?1:0;if(state.profileId.equals("dc3wy-a09f"))return 1;}if(isPp()&&bank==99&&index==244)return musicId;if(isPp()&&bank==99&&index==249)return state.read(99,5)==0||!audioActive[5]?1:0;if(isPp()&&bank==99&&index==250)return state.read(99,14)==0||!audioActive[0]?1:0;if(originalSystem&&bank==99){if(index==21)return availableSaves.contains(2)?1:0;if(index==4)return fullscreen?1:0;}return state.read(bank,index);}
     public void write(int bank,int index,int value)throws IOException{
         state.write(bank,index,value);
         if(isDd()&&bank==93)ui.checkboxChanged(index,value);
@@ -317,6 +317,7 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
         case "scene.checkpoint":checkpointLabel=text(bytes);variables.appendHistory();return true;
         case "dd.audio.seek":require(a[0]==0,"audio seek channel "+a[0]);musicRoom.seek=Math.max(0,Math.min(100,state.read(99,187)+1));musicRoom.seekGeneration++;return true;
         case "system.command":
+            if(originalSystem&&isPp()&&a[0]==206){PpSystem206.execute(new PpSystem206.Access(){public int read(int bank,int index)throws IOException{return variables.read(bank,index);}public void write(int bank,int index,int value)throws IOException{variables.write(bank,index,value);}});return true;}
             // PP 412DD5: submode 0 selects native draw mode 4 and returns;
             // no VM/persistent state changes. Canvas owns its draw pipeline.
             if(originalSystem&&a[0]==12&&a[1]==0&&resources!=null&&resources.profile.id.equals("dc3pp-9872"))return true;

@@ -256,7 +256,7 @@ public final class CoreTests {
         assertions+=Dc2SystemTests.run();
         assertions+=NativeVariableTests.run();
         assertions+=NativeGameVersionTests.run();
-        assertions+=PpStateTests.run();
+        assertions+=PpStateTests.run()+PpSystem206Tests.run();
         assertions+=NativeCursorTests.run();
         assertions+=SnapshotContractTests.run();
         assertions+=PpVoiceTests.run();
@@ -284,6 +284,11 @@ public final class CoreTests {
         assertions+=Pc1FetchTests.run()+Pc1VoiceDispatchTests.run()+Pc1WaitEffectsTests.run()+Pc1VariablesTests.run();
         assertions+=Pc1StagedRenderTests.run()+Pc1SettingsRamTests.run()+Pc1NativeWordTests.run();
         assertions+=Pc1SettingsIoTests.run()+Pc1SettingsIoIntegrationTests.run();
+        assertions+=Pc1RawDispatchTests.run()+Pc1WaitServicesTests.run()+Pc1RawRuntimeTests.run()+Pc1RawUiHandlersTests.run();
+        assertions+=Pc1UiOrderTests.run();
+        assertions+=Pc1MmPhysicalMemoryTests.run();
+        assertions+=Pc1TypedScriptSourceTests.run()+Pc1TypedVoiceTests.run();
+        assertions+=Pc1RawScriptHandlersTests.run()+Pc1RawTextHandlersTests.run()+Pc1RawGraphicsHandlersTests.run()+Pc1RawActorHandlersTests.run()+Pc1RawAudioHandlersTests.run();
         assertions+=Pc1RuntimeTests.run();
         assertions+=Pc1TextLogTests.run();
         assertions+=Pc1NativeFrameTests.run();
@@ -354,7 +359,7 @@ public final class CoreTests {
         assertions+=Pc1MessageGeometryTests.run();
         assertions+=Pc1TextBuffersTests.run();
         assertions+=Pc1TextLayoutTests.run();
-        assertions+=Pc1TextPresentationTests.run();
+        assertions+=Pc1TextPresentationTests.run()+Pc1TextProducerLiveTests.run()+Pc1GraphicsTypedTests.run();
         assertions+=Pc1ConditionalTests.run();
         assertions+=Pc1HistoryTests.run();
         assertions+=Pc1DrawTextTests.run();

@@ -113,6 +113,7 @@ public final class NativeStartupAudit {
         if(engine.modern!=null){
             Dc3Host host=engine.modern;modernFrame(host.scene.published);modernPanel(host.ui.current);modernPanel(host.ui.underlay);
             if(host.scene.fade.active()&&!host.scene.fade.mask.isEmpty())image(host.scene.fade.mask);
+            for(String ref:host.ppScrollCredits.resources())image(ref);
         }else{
             Dc2Host host=engine.legacy.host;legacyFrame(host.scene.shown);particles(host.scene.nativeParticles,true);motion(host.scene.nativeMotion);
             if(host instanceof PcHost&&((PcHost)host).frozenOriginalBatch()!=null)capture(((PcHost)host).frozenOriginalBatch());

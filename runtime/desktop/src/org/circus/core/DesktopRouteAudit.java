@@ -7,7 +7,7 @@ import java.util.*;
 
 /** Runs original title-to-ending control flow. Media completion is explicitly simulated. */
 public final class DesktopRouteAudit {
-    private static Path outputOutsideGame(Path game,String requested)throws IOException{
+    static Path outputOutsideGame(Path game,String requested)throws IOException{
         Path destination=Paths.get(requested).toAbsolutePath().normalize(),existing=destination;
         while(!Files.exists(existing))existing=existing.getParent();
         destination=existing.toRealPath().resolve(existing.relativize(destination)).normalize();

@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--jdk', type=Path, required=True)
     parser.add_argument('--ffmpeg', type=Path, required=True)
-    parser.add_argument('--version', default='0.14.4-common-workflows-dev')
+    parser.add_argument('--version', default='0.14.5-common-workflows-dev')
     args = parser.parse_args()
     if any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_' for c in args.version):
         raise SystemExit('Invalid version')

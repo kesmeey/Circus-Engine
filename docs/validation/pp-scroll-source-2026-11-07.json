@@ -1,0 +1,131 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-07",
+  "feature": "PP system.command[210,0] plain PCK credits roll",
+  "target": {
+    "profile": "dc3pp-9872",
+    "file": "DC3PP_CN_ruby.exe",
+    "sha256": "19d9091a95613d757b7807af1ce839b65cbfd222e9a53422fd1010ba8ca210ab",
+    "original_executable_launched": false,
+    "original_game_directory_modified": false
+  },
+  "scope": {
+    "implemented": "Portable integer tick/rate controller, successive current/next page cache, cropped 1024x600 page composition, native deferred EOF completion, explicit skip hook, full owner save/load and reset migration.",
+    "script_trigger": {
+      "script": "MED",
+      "code_offset_hex": "0x3b",
+      "opcode": 28,
+      "arguments": [
+        210,
+        0
+      ],
+      "archive_slot": 20,
+      "archive": "ED\\GED.PCK",
+      "preceding_music": [
+        89,
+        2
+      ]
+    },
+    "native_functions": {
+      "dispatch": "0x413276",
+      "initialize": "0x40EF70",
+      "update_and_skip": "0x40F050",
+      "shared_finish": "0x40F030",
+      "archive_index_validation": "0x404DF0",
+      "archive_open": "0x4061E0",
+      "load_slot20_store": "0x42E597",
+      "quad_submission": "0x402880",
+      "music_fade": "0x431B10",
+      "music_timer": "0x4193D0",
+      "persistent_setter": "0x4216B0"
+    },
+    "native_live_archive": "0x48BF18 = slot base0x48BEC8 +20*4; MES image.load yields to a loader before the next instruction. The Java host must prefer pending slot20 or publish it before reading the current slot.",
+    "actual_archive": {
+      "page_count": 19,
+      "page_geometry": [
+        1024,
+        600
+      ],
+      "page_origin": [
+        0,
+        0
+      ],
+      "bits_per_pixel": 24,
+      "sha256": "4d009a550b8dfdaf8550d261b9262535aa33d3051b6b21ac2440c52e833b6b77"
+    },
+    "speed": "signed trunc(int32(page_count*600000)/274000), actual19-page speed41",
+    "position": "uint32(uint32(tick-start_tick)*uint32(speed))/1000; requested page=position/600, row=position%600",
+    "cache": "A changed requested page rotates prior next to current once and fetches only the requested page. A large time jump does not synthesize every skipped page.",
+    "draw": "Current destination0,0, width1024, height600-row from source0,row. Next destination0,600-row, width1024, native height600 from source0,0. The576-high viewport clips; there is no row24 crop or600-to576 vertical scaling.",
+    "completion": "EOF discovery zeroes row and draws the retained current page. The following update writes persistent100:29=1 and clears the wait. Natural completion does not request BGM stop.",
+    "skip": "Write requested BGM=-1, call431B10(0) to begin/retain fade, ensure10ms timer when fading, then write100:29=1 and clear the wait. This is not selector255 immediate music release."
+  },
+  "method": {
+    "existing_rea_evidence_files": [
+      "rea-pp-cn-core-batch.json",
+      "rea-pp-cn-channels1.json",
+      "rea-pp-cn-channels4.json"
+    ],
+    "fresh_static_inspection": "pefile + Capstone read-only byte inspection; no claim of a new REA Evidence record",
+    "oracle": "original PE instruction bytes decoded into independent Python x86 interpreter; Win32/render/archive/decode/audio leaves controlled, not original process execution",
+    "private_evidence_directory": "build/native-rewrite/pp-scroll-credits-stage54",
+    "public_artifact_contains_original_bytes": false
+  },
+  "validation": {
+    "native_oracle_programs": 9,
+    "interpreted_instruction_steps": 36515,
+    "native_cases": [
+      "initial19",
+      "wrap",
+      "overflow_product",
+      "max_tick",
+      "wrapped_speed",
+      "one",
+      "jump",
+      "sequential",
+      "skip"
+    ],
+    "native_comparisons": [
+      "count-based signed wrapped speed",
+      "DWORD tick wrap and low32 product overflow",
+      "current/next page rotation including skipped pages",
+      "source rectangle row including EOF row0",
+      "deferred completion and skip setter journal"
+    ],
+    "core_test_class": "org.circus.core.PpScrollCreditsTests",
+    "core_scoped_assertions": 283,
+    "resource_test_class": "org.circus.core.PpScrollCreditsAudit",
+    "resource_scoped_assertions": 101,
+    "actual_pages_decoded": 19,
+    "actual_pixels_decoded": 11673600,
+    "preview": "Two-rectangle portable crop previews inspected at21952ms and146342ms. This is not a screenshot comparison with a running original game.",
+    "snapshot_checks": [
+      "full numeric owner roundtrip across native fixtures",
+      "invalid saved speed rejected without publishing partial state",
+      "reset removes active/inactive prior roll state for old host migration"
+    ],
+    "counts_are_local_scope": true
+  },
+  "host_integration_source_review": {
+    "file": "runtime/core/src/org/circus/core/Dc3Host.java",
+    "review_scope": "Read-only source review of210 binding, waiting/update/skip, and PP host codec42/43 appended owner. Integration/physical execution is not included in the283/101 local counts.",
+    "findings": "No blocking integration defect found in the reviewed source.",
+    "checked": [
+      "Pending20 is selected before publish, then actual archive admitted and a fresh wait ticket issued.",
+      "Natural COMPLETE invokes100:29 without requesting a music fade. ADVANCE skip starts PpMusic.stopFading before closing the owner and writing100:29.",
+      "PP original-system42 and ordinary43 write the owner after the existing PpMusic tail. Loader42/43 reads in that same order; old PP formats reset the owner; non-PP profiles do not admit the PP42/43 tail."
+    ]
+  },
+  "boundaries": [
+    "Independent controller projections and portable previews do not establish physical native GPU/blitter or original-process equivalence.",
+    "Native raw handle aliases, current/next retained across arbitrary non-MED callers, allocator/decode failures and partial COM state are outside this owner. MED starts on BG/BLACK; this owner begins with the current front page external/empty and next empty.",
+    "The renderer, live tick scheduling, host persistent100:29 completion setter and BGM fade remain host/platform integrations. No unsupported script is auto-continued or silently marked complete.",
+    "This newly admitted service is PP only. WY/DD credit algorithms have separate implementations and are not inferred from PP210."
+  ],
+  "source_sha256": {
+    "runtime/core/src/org/circus/core/PpScrollCredits.java": "a2483d661d47634525196f37f6a2a80f5dbbcb1fb56ed5a97a46efc7548ff49d",
+    "runtime/tests/org/circus/core/PpScrollCreditsTests.java": "cb7d2852a92b31ca3b0df9e970e68434282d7defb71d7195d65714fbeb466964",
+    "runtime/desktop/src/org/circus/core/PpScrollCreditsAudit.java": "97f26c7582a6d20655d7365662b71162f33a092aae21c1bcf6548f239e4669bd"
+  },
+  "audit_output_guard": "Final audit source shares DesktopRouteAudit real-path output guard; rerun against the unchanged frozen player passed the same checks."
+}

@@ -1,0 +1,129 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-07",
+  "feature": "PP scene.effect kind 4",
+  "target": {
+    "profile": "dc3pp-9872",
+    "file": "DC3PP_CN_ruby.exe",
+    "sha256": "19d9091a95613d757b7807af1ce839b65cbfd222e9a53422fd1010ba8ca210ab",
+    "original_executable_launched": false,
+    "original_game_directory_modified": false
+  },
+  "scope": {
+    "implemented": "Native integer initialization, alternate-frame movement, respawn, four-word RNG recurrence, six-row sprite frame progression, two draw-object submissions, zero-strength release, performance initialization gate, full saved records and clock phase.",
+    "script_trigger": {
+      "script": "DC3PP_4_1224_F1_RCC",
+      "code_offset_hex": "0x1617",
+      "opcode": 27,
+      "arguments": [
+        4,
+        66
+      ],
+      "atlas_slot": 16,
+      "atlas": "SYSTEM\\SACRA02"
+    },
+    "native_functions": {
+      "dispatcher": "0x40B830",
+      "initialize": "0x40A7C0",
+      "random": "0x407BD0",
+      "integer_cosine": "0x407CA0",
+      "wind": "0x407D00",
+      "update": "0x40BA40",
+      "draw": "0x407D40",
+      "render_frame": "0x40C510",
+      "quad_submission": "0x402920",
+      "release": "0x407E60"
+    },
+    "record_count": 50,
+    "dwords_per_record": 26,
+    "source_crop": [
+      32,
+      24
+    ],
+    "row_stride": 28,
+    "frame_counts": [
+      7,
+      7,
+      6,
+      8,
+      5,
+      8
+    ],
+    "native_draw_objects": [
+      1,
+      7
+    ],
+    "counts_by_low_nibble_0_to_4": [
+      0,
+      5,
+      10,
+      15,
+      30
+    ],
+    "higher_low_nibble_count": 50,
+    "wind_by_high_nibble_0_to_4": [
+      0,
+      4,
+      -4,
+      12,
+      -12
+    ]
+  },
+  "method": {
+    "rea_provider": "Ghidra 12.1.4",
+    "rea_evidence_ids": [
+      "ev_34f7f428a707c117893b8441ca506418ffd825d671bdb8d2155d1c035728c59e",
+      "ev_4be7534f188e4ea0a305bbc6f4dc539a71d5413c31489e96cf51d57e05f16befc",
+      "ev_401922caf1a7405579cfff898da15392f4a32b4bdd0a434445cfa3c76457cec3d",
+      "ev_97c94e4cd46efed157f8557659f942566427345cd86c96d0e6e705fb669fb2f7d"
+    ],
+    "oracle": "Bounded interpretation of isolated original x86 functions over private byte arrays. Original RNG, cosine table and wind helper interpreted; renderer submission/clip and release are controlled leaves. No original process or Win32 call is started.",
+    "private_evidence_directory": "build/native-rewrite/pp-effect4-stage53",
+    "rea_binary_closed": true
+  },
+  "validation": {
+    "native_oracle_states": 49,
+    "interpreted_instruction_steps": 2215260,
+    "native_comparisons": [
+      "all 50x26 record bytes via SHA-256",
+      "all four RNG words",
+      "alternate-call toggle",
+      "wind kind and signed speed",
+      "all nine 402920 arguments per active particle"
+    ],
+    "core_test_class": "org.circus.core.PpParticleTests",
+    "core_scoped_assertions": 305,
+    "physical_test_class": "org.circus.core.PpParticlesAudit",
+    "physical_scoped_assertions": 18,
+    "physical_atlas_size": [
+      256,
+      164
+    ],
+    "physical_visible_particles": 10,
+    "physical_nonblack_pixels": 1083,
+    "physical_frame_sha256_at_2000ms": "2002fe6eb1c07b850356edb1e0a1cdff9b53cb48e76bafc381d2ce9d6d7832b0",
+    "physical_frame_sha256_at_2617ms": "e874c2579412e3f4a9dc21f28f40fc4a8e397e9605508c8e0aeeb7c0c7e38e7f",
+    "snapshot_checks": [
+      "current actual atlas frame after full VM restore",
+      "future frame after restored 617 individual 1ms elapses",
+      "PP4 magic/version rejection",
+      "DD existing codec path and switch back to DD owner",
+      "bounded catch-up at Long.MAX_VALUE elapsed"
+    ],
+    "counts_are_local_scope": true
+  },
+  "boundaries": [
+    "The portable owner supplies 60 Hz render frames and preserves the native alternate-call toggle. The original main-loop frequency has not been established; real-time timing is a compatibility approximation.",
+    "The four-word RNG recurrence and saved words match the isolated native functions for supplied initial words. Its state belongs to this effect and does not consume the same process-wide stream as native audio, UI and other effects; native startup seeding is not claimed.",
+    "Native draw objects 1 and 7 are placed in the current scene compositor outer petal groups 0 and 4. Source crops and native quad arguments are verified; exact native sorting with every scene-object priority and GPU blend implementation is not claimed.",
+    "Physical validation decodes original read-only SACRA02 and renders through the portable desktop engine. It never starts the original game executable and is not a screenshot comparison against a running original game.",
+    "A catch-up call is capped at 3600 portable render frames. The host freezes engine time during suspension; this cap bounds malformed elapsed callers."
+  ],
+  "source_sha256": {
+    "runtime/core/src/org/circus/core/Dc3PpParticles.java": "b0d393774dd5cbfbfb0158922c05e9f8a2667595da0ee58c43a1678a45410300",
+    "runtime/core/src/org/circus/core/Dc3Petals.java": "2b03023753690996184e002491d2f2f14919c5dec8c4c410b7ea6c8aa7e5f737",
+    "runtime/tests/org/circus/core/PpParticleTests.java": "c4fc7b146515ec6cf03deeaa97fe3a70710f1622d1982df4697ea3161d8d016c",
+    "runtime/desktop/src/org/circus/core/PpParticlesAudit.java": "798731c8e7923a48f6a89e5b84ea9beed8dde90f0e7eccedf2d05062e99d0f97"
+  },
+  "audit_output_guard": "Final audit source shares DesktopRouteAudit real-path output guard; rerun against the unchanged frozen player passed the same checks."
+}

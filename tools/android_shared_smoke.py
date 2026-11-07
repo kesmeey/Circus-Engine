@@ -33,7 +33,7 @@ def main():
     if not a.no_core:
         log = run('shell', 'am', 'instrument', '-w', 'org.circus.runtime/.CoreInstrumentation').decode('utf-8')
         (a.out/'art-core.txt').write_text(log, encoding='utf-8')
-        results['core'] = bool(re.search(r'PASS \d+ assertions', log)) and '7 pixel contracts PASS' in log and 'FAIL' not in log
+        results['core'] = bool(re.search(r'PASS \d+ assertions', log)) and '8 pixel contracts PASS' in log and 'FAIL' not in log
         print('CORE', results['core'], flush=True)
     for game in a.games:
         tree, profile = GAMES[game]

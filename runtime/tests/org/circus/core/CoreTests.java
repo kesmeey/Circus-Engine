@@ -261,7 +261,7 @@ public final class CoreTests {
         assertions+=SnapshotContractTests.run();
         assertions+=PpVoiceTests.run();
         assertions+=PpMusicTests.run();
-        assertions+=PpMusicHostTests.run()+WyCreditsTests.run();
+        assertions+=PpMusicHostTests.run()+WyCreditsTests.run()+PpParticleTests.run()+PpScrollCreditsTests.run()+PpPresentationHostTests.run();
         assertions+=NativeCapabilityTests.run();
         assertions+=Dc2ResetTests.run();
         assertions+=Dc2MotionTests.run();

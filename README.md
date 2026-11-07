@@ -7,7 +7,7 @@
 仓库：[kesmeey/Circus-Engine](https://github.com/kesmeey/Circus-Engine)。
 项目目录与命令行工具仍沿用 `circus-runtime`／`dc_runtime` 命名。
 
-本批 Windows 开发包为 **0.14.4-common-workflows-dev**，使用 rev8 执行契约，优先主要功能和常见流程；见[各游戏实际检查范围](docs/COMMON_WORKFLOWS.md)、[重写状态与缺口](docs/NATIVE_REWRITE_STATUS.md)及下方存档边界。
+本批 Windows 开发包为 **0.14.5-common-workflows-dev**，使用 rev8 执行契约，优先主要功能和常见流程；见[各游戏实际检查范围](docs/COMMON_WORKFLOWS.md)、[重写状态与缺口](docs/NATIVE_REWRITE_STATUS.md)及下方存档边界。
 
 当前目标已调整为约80%的主要功能与大多数常见游戏流程，允许延期少量难处理的版本和边缘行为；这是工程范围，尚不是完成率声明。见[当前交付目标](docs/ENGINE_SCOPE.md)。
 
@@ -32,7 +32,7 @@
 | D.C.II Dearest Marriage | `dc2dm-9d72` | 启动／正文／存读档／回看与语音重播／CG·场景·音乐鉴赏／到片尾 |
 | D.C.III DreamDays | `dc3dd-a5a8` | 七条剧情路线到片尾 |
 | D.C.III With You | `dc3wy-a09f` | 代表策略2,737句后经该版本片尾回标题；其他选择组合未穷举 |
-| D.C.III P.P. | `dc3pp-9872` | 已越过5,900句阻点，代表策略到第4章/MED；部分演出和system210仍会停止 |
+| D.C.III P.P. | `dc3pp-9872` | 首/末选项策略15,006/13,362句后经MED片尾回标题；粒子时钟及部分绘制采用兼容近似 |
 | D.C.III R（Unity 5.5 版） | `dc3r-unity-550` | 标题／章节选择／正文／系统菜单；全路线尚未验证 |
 
 「到片尾」指在本机完整跑通并返回标题；不等于原版所有演出时序和设置副作用都已复刻。
@@ -66,10 +66,10 @@ SAF 只申请读取权限；存档和解码缓存写应用私有目录。
 ### Windows
 
 ```powershell
-python tools/package_desktop.py --jdk <JDK21> --ffmpeg <ffmpeg.exe> --version 0.14.4-common-workflows-dev
+python tools/package_desktop.py --jdk <JDK21> --ffmpeg <ffmpeg.exe> --version 0.14.5-common-workflows-dev
 ```
 
-产物 `build/distribution/dc-runtime-0.14.4-common-workflows-dev-windows-x64/`，双击 `DC Runtime.cmd`，
+产物 `build/distribution/dc-runtime-0.14.5-common-workflows-dev-windows-x64/`，双击 `DC Runtime.cmd`，
 再选游戏目录。包内自带 JRE 和 FFmpeg，不需要另装 Java；存档写在包目录的 `saves/`。
 
 用当前源码构建的播放器可在同一目录有多个补丁EXE时，明确选择用于读取静态数据表的文件：

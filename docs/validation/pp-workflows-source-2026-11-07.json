@@ -1,0 +1,198 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-07",
+  "feature": "P.P. independent effect4 and system210 integrated into the common player",
+  "base_commit": "86195cc",
+  "scope": "Source milestone and internal Android validation; Windows bundle is recorded separately. Original game files read-only, original executable not launched. Counts are scoped and not summed as a fidelity metric.",
+  "jvm": {
+    "heap_mib": 192,
+    "core_assertions": 1109277,
+    "seven_profile_startups": {
+      "startup-dc2-3363": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 2521,
+        "error": ""
+      },
+      "startup-dc2dm-9d72": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 861,
+        "error": ""
+      },
+      "startup-dc2pc-5769": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 665,
+        "error": ""
+      },
+      "startup-dc3dd-a5a8": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 1468,
+        "error": ""
+      },
+      "startup-dc3pp-9872": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 893,
+        "error": ""
+      },
+      "startup-dc3wy-a09f": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 1439,
+        "error": ""
+      },
+      "startup-dcpc-2063": {
+        "exit_code": 0,
+        "status": "passed",
+        "lines": 20,
+        "steps": 560,
+        "error": ""
+      }
+    },
+    "frozen_manifest": "build/native-rewrite/producer-integration-20261107T124253843060Z/manifest.json",
+    "frozen_manifest_sha256": "473856e77a63a53c6111f651053446ee3a1e9cde7f1c2da37281b77ab187f80e",
+    "source_deltas": [],
+    "excluded_unfinished_java": [],
+    "frozen_input_count": 553
+  },
+  "pp_routes": {
+    "first": {
+      "profile": "dc3pp-9872",
+      "policy": "first",
+      "dialogues": 15006,
+      "choices": [
+        "DC3PP_1_0518_F1_FRE@259=@choice:0",
+        "DC3PP_1_0519_B1_PRO@44e6=@choice:0",
+        "DC3PP_1_0519_E1_PRO@272b=@choice:0",
+        "DC3PP_2_0628_F1_PRO@3e31=@choice:0",
+        "DC3PP_2_0629_B1_PRO@59ea=@choice:0",
+        "DC3PP_2_0723_F20_PRO@9b84=@choice:0",
+        "DC3PP_2_0723_F30_PRO@6a3d=@choice:0",
+        "DC3PP_2_0723_F30_PRO@8d21=@choice:0",
+        "DC3PP_2_0724_D2_PRO@402b=@choice:0",
+        "DC3PP_2_0724_E1_PRO@2330=@choice:0",
+        "DC3PP_3_1102_F10_CMN@561=@choice:0",
+        "DC3PP_3_1103_E1_CMN@5374=@choice:0",
+        "DC3PP_4_1312_B10_RCC@77ca=@choice:0"
+      ],
+      "media_completion_simulated": true,
+      "original_exe_run": false,
+      "static_executable_selection": "DC3PP_CN_ruby.exe",
+      "returned_to_title": true,
+      "script_count": 109
+    },
+    "last": {
+      "profile": "dc3pp-9872",
+      "policy": "last",
+      "dialogues": 13362,
+      "choices": [
+        "DC3PP_1_0518_F1_FRE@259=@choice:4",
+        "DC3PP_1_0519_B1_PRO@44e6=@choice:1",
+        "DC3PP_1_0519_E1_PRO@272b=@choice:2",
+        "DC3PP_2_0628_F1_PRO@3e31=@choice:1",
+        "DC3PP_2_0629_B1_PRO@59ea=@choice:2",
+        "DC3PP_2_0723_F20_PRO@9b84=@choice:2",
+        "DC3PP_2_0723_F30_PRO@6a3d=@choice:1",
+        "DC3PP_2_0723_F30_PRO@8d21=@choice:4",
+        "DC3PP_2_0724_D2_PRO@402b=@choice:4",
+        "DC3PP_2_0724_E1_PRO@2330=@choice:4",
+        "DC3PP_3_1102_F10_CMN@561=@choice:2",
+        "DC3PP_3_1103_E1_CMN@5374=@choice:2"
+      ],
+      "media_completion_simulated": true,
+      "original_exe_run": false,
+      "static_executable_selection": "DC3PP_CN_ruby.exe",
+      "returned_to_title": true,
+      "script_count": 106
+    }
+  },
+  "focused": {
+    "particle_core": 305,
+    "particle_actual_atlas_render": 18,
+    "scroll_controller": 283,
+    "scroll_actual_archive": 101,
+    "host_vm_and_migration": 20,
+    "scroll_desktop_renderer": {
+      "checks": 71,
+      "frames": 10,
+      "independently_compared_pixels": 5898240,
+      "snapshot_and_future_pixels_equal": true,
+      "method": "Manual decoded BGR24 source-row copies against actual DesktopDd output. Final public audit compiled separately over the first frozen producer classes; final all-source JVM freeze also passes."
+    },
+    "non_original_pp43": "Actual GED archive partial-roll CVS2 roundtrip plus ADVANCE skip/resume passed in a separately compiled build-only probe.",
+    "audit_output_guard": "All three PP audits refuse output within the original game before creating directories; real-path ancestor resolution is shared with DesktopRouteAudit."
+  },
+  "android": {
+    "passed": true,
+    "core_assertions": 1109277,
+    "canvas_contract_groups": 8,
+    "transition_mask_pixel_comparisons": 484,
+    "apk_sha256": "de57f7805a0fa050c5f9727101bf23e4bb23942413d2f46060503ab7c1b6b282",
+    "art_log_sha256": "5da568945bde884e136bf6c6df6718164c478e6d3eb7de10182f544b1e231e16",
+    "install_mode": "adb install -r; existing app data retained",
+    "internal_apk_only": true,
+    "same_core_as_jvm_frozen": true,
+    "additional": "character mapping, unsupported tunnel rejection, CAS1/CAS2 save rollback and library rollback passed",
+    "core_tests_resources_identical_to_final_jvm_freeze": true,
+    "frozen_source_directory": "build/native-rewrite/android-source-20261107T123452229371Z"
+  },
+  "known_limits": [
+    "Particle frame clock is portable60Hz, with3600-frame catch-up cap; original main-loop frequency has not been established.",
+    "Particle RNG belongs to this effect and is not the process-wide original RNG; dual original draw objects map to the outer two scene passes.",
+    "Scroll implementation covers the actual MED/GED PCK flow; original COM/handle failure prefixes and other callers initial handle aliases are outside scope.",
+    "Controlled long-route time/media/input demonstrates route execution, not original real-time audiovisual equivalence.",
+    "PC1 original story-slot bridge and DC2 map system20 remain separate known gaps."
+  ],
+  "source_sha256": {
+    "runtime/core/src/org/circus/core/Dc3Host.java": "0df706e44f444af326c7e0c473c2bd22dc5e8579af40bcc05ee7f4244bfacaa7",
+    "runtime/core/src/org/circus/core/Dc3Petals.java": "2b03023753690996184e002491d2f2f14919c5dec8c4c410b7ea6c8aa7e5f737",
+    "runtime/core/src/org/circus/core/Dc3PpParticles.java": "b0d393774dd5cbfbfb0158922c05e9f8a2667595da0ee58c43a1678a45410300",
+    "runtime/core/src/org/circus/core/PpScrollCredits.java": "a2483d661d47634525196f37f6a2a80f5dbbcb1fb56ed5a97a46efc7548ff49d",
+    "runtime/desktop/src/org/circus/core/DesktopDd.java": "8edcc27e6c67caa0b363f4cc69017b66d15f5af198ffa1502a8f50f41672b121",
+    "runtime/tests/org/circus/core/CoreTests.java": "a0a5cc6a38e374a82aaa72979bf11698d19486dad5ea87a32408ff433a9ad481",
+    "runtime/tests/org/circus/core/NativeStartupAudit.java": "6c6b166caa89542527fee8b61e0b417e5dc56f2a62a3d36c28e49dd8e92564d0",
+    "runtime/tests/org/circus/core/PpParticleTests.java": "c4fc7b146515ec6cf03deeaa97fe3a70710f1622d1982df4697ea3161d8d016c",
+    "runtime/tests/org/circus/core/PpScrollCreditsTests.java": "cb7d2852a92b31ca3b0df9e970e68434282d7defb71d7195d65714fbeb466964",
+    "runtime/tests/org/circus/core/PpPresentationHostTests.java": "11fbe8912f54464442c9c12d38932d90d519653048d4e2ac6449cb730a18c5cc",
+    "runtime/desktop/src/org/circus/core/PpParticlesAudit.java": "798731c8e7923a48f6a89e5b84ea9beed8dde90f0e7eccedf2d05062e99d0f97",
+    "runtime/desktop/src/org/circus/core/PpScrollCreditsAudit.java": "97f26c7582a6d20655d7365662b71162f33a092aae21c1bcf6548f239e4669bd",
+    "runtime/android/src/org/circus/runtime/GraphicsTest.java": "39ed673ba3baf2fb8c25573351603bc5ee86c24f142dca766956eb2bd2da6e1c",
+    "runtime/desktop/src/org/circus/core/PpScrollRendererAudit.java": "6bad0d61903c63ed86a86590015d9a084389a6d27955b16f9bf4d77fb94dd036",
+    "runtime/desktop/src/org/circus/core/DesktopRouteAudit.java": "87d99d6f2bb40426ae571d311cc0344cc5ffc6b775aa58c076af82973485a4ef"
+  },
+  "git_lf_source_sha256": {
+    "runtime/core/src/org/circus/core/Dc3Host.java": "11b968d777e76a5a1a6b1eddef19537ca8318e4c2090eebe1c505878a2fada41",
+    "runtime/core/src/org/circus/core/Dc3Petals.java": "abb424f0eae6ce04ab7de01462a665997dfe19f9ffd04f9501614dd4efa53542",
+    "runtime/core/src/org/circus/core/Dc3PpParticles.java": "b0d393774dd5cbfbfb0158922c05e9f8a2667595da0ee58c43a1678a45410300",
+    "runtime/core/src/org/circus/core/PpScrollCredits.java": "a2483d661d47634525196f37f6a2a80f5dbbcb1fb56ed5a97a46efc7548ff49d",
+    "runtime/desktop/src/org/circus/core/DesktopDd.java": "de7e48e51fe935e23ca2e976138a6e7b461ebb0faa9c6409b3b26ba50eab87f9",
+    "runtime/tests/org/circus/core/CoreTests.java": "c3aff5e3f174449cd5579ea7610c667a0d80f09a356584c08f6c0d3c79e1e823",
+    "runtime/tests/org/circus/core/NativeStartupAudit.java": "6cdc8591fb5cf7ccc38b04e599cb00c18da3fd36c3e62d970c75778cdc67fa6b",
+    "runtime/tests/org/circus/core/PpParticleTests.java": "da79c2fb972eeb115704e1104132a0306c80e0553d4fa0561101ba7a5f446e26",
+    "runtime/tests/org/circus/core/PpScrollCreditsTests.java": "e40896fb8cb8d45363861f3384313d677985f71bbff9d3c91cfc17c9bb3f08b0",
+    "runtime/tests/org/circus/core/PpPresentationHostTests.java": "7dad29f0ce82b5a8c49b452e380cd15d8ff8d3d92605a83e8de22ee4c051bb1d",
+    "runtime/desktop/src/org/circus/core/PpParticlesAudit.java": "60c53a6a81faa5ccdd372aa55c7fe4e7e5ffcc46add189734d2a3e6427884990",
+    "runtime/desktop/src/org/circus/core/PpScrollCreditsAudit.java": "8e611d6fc36ecae0092933536caf13d8d581aa323a3e0eb94346b74cb358bf78",
+    "runtime/android/src/org/circus/runtime/GraphicsTest.java": "5be21ea6f529b56a00289e320a2bf911f174645ed3ea17ad7132bef08550f06f",
+    "runtime/desktop/src/org/circus/core/PpScrollRendererAudit.java": "e1e567ab362d97e481c550d9672775603338886d1ac691cd53467dd16b6d8feb",
+    "runtime/desktop/src/org/circus/core/DesktopRouteAudit.java": "7964ba160abc5a1105c496fb5cc4333ac0c401a98ebb528812a23d68f0240fe2"
+  },
+  "source_hash_note": "source_sha256 identifies captured Windows working-copy bytes. git_lf_source_sha256 permits only CRLF-to-LF normalization when comparing committed source.",
+  "reproduce": [
+    "python tools/check_native_core.py --java-home <JDK21> --heap-mb 192",
+    "java -Xmx192m -cp <test-classes> org.circus.core.DesktopRouteAudit <PP-game> <owned-output> first 1 --exe DC3PP_CN_ruby.exe",
+    "Repeat previous command with last policy.",
+    "java -Xmx192m -cp <test-classes> org.circus.core.PpScrollRendererAudit <PP-game> <owned-output>",
+    "adb -s <serial> shell am instrument -w org.circus.runtime/.CoreInstrumentation"
+  ],
+  "pp_routes_source": "Routes used first producer-integration-20261107T123318293830Z; core and production desktop sources are byte-identical to final freeze. Only audit output guard/access and a new independent render audit changed."
+}

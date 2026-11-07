@@ -121,7 +121,16 @@ public final class DesktopDd extends DesktopEngine {
         if(clouds){Picture p=picture(layers[layout.clouds].resource);if(p!=null)for(int row=0;row<2;row++){int x=(int)(-2048*(time%(row==0?120000:60000))/(row==0?120000:60000));g.drawImage(p.image,x,0,x+3072,576,0,row*600,3072,row*600+576,null);}}
         for(Dc3Scene.Quad q:quads)quad(g,q);
     }
-    private void petals(Graphics2D g,int group,Dc3Petals ps,String name)throws IOException{if(ps.particles.isEmpty())return;Picture p=picture(name);if(p==null)return;Composite old=g.getComposite();for(Dc3Petals.Particle a:ps.particles)if(a.group==group){g.setComposite(AlphaComposite.SrcOver.derive(Math.max(0,Math.min(1,a.alpha))));int sx=a.frame*32,sy=a.row*28,x=(int)ps.x(a),y=(int)a.y;g.drawImage(p.image,x,y,x+28,y+28,sx,sy,sx+28,sy+28,null);}g.setComposite(old);}
+    private void petals(Graphics2D g,int group,Dc3Petals ps,String name)throws IOException{
+        if(ps.pp4()!=null){
+            // PP submits to two native render objects (1 behind, 7 in front).
+            // The current scene compositor places them in its outer petal passes.
+            if(group!=0&&group!=4)return;Picture p=picture(name);if(p==null)return;Composite old=g.getComposite();g.setComposite(AlphaComposite.SrcOver);
+            for(Dc3PpParticles.Sprite a:ps.pp4().sprites())if(a.object==(group==0?1:7))g.drawImage(p.image,a.x,a.y,a.x+a.width,a.y+a.height,a.sx,a.sy,a.sx+a.width,a.sy+a.height,null);
+            g.setComposite(old);return;
+        }
+        if(ps.particles.isEmpty())return;Picture p=picture(name);if(p==null)return;Composite old=g.getComposite();for(Dc3Petals.Particle a:ps.particles)if(a.group==group){g.setComposite(AlphaComposite.SrcOver.derive(Math.max(0,Math.min(1,a.alpha))));int sx=a.frame*32,sy=a.row*28,x=(int)ps.x(a),y=(int)a.y;g.drawImage(p.image,x,y,x+28,y+28,sx,sy,sx+28,sy+28,null);}g.setComposite(old);
+    }
     private void clearTransitionBuffers(){transitionMask.clear();if(transitionFrame!=null){transitionFrame.flush();transitionFrame=null;}}
     public BufferedImage render()throws IOException{host.ui.checkBounds();BufferedImage image=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D g=image.createGraphics();try{g.setColor(Color.BLACK);g.fillRect(0,0,width,height);g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);scene(g,host.scene.slots,host.scene.quads,host.scene.camera,host.scene.petals,host.scene.fog,host.scene.clouds,host.scene.environmentTime,true);
             Dc3Transition f=host.scene.fade;
@@ -141,6 +150,7 @@ public final class DesktopDd extends DesktopEngine {
                     g.drawImage(before,0,0,null);
                 }finally{g.setComposite(AlphaComposite.SrcOver);}
             }
+            if(host.ppScrollCredits.active()){drawPpScrollCredits(g);return image;}
             if(host.credits.active()){drawCredits(g);return image;}
             if(textWaiting()&&!hidden)dialogue(g);
             if(host.ui.noticeActive()){
@@ -166,6 +176,12 @@ public final class DesktopDd extends DesktopEngine {
         }}
     }
     private void creditPicture(Graphics2D g,String name,float x,float y,float scale,float alpha)throws IOException{Picture p=picture(name);if(p==null)return;AffineTransform t=g.getTransform();g.translate(x,y);g.scale(scale,scale);g.setComposite(AlphaComposite.SrcOver.derive(Math.max(0,Math.min(1,alpha))));g.drawImage(p.image,p.raw.x,p.raw.y,null);g.setComposite(AlphaComposite.SrcOver);g.setTransform(t);}
+    private void drawPpScrollCredits(Graphics2D g)throws IOException{
+        PpScrollCredits c=host.ppScrollCredits;if(c.requestedPage()<0)return;
+        g.setColor(Color.BLACK);g.fillRect(0,0,width,height);int split=PpScrollCredits.HEIGHT-c.offset();
+        if(c.currentPage()>=0){Picture p=picture(c.image(c.currentPage()));if(p!=null)g.drawImage(p.image,0,0,PpScrollCredits.WIDTH,split,0,c.offset(),PpScrollCredits.WIDTH,PpScrollCredits.HEIGHT,null);}
+        if(c.nextPage()>=0){Picture p=picture(c.image(c.nextPage()));if(p!=null)g.drawImage(p.image,0,split,PpScrollCredits.WIDTH,PpScrollCredits.HEIGHT,0,0,PpScrollCredits.WIDTH,c.offset(),null);}
+    }
     private void drawCredits(Graphics2D g)throws IOException{Dc3Credits r=host.credits;g.setColor(Color.BLACK);g.fillRect(0,0,width,height);creditPicture(g,r.image("01",r.index()),r.x(),r.y(),r.scale(),1);creditPicture(g,r.image("02",r.index()),r.x(),r.y(),r.scale(),r.variantAlpha());g.setColor(new Color(1f,1f,1f,r.whiteAlpha()));g.fillRect(0,0,width,height);creditPicture(g,"ED/EDBACK",0,0,1,1);float y=-(r.scroll()%576);creditStrip(g,r,r.strip(),y);if(r.strip()+1<r.strips)creditStrip(g,r,r.strip()+1,y+576);g.setColor(new Color(0f,0f,0f,r.blackAlpha()));g.fillRect(0,0,width,height);}
     private void creditStrip(Graphics2D g,Dc3Credits credits,int index,float y)throws IOException{String resource=credits.image("",index);if(credits.stripCropLeft()==0){creditPicture(g,resource,0,y,1,1);return;}Picture p=picture(resource);if(p==null)return;AffineTransform before=g.getTransform();try{g.translate(credits.stripX(p.image.getWidth()),y);g.drawImage(p.image,0,0,p.image.getWidth()-credits.stripCropLeft(),p.image.getHeight(),credits.stripCropLeft(),0,p.image.getWidth(),p.image.getHeight(),null);}finally{g.setTransform(before);}}
     private void listQuad(Graphics2D g,Dc2Ui.Quad q)throws IOException{if(q.type==2){text(g,codec.apply(q.text),q.x,q.y,32,q.flags,width);return;}if(q.width<=0||q.height<=0)return;Picture p=picture(host.scene.slots[q.slot()].resource);if(p!=null)g.drawImage(p.image,q.x,q.y,q.x+q.width,q.y+q.height,q.sx,q.sy,q.sx+q.width,q.sy+q.height,null);}

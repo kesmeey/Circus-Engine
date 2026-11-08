@@ -1,0 +1,79 @@
+{
+  "schema": "circus-runtime.validation.sc-display-publication.v1",
+  "captured_utc": "2026-11-08T16:18:15.215406+00:00",
+  "version": "0.14.12-sc-display-dev",
+  "verified_source_commit": "e3cd58870563f09ddeaeae3889ef843ced2cfdfb",
+  "source_proof": {
+    "path": "docs/validation/sc-display-source-2026-11-09.json",
+    "bytes": 96587,
+    "sha256": "bd7209752084ef6c45bc1a000103092a65e93ad34fcfac070267d526bc1bc825",
+    "git_lf_sha256": "b671c5c4b476eb9c8c94cd6ad28e9cfdf6d1ddb3e471b02288c21852c2decb51"
+  },
+  "source_commit_verification": {
+    "pass": true,
+    "merged_captured_input_files": 793,
+    "desktop_input_files": 640,
+    "android_input_files": 793,
+    "byte_exact_git_blob_matches": 262,
+    "line_ending_only_git_blob_matches": 531,
+    "shared_capture_deltas": [],
+    "live_source_deltas": [],
+    "method": "git cat-file --batch at exact source commit; require captured/live SHA equality, then exact blob bytes or only CRLF/LF normalization with no NUL.",
+    "private_full_comparison": {
+      "path": "build/sc-display-20261108/source-commit-verification.json",
+      "bytes": 135775,
+      "sha256": "eb7307a9bfc9519cafcd799a70be9ba2c52799421772feb6e891249abb559f1e",
+      "git_lf_sha256": "2d76271c0f67d3d0d761e18234472ed2a026b117554831aa70a011f1905ef8f6"
+    }
+  },
+  "android": {
+    "artifact": {
+      "path": "build/distribution/circus-runtime-0.14.12-sc-display-dev-android.apk",
+      "bytes": 12715880,
+      "sha256": "76eda542a6e88f93757c16f2fc5505145aa0cd67e54853bd14c909b4658ef766"
+    },
+    "validation_receipt": {
+      "path": "docs/validation/android-sc-display-0.14.12.json",
+      "bytes": 123124,
+      "sha256": "de63295b39051e49b5190f3260f0335b0f7c98e6aa8ac6b53970a70edf64792e",
+      "git_lf_sha256": "939d747ed37a15f26a329e792b5c4abf11b966855022b10cee04a8bbbdc63836"
+    },
+    "signature_verified": true,
+    "same_existing_debug_certificate": true,
+    "version_code": 42,
+    "ART_groups_passed": 8
+  },
+  "windows": {
+    "artifact": {
+      "path": "build/distribution/dc-runtime-0.14.12-sc-display-dev-windows-x64.zip",
+      "bytes": 69488376,
+      "sha256": "43aebf0a99c01d6d3918a8c8266672749ddba20aa6370759694d60630aea291a"
+    },
+    "validation_receipt": {
+      "path": "docs/validation/windows-sc-display-0.14.12.json",
+      "bytes": 7210,
+      "sha256": "90d4b67b24279795ffb11385ee98445d5296d49ccd21d42fef86488a96bd9632",
+      "git_lf_sha256": "a0302b3c617413197c52aac93503ce7af8f5bae766c0e4e024711a4079b73fbd"
+    },
+    "actual_packaged_workflow_jobs_passed": 33
+  },
+  "real_phone": {
+    "validation_receipt": {
+      "path": "docs/validation/phone-sc-display-2026-11-09.json",
+      "bytes": 5194,
+      "sha256": "71f21210583dbfc96a9f8df63c5a4131a5e4be2b1f9ceed1427e91eccf688bc7",
+      "git_lf_sha256": "8073629c7978a0e51e1cf9a79ea5222ca89d0e8c2681c63d3bc4e1aca84d2e77"
+    },
+    "install_r_completed": true,
+    "first_install_time_preserved": true,
+    "existing_library_save_files_sha_preserved": 65,
+    "SC_actual_SAF_display_checks_passed": 26,
+    "missing_BG_files_repaired": 257,
+    "every_new_and_preexisting_BG_SHA_verified": true
+  },
+  "delivery": "APK already installed over the user phone app without uninstall/reset. Keep SC encoding automatic and character substitution automatic. Installers contain no game assets; only257 explicitly absent phone BG resources were copied separately from the matching local user game copy.",
+  "old_fixed_artifacts_overwritten": false,
+  "original_pc_executables_run": false,
+  "original_pc_game_directories_written": false,
+  "hash_semantics": "Physical SHA describes frozen/build/package bytes; JSON references include git_lf_sha256 for Git-normalized text. All793 captured source files were verified at the exact source commit."
+}

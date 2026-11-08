@@ -1,0 +1,174 @@
+{
+  "schema": "circus-windows-package-validation-v1",
+  "version": "0.14.12-sc-display-dev",
+  "date": "2026-11-09",
+  "result": "PASS",
+  "package": {
+    "directory": "build/distribution/dc-runtime-0.14.12-sc-display-dev-windows-x64",
+    "zip": "build/distribution/dc-runtime-0.14.12-sc-display-dev-windows-x64.zip",
+    "bytes": 69488376,
+    "sha256": "43aebf0a99c01d6d3918a8c8266672749ddba20aa6370759694d60630aea291a",
+    "jar_sha256": "df63883df70016d67bcd0537b8cdcb1d88350522b0f5dd9b3eefc891984c15a1",
+    "jre_java_sha256": "5f6248f9c0f32b38ffaba813819bf3331536a48c7ddc45b18e73acd15a6cf7ef",
+    "ffmpeg_sha256": "2ce797a0f88d7f067180338fb227f7b1928ea727bd9a4d7a1d022f7c52af71a3",
+    "sha256_sidecar": "build/distribution/dc-runtime-0.14.12-sc-display-dev-windows-x64.zip.sha256"
+  },
+  "sourceproof": {
+    "path": "docs/validation/sc-display-source-2026-11-09.json",
+    "sha256": "bd7209752084ef6c45bc1a000103092a65e93ad34fcfac070267d526bc1bc825"
+  },
+  "all_test_freeze": {
+    "path": "build/native-rewrite/sc-display-final-20261108T160700831447Z",
+    "result_sha256": "c4b1ba1de7a8defae0595a34f252a222ebc5dca8804897d918ce209c06c466ff",
+    "source_deltas": []
+  },
+  "identity": {
+    "path": "build/native-rewrite/windows-sc-display-0.14.12-20261108T161236742202Z/production-identity.json",
+    "sha256": "df24b6b2e2a99cfbcd4745fe25e33aad2b319233444bc6b795fe7e4e1e03974a"
+  },
+  "zip_inventory": {
+    "path": "build/native-rewrite/windows-sc-display-0.14.12-20261108T161236742202Z/zip-inventory.json",
+    "sha256": "095647cb184bd43d659e4611c83079be23ee4a69cb676500794088ea67647305"
+  },
+  "old_fixed_artifacts": {
+    "path": "build/native-rewrite/windows-sc-display-0.14.12-20261108T161236742202Z/old-fixed-conservation.json",
+    "sha256": "88a1c29de8afc19c35750b87dd1372b6410afaab56c4defb9d66e4c1807578ea"
+  },
+  "all_player_classes_resolve_from_jar": {
+    "exit_code": 0,
+    "command": [
+      "D:\\gal\\circus-runtime\\build\\distribution\\dc-runtime-0.14.12-sc-display-dev-windows-x64\\jre\\bin\\java.exe",
+      "-Dfile.encoding=UTF-8",
+      "-cp",
+      "D:\\gal\\circus-runtime\\build\\distribution\\dc-runtime-0.14.12-sc-display-dev-windows-x64\\dc-runtime.jar;D:\\gal\\circus-runtime\\build\\native-rewrite\\windows-sc-display-0.14.12-20261108T161236742202Z\\origin-driver",
+      "PackageOriginAudit",
+      "D:\\gal\\circus-runtime\\build\\distribution\\dc-runtime-0.14.12-sc-display-dev-windows-x64\\dc-runtime.jar"
+    ],
+    "stdout_sha256": "496067a86a6568a827773e51311e00321b31da54fdfafa572f3503134da99c55",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "test_environment": {
+    "java": "build/distribution/dc-runtime-0.14.12-sc-display-dev-windows-x64/jre/bin/java.exe",
+    "classpath_order": [
+      "actual player JAR",
+      "frozen audit/test classes"
+    ],
+    "production_class_override": false,
+    "heap_mib": 192
+  },
+  "original_game_executables_executed": false,
+  "original_game_directories_written": false,
+  "actual_job_count": 33,
+  "scope": "Packaged bundled JRE with actual player first on classpath. Old seven starts, SC native button caption5541 and missing-background40 focused checks, ten TY workflows without the four complete routes, SC/FL six workflows including original SC save-load, DCDX seven workflows and phone-byte FL title-load62 regression. Media completion simulated; prepared surface oracles do not prove original EXE full-screen/audio equivalence. Original SC background assets missing on the phone were copied and separately hash-verified by the parent; this package contains no game assets. Android/real-phone tests are recorded separately, not implied by this Windows receipt.",
+  "source_commit": "e3cd58870563f09ddeaeae3889ef843ced2cfdfb",
+  "source_commit_status": "parent-confirmed",
+  "actual_package_input_proof": {
+    "path": "build/native-rewrite/windows-sc-display-0.14.12-20261108T161236742202Z/package-input-proof.json",
+    "sha256": "da8727e83af4bfd076193dbc5343ae2ea92e466c86690afde37d0d3c94f172ee"
+  },
+  "publication_blob_verification": {
+    "path": "build/sc-display-20261108/source-commit-verification.json",
+    "sha256": "eb7307a9bfc9519cafcd799a70be9ba2c52799421772feb6e891249abb559f1e"
+  },
+  "independent_read_only_review": {
+    "path": "build/native-rewrite/windows-sc-display-0.14.12-20261108T161236742202Z/final-read-only-review.json",
+    "sha256": "d9e1ac3f7a514666177d179b413b69eccdc7762fb4944d4922418f7faac415b8"
+  },
+  "evidence": {
+    "path": "build/native-rewrite/windows-sc-display-0.14.12-20261108T161236742202Z/result.json",
+    "sha256": "df71cf43c65a9ad13281569f3fc0cc859f54d4dbf0342e81b59fb0eb7d2556b7"
+  },
+  "test_results": {
+    "packaged-startup-dc2-3363": {
+      "exit_code": 0,
+      "result_sha256": null,
+      "jobs": null,
+      "result": "passed",
+      "checks": null
+    },
+    "packaged-startup-dc2dm-9d72": {
+      "exit_code": 0,
+      "result_sha256": null,
+      "jobs": null,
+      "result": "passed",
+      "checks": null
+    },
+    "packaged-startup-dc2pc-5769": {
+      "exit_code": 0,
+      "result_sha256": null,
+      "jobs": null,
+      "result": "passed",
+      "checks": null
+    },
+    "packaged-startup-dc3dd-a5a8": {
+      "exit_code": 0,
+      "result_sha256": null,
+      "jobs": null,
+      "result": "passed",
+      "checks": null
+    },
+    "packaged-startup-dc3pp-9872": {
+      "exit_code": 0,
+      "result_sha256": null,
+      "jobs": null,
+      "result": "passed",
+      "checks": null
+    },
+    "packaged-startup-dc3wy-a09f": {
+      "exit_code": 0,
+      "result_sha256": null,
+      "jobs": null,
+      "result": "passed",
+      "checks": null
+    },
+    "packaged-startup-dcpc-2063": {
+      "exit_code": 0,
+      "result_sha256": null,
+      "jobs": null,
+      "result": "passed",
+      "checks": null
+    },
+    "sc-captions": {
+      "exit_code": 0,
+      "result_sha256": "b33634af73caebe341d75cda046c102db0215072885feb0ad64e1b20127ff9e9",
+      "jobs": null,
+      "result": "PASS",
+      "checks": 5541
+    },
+    "sc-background": {
+      "exit_code": 0,
+      "result_sha256": "a5bfea1f672d754dc20800f576f21e1db01d9b93e43c0f98a83405176de3e524",
+      "jobs": null,
+      "result": "PASS",
+      "checks": 40
+    },
+    "ty": {
+      "exit_code": 0,
+      "result_sha256": "852b3666ee71e2730ac8470cb9cb63cb79e9315f7e08bf0c9860bdd90c995369",
+      "jobs": 10,
+      "result": null,
+      "checks": null
+    },
+    "sc-fl": {
+      "exit_code": 0,
+      "result_sha256": "10bd3860078a145317b96428871cbf8aaba480f8db6067121fc5fb41f8ecc0b8",
+      "jobs": 6,
+      "result": null,
+      "checks": null
+    },
+    "dcdx": {
+      "exit_code": 0,
+      "result_sha256": "c6f558e5523c4bb788e5772f1734b923fbb9da416506678fd7365787ed15bc7d",
+      "jobs": 7,
+      "result": null,
+      "checks": null
+    },
+    "fl-phone": {
+      "exit_code": 0,
+      "result_sha256": "6a5191681423e4445cdc52b644869a0bb2a28a757bc3e1abc83145622efd3d5b",
+      "jobs": null,
+      "result": "PASS",
+      "checks": 62
+    }
+  }
+}

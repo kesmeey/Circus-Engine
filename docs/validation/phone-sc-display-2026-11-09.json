@@ -1,0 +1,118 @@
+{
+  "schema": "circus-runtime.validation.phone-sc-display.v1",
+  "captured_utc": "2026-11-08T16:18:15.196734+00:00",
+  "version": "0.14.12-sc-display-dev",
+  "device": "User-connected Xiaomi14, Android physical device; serial/library identifiers omitted",
+  "source": "Previously configured actual SC inner SAF tree, independently reopened read-only by the shipping ScDisplayInstrumentation. No copied minimal-fixture substitution on this phone.",
+  "material_repair": {
+    "pass": true,
+    "copied_files": 257,
+    "copied_bytes": 142785968,
+    "existing_bg_files_sha_preserved": 504,
+    "verified_final_bg_files": 761,
+    "existing_app_library_and_save_file_hashes_preserved": 65,
+    "existing_phone_files_overwritten": false,
+    "original_pc_files_written": false,
+    "phone_game_scripts_or_system_dat_written": false,
+    "transfer_note": "Initial adb implicit Windows basenames omitted the final X; only newly created SHA-verified files renamed to explicit intended .CRX destinations, each proved absent. Final exact names and every new/previous BG SHA verified."
+  },
+  "install": {
+    "version_code": 42,
+    "apk_sha256": "76eda542a6e88f93757c16f2fc5505145aa0cd67e54853bd14c909b4658ef766",
+    "install_r": true,
+    "first_install_time_preserved": true,
+    "existing_library_and_shared_save_file_hashes_preserved": 65
+  },
+  "display": {
+    "scope": "Original SC selected read-only files, production DesktopLegacy and Android Canvas; original EXE not executed; media completion simulated; isolated output/unlock flags only",
+    "profile": "dc2sc-3b69",
+    "body_identity": "419e807112dc3ffef639024d88b2ae7a58745527b66cadfba97eb665b5582d30",
+    "otome_GBK": {
+      "sample_points": 1131,
+      "exact_original_BG_pixel_matches": 1127,
+      "nonblack_samples": 1131,
+      "missing_images": [],
+      "loaded_images": [
+        "bg\\bg060_d_no",
+        "bst\\bst_otm20_b_03_b",
+        "system/SACRA01",
+        "system\\messwin"
+      ]
+    },
+    "otome_auto": {
+      "sample_points": 1131,
+      "exact_original_BG_pixel_matches": 1127,
+      "nonblack_samples": 1131,
+      "missing_images": [],
+      "loaded_images": [
+        "bg\\bg060_d_no",
+        "bst\\bst_otm20_b_03_b",
+        "system/SACRA01",
+        "system\\messwin"
+      ]
+    },
+    "scene_replay": {
+      "script": "af_otm_00",
+      "pc": 3302,
+      "expected_distinct_date_labels": 1,
+      "matching_distinct_date_labels": 1,
+      "matching_native_text_layers": 24,
+      "synthetic_unlocks_only": true
+    },
+    "missing_background": {
+      "only_hidden_resource": "AdvData/GRP/BG/bg060_d_no.CRX",
+      "silently_rendered": false,
+      "failure": "SC 背景资源无法读取：bg\\bg060_d_no\nAdvData/GRP/bg/bg060_d_no.CRX",
+      "missing_images": [],
+      "original_fixture_untouched": true
+    },
+    "checks": 26,
+    "failures": [],
+    "pass": true,
+    "source_kind": "explicit-readonly-SAF-tree"
+  },
+  "source_scripts_verified": {
+    "aft_0314_a1_otm.mes": "d9448ae50a86cc176701ca115eeb1f1b98704d6dae059fd7015773e7f9b0223e",
+    "aft_0315_b3_otm.mes": "97ede631302d92cc8efee5c419c992cdaef4501f58c859eab4b4231a6cd478f0"
+  },
+  "evidence": {
+    "resource_repair": {
+      "path": "build/sc-display-20261108/phone/bg-repair-receipt.json",
+      "bytes": 125048,
+      "sha256": "facbc03317e1449efdbe1eb67b090c228177e21c02b0f1f1d79a93f81a252c84",
+      "git_lf_sha256": "c23d9a160efc86336699af8d47a50d56b4460cf168741b82318db458fb2ca31d"
+    },
+    "actual_SAF_result": {
+      "path": "build/sc-display-20261108/phone/v42/result.json",
+      "bytes": 2221,
+      "sha256": "49adcd5c5d61f21a459c4c114bab0e42b4b303bad5000c43beec72fc31a02efb",
+      "git_lf_sha256": "b4c711a8859612fef54c214d65c0681f7e5d43db51a96ac37f33af039743fa5d"
+    },
+    "instrumentation_stdout": {
+      "path": "build/sc-display-20261108/phone/v42/sc-display-art.txt",
+      "bytes": 1317,
+      "sha256": "3f99716b5085b7d48129189aad1562e6d2a96879e420398bed13cc664b793922"
+    },
+    "rendered_frames": [
+      {
+        "path": "build/sc-display-20261108/phone/v42/otome-auto.png",
+        "bytes": 933970,
+        "sha256": "899d5c4ef4ad8bef4d06592372c170ab1231965e81596df8d51bfca6028db2e4"
+      },
+      {
+        "path": "build/sc-display-20261108/phone/v42/otome-gbk.png",
+        "bytes": 933970,
+        "sha256": "899d5c4ef4ad8bef4d06592372c170ab1231965e81596df8d51bfca6028db2e4"
+      },
+      {
+        "path": "build/sc-display-20261108/phone/v42/scene-replay.png",
+        "bytes": 237810,
+        "sha256": "76e3871b2ba6887c8dae618f77eeb82b7af9f215614fe54b50591b47fa9d8522"
+      }
+    ]
+  },
+  "limits": "Production engine and Android Canvas checked on physical phone with real SAF resources; media completion simulated and gallery unlocks only in an isolated audit engine. The26 checks are not a full touchscreen/audio/video timing run or every route. User library/progress/story slots were not modified by this audit.",
+  "original_executables_run": false,
+  "original_pc_game_directories_written": false,
+  "game_assets_embedded_in_repository_or_installers": false
+}

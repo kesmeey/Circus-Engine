@@ -1,0 +1,388 @@
+{
+  "date": "2026-11-08",
+  "scope": "DCDX original system.dat selective import only. No native narrative save conversion and no whole-gallery or original-EXE full-screen equivalence claim. Original data stays read-only; in-memory source clone is not exported.",
+  "original_executable_run": false,
+  "original_game_files_written": false,
+  "original_system_bytes_exported": false,
+  "original_sources": [
+    {
+      "path_relative_to_game": "35008_MJmPYaZraHTDwk75zNYtFM8MtPCmdaXF/system.dat",
+      "bytes": 6232,
+      "sha256": "762f8f7a157941a1673aff971cd5e6176500a0b328f6cf25cda2c3d5e18b2c09",
+      "native_prefix_bytes": 2136,
+      "native_prefix_sha256": "e97061d982e33519ae9a760f96dcb305bc0e9cb9e1c5374b0a80d42a6a8fd6c4",
+      "header_u32_0x48": 119,
+      "CG_bank97": {
+        "offset": 216,
+        "bytes": 640,
+        "ones": 253,
+        "binary": true
+      },
+      "seen_bank98": {
+        "offset": 856,
+        "bytes": 1024,
+        "ones": 119,
+        "binary": true
+      },
+      "excluded_globals_nonzero": 22,
+      "excluded_voice_flags_nonzero": 70
+    },
+    {
+      "path_relative_to_game": "AdvData/SaveData/system.dat",
+      "bytes": 6232,
+      "sha256": "762f8f7a157941a1673aff971cd5e6176500a0b328f6cf25cda2c3d5e18b2c09",
+      "native_prefix_bytes": 2136,
+      "native_prefix_sha256": "e97061d982e33519ae9a760f96dcb305bc0e9cb9e1c5374b0a80d42a6a8fd6c4",
+      "header_u32_0x48": 119,
+      "CG_bank97": {
+        "offset": 216,
+        "bytes": 640,
+        "ones": 253,
+        "binary": true
+      },
+      "seen_bank98": {
+        "offset": 856,
+        "bytes": 1024,
+        "ones": 119,
+        "binary": true
+      },
+      "excluded_globals_nonzero": 22,
+      "excluded_voice_flags_nonzero": 70
+    }
+  ],
+  "replica_observations": {
+    "primary_and_backup_byte_identical": true,
+    "nested_dcdx_directories_system_dat_found": false,
+    "dcdx_zip_system_dat_members": 0,
+    "backup_archive": "Existing476-byte RAR listed only as metadata; no patch EXE/DLL executed and no native binary payload extracted."
+  },
+  "excluded_tail": {
+    "bytes": 4096,
+    "sha256": "dbe316769b7fb5e1053045668db0eb2e55ced8715dc36874104fe0d66b323afe",
+    "nonzero_bytes": 145,
+    "nonzero_u32_prefix_count": 119,
+    "unique_nonzero_u32_values": 102,
+    "nonzero_u32_minmax": [
+      15,
+      802
+    ],
+    "remaining_u32_zero": 905,
+    "classification": "Independent native403D40 second read identifies a checkpoint table. Nonzero data is not padding and is not imported."
+  },
+  "shared_import_contract": {
+    "profile": "dcdx-7769",
+    "minimum_bytes": 2136,
+    "maximum_read_bytes": 6232,
+    "all_intermediate_lengths_accepted": true,
+    "header": "Full DWORD at+0x48 equals0x77 (119decimal); game identity is independently selected from MES/PE evidence.",
+    "imported": "CG640bytes atD8 strictly0/1; seen1024bytes at358 accepts unsigned nonzero and normalizes new values to1. Existing nonzero phone flags are retained.",
+    "excluded": "All settings, names, globals/completion/music, voice preferences, ordinary story variables and4096-byte checkpoint tail.",
+    "story_filename_scope": "DCDX%02d.dat names counted only; no native narrative conversion."
+  },
+  "public_sources": [
+    {
+      "path": "runtime/tests/org/circus/core/DcdxProgressTests.java",
+      "sha256": "032e5ea97d6aa0d5230a1c4c82a87d266c6a7db5fef9d6920cd1b0b674403444"
+    },
+    {
+      "path": "runtime/desktop/src/org/circus/core/DcdxProgressAudit.java",
+      "sha256": "10075a84d86881a121fbb4886dc461a2e84b10907c10eb741f43d1fb329fccdd"
+    }
+  ],
+  "private_full_freeze": {
+    "path": "build/dcdx-system-progress-20261108/core-20261108T093402222048Z",
+    "java_source_count": 623,
+    "compile_exit": 0,
+    "manifest_sha256": "de08087194a7eb1d028c7f36ef2977233d6f9a6db231b2ef4eeba24a4640b4e3",
+    "frozen_native_progress_sha256": "c15da633bcf0efce72ca8821c3a1352710a66c6a034f9c861a0533423fd2543b"
+  },
+  "unit_tests": {
+    "result": "PASS",
+    "assertions": 5915,
+    "source_fixture_scope": "Synthetic native bytes only, no original payloads.",
+    "coverage": [
+      "All4097 admissible lengths2136..6232 inclusive; missing/truncated/oversized rejection",
+      "FullDWORD header counterexamples including wrong high bytes",
+      "All640CG and1024seen entries imported with exact byte offsets",
+      "Seen1/2/127/128/255 normalization; nonbinaryCG rejection",
+      "All100globals and settings/names/voice/scratch/story/readjournal/existing slot availability retained",
+      "Read-only preview, idempotence, persistent restart and source immutability",
+      "Known locations only; proven native slot filenames counted without conversion; profile mismatch rejected atomically"
+    ],
+    "stdout": {
+      "path": "build/dcdx-system-progress-20261108/core-20261108T093402222048Z/tests.stdout",
+      "sha256": "0060e083473c5ddb26b65a2b29a99e4787882422944ca2c66a8a7268a8a2a469"
+    }
+  },
+  "actual_platform_test": {
+    "scope": "Original DCDX system progress and in-memory two-byte clone; shared importer, owned runtime persistence, restart, old-slot restore and actual original CG scripts. Native narrative file conversion is excluded.",
+    "original_executable_run": false,
+    "original_game_files_written": false,
+    "original_system_bytes_exported": false,
+    "media_completion_simulated": true,
+    "original_source": {
+      "path": "AdvData/SaveData/system.dat",
+      "physical_bytes": 6232,
+      "native_prefix_bytes": 2136,
+      "header_u32_0x48": 119,
+      "sha256": "762f8f7a157941a1673aff971cd5e6176500a0b328f6cf25cda2c3d5e18b2c09",
+      "summary": {
+        "completion": 0,
+        "music": 0,
+        "cg": 253,
+        "scenes": 119,
+        "total": 372
+      }
+    },
+    "CG_before_import": {
+      "at": "cg_nem@f1e",
+      "render_BGR_sha256": "df4db68dfac8cc49814ffdf89f5e58199b167e68522840d512941c7c0134df2e"
+    },
+    "original_preview": {
+      "completion": 0,
+      "music": 0,
+      "cg": 253,
+      "scenes": 119,
+      "total": 372
+    },
+    "original_applied": {
+      "completion": 0,
+      "music": 0,
+      "cg": 253,
+      "scenes": 119,
+      "total": 372
+    },
+    "fixture": {
+      "scope": "in-memory clone only; no native file exported",
+      "sha256": "8f38e26d8232713d127e8d24c59c97c010f54fc4424b1cc523a81c577acc22c7",
+      "changed_offsets": [
+        332,
+        975
+      ],
+      "CG_bank97_index": 116,
+      "seen_bank98_index": 119,
+      "preview": {
+        "completion": 0,
+        "music": 0,
+        "cg": 1,
+        "scenes": 1,
+        "total": 2
+      }
+    },
+    "CG_actions_added": [
+      "cg0",
+      "cg1",
+      "cg4",
+      "cg5",
+      "cg8",
+      "cg10",
+      "cg13",
+      "cg16",
+      "cg18",
+      "cg19",
+      "cg21",
+      "cg24"
+    ],
+    "CG_after_import": {
+      "at": "cg_nem@f1e",
+      "render_BGR_sha256": "d23cf0ab97e8086a7aabbcff64f0d47a27ea845def117bc28bc966c76a812c68"
+    },
+    "CG_reader": {
+      "action": "cg0",
+      "image": "bg\\dc\\ev_dx_dc1_nem_01a",
+      "render": {
+        "at": "cg_nem@1cf4",
+        "render_BGR_sha256": "241f27673a1cef52030c166fceeda43109b0c1b002713562a4fb13e5a7ffee3f"
+      }
+    },
+    "owned_existing_slot": {
+      "relative_name": "slot-4.sav",
+      "sha256": "2c93c2533a2bd1bd3269c76700f2ec1a738c39d28ad880c1ac476f357c393780",
+      "script": "dcdx_dc1a_00",
+      "pc": 721,
+      "body_sha256": "6a589f21654badb01a6220010287633cee4b383252418f268d13334ef6ac782f"
+    },
+    "result": "PASS",
+    "checks": 51,
+    "menus": [
+      {
+        "at": "win_size@193",
+        "actions": [
+          "window",
+          "full"
+        ]
+      },
+      {
+        "at": "main@8b5",
+        "actions": [
+          "3do",
+          "end",
+          "ard",
+          "story"
+        ]
+      },
+      {
+        "at": "main@9a5",
+        "actions": [
+          "ystory",
+          "main"
+        ]
+      },
+      {
+        "at": "title_main@17b1",
+        "actions": [
+          "sce",
+          "load",
+          "ex_anime",
+          "option",
+          "end"
+        ]
+      },
+      {
+        "at": "title_select@1ec",
+        "actions": [
+          "dc",
+          "dc2",
+          "return"
+        ]
+      },
+      {
+        "at": "title_select@2a8",
+        "actions": [
+          "ydc",
+          "main"
+        ]
+      },
+      {
+        "at": "win_size@193",
+        "actions": [
+          "window",
+          "full"
+        ]
+      },
+      {
+        "at": "main@8b5",
+        "actions": [
+          "3do",
+          "end",
+          "ard",
+          "story"
+        ]
+      },
+      {
+        "at": "main@9a5",
+        "actions": [
+          "ystory",
+          "main"
+        ]
+      },
+      {
+        "at": "title_main@17b1",
+        "actions": [
+          "sce",
+          "load",
+          "ex_anime",
+          "option",
+          "end"
+        ]
+      },
+      {
+        "at": "title_main@2ddc",
+        "actions": [
+          "ex_sce",
+          "cg_mode",
+          "sce_mode",
+          "music",
+          "ex_anime2"
+        ]
+      },
+      {
+        "at": "cg_nem@f1e",
+        "actions": [
+          "ktr",
+          "dcetc",
+          "dc2chg",
+          "page--",
+          "page++",
+          "return"
+        ]
+      },
+      {
+        "at": "win_size@193",
+        "actions": [
+          "window",
+          "full"
+        ]
+      },
+      {
+        "at": "main@8b5",
+        "actions": [
+          "3do",
+          "end",
+          "ard",
+          "story"
+        ]
+      },
+      {
+        "at": "main@9a5",
+        "actions": [
+          "ystory",
+          "main"
+        ]
+      },
+      {
+        "at": "title_main@17b1",
+        "actions": [
+          "sce",
+          "load",
+          "ex_anime",
+          "option",
+          "end"
+        ]
+      },
+      {
+        "at": "title_main@2ddc",
+        "actions": [
+          "ex_sce",
+          "cg_mode",
+          "sce_mode",
+          "music",
+          "ex_anime2"
+        ]
+      },
+      {
+        "at": "cg_nem@f1e",
+        "actions": [
+          "ktr",
+          "dcetc",
+          "dc2chg",
+          "cg0",
+          "cg1",
+          "cg4",
+          "cg5",
+          "cg8",
+          "cg10",
+          "cg13",
+          "cg16",
+          "cg18",
+          "cg19",
+          "cg21",
+          "cg24",
+          "page--",
+          "page++",
+          "return"
+        ]
+      }
+    ]
+  },
+  "report": {
+    "path": "build/dcdx-system-progress-20261108/core-20261108T093402222048Z/audit/report.json",
+    "sha256": "8f8d65d65a9db4036b14a90f21ab7fdca838bb1ca0e6033fdf315ab86cf2547b"
+  },
+  "limits": [
+    "Actual original source imports253CG/119seen; in-memory clone adds lockedCG116/seen119 only.",
+    "Original menu test navigates window/story/ystory/ex_anime/cg_mode, opens nativecg0 and renders original imagebg/dc/ev_dx_dc1_nem_01a. It does not claim every CG variant or scene replay path was visited.",
+    "Settings/name/voice-choice and existing runtime-owned slot4 are preserved; native narrative slots are not converted.",
+    "Nonlooping media completion is simulated for deterministic headless traversal."
+  ]
+}

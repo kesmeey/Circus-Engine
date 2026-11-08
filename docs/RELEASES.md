@@ -3,6 +3,12 @@
 本文件收录各版本的变更说明。开发构建产物都在本机 `build/` 下，不随仓库分发；
 带 `-dev` 的是开发签名包，可以覆盖安装，不要卸载或清除应用数据。
 
+## Android 0.14.10-dcdx-system-import-dev
+
+新增DCDX `system.dat` 的CG与场景已读合并，使用已有原版进度导入入口；预览后备份已有手机进度，再原子写入，重复导入不重复写。保留设置、姓名和已有剧情槽，不导入globals、原版历史检查点或剧情槽。SC/FL进度导入继续保留，DCDX运行范围不变。
+
+[本轮验证](validation/dcdx-system-import-source-2026-11-08.json)单独记录源码、实际原文件与Android服务检查；此前0.14.9 Windows/APK固定包保留。
+
 ## 0.14.9-dcdx-import-dev（Windows／Android）
 
 新增独立DCDX宿主、两个自然剧情入口、原轮转及滑动菜单；完整路线、独立MINI和特殊消费者仍有边界。Android新增SC/FL系统进度合并，SC为CG/已读，FL另含已确认通关标记；SC/FL/DCDX原Windows剧情槽转换仍未实现，DCDX系统进度未导入。

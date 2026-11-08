@@ -1,0 +1,401 @@
+{
+  "schema": 1,
+  "date": "2026-11-08",
+  "scope": "Independent static DCDX native system-file IO and selective CG/seen import contract. No original EXE, original native IO function or Windows registry API was run; no production Java was edited by this analysis task.",
+  "subject": {
+    "executable": "D:/gal/DCDX/DCDX.EXE",
+    "sha256": "86bcd33e954b81f9b7bb731bcbc2886bc68d8d069074a32ef2af716fede395cb",
+    "bytes": 1618944,
+    "profile": "dcdx-7769",
+    "selected_game_identification_required": true,
+    "signature_alone_does_not_identify_game": true
+  },
+  "native_paths": {
+    "module_directory": {
+      "instructions": "40E3F1..40E44C",
+      "module_path_api": "GetModuleFileNameA imported at43E150",
+      "process_current_directory_api": "SetCurrentDirectoryA imported at43E154",
+      "buffer": "A2EB58",
+      "behavior": "Read current module path, remove final backslash and filename, set current directory, call417360."
+    },
+    "directory_initializer": {
+      "function": "0x417360",
+      "registry_key": "HKEY_CURRENT_USER/Software/CIRCUS/DCDX",
+      "data_value": "DataDir",
+      "save_value": "SaveDir",
+      "save_buffer": "A2DD50",
+      "default_suffix": "\\AdvData\\SaveData",
+      "behavior": [
+        "If DataDir is absent/empty, copy module directoryA2EB58 toA2DD50 and append suffix, even if a SaveDir registry value was read.",
+        "If DataDir is present, remove its trailing backslash; use nonempty SaveDir, or append suffix to DataDir when SaveDir is empty."
+      ],
+      "registry_was_read_during_analysis": false
+    },
+    "system_file": {
+      "suffix_string_va": "0x43E37C",
+      "suffix": "\\system.dat",
+      "known_local_source": "AdvData/SaveData/system.dat"
+    },
+    "story_slots": {
+      "format_string_va": "0x43F2F4",
+      "format": "%s\\%s%02d.dat",
+      "prefix_va": "0x43EF5C",
+      "prefix": "DCDX",
+      "examples": [
+        "DCDX00.dat",
+        "DCDX01.dat",
+        "DCDX02.dat"
+      ],
+      "consumers": [
+        "41EA10 probe",
+        "41EAF0 save",
+        "4212C0 load"
+      ],
+      "story_data_import_in_this_change": false
+    }
+  },
+  "native_read": {
+    "entry": "0x403D40",
+    "open_helper": "0x42DE6E",
+    "flags_hex": "0x8000",
+    "read_helper": "0x42D4F6",
+    "close_helper": "0x42DDA1",
+    "reads_in_order": [
+      {
+        "destination": "stack temporary",
+        "bytes": 2136,
+        "hex": "0x858",
+        "saved_return_register": "EDI"
+      },
+      {
+        "destination": "0xA6D468",
+        "bytes": 4096,
+        "hex": "0x1000",
+        "return_count_ignored": true
+      }
+    ],
+    "validation": [
+      {
+        "at": "0x403DED",
+        "require": "first read returned exactly0x858 bytes"
+      },
+      {
+        "at": "0x403DFF",
+        "require": "DWORD prefix+0x48 ==0x77 (119)"
+      }
+    ],
+    "on_valid_prefix": {
+      "copy_bytes": 2136,
+      "source": "prefix temporary",
+      "destination": "0x595308",
+      "at": "0x403E0C",
+      "copy_dwords": "0x216",
+      "return_value": 0
+    },
+    "on_open_short_prefix_or_signature_failure": {
+      "copy_bytes": 2136,
+      "source": "native default template0x446018",
+      "destination": "0x595308",
+      "return_value": -1
+    },
+    "tail_policy": "Second read occurs before prefix validation and writes its available bytes directly into checkpoint memory. The native function never checks its count; absent/short tail does not invalidate a valid prefix. Any existing/unread checkpoint bytes remain as they were.",
+    "trailing_bytes_policy": "No seek/whole-file length/EOF check. At most2136+4096 bytes are requested; excess data after offset6232 is not read.",
+    "decompiler_caveat": "REA assigns void and an ambiguous FID_conflict__wopen name. Raw call arguments and assembly establish byte path construction, return0/-1, requested sizes and validation; no wchar_t source contract is inferred from that type artifact."
+  },
+  "native_write": {
+    "entry": "0x403C70",
+    "open_helper": "0x42DE6E",
+    "flags_hex": "0x8301",
+    "permission_hex": "0x180",
+    "write_helper": "0x42E5CE",
+    "writes_in_order": [
+      {
+        "source": "0x595308",
+        "bytes": 2136
+      },
+      {
+        "source": "0xA6D468",
+        "bytes": 4096
+      }
+    ],
+    "normal_complete_file_bytes": 6232,
+    "short_write_return_counts_checked": false,
+    "open_failure_return": -1,
+    "after_both_write_calls_return": 0,
+    "native_writer_executed": false
+  },
+  "layout": {
+    "system_prefix_base": "0x595308",
+    "system_prefix_bytes": 2136,
+    "signature": {
+      "offset": "0x48",
+      "width_bytes": 4,
+      "little_endian_value": 119,
+      "hex": "0x77"
+    },
+    "getter": "0x41BC60",
+    "setter": "0x41BF10",
+    "banks": {
+      "100": {
+        "offset": "0x74",
+        "address": "0x59537C",
+        "bytes": 100,
+        "import": false
+      },
+      "97": {
+        "offset": "0xD8",
+        "address": "0x5953E0",
+        "bytes": 640,
+        "end_exclusive": "0x358",
+        "import": "CG flags only"
+      },
+      "98": {
+        "offset": "0x358",
+        "address": "0x595660",
+        "bytes": 1024,
+        "end_exclusive": "0x758",
+        "import": "boolean scene-seen flags only"
+      },
+      "95": {
+        "offset": "0x758",
+        "address": "0x595A60",
+        "bytes": 256,
+        "end_exclusive": "0x858",
+        "import": false
+      }
+    },
+    "checkpoint_tail": {
+      "file_offset": "0x858",
+      "address": "0xA6D468",
+      "bytes": 4096,
+      "dword_count": 1024,
+      "consumer": "0x41BBA0 indexes by current scenario catalogAE51B0 and compares/updates script checkpointA83C0C; it is not the boolean98 bank.",
+      "import": false
+    }
+  },
+  "flag_semantics": {
+    "native_getter": "Bank97 at41BEC3 and98 at41BEB2 use MOVZX; raw values are0..255, without binary validation.",
+    "native_comparators": {
+      "eq": "4265D8 CMP +4265DA SETE",
+      "gt": "4265F4 CMP +4265F6 SETG"
+    },
+    "whole_main_mes_scan": {
+      "files": 152,
+      "physical_records": 145280,
+      "CG97_gates": 257,
+      "CG97_predicate": "raw ==1; all257 gates have words[97,index,1,0]",
+      "seen98_gates": 119,
+      "seen98_predicate": "raw >0; all119 gates have words[98,index,0,2]",
+      "cached99_251_gates": 119,
+      "cached99_251_predicate": "raw ==0; all119 direct gates have words[99,251,0,0]",
+      "cached99_251_indirect_rhs_gates": 0,
+      "all_cached99_251_operand_candidates": 120,
+      "remaining_candidate": "START@0x605 opcode25[99,251] binds packed condition0x63FB for the next bitmap record, rather than arithmetic or a==1 comparison."
+    },
+    "bound_bitmap_condition": {
+      "entry": "0x41C260",
+      "positive_binding0x63FB": "41C2C5 calls getter then41C2CD TEST EAX,EAX; zero returns1 and any nonzero returns0. It is a suppression condition. Both255 and1 produce the same result.",
+      "inverted_binding": "Other branch also uses TEST zero/nonzero; no raw==1 comparison."
+    },
+    "native_cached_seen_uses": {
+      "address": "0xA85D14",
+      "sampler": "0x41EF70 MOVZX from seen98",
+      "refresh": "loader41F040 and native slot restore4210F8 sample the previous seen byte",
+      "direct_compare": "41F26F compares cached value with0 to conditionally clear rapid latch",
+      "scope": "Getter and native SAV copies can preserve a raw byte, but this change is a logical boolean unlock import, not a native-memory or native-SAV image roundtrip."
+    },
+    "selective_import_rules": {
+      "CG97": "Require0/1 for this conservative importer; do not turn0xFF into1 because native gallery raw==1 would not unlock it. Native IO itself performs no such per-byte validation.",
+      "seen98": "Normalize any nonzero byte to1. This preserves all observed seen98 >0 gates,119 cached==0 gates, compiled zero test and bitmap binding condition.",
+      "merge": "Union with existing runtime CG/seen; do not remove target progress or copy any other bank."
+    }
+  },
+  "importer_length_policy": {
+    "minimum": 2136,
+    "maximum": 6232,
+    "signature_required": true,
+    "matches_native_for_prefix_and_partial_tail": true,
+    "upper_bound_is_conservative_import_policy": "Native reader also ignores larger trailing data; rejecting lengths>6232 is a deliberate bounded importer rule, not a claim that native rejects them."
+  },
+  "local_read_only_sample": {
+    "source": "D:\\gal\\DCDX\\AdvData\\SaveData\\system.dat",
+    "sha256": "762f8f7a157941a1673aff971cd5e6176500a0b328f6cf25cda2c3d5e18b2c09",
+    "bytes": 6232,
+    "prefix_u32_48": 119,
+    "prefix_sha256": "e97061d982e33519ae9a760f96dcb305bc0e9cb9e1c5374b0a80d42a6a8fd6c4",
+    "ignored_checkpoint_tail": {
+      "offset": "0x858",
+      "bytes": 4096,
+      "sha256": "dbe316769b7fb5e1053045668db0eb2e55ced8715dc36874104fe0d66b323afe"
+    },
+    "banks": {
+      "cg97": {
+        "offset": "0xd8",
+        "bytes": 640,
+        "histogram": {
+          "0": 387,
+          "1": 253
+        },
+        "sha256": "96bd2fa8075b21cf8d569727bdbbaa9da5eb1a9ee9ec274d43bf1e7b91024831"
+      },
+      "seen98": {
+        "offset": "0x358",
+        "bytes": 1024,
+        "histogram": {
+          "0": 905,
+          "1": 119
+        },
+        "sha256": "d704c80a50795ee1a6f0725f903ecd169ea674726e6c3139bd3c758f67f5ddf2"
+      }
+    }
+  },
+  "excluded": [
+    "prefix settings/audio/display fields and player names",
+    "globals100/completion flags: no newly proven whitelist requested in this change",
+    "voice bank95",
+    "checkpoint watermark tail4096 bytes",
+    "music/statistics and ordinary runtime variables",
+    "native story-slot DAT data"
+  ],
+  "limits": [
+    "This analysis does not add service11 endings or opcode62 scrolling.",
+    "No claim of full native system.dat writeback or native SAV import.",
+    "Native custom registry SaveDir behavior is documented; this task did not read or alter the Windows registry.",
+    "Source metadata includes hashes and counts only, without original prose/image bytes."
+  ],
+  "receipts": [
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/read403d40.evidence.json",
+      "bytes": 107236,
+      "sha256": "b6b9d1108e5c2f4f4112a9d7434cd892ff2e2b0760ff8945dcc89956de9e9b0c",
+      "evidence_ids": [
+        "ev_c94b67f96e3c25b2d55aa6d8f0379f7061fe8901bf4677bcef2fcafae46a90ca"
+      ]
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/write403c70.evidence.json",
+      "bytes": 85814,
+      "sha256": "2eff359f90cf1390cd1c0ef35711ebf93d2cbd0df7501b636570ac27e13a68a6",
+      "evidence_ids": [
+        "ev_885a198b59a08c52e40b88fe774fb977fa0272ade5bc4820834a8f1b665e58ad"
+      ]
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/savepath-init.evidence.json",
+      "bytes": 466152,
+      "sha256": "4e5d23f416394029c35151e2f2ab4ba60086aeff3a6428df44c21eeacce73609",
+      "evidence_ids": [
+        "ev_dcd4ccca17b457015b7561a920cc9149bd2e979e2783b49969b8c69bd3507e9b"
+      ]
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/read403d40.asm",
+      "bytes": 1836,
+      "sha256": "e9f307036cf783ff765ebe9af8fb4f7f074ecd4edecbb9a10ea2f62d51c5f18e"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/write403c70.asm",
+      "bytes": 1486,
+      "sha256": "b6e576c0613f76c8c960ad574695f36e14120c51c384c615e830afcd9c8f41ed"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/module-dir40e3f1.asm",
+      "bytes": 725,
+      "sha256": "4ef1bfe27075217223e696be14217caa814c4ceb2c6655f31ee3c56fcc5c5788"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/savedir-a2dd50-xrefs.asm",
+      "bytes": 12895,
+      "sha256": "839df17a8252f99a2ff0b890b1b7c25f43292b46fec3fb98599bcaaaa8a75389"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/condition41c260.asm",
+      "bytes": 952,
+      "sha256": "e8250b1a3f21e355433fa6d4e276dbb08d5dc1b83ff0b6ca78b35b033e0a381e"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/checkpoint-watermark41bba0.asm",
+      "bytes": 428,
+      "sha256": "4d418827a2dc9fbe76290e7c1d4eaeda29c7a98fc303129d09278323348ac4b9"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/cached-seen-xrefs.asm",
+      "bytes": 1630,
+      "sha256": "3b84b31c531a840fb5f37a7eea544c69992023c3bb8a5b9dfe5350972e1274bc"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/cached-seen-operands.txt",
+      "bytes": 6476,
+      "sha256": "2737c68e5ce4cbd58317a533623750c64f9f7ecfe5bcc35c4e478e4b3fad2f0d"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/progress-gates.txt",
+      "bytes": 1368,
+      "sha256": "a2abe7d0645e181d3167cf54a2393305df4824fec353159c00607e701c9bee79"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/DcdxProgressGateScan.java",
+      "bytes": 1058,
+      "sha256": "282f7012bdb6810a8a4405023b1b085aa35bd64805d371fe1686fd6edd0508fd"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/DcdxCachedSeenScan.java",
+      "bytes": 1093,
+      "sha256": "964d66d312b5d2ebdbc6083f923620d5d6f01df074878341405092019bc620c0"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system-import-native/source-metadata.json",
+      "bytes": 909,
+      "sha256": "34ed94e7dcf2a12c4f94f5887e6e9b12971d9a70efd37f6e1c1fef76b5f0cac6"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/getter41bc60.evidence.json",
+      "bytes": 784944,
+      "sha256": "b889d9cdae036839233cd6fbf5958663dae13fd7a0655b63a1da6080d30418e2",
+      "evidence_ids": [
+        "ev_d0f42991667f079f4d85ac2fcc9a488637372f53f68d5090c965c2b54104030e"
+      ]
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/setter41bf10.evidence.json",
+      "bytes": 882036,
+      "sha256": "7bd1a757a4c62c5fef18aff67216d448b95705f85fd31d931f62d8cb7122b7d4",
+      "evidence_ids": [
+        "ev_4c9aa1cff852d9c8439202f15226dd2c485a1f27bff5509b3f2e49eb26fa75ab"
+      ]
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/case5f.asm",
+      "bytes": 1957,
+      "sha256": "eccce7cf99e6bc98f55e262ccd48b7a25da32043bec7323902fd0d47d712d8a9"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/loader.evidence.json",
+      "bytes": 755317,
+      "sha256": "eccc0b76e34f5e8b10c29890dcb55efa1212a705e87329991bfcca39c9e3a805",
+      "evidence_ids": [
+        "ev_c1fce6e4d4ec8e7e4f0e3fa55f433e09e8fba7933c1fd7e8c28d62f71bb65412"
+      ]
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/readcache41ef70.asm",
+      "bytes": 1794,
+      "sha256": "44ea393d27b263eb4d1615e40c9cf541fc797527da619dc7b6a0cb0c2f3dab22"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/mark-read41edb0.asm",
+      "bytes": 2082,
+      "sha256": "408bc6ae2b0463981086d9ebb4c3372d1ea0cc0b59a8e2996431ba749096a869"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/native-default-template.json",
+      "bytes": 987,
+      "sha256": "8104b7862d9e7d3ecfbe74bf3a9c06384f6b748c3641057560320264aee09da5"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/inputs.json",
+      "bytes": 98656,
+      "sha256": "7f8dd42784d774d5fa24e79124ea8f42d71cadbc4c66b27555b6c3b062ae2e96"
+    }
+  ]
+}

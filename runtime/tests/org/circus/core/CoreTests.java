@@ -375,6 +375,7 @@ public final class CoreTests {
         assertions+=DmDdPaletteTests.run();
         assertions+=PcNativeProgressTests.run();
         assertions+=PcScFlProgressTests.run();
+        assertions+=DcdxProgressTests.run();
         assertions+=NativeProgressTests.run();
         assertions+=AudioStreamingTests.run(assets);
         Dc3Host reloading=new Dc3Host(null,TextCodec.identity(),true);Variables transientVars=new Variables(reloading);reloading.attach(transientVars);transientVars.write(3,12,77);

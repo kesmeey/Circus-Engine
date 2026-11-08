@@ -5,8 +5,9 @@ import java.util.*;
 
 /** Version-bound original system progress. Never copies native preferences or story state.
  * Layout evidence and completion allowlists: docs/ANDROID_0135.md and
- * docs/validation/sc-fl-save-import-2026-11-08.json.
- * Native files have no game signature: independently identify the selected game's MES first.
+ * docs/validation/sc-fl-save-import-2026-11-08.json and dcdx-system-import-native-2026-11-08.json.
+ * Independently identify the selected game's MES first; a format version word
+ * such as DCDX's 0x77 does not identify the game by itself.
  */
 public final class NativeProgress {
     private static final class Layout {
@@ -37,6 +38,12 @@ public final class NativeProgress {
         // route flags1..13 and all-clear0; credits409210 writes52/53 on completion.
         new Layout("dc2fl-9c69","DC2FL",2032,0x74,0,0xd8,0x358,0,640,1024,false,
             new int[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,52,53},new int[0]),
+        // DCDX403D40 validates the first0x858 bytes and DWORD+48==0x77.
+        // Its second0x1000-byte read is an independent checkpoint table; the
+        // read count is ignored. Bound imports at the two native read extents.
+        // Only CG/scene flags are merged, never globals/settings/checkpoints.
+        new Layout("dcdx-7769","DCDX",6232,0x74,0,0xd8,0x358,0,640,1024,false,
+            new int[0],new int[0]),
         new Layout("dc2dm-9d72","DC2DM",15716,0xe4,0x148,0x17a,0x210,400,1200,650,true,
             new int[]{0,1,2,14,15,20,29,30,31,32},new int[0]),
         new Layout("dc3dd-a5a8","DC3DD",21356,0xcc,0x174,0x304,0x7b4,400,1200,650,false,
@@ -52,6 +59,7 @@ public final class NativeProgress {
     };
     private static Layout layout(String id)throws IOException{for(Layout l:LAYOUTS)if(l.id.equals(id))return l;throw new IOException("尚未适配此版本的原版进度："+id);}
     public static boolean supports(String id){for(Layout l:LAYOUTS)if(l.id.equals(id))return true;return false;}
+    /** Maximum source read size; DCDX also accepts a valid prefix with a shorter checkpoint tail. */
     public static int fileSize(String id)throws IOException{return layout(id).size;}
     /** Only known locations within the independently selected game, never recursive filename guessing. */
     public static List<String> sourcePaths(GameResources files,String id)throws IOException{
@@ -62,7 +70,7 @@ public final class NativeProgress {
     }
     public static boolean storySlot(String id,String source,String path)throws IOException{
         layout(id);String parent=source.substring(0,source.lastIndexOf('/')+1).toLowerCase(Locale.ROOT),p=path.toLowerCase(Locale.ROOT);
-        String prefix=id.equals("dcpc-2063")?"dcpc":id.equals("dc2-3363")?"dc2":id.equals("dc2pc-5769")?"dc2pc":id.equals("dc2sc-3b69")?"dc2sc":id.equals("dc2fl-9c69")?"dc2fl":id.equals("dc2dm-9d72")?"dc2dm":id.equals("dc3wy-a09f")?"dc3wy":id.equals("dc3pp-9872")?"dc3pp":"dc3dd";
+        String prefix=id.equals("dcpc-2063")?"dcpc":id.equals("dc2-3363")?"dc2":id.equals("dc2pc-5769")?"dc2pc":id.equals("dc2sc-3b69")?"dc2sc":id.equals("dc2fl-9c69")?"dc2fl":id.equals("dcdx-7769")?"dcdx":id.equals("dc2dm-9d72")?"dc2dm":id.equals("dc3wy-a09f")?"dc3wy":id.equals("dc3pp-9872")?"dc3pp":"dc3dd";
         return p.startsWith(parent)&&p.substring(parent.length()).matches(prefix+"[0-9]+\\.dat");
     }
     public static final class Summary {
@@ -75,14 +83,21 @@ public final class NativeProgress {
     private NativeProgress(Layout l,byte[] bytes)throws IOException{
         layout=l;profileId=l.id;completion=new int[l.completion.length];
         for(int n=0;n<completion.length;n++){int index=l.completion[n],v=bytes[l.global+index]&255;if(!l.counter(index))flag(v,100,index);completion[n]=v;}
-        music=flags(bytes,l.music,l.musicCount,l.packed,96);cg=flags(bytes,l.cg,l.cgCount,l.packed,97);scenes=flags(bytes,l.scenes,l.sceneCount,l.packed,98);
-        source=new Summary(count(completion),count(music),count(cg),count(scenes));sourceSummary=l.name+" system.dat ("+l.size+" bytes; "+source+")";
+        music=flags(bytes,l.music,l.musicCount,l.packed,96);cg=flags(bytes,l.cg,l.cgCount,l.packed,97);
+        // DCDX98 uses MOVZX then native5F signed >0. Normalize the source to
+        // boolean seen flags; CG gates instead compare exactly==1.
+        scenes=flags(bytes,l.scenes,l.sceneCount,l.packed,98,l.id.equals("dcdx-7769"));
+        source=new Summary(count(completion),count(music),count(cg),count(scenes));sourceSummary=l.name+" system.dat ("+bytes.length+" bytes; "+source+")";
     }
     public static NativeProgress parse(String id,byte[] bytes)throws IOException{
-        Layout l=layout(id);if(bytes==null||bytes.length!=l.size)throw new IOException(l.name+" system.dat 文件长度应为 "+l.size+" 字节；所选文件格式不匹配");return new NativeProgress(l,bytes);
+        Layout l=layout(id);boolean dcdx=id.equals("dcdx-7769");
+        if(bytes==null||(dcdx?bytes.length<2136||bytes.length>l.size:bytes.length!=l.size))throw new IOException(l.name+" system.dat 文件长度应为 "+(dcdx?"2136 至 6232":String.valueOf(l.size))+" 字节；所选文件格式不匹配");
+        if(dcdx&&Binary.u32(bytes,0x48)!=0x77)throw new IOException("DCDX system.dat 版本标记不匹配（应为 0x77）");
+        return new NativeProgress(l,bytes);
     }
     private static void flag(int v,int bank,int index)throws IOException{if(v!=0&&v!=1)throw new IOException("Invalid native unlock flag "+bank+":"+index+" = "+v);}
-    private static int[] flags(byte[] b,int offset,int count,boolean packed,int bank)throws IOException{int[] r=new int[count];for(int n=0;n<count;n++){r[n]=packed?(b[offset+n/8]>>>(n&7))&1:b[offset+n]&255;flag(r[n],bank,n);}return r;}
+    private static int[] flags(byte[] b,int offset,int count,boolean packed,int bank)throws IOException{return flags(b,offset,count,packed,bank,false);}
+    private static int[] flags(byte[] b,int offset,int count,boolean packed,int bank,boolean nonzero)throws IOException{int[] r=new int[count];for(int n=0;n<count;n++){r[n]=packed?(b[offset+n/8]>>>(n&7))&1:b[offset+n]&255;if(nonzero&&r[n]!=0)r[n]=1;flag(r[n],bank,n);}return r;}
     private static int count(int[] values){int n=0;for(int v:values)if(v!=0)n++;return n;}
     private void check(String id,Variables.Special target)throws IOException{if(target==null||!profileId.equals(id))throw new IOException("Native progress target profile mismatch");}
     private boolean addCompletion(Variables.Special target,int n)throws IOException{int prior=target.read(100,layout.completion[n]);return completion[n]>0&&(layout.counter(layout.completion[n])?completion[n]>prior:prior==0);}

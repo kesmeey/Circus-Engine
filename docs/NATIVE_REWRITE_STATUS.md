@@ -1,10 +1,12 @@
 # 非 Unity 引擎重写状态
 
-更新：2026-11-08。本批 Windows／Android 开发包为 **0.14.9-dcdx-import-dev**，执行契约为rev8；旧0.14.3至0.14.8固定包保留。[包哈希与实包复查](validation/windows-sc-fl-0.14.8.json)单独记录。
+更新：2026-11-08。Windows 固定包为 **0.14.9-dcdx-import-dev**，Android 更新为 **0.14.10-dcdx-system-import-dev**，执行契约为rev8；旧0.14.3至0.14.8固定包保留。[包哈希与实包复查](validation/windows-sc-fl-0.14.8.json)单独记录。
+
+DCDX system.dat新增导入以本作403D40读取与版本检查、41BC60变量读取和原MES门槛为依据；前2136字节为系统表，后最多4096字节检查点不合并。Android入口复用原有预览、备份及原子写入，准确范围和源码／APK检查见[本轮验证](validation/dcdx-system-import-source-2026-11-08.json)。
 
 本批新增DCDX独立7769绑定：原EXE只读，105项分发表、加载/变量、1024×576画布、stage/live角色与65移动、50/53原轮转菜单和12五行滑动菜单分别核对。两个自然剧情入口各20等待及独立像素审计通过；不把它当作SC/FL别名。首选长流程在进入med（此前观察3558等待）后的service11、以及进入dx2_1222e_c1_cm1（此前观察3940等待）后的62背景滚动明确失败；不是整线通过。第五演员、voice/music独立浏览器及MINI仍有明确边界，详见[本批验证](validation/dcdx-import-workflows-source-2026-11-08.json)。
 
-Android新增SC/FL原版系统进度合并：SC仅CG和已读，FL另含已确认通关索引；设置、姓名与已有便携槽保留。原Windows剧情槽转换SC/FL/DCDX均未实现，DCDX原系统进度也尚未接入。原版菜单Save→Load与原文件格式互通分开记录。
+Android新增SC/FL原版系统进度合并：SC仅CG和已读，FL另含已确认通关索引；设置、姓名与已有便携槽保留。原Windows剧情槽转换SC/FL/DCDX均未实现，DCDX在0.14.10新增原system.dat的CG/场景已读合并，不导入globals、设置、姓名、voice开关和原版检查点尾部。原版菜单Save→Load与原文件格式互通分开记录。
 
 用户追加SC/FL作为测试集后，先记录未改动0.14.7的失败，再按两作各自EXE重写绑定、变量布局、角色移动和原版存读菜单。SC为PC_BYTE，FL为PC_WIDE，99:251均读取加载时的已读字节；PC2同类旧错误同步修正。三族bank尺寸、默认值、stage/live及旧进度尾字节分别保存，不将它们当作同一小版本。[本批统一验证](validation/sc-fl-workflows-source-2026-11-08.json)、[SC](validation/sc-holdout-source-2026-11-08.json)、[FL](validation/fl-holdout-source-2026-11-08.json)和[原生合同](validation/pc2-sc-fl-native-contract-2026-11-08.json)记录确切范围。
 

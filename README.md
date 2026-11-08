@@ -7,11 +7,11 @@
 仓库：[kesmeey/Circus-Engine](https://github.com/kesmeey/Circus-Engine)。
 项目目录与命令行工具仍沿用 `circus-runtime`／`dc_runtime` 命名。
 
-本批开发包为 **0.14.9-dcdx-import-dev**：新增 DCDX 独立宿主及 SC／FL 原版系统进度导入；[本批验证](docs/validation/dcdx-import-workflows-source-2026-11-08.json)记录准确范围。Windows 和 Android 均生成新包，旧0.14.8固定包保留；DCDX尚未验证完整路线及手机原数据流程。此前[SC／FL路线测试](docs/validation/sc-fl-workflows-source-2026-11-08.json)继续单独保留。
+Android 更新为 **0.14.10-dcdx-system-import-dev**，新增 DCDX `system.dat` 的 CG／场景已读进度导入，见[本轮验证](docs/validation/dcdx-system-import-source-2026-11-08.json)。Windows 保留 **0.14.9-dcdx-import-dev** 固定包；此前[DCDX 运行与 SC／FL 导入验证](docs/validation/dcdx-import-workflows-source-2026-11-08.json)继续单独保留。DCDX 长流程仍有片尾／背景滚动缺口，手机整部原数据流程尚未验证。
 
 当前目标已调整为约80%的主要功能与大多数常见游戏流程，允许延期少量难处理的版本和边缘行为；这是工程范围，尚不是完成率声明。见[当前交付目标](docs/ENGINE_SCOPE.md)。
 
-本批 Android 安装包为 `build/distribution/circus-runtime-0.14.9-dcdx-import-dev-android.apk`，可覆盖安装，保留应用数据。SC／FL新增导入服务已作独立检查；DCDX手机整部原数据流程尚未验证。
+本批 Android 安装包为 `build/distribution/circus-runtime-0.14.10-dcdx-system-import-dev-android.apk`，可覆盖安装，保留应用数据。新增 DCDX 系统进度导入，SC／FL 导入继续保留；DCDX 手机整部原数据流程尚未验证。
 
 此前分发的 Android 开发包 **0.13.15** 修复 W.Y. 夏露露剧情中的重复目录分隔符报错，同时覆盖 P.P. 的同类图片引用。旧安装包：`build/distribution/circus-runtime-0.13.15-android-dev.apk`，见 [修复说明](docs/ANDROID_01315.md)。保留 [0.13.14 的 W.Y.／P.P. 原版系统进度导入](docs/ANDROID_01314.md)和 [0.13.13 的手机启动与中文补丁兼容](docs/ANDROID_01313.md)。
 
@@ -128,8 +128,8 @@ python tools/build_windows_native.py --java-home <JDK21> --vcvars "<Visual Studi
 ## 存档
 
 手机存档不是原 Windows 格式。原版的系统进度（通关、CG、场景解锁）可以导入：
-游戏卡片「更多 → 导入原版进度」，支持 DCPC／DC2（2006）／DC2PC／DC2SC／DC2FL／DC2DM／DC3DD／DC3WY／DC3PP／DC3R。
-SC本轮仅合并CG与场景已读；FL另含已确认的通关标记。两作均保留本机设置、姓名和已有剧情槽，重复导入不重复写入。DCDX原版进度导入尚未实现。
+游戏卡片「更多 → 导入原版进度」，支持 DCPC／DC2（2006）／DC2PC／DC2SC／DC2FL／DCDX／DC2DM／DC3DD／DC3WY／DC3PP／DC3R。
+SC本轮仅合并CG与场景已读；FL另含已确认的通关标记。两作均保留本机设置、姓名和已有剧情槽，重复导入不重复写入。DCDX现支持从 `system.dat` 合并CG及场景已读标记，保留本机设置、姓名和剧情槽；不导入通关状态、原版历史检查点或剧情槽。
 SC／FL／DCDX 的原Windows剧情槽转换仍未实现；原版Save→Load通过指运行时通过原菜单保存自己的便携槽，不能据此推断原Windows文件互通。
 Android 的原版剧情槽导入入口目前仅覆盖 DC3R；本轮桌面新增 DC2（2006）普通 ADV 剧情槽转换，范围见下文。
 

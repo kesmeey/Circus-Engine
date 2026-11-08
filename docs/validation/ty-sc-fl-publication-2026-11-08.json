@@ -1,0 +1,70 @@
+{
+  "schema": "circus-runtime.validation.ty-sc-fl-publication.v1",
+  "date": "2026-11-08",
+  "version": "0.14.11-ty-sc-fl-dev",
+  "verified_source_commit": "b31796146712ac2234d56b80cade5f83fb77ef4f",
+  "source_proof": {
+    "path": "docs/validation/ty-sc-fl-source-2026-11-08.json",
+    "bytes": 100470,
+    "sha256": "85119902cefe0fcc48710496c25dd3d1a82e58c06330779b2b1d63aff8b8ff1b"
+  },
+  "source_commit_verification": {
+    "pass": true,
+    "method": "git cat-file --batch at the exact source commit; every live file SHA equals the relevant captured bytes. Commit blob must be byte-equal or differ solely by CRLF/LF normalization with no NUL. Android old audit-only capture replaced by final rerun desktop audit in the union.",
+    "merged_captured_input_files": 789,
+    "byte_exact_blob_matches": 258,
+    "line_ending_only_blob_matches": 531,
+    "desktop_input_files": 637,
+    "android_captured_input_files": 789,
+    "android_and_desktop_capture_difference": [
+      "runtime/desktop/src/org/circus/core/ScFlProgressAudit.java"
+    ],
+    "private_complete_comparison": {
+      "path": "build/ty-sc-fl-publication-20261108/source-commit-verification.json",
+      "bytes": 135585,
+      "sha256": "acf81ac310011bb74f0df28c229587b5f31befba1ef2e576f01c0eeec2d8d9ea"
+    }
+  },
+  "hash_semantics": "Artifact and input SHA256 values describe the physical bytes frozen/built/packaged in this workspace. Git normalizes text to LF; source-commit comparison explicitly proves equality apart from CRLF/LF for text, and requires exact equality for all other bytes. The sole Android-capture desktop audit correction is absent from APK compilation and was included in the complete final desktop rerun.",
+  "android": {
+    "artifact": {
+      "path": "build/distribution/circus-runtime-0.14.11-ty-sc-fl-dev-android.apk",
+      "bytes": 12707688,
+      "sha256": "76a83764856feaa5581d3b1cf349bd69680c782b7be6fb81f7dc77ecc7a94a2a"
+    },
+    "validation_receipt": {
+      "path": "docs/validation/android-ty-sc-fl-0.14.11.json",
+      "bytes": 125414,
+      "sha256": "30f15eb486b011d578ed54db0be4d68195e95d1d86753a710d6a52862318309b"
+    },
+    "signature_verified": true,
+    "version_code": 41,
+    "same_debug_certificate": true,
+    "emulator_install_r": true,
+    "real_phone_install_r": false
+  },
+  "windows": {
+    "artifact": {
+      "path": "build/distribution/dc-runtime-0.14.11-ty-sc-fl-dev-windows-x64.zip",
+      "bytes": 69391632,
+      "sha256": "de3c1c5cd3193bfed6acfdd7ff4fb5ee06fb4e3f0ce964f93e14feebf93dd756"
+    },
+    "validation_receipt": {
+      "path": "docs/validation/windows-ty-sc-fl-0.14.11.json",
+      "bytes": 6059,
+      "sha256": "32f8a683361044a3db568d48f1563225163c9a51b9ed0171828cd767439d8e8f"
+    }
+  },
+  "real_phone_status": {
+    "after_upgrade_sc_launch": "NOT RUN",
+    "new_build_fl_title_load_on_phone": "NOT RUN",
+    "user_phone_native_progress_apply": "NOT RUN",
+    "reason": "Phone disconnected before upgrade and user requested package delivery. FL fixed behavior was checked against the exact copied phone script bytes in desktop player62-check workflow; Android production import used the exact user2028-byte source in an isolated emulator target.",
+    "prior_sc_repair": "One previously missing names.dat copied to the selected SC game DAT folder and readback SHA verified before disconnection. No game scripts or original phone system.dat were rewritten."
+  },
+  "delivery": "Install the new Android APK over the existing app to retain data; do not uninstall. Use the existing FL progress import entry and select the old_source_circus_dc2fl/dc2fl/system.dat source explicitly when multiple sources are listed.",
+  "game_assets_included": false,
+  "old_fixed_artifacts_overwritten": false,
+  "original_pc_executables_run": false,
+  "original_pc_game_directories_written": false
+}

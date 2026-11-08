@@ -1,0 +1,142 @@
+{
+  "schema": "circus-windows-package-validation-v1",
+  "version": "0.14.11-ty-sc-fl-dev",
+  "date": "2026-11-08",
+  "result": "PASS",
+  "package": {
+    "directory": "build/distribution/dc-runtime-0.14.11-ty-sc-fl-dev-windows-x64",
+    "zip": "build/distribution/dc-runtime-0.14.11-ty-sc-fl-dev-windows-x64.zip",
+    "bytes": 69391632,
+    "sha256": "de3c1c5cd3193bfed6acfdd7ff4fb5ee06fb4e3f0ce964f93e14feebf93dd756",
+    "jar_sha256": "9e3f0a66a24bdd927a8e4949cf364baebb1e34834e4a78b50be4f7eec567fc68",
+    "jre_java_sha256": "5f6248f9c0f32b38ffaba813819bf3331536a48c7ddc45b18e73acd15a6cf7ef",
+    "ffmpeg_sha256": "2ce797a0f88d7f067180338fb227f7b1928ea727bd9a4d7a1d022f7c52af71a3",
+    "checksum_file": "build/distribution/dc-runtime-0.14.11-ty-sc-fl-dev-windows-x64.zip.sha256",
+    "checksum_file_sha256": "2a3de04405b50c9c282ed8a1b01d3a745ba887756e311dfb9d571bb304654c5a"
+  },
+  "sourceproof": {
+    "path": "docs/validation/ty-sc-fl-source-2026-11-08.json",
+    "sha256": "85119902cefe0fcc48710496c25dd3d1a82e58c06330779b2b1d63aff8b8ff1b"
+  },
+  "all_test_freeze": {
+    "path": "build/native-rewrite/ty-sc-fl-final-20261108T143810500280Z",
+    "result_sha256": "d8a4c3f7f28cc568db4fb27e20e115f66c1e24e0933399d2f57ea2af6b5b71f0",
+    "source_deltas": []
+  },
+  "identity": {
+    "path": "build/native-rewrite/windows-ty-sc-fl-0.14.11-20261108T144327101259Z/production-identity.json",
+    "sha256": "b720760b23b824523ae77dd222c01334561f1d0520593f15971199651d86ddb2"
+  },
+  "zip_inventory": {
+    "path": "build/native-rewrite/windows-ty-sc-fl-0.14.11-20261108T144327101259Z/zip-inventory.json",
+    "sha256": "8595c1e29ef6cae50004e626c86985a911c3966752cc4ed905425f9b5c574f50"
+  },
+  "old_fixed_artifacts": {
+    "path": "build/native-rewrite/windows-ty-sc-fl-0.14.11-20261108T144327101259Z/old-fixed-conservation.json",
+    "sha256": "4afe4bc0e08a2b9a43b1644fcb0b76e85b5c937bd7c39882fa122f6c5cc0e0b8"
+  },
+  "all_player_classes_resolve_from_jar": {
+    "exit_code": 0,
+    "command": [
+      "D:\\gal\\circus-runtime\\build\\distribution\\dc-runtime-0.14.11-ty-sc-fl-dev-windows-x64\\jre\\bin\\java.exe",
+      "-Dfile.encoding=UTF-8",
+      "-cp",
+      "D:\\gal\\circus-runtime\\build\\distribution\\dc-runtime-0.14.11-ty-sc-fl-dev-windows-x64\\dc-runtime.jar;D:\\gal\\circus-runtime\\build\\native-rewrite\\windows-ty-sc-fl-0.14.11-20261108T144327101259Z\\origin-driver",
+      "PackageOriginAudit",
+      "D:\\gal\\circus-runtime\\build\\distribution\\dc-runtime-0.14.11-ty-sc-fl-dev-windows-x64\\dc-runtime.jar"
+    ],
+    "stdout_sha256": "53c14aa0f0d703aa7b1c39657d6365ffefbb6a6add3daf4bd3f71fa6b2089c4b",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "test_environment": {
+    "java": "build/distribution/dc-runtime-0.14.11-ty-sc-fl-dev-windows-x64/jre/bin/java.exe",
+    "classpath_order": [
+      "actual player JAR",
+      "frozen audit/test classes"
+    ],
+    "production_class_override": false,
+    "heap_mib": 192
+  },
+  "original_game_executables_executed": false,
+  "original_game_directories_written": false,
+  "actual_job_count": 35,
+  "scope": "Packaged bundled JRE with actual player first on classpath. Old seven starts, all fourteen TY workflows including four complete representative routes, SC/FL six workflows, DCDX seven workflows and phone-byte FL title-load regression. Media completion simulated; prepared surface oracles do not prove original EXE full-screen/audio equivalence. Upgraded phone APK test was not run after USB disconnect; user chose package delivery.",
+  "evidence": {
+    "path": "build/native-rewrite/windows-ty-sc-fl-0.14.11-20261108T144327101259Z/result.json",
+    "sha256": "8a85fe235a084aceaa112226dade71e5cba8f7e2d9c7487b28782d4d7ac0df07"
+  },
+  "test_results": {
+    "packaged-startup-dc2-3363": {
+      "exit_code": 0,
+      "result_sha256": null,
+      "jobs": null,
+      "result": "passed"
+    },
+    "packaged-startup-dc2dm-9d72": {
+      "exit_code": 0,
+      "result_sha256": null,
+      "jobs": null,
+      "result": "passed"
+    },
+    "packaged-startup-dc2pc-5769": {
+      "exit_code": 0,
+      "result_sha256": null,
+      "jobs": null,
+      "result": "passed"
+    },
+    "packaged-startup-dc3dd-a5a8": {
+      "exit_code": 0,
+      "result_sha256": null,
+      "jobs": null,
+      "result": "passed"
+    },
+    "packaged-startup-dc3pp-9872": {
+      "exit_code": 0,
+      "result_sha256": null,
+      "jobs": null,
+      "result": "passed"
+    },
+    "packaged-startup-dc3wy-a09f": {
+      "exit_code": 0,
+      "result_sha256": null,
+      "jobs": null,
+      "result": "passed"
+    },
+    "packaged-startup-dcpc-2063": {
+      "exit_code": 0,
+      "result_sha256": null,
+      "jobs": null,
+      "result": "passed"
+    },
+    "ty": {
+      "exit_code": 0,
+      "result_sha256": "10c10ca1eeda1849d411de72bacc3e76c243bd243bfbc5d57fa6996e4c64f1ab",
+      "jobs": 14,
+      "result": null
+    },
+    "sc-fl": {
+      "exit_code": 0,
+      "result_sha256": "d42af1bf7ed3efb7b70cc7a4ebb4af2f73bc73df55129d8562b9b31f9de317e1",
+      "jobs": 6,
+      "result": null
+    },
+    "dcdx": {
+      "exit_code": 0,
+      "result_sha256": "0771e182fcefcbd4e7b2f4ccaeee513695583d850c1c9b0b0442677a977f131c",
+      "jobs": 7,
+      "result": null
+    },
+    "fl-phone": {
+      "exit_code": 0,
+      "result_sha256": "6a5191681423e4445cdc52b644869a0bb2a28a757bc3e1abc83145622efd3d5b",
+      "jobs": null,
+      "result": "PASS"
+    }
+  },
+  "source_commit": "b31796146712ac2234d56b80cade5f83fb77ef4f",
+  "actual_package_input_proof": {
+    "path": "build/native-rewrite/windows-ty-sc-fl-0.14.11-20261108T144327101259Z/package-input-proof.json",
+    "sha256": "a4b28927c4446a3920662af902f28db1de3da672b600ba8b8a9be8ed741e7eea"
+  },
+  "receipt_not_embedded_in_zip": "This final Windows receipt was created after the ZIP; existing sourceproof/native receipts are bundled. No ZIP rebuild or self-hash cycle."
+}

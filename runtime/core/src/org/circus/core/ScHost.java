@@ -27,6 +27,11 @@ public final class ScHost extends PcHost {
         scene.bindActorProjection(this::projectActors);
     }
 
+    /** SC51/410960 retains the raw native menu caption, separately from4B/4C
+     * localized prose. The reviewed SC menu corpus keeps these captions CP932,
+     * including scene replay dates/titles, while its story text is GBK. */
+    @Override protected String buttonCaption(byte[] raw)throws IOException{return TextCodec.cp932(raw);}
+
     private void projectActors(Dc2Scene.Frame frame){
         for(int which=0;which<4;which++){
             System.arraycopy(liveActors[which],0,frame.actors[which],0,3);

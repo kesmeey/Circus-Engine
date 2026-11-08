@@ -608,7 +608,7 @@ public class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesVm.Nati
             // labels without it, so draw the bare text and keep the native width.
             byte[] label=bytes;
             if(sprite&&label.length>2&&label[0]=='@'&&label[1]=='s')label=java.util.Arrays.copyOfRange(label,2,label.length);
-            q.text=codec.decode(label);if(sprite){q.width=bytes.length*14+1;normalizeButtonText(q);}return true;}
+            q.text=sprite?buttonCaption(label):codec.decode(label);if(sprite){q.width=bytes.length*14+1;normalizeButtonText(q);}return true;}
         case "pc.movie":{
             // D.C.II writes "advdata\movie\name.mpg"; normalise before the prefix check so the
             // path is not prefixed twice.
@@ -786,6 +786,8 @@ public class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesVm.Nati
     void nativeCrtState(int value){randomState=value;}
     /** Shared43E100 CRT stream, including the discarded WM_TIMER1 call. */
     public int nativeCrtRandom()throws IOException{if(pc1==null)throw new IOException("PC1 CRT owner unavailable");return nextRandom();}
+    /** Menu caption bytes can have a different source encoding from localized prose. */
+    protected String buttonCaption(byte[] raw)throws IOException{return codec.decode(raw);}
     private String prose(byte[] raw)throws IOException{return codec.decode(raw).replace("$n",pc1==null?givenName:codec.decode(nativeGivenName())).replace("$s",pc1==null?familyName:codec.decode(nativeFamilyName()));}
     @Override public void copyPersistentFrom(Dc2Host other)throws IOException{
         PcHost p=(PcHost)other;nativeFrameCapture=p.nativeFrameCapture;nativeMessageTemplateCapture=p.nativeMessageTemplateCapture;

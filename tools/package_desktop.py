@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--jdk', type=Path, required=True)
     parser.add_argument('--ffmpeg', type=Path, required=True)
-    parser.add_argument('--version', default='0.14.11-ty-sc-fl-dev')
+    parser.add_argument('--version', default='0.14.12-sc-display-dev')
     args = parser.parse_args()
     if any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_' for c in args.version):
         raise SystemExit('Invalid version')
@@ -68,6 +68,8 @@ SC/FL采用各自原生证据和独立宿主；SC本地Coco剧本有一份截断
 TY新增独立5F69宿主、两次确认的原故事选择界面及滚动背景；四主要故事代表流程和原菜单便携存读档通过。
 FL按原生STOP结束静态指令索引，兼容汉化覆盖后留下的旧文件尾；保留原文件及完整哈希。
 NAMES.DAT是原版使用的资源索引；请复制完整AdvData目录，缺失时会明确提示资源不完整。
+SC的原菜单按钮标题保留CP932，汉化正文使用GBK；现在分别解码，修正Scene Replay标题和日期乱码。
+SC显式背景文件缺失会报告资源路径；合法空背景和黑色图片保留。安装包不含背景素材，请完整复制游戏数据。
 DCDX新增独立1024×576宿主、原轮转/滑动菜单及两个剧情入口；长流程仍在片尾11/背景滚动62停止，未整线通过；内置独立MINI不在本包运行范围。
 Android同批兼容FL的2028/2032字节系统进度，支持TY/DCDX的CG与场景已读导入；SC仅CG/已读，FL含已确认通关标记。SC/FL/TY/DCDX原Windows剧情槽转换仍未实现。
 FL目录遗留cg_etc.mes的6C69标记不被本作原生loader接受，运行时也不会将它别名为9C69。

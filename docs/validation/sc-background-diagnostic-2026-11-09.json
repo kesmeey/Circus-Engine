@@ -1,0 +1,64 @@
+{
+  "schema": "circus-runtime.validation.sc-background-diagnostic.v1",
+  "date": "2026-11-09",
+  "scope": "SC explicit background resource failure diagnostic. The user-reported natural scene already draws correctly with complete data; raster arithmetic, stage/commit, positions and actor/particle rendering are unchanged. This improvement reports absent requested background content rather than continuing with a silently black backdrop. It does not reconstruct absent assets.",
+  "scene": {
+    "script": "aft_0314_a1_otm",
+    "pc": 8429,
+    "body_sha256": "419e807112dc3ffef639024d88b2ae7a58745527b66cadfba97eb665b5582d30",
+    "background": "bg\\bg060_d_no",
+    "source_path": "AdvData/GRP/BG/bg060_d_no.CRX",
+    "source_bytes": 914512,
+    "source_sha256": "3a89fe7f8984b9fbcce0bd6dd61220028f4b9bf4e50210a66feb1fe532648e89",
+    "sample_pixels": 160000,
+    "sample_pixels_equal_to_original_background": 159486
+  },
+  "original_complete_data_baseline": {
+    "path": "build/sc-display-20261108/background-baseline.json",
+    "bytes": 6078,
+    "sha256": "01af1decf7a33efce2491772f32a9d2d502c5cf807a26a74c679610657600e30"
+  },
+  "counterfactual": {
+    "method": "Exclude only AdvData/GRP/BG/bg060_d_no.CRX from an independent read-only storage index; never rename, remove or edit original files.",
+    "complete_BG_black_pixels_of_160000": 0,
+    "excluded_BG_black_pixels_of_160000": 159542,
+    "same_natural_script_pc_body_actor_refs": true,
+    "evidence_limit": "This storage experiment alone does not prove the phone file status. The separate device audit must establish whether assets were copied completely."
+  },
+  "source_sha256": {
+    "runtime/desktop/src/org/circus/core/DesktopLegacy.java": "6d80d8864abdba27b4b5b8ede1cfd120edf42707ea8149b0775b96301699da4c",
+    "runtime/desktop/src/org/circus/core/ScBackgroundDisplayAudit.java": "c7ac2e5df2c156a31cc02fccb2875b0631d345a1cd109edf9cca019e51783a83"
+  },
+  "validation": {
+    "result": "PASS",
+    "checks": 40,
+    "self_authored_renderer_fixture_checks": 15,
+    "natural_scene_workflow_and_pixel_checks": 25,
+    "actual_report": {
+      "path": "build/sc-display-20261108/desktop-fixed-background-v2/report.json",
+      "bytes": 691,
+      "sha256": "a5bfea1f672d754dc20800f576f21e1db01d9b93e43c0f98a83405176de3e524"
+    },
+    "production_capture_manifest": {
+      "path": "build/sc-display-20261108/background-diagnostic-input-manifest.json",
+      "bytes": 82629,
+      "sha256": "bf035fe48bc5c9b4fc326d125d0c1bb150185431bc26a953ac617d7fd844159b"
+    },
+    "audit_classpath_note": "Production DesktopLegacy was compiled from the captured input bytes; a desktop-only audit correction to assert actual malformed-image rejection was separately compiled into build/sc-display-20261108/audit-final-classes, first on the audit classpath. The parent release validation must rerun all40 checks in one complete final source freeze.",
+    "cases": [
+      "empty SC background slot valid black frame",
+      "all-black owned CRX valid and counted as loaded",
+      "@ui-capture valid without source resource",
+      "explicit SC missing background reports full source path and retains missing-file cause",
+      "optional SC missing sheet keeps existing empty-slot behavior",
+      "other profiles retain missing-image behavior",
+      "malformed CRX retains its decoder exception instead of being relabeled as absent",
+      "natural title/category/route selection reaches exact user scene",
+      "original opaque800x600 source identity and origin checked",
+      "160000 unobstructed pixels compare to raw original source, allowing small live-petal overlay"
+    ]
+  },
+  "original_game_executable_run": false,
+  "original_game_files_written": false,
+  "original_prose_or_game_assets_embedded": false
+}

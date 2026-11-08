@@ -1,0 +1,470 @@
+{
+  "schema": "circus-runtime.validation.sc-native-menu-captions.v1",
+  "date": "2026-11-09",
+  "target_version": "0.14.12-sc-display-dev",
+  "scope": "Fix the reviewed SC native51 button-caption field independently from localized story/choice/free-text fields. No generic charset fallback or reinterpretation of resource names.",
+  "reported_symptom": "Scene Replay dates/titles appear garbled with GBK prose selected; CP932 month/day bytes become unrelated Chinese glyphs, even though both decoders accept them.",
+  "actual_data_path": {
+    "menu": "Original title -> extra -> scene -> af_otm_00@0xCE6",
+    "list_items": 0,
+    "ui_buttons": 17,
+    "opcode": "0x51 ui.button_text with following raw string payload",
+    "not_the_source": "Neither NAMES.DAT scene catalog captions nor pc.grid.caption58/service7 scene-list date generation produces this page.",
+    "source_example": {
+      "script": "af_otm_00",
+      "owner_offset_hex": "0x157",
+      "string_payload_offset_hex": "0x160",
+      "raw_bytes": 10,
+      "raw_sha256": "8145ab4819b7bed7b70599eab2c7cedb94cf02da63361ed99a9c55b2250b1965",
+      "display_prefix": "Existing @s prefix removal retained",
+      "independent_CP932_date": "03月14日",
+      "expected_date_utf8_sha256": "f888e741deb39e117be7c710feb0f1ebada8b05fa92408513201e03b5255e0a5",
+      "old_GBK_date_utf8_sha256": "6819877753bc99af0480cb5cc2c4532cc63de0a8ee203dca2d1586f488457b97"
+    }
+  },
+  "native_evidence": {
+    "subject": "dc2sc_CHS.exe",
+    "subject_sha256": "11f0507fd4e317ebf07a430eb221f4ecf4c7a1f1e27a4431d3ef9e5daef13abc",
+    "provider": "REA / Ghidra12.1.4, retained immutable static evidence",
+    "dispatch": {
+      "path": "build/holdout-sc-20261108/rea-dispatch.json",
+      "bytes": 125359,
+      "sha256": "00290c0f958986a5513ee5c531d180b5d2da9d75cfbe1d5bdbfef5567a541809"
+    },
+    "services_evidence_id": "ev_f98398f0a30ca3c4ac120af3eb6ebdf939b38978826fc4234f60380d5b529623",
+    "services_evidence": {
+      "path": "build/holdout-sc-20261108/rea-services-functions.json",
+      "bytes": 6339,
+      "sha256": "7c467a30ddc7711839727e7dd8661437653bb5731de8902e2b342b0fdaff8ceb"
+    },
+    "case51": {
+      "path": "build/holdout-sc-20261108/case-51.c",
+      "bytes": 725,
+      "sha256": "5fd9c87257948702e06f9335989e0988d9777136d8c15321c911e7481f5ca850"
+    },
+    "button_caption_builder": {
+      "path": "build/holdout-sc-20261108/native-services-functions/functions/0x410960.c",
+      "bytes": 2784,
+      "sha256": "6bf97eb915fb1e3655bf50676abd23c732d96bb1bd1d0c07a9e78e3f2ef0f422"
+    },
+    "interpretation": "SC419E00 case51 skips the next marker byte, passes a pointer to the raw NUL-terminated caption into410960, then advances the raw PC past the string.410960 stores that pointer in the button sprite and width14*strlen+1; it does not call the4B/4C prose decoding/expansion path. Corpus bytes establish CP932 encoding for this menu field. This is not an original-EXE font/pixel equivalence claim."
+  },
+  "corpus": {
+    "source_files": 53,
+    "nonASCII_native51_fields": 2733,
+    "strict_CP932_success": 2733,
+    "CP932_private_use_codepoints": 0,
+    "files_scope": "49 original Scene Replay pages af_*/dm_*/haru_*/kun_*, plus4 supplied db debug/menu scripts. No nonASCII51 field was found in the localized body-story scripts.",
+    "source_file_manifest": [
+      {
+        "path": "advdata/mes/af_anz_00.mes",
+        "bytes": 3964,
+        "sha256": "371af110c3209754f9ec1123ac8661b1fc805e5c198b0ef893ce2d4d62332313",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/af_anz_01.mes",
+        "bytes": 3541,
+        "sha256": "1eaa402ccfbc8e55090bb25837fe39d66fa327fc47b1a9ff980da7279d5aded6",
+        "nonASCII_51_captions": 42
+      },
+      {
+        "path": "advdata/mes/af_kko_00.mes",
+        "bytes": 3994,
+        "sha256": "0edcd3b1e9f397ce1b851de2bf953180992381ccc92e222068e8d4d89c4f904e",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/af_kko_01.mes",
+        "bytes": 3967,
+        "sha256": "43c76fb33e08649a207cf8044e74b205ab177521a9149196bc734e3c9dbe04c9",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/af_kko_02.mes",
+        "bytes": 4021,
+        "sha256": "f9df5e68b7252793f7b09071b8cca6891f8ba80202cc32081921068dc67be90b",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/af_mnt_00.mes",
+        "bytes": 3976,
+        "sha256": "5f1dcaa0715e5eccdb0ce48add601e38adfca9914882448f6a13d4fdf99ff8b5",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/af_mnt_01.mes",
+        "bytes": 3976,
+        "sha256": "736b1c83c01ce2487cd19fa83666d9a02a37619aa46d0b6d129560e764a2ac09",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/af_mnt_02.mes",
+        "bytes": 1867,
+        "sha256": "227bb4dd080d66a20573c5090b8e50614f33d66a6b37024aed80c3a24753b434",
+        "nonASCII_51_captions": 12
+      },
+      {
+        "path": "advdata/mes/af_nnk_00.mes",
+        "bytes": 3969,
+        "sha256": "a5cd6ddef65c13bfbfce6051b7ed1ae03c253e9a455628fbcec5022979276fe5",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/af_nnk_01.mes",
+        "bytes": 3964,
+        "sha256": "3ba5325fa07bd7aa7781f98ed22ff65ca07291ac162bb2e769f5c14da87217ab",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/af_nnk_02.mes",
+        "bytes": 2566,
+        "sha256": "e1f6b9563164829102b4ef4a1ea97940e693ab6b50bc1bd3cb9d563297806114",
+        "nonASCII_51_captions": 24
+      },
+      {
+        "path": "advdata/mes/af_otm_00.mes",
+        "bytes": 3946,
+        "sha256": "bbddfdd668c09e392b454b50a108f74f8668c0519463db60b968c26ca8e077d4",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/af_otm_01.mes",
+        "bytes": 3994,
+        "sha256": "5f57e896252f99865229d732681e812d5519b02c1ef1d8092ee44a9fb7c16daf",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/af_otm_02.mes",
+        "bytes": 2233,
+        "sha256": "2d3a50e312f5bb71b4d9450cdb6a0e1a92c4f3203d018f71b4538024278805f0",
+        "nonASCII_51_captions": 18
+      },
+      {
+        "path": "advdata/mes/af_yme_00.mes",
+        "bytes": 3994,
+        "sha256": "85fd830e2aee3a3f18348c73e7bb89fab34300c9d493c007b5c4875f7415957e",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/af_yme_01.mes",
+        "bytes": 2947,
+        "sha256": "db791f78444e283c6ca1d0bd8dcec5e44133c3e0eb18a9fc4e75fd23fc4a4516",
+        "nonASCII_51_captions": 30
+      },
+      {
+        "path": "advdata/mes/db_all.mes",
+        "bytes": 11581,
+        "sha256": "03d7ae03fc22117c8e5537800af35e4a346ee3f9dd895ce998aee58210ace9cd",
+        "nonASCII_51_captions": 33
+      },
+      {
+        "path": "advdata/mes/db_fire01.mes",
+        "bytes": 776,
+        "sha256": "c6eaeed8df2bbd43edaaa181c5aa92e3f0831d11418843b26b8e3ec20cf6c330",
+        "nonASCII_51_captions": 15
+      },
+      {
+        "path": "advdata/mes/db_sample.mes",
+        "bytes": 51235,
+        "sha256": "7fa05e4015fdca9a2e34f4dfd4801c5026cc598666b1824752a7dd0462a22c71",
+        "nonASCII_51_captions": 606
+      },
+      {
+        "path": "advdata/mes/db_zoom00.mes",
+        "bytes": 1418,
+        "sha256": "44d4228d6f90cecd5f2022b4c0ad6733083d4bbe910913c78723d7b5185b4d0e",
+        "nonASCII_51_captions": 27
+      },
+      {
+        "path": "advdata/mes/dm_anz_00.mes",
+        "bytes": 3963,
+        "sha256": "9220e0034719950f9b813fa881377df34f4f384db2562574d6494504838410d2",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_anz_01.mes",
+        "bytes": 3928,
+        "sha256": "2feba18aecb140c9b094b9a9fbf38333e7fdcbab7b2885c96672f5d51f6f5107",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_anz_02.mes",
+        "bytes": 3958,
+        "sha256": "75bf0cde9c20649652d0762b48686e7d01ccc544bb98afa43ad50c13700f2ee0",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_anz_03.mes",
+        "bytes": 3967,
+        "sha256": "659d659e49f7b28b0b2103a85c659424ed835f00410a1de01362b79620ff9c1f",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_anz_04.mes",
+        "bytes": 3881,
+        "sha256": "4e8cc5004b670e041cf4a77d873f003b349d679f5f859957fa2ce6d61e4c9ee2",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_anz_05.mes",
+        "bytes": 3190,
+        "sha256": "d2a0dc87c23acd876cf731448026cec5eef4a780cd2e1e564fe8080520c41bc6",
+        "nonASCII_51_captions": 36
+      },
+      {
+        "path": "advdata/mes/dm_kko_00.mes",
+        "bytes": 3885,
+        "sha256": "0f934e54663c3f88faaff09f83c8c9beffbace7ad9e520107ac00d0ba5f97012",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_kko_01.mes",
+        "bytes": 3931,
+        "sha256": "ddf3cf4f77bcd3cb770ffa57b6053b10370b78648bfdd315356ffa73efa7b741",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_kko_02.mes",
+        "bytes": 3949,
+        "sha256": "cdf45f277cd850ed40c20b3b1230008667fb178e843f626f7f7e79d2268a237b",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_kko_03.mes",
+        "bytes": 2220,
+        "sha256": "bea55acb532ffd7594269d5ea42a7df52166e4c14df5b8bc4ac0ac028dea9cd2",
+        "nonASCII_51_captions": 18
+      },
+      {
+        "path": "advdata/mes/dm_mnt_00.mes",
+        "bytes": 3942,
+        "sha256": "1a474fb876db31657cf8b2ae2087dcae14fe62b6da25fc421c0b97678777e125",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_mnt_01.mes",
+        "bytes": 3922,
+        "sha256": "8b08fceac0cd7a22d7bc22861396606f5ca39a19029fedc40594542b12954d67",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_mnt_02.mes",
+        "bytes": 3234,
+        "sha256": "94137ed7d25ca13efefac06308f47f7ac931059786dbbaf780fad0328a7324c7",
+        "nonASCII_51_captions": 36
+      },
+      {
+        "path": "advdata/mes/dm_nnk_00.mes",
+        "bytes": 3966,
+        "sha256": "5bc1848cba57c746801c00c04a6b67b3b533710cd6bf43c7ecdb9a8fa8bb29b2",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_nnk_01.mes",
+        "bytes": 3967,
+        "sha256": "d412344bc61955edf726e02b56dc22fd4dfeb21187f9856042c82a21c073c0c0",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_nnk_02.mes",
+        "bytes": 3973,
+        "sha256": "ee891a43193bea82c8681a3e2464770e1f87d108ee7c05ee3e060b7892d7b0d6",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_nnk_03.mes",
+        "bytes": 3949,
+        "sha256": "8d104f39a48af6528b32846feab295d167d38f3945eb8033a09e30667eeb2a2c",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_nnk_04.mes",
+        "bytes": 2232,
+        "sha256": "bf41cf79d85fd104bcd5243a2694271305fb3810230e7efc6ab8faaf35d813a3",
+        "nonASCII_51_captions": 18
+      },
+      {
+        "path": "advdata/mes/dm_otm_00.mes",
+        "bytes": 3909,
+        "sha256": "dcddf6170717e9a2a0979c827521390de964ca2d6ad2538c966a427452fa9ceb",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_otm_01.mes",
+        "bytes": 3919,
+        "sha256": "73e215401b4eda1133e5f952fff599d33cd39aef3f2695ba8f77fc961ceef865",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_otm_02.mes",
+        "bytes": 3925,
+        "sha256": "02e92c439c12ec44ae54116d0f7204aca20ac75b04765818655a27ea094332fd",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_otm_03.mes",
+        "bytes": 2511,
+        "sha256": "d85d8e8ffbded1cddaddd310640c16560cb0bb8f2e2076a9539470d1fabe81a8",
+        "nonASCII_51_captions": 24
+      },
+      {
+        "path": "advdata/mes/dm_yme_00.mes",
+        "bytes": 3945,
+        "sha256": "9e3010cd05fd8cb814d14e207f152e732a395e2c0b2cfa78171edf258feb007a",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_yme_01.mes",
+        "bytes": 3949,
+        "sha256": "a731fb92cb9088229fc6635d9e8964933e1706ed81822659134126b081b1f2a8",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_yme_02.mes",
+        "bytes": 3913,
+        "sha256": "d570deedb52f7b8d8f113d40fcd01496c490248d829824765476ad01aa482082",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/dm_yme_03.mes",
+        "bytes": 2553,
+        "sha256": "30536d85deb969476ad5bf8db57bb3707da375027c06faeacbf6edf65fd409b4",
+        "nonASCII_51_captions": 24
+      },
+      {
+        "path": "advdata/mes/haru_00.mes",
+        "bytes": 3937,
+        "sha256": "9357c843ee84eb4ee3c114f5556924c119f722a3b274c5c555cf8242af6475b4",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/haru_01.mes",
+        "bytes": 3980,
+        "sha256": "88e7ee2105d5658b996ca4d1982a9960affdf7336abcf02074b1ef970af795c7",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/haru_02.mes",
+        "bytes": 2866,
+        "sha256": "d5b315574fcc27ee46d66cc113fdfe6498b12648aabd248236663cb45ae975cd",
+        "nonASCII_51_captions": 30
+      },
+      {
+        "path": "advdata/mes/kun_00.mes",
+        "bytes": 3964,
+        "sha256": "901c544efe5bc85e3f8a57cda31f3e076204b8332b6eed79f5ed42dbf53fc8b6",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/kun_01.mes",
+        "bytes": 3973,
+        "sha256": "e5c75ae079fac665a219d27e1c8773880ce3b7cc650163a3959d3e9ffd44412d",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/kun_02.mes",
+        "bytes": 3916,
+        "sha256": "3f24df14eeebd464f11079319b0af191a3df4d3d722950fd3b26ef492c75008d",
+        "nonASCII_51_captions": 48
+      },
+      {
+        "path": "advdata/mes/kun_03.mes",
+        "bytes": 1866,
+        "sha256": "f7536443a2ff70f97459723fc2b9938dce587768bfc11a43232c224fbd82142b",
+        "nonASCII_51_captions": 12
+      }
+    ],
+    "prose_separate": "The prior read-only corpus check found71847 speaker/body records strictly valid GBK. SC60 free-text fields include mixed source encodings and are deliberately unchanged.",
+    "known_truncated_script_excluded": {
+      "path": "advdata/mes/drm_0621_b1_kko.mes",
+      "sha256": "6564d6634b86ac874b9ea2e6d59543a6d710bd98b916e55a5197986400c4bb96",
+      "error": "Unterminated string"
+    }
+  },
+  "implementation": {
+    "PcHost": "Adds protected buttonCaption(raw), defaulting to the existing codec.decode. Only ui.button_text uses the hook, after its existing @s removal.",
+    "ScHost": "Overrides that native51 field with strict TextCodec.cp932.",
+    "unchanged": [
+      "GBK localized speaker/body/choice fields",
+      "SC60 free-text fields",
+      "Resource paths/actions and raw source bytes",
+      "All other profiles use the preexisting button-caption codec",
+      "Raw byte-based native caption width and sprite coordinates",
+      "Snapshot wire format"
+    ],
+    "malformed_native_caption": "Fails with Invalid CP932; no per-string encoding guess or replacement decode."
+  },
+  "tests": {
+    "independent_synthetic": "ScUiCaptionTests11 assertions: dual-valid but wrong GBK date, exact native date, geometry, GBK body/choice/free-text, other profile behavior, Japanese case, malformed CP932 rejection, snapshot domains. Registered in CoreTests.",
+    "unit_source": {
+      "path": "runtime/tests/org/circus/core/ScUiCaptionTests.java",
+      "bytes": 4522,
+      "sha256": "e660da54cb376534bab02fe30c26680f3eaedace7fad0ea3960730e182c744c2"
+    },
+    "actual_menu_audit_source": {
+      "path": "runtime/desktop/src/org/circus/core/ScSceneReplayCaptionAudit.java",
+      "bytes": 9468,
+      "sha256": "13896a9d0f1a7a7ab1dd7bb433d011d26829907fe96ac95c8b193535a4508385"
+    },
+    "old_runtime": {
+      "report": {
+        "path": "build/sc-otome-20261108/gallery-audit-baseline/report.json",
+        "bytes": 29241,
+        "sha256": "490dc3a89acfa2f9f1cea0890b3f72c50fb8106d691e8d0df9a7ae905d5abb2a"
+      },
+      "result": "OLD_BEHAVIOR_REPRODUCED",
+      "checks": 5541,
+      "production_classpath": "Immutable0.14.11 final full-test classes, with only the new audit driver on a later classpath.",
+      "incorrect_fields_by_page": [
+        {
+          "script": "af_otm_00",
+          "incorrect_fields": 48
+        },
+        {
+          "script": "af_otm_01",
+          "incorrect_fields": 48
+        },
+        {
+          "script": "af_otm_00",
+          "incorrect_fields": 48
+        }
+      ]
+    },
+    "fixed_runtime": {
+      "report": {
+        "path": "build/sc-otome-20261108/gallery-audit-fixed-v2/report.json",
+        "bytes": 29220,
+        "sha256": "b33634af73caebe341d75cda046c102db0215072885feb0ad64e1b20127ff9e9"
+      },
+      "result": "PASS",
+      "checks": 5541,
+      "incorrect_fields_by_page": [
+        {
+          "script": "af_otm_00",
+          "incorrect_fields": 0
+        },
+        {
+          "script": "af_otm_01",
+          "incorrect_fields": 0
+        },
+        {
+          "script": "af_otm_00",
+          "incorrect_fields": 0
+        }
+      ],
+      "covered": [
+        "Every reviewed53-file2733-field51 payload through production ScHost.command",
+        "Natural original first replay page and next page",
+        "Actual rendered800x600 frames, first fixed frame visually inspected",
+        "Snapshot restoration of original menu fields",
+        "Original00 replay action resumes GBK story text"
+      ]
+    },
+    "stage_scope": "Focused diagnostic run; the release source/platform receipts separately identify the final frozen build and packaged reruns."
+  },
+  "original_executables_executed": false,
+  "original_game_directories_written": false,
+  "original_prose_or_game_assets_embedded_in_repository": false,
+  "new_font_fallback_or_arbitrary_substitution": false
+}

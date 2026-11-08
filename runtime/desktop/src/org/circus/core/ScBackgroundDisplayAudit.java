@@ -1,0 +1,50 @@
+package org.circus.core;
+
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.nio.*;
+import java.nio.file.*;
+import java.util.*;
+import java.util.zip.DeflaterOutputStream;
+import javax.imageio.ImageIO;
+
+/** Explicit-background diagnostics plus the SC scene from the user's report.
+ * Original files stay read-only. Empty slots and black pixels never imply missing data. */
+public final class ScBackgroundDisplayAudit {
+    private static int checks;
+    private static void check(boolean value,String why)throws IOException{checks++;if(!value)throw new IOException(why);}
+    private static final class Fixture implements GameResources.Storage {
+        final Map<String,byte[]> files=new LinkedHashMap<String,byte[]>();
+        Fixture(int version)throws IOException{files.put("AdvData/DAT/NAMES.DAT",new byte[20]);files.put("AdvData/MES/START.mes",new byte[]{0,0,0,0,(byte)version,(byte)(version>>>8),0,0,0});files.put("AdvData/GRP/owned-black.CRX",blackCrx());files.put("AdvData/GRP/owned-broken.CRX",new byte[]{1});}
+        public Set<String> paths(){return Collections.unmodifiableSet(files.keySet());}
+        public byte[] read(String path,int limit)throws IOException{byte[] data=files.get(path);if(data==null)throw new FileNotFoundException(path);if(data.length>limit)throw new IOException("Fixture read limit");return data.clone();}
+        public Archive.Source source(final String path)throws IOException{final byte[] data=read(path,Integer.MAX_VALUE);return new Archive.Source(){public long size(){return data.length;}public byte[] read(long at,int count)throws IOException{Binary.range(at,count,data.length);return Arrays.copyOfRange(data,(int)at,(int)at+count);}};}
+    }
+    private static byte[] blackCrx()throws IOException {
+        ByteArrayOutputStream out=new ByteArrayOutputStream();ByteBuffer header=ByteBuffer.allocate(20).order(ByteOrder.LITTLE_ENDIAN);header.putInt(0x47585243).putShort((short)0).putShort((short)0).putShort((short)1).putShort((short)1).putShort((short)2).putShort((short)0).putShort((short)0).putShort((short)0);out.write(header.array());
+        try(DeflaterOutputStream z=new DeflaterOutputStream(out)){z.write(new byte[]{0,0,0,0});}return out.toByteArray();
+    }
+    private static DesktopLegacy owned(String profile,int version)throws Exception{Fixture f=new Fixture(version);return new DesktopLegacy(new CircusResources(new GameResources(f),Profiles.get(profile)),TextCodec.identity(),true);}
+    private static int[] pixels(DesktopLegacy e)throws IOException{BufferedImage image=e.render();try{return image.getRGB(0,0,e.width,e.height,null,0,e.width);}finally{image.flush();}}
+    private static boolean solid(int[] pixels,int color){for(int pixel:pixels)if(pixel!=color)return false;return true;}
+    private static void synthetic()throws Exception {
+        DesktopLegacy empty=owned("dc2sc-3b69",0x3b69);check(solid(pixels(empty),0xff000000),"SC empty background slot is a valid black scene");check(empty.missingImages.isEmpty(),"Empty slot does not report a missing image");
+        DesktopLegacy black=owned("dc2sc-3b69",0x3b69);black.host().scene.shown.slots[1]="owned-black";check(solid(pixels(black),0xff000000),"A real all-black CRX is valid content");check(black.loadedImages.contains("owned-black")&&black.missingImages.isEmpty(),"Black CRX loads successfully rather than being inferred absent from its pixels");
+        DesktopLegacy capture=owned("dc2sc-3b69",0x3b69);int[] source=new int[capture.width*capture.height];Arrays.fill(source,0xff2468ac);capture.host().uiCapture=UiCapture.pixels(capture.width,capture.height,source);capture.host().scene.shown.slots[1]="@ui-capture";check(Arrays.equals(pixels(capture),source),"Runtime UI capture remains a valid background without a source file");check(capture.missingImages.isEmpty(),"Runtime capture is not treated as a missing original background");
+        DesktopLegacy missing=owned("dc2sc-3b69",0x3b69);missing.host().scene.shown.slots[1]="bg/owned-missing";try{pixels(missing);throw new IOException("SC missing explicit background silently rendered");}catch(FileNotFoundException expected){check(expected.getMessage().contains("SC 背景资源")&&expected.getMessage().contains("AdvData/GRP/bg/owned-missing.CRX"),"Missing SC background diagnostic contains role and complete relative source path");check(expected.getCause() instanceof FileNotFoundException,"Missing source cause is retained");}check(missing.missingImages.contains("bg/owned-missing"),"Missing background is still recorded for audits");
+        DesktopLegacy optional=owned("dc2sc-3b69",0x3b69);optional.host().scene.shown.slots[12]="owned-optional-sheet";Dc2Ui.Quad q=new Dc2Ui.Quad();q.type=0;q.flags=12;q.width=q.height=1;optional.host().scene.shown.quads.add(q);check(solid(pixels(optional),0xff000000),"Optional SC sheet keeps the established empty-slot behavior");check(optional.missingImages.contains("owned-optional-sheet"),"Optional missing sheet remains observable in audit metadata");
+        DesktopLegacy other=owned("dc2fl-9c69",0x9c69);other.host().scene.shown.slots[1]="bg/owned-missing";check(solid(pixels(other),0xff000000),"Other profiles retain their established missing-image behavior");check(other.missingImages.contains("bg/owned-missing"),"Other profile missing background remains observable without new SC admission");
+        DesktopLegacy broken=owned("dc2sc-3b69",0x3b69);broken.host().scene.shown.slots[1]="owned-broken";boolean rejected=false;try{pixels(broken);}catch(IOException expected){rejected=true;check(!(expected instanceof FileNotFoundException)&&!expected.getMessage().contains("SC 背景资源"),"Malformed image is not mislabeled as a missing file");}check(rejected,"Malformed image keeps its existing decoder failure");
+    }
+    private static void settle(DesktopLegacy e)throws Exception{for(int n=0;n<10000;n++){e.tick(1000);Dc2Host h=e.host();if(e.vm().status()==MesVm.Status.FAULT)throw new IOException(e.vm().error());if(e.menuWaiting()||h.textWaiting&&!h.body.isEmpty()&&!h.presentationWaiting)return;if(h.presentationWaiting){e.vm().signalHost(e.ticket(),MesVm.HostSignal.TEXT_COMPLETE);continue;}for(int c=0;c<6;c++)if(e.audioActive(c)&&!e.audioLoop(c))e.audioCompleted(c,e.audioGeneration(c));if(!e.movie().isEmpty())e.vm().signalHost(e.ticket(),MesVm.HostSignal.MEDIA_COMPLETE);if(h.remainingMillis()<0)e.vm().signalHost(e.ticket(),MesVm.HostSignal.ADVANCE);}throw new IOException("SC scene did not settle");}
+    private static void choose(DesktopLegacy e,String action)throws Exception{check(DesktopSettingsAudit.actions(e).contains(action),"Natural SC menu action exists: "+action);e.choose(action);settle(e);}
+    public static void main(String[] args)throws Exception {
+        if(args.length!=2)throw new IOException("Require read-only_SC_GAME owned_OUTPUT");Path game=Paths.get(args[0]).toRealPath(),out=DesktopRouteAudit.outputOutsideGame(game,args[1]);System.setProperty("dc.saveRoot",out.resolve("saves").toString());System.setProperty("dc.cacheRoot",out.resolve("cache").toString());Map<String,Object> report=new LinkedHashMap<String,Object>();
+        try{synthetic();report.put("synthetic_checks",checks);GameResources files=new GameResources(new LocalGameStorage(game),"dc2sc_CHS.exe");CircusResources data=new CircusResources(files,Profiles.get("dc2sc-3b69"));DesktopLegacy e=new DesktopLegacy(data,GameText.detect(files,data.profile),true);settle(e);for(String action:new String[]{"03","start","after_story","after_otm","read_after"})choose(e,action);
+            for(int line=1;line<15;line++){check(!e.menuWaiting(),"Natural scene remains a story wait");e.vm().signalHost(e.ticket(),MesVm.HostSignal.ADVANCE);settle(e);}
+            check(e.vm().scriptName().equals("aft_0314_a1_otm")&&e.vm().offset()==8429,"User-reported scene reached naturally at the15th dialogue wait");check(Binary.sha256(e.body().getBytes("UTF-8")).equals("419e807112dc3ffef639024d88b2ae7a58745527b66cadfba97eb665b5582d30"),"Exact user-reported body identity");Dc2Scene.Frame frame=e.host().scene.shown;check(frame.slots[1].equals("bg\\bg060_d_no")&&frame.x==0&&frame.y==0,"Requested original background and origin preserved");
+            Crx.Image background=data.image(frame.slots[1]);check(background.width==800&&background.height==600&&background.x==0&&background.y==0&&background.bpp==24,"Original background is an opaque unshifted800x600 BGR24 image");int[] actual=pixels(e),expected=background.argb();int equal=0;for(int y=0;y<400;y++)for(int x=400;x<800;x++)if(actual[y*800+x]==expected[y*800+x])equal++;check(equal>158400,"Unobstructed upper-right region displays original background pixels, allowing the small live petal overlay");check(e.loadedImages.contains(frame.slots[1])&&!e.missingImages.contains(frame.slots[1]),"Actual requested background is loaded");
+            BufferedImage screenshot=e.render();try{ImageIO.write(screenshot,"png",out.resolve("reported-scene.png").toFile());}finally{screenshot.flush();}report.put("scene",Json.obj("script",e.vm().scriptName(),"pc",e.vm().offset(),"body_sha256",Binary.sha256(e.body().getBytes("UTF-8")),"background",frame.slots[1],"source_path","AdvData/GRP/BG/bg060_d_no.CRX","source_bytes",files.size("AdvData/GRP/BG/bg060_d_no.CRX"),"source_sha256",Binary.sha256(files.read("AdvData/GRP/BG/bg060_d_no.CRX",2*1024*1024)),"sample_pixels",160000,"sample_pixels_equal_to_original_background",equal));report.put("result","PASS");
+        }catch(Exception failure){report.put("result","FAIL");report.put("error",failure.toString());throw failure;}finally{report.put("checks",checks);report.put("original_game_executable_run",false);report.put("original_game_files_written",false);report.put("scope","SC explicit missing-background diagnostic; no raster change and no attempt to restore absent assets. Natural story/media waits simulated; no original-EXE frame comparison.");Files.write(out.resolve("report.json"),(Json.text(report)+"\n").getBytes("UTF-8"));}System.out.println(Json.text(Json.obj("result","PASS","checks",checks)));
+    }
+}

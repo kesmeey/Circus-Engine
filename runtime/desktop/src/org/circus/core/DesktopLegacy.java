@@ -279,13 +279,16 @@ public final class DesktopLegacy extends DesktopEngine {
     public String saveCaption(){return host().checkpointLabel.isEmpty()?(body().isEmpty()?lastLine:body()):codec.apply(host().checkpointLabel);}
     public BufferedImage preview()throws IOException{BufferedImage image=new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);Graphics2D g=image.createGraphics();try{if(host().systemScene==null&&host().scene.nativeMotion!=null)g.drawImage(motion(host().scene.nativeMotion),0,0,null);else scene(g,host().systemScene!=null?host().systemScene:host().scene.shown);}finally{g.dispose();}return image;}
     public void persist()throws IOException{if(audit)return;ByteArrayOutputStream b=new ByteArrayOutputStream();host().savePersistent(new DataOutputStream(b));atomic(saveDirectory.resolve("progress.dat"),b.toByteArray());}
-    private Picture picture(String name)throws IOException {
+    private Picture picture(String name)throws IOException {return picture(name,false);}
+    private Picture picture(String name,boolean requiredBackground)throws IOException {
         if(name==null||name.isEmpty())return null;if(name.equals("@ui-capture"))return new Picture(captures.resolve(host().uiCapture));
         Picture p=images.get(name);if(p==null){
             try{images.beforeLoad();Crx.Image raw=resources.image(name);images.reserve(Picture.constructionBytes(raw));p=new Picture(raw);}catch(java.io.FileNotFoundException|java.nio.file.NoSuchFileException missing){
                 // A repacked install can lack an optional sheet; the native loader also leaves the
                 // slot empty. Keep the name so audits can list it instead of failing the frame.
-                missingImages.add(name);return null;
+                missingImages.add(name);
+                if(requiredBackground){FileNotFoundException failure=new FileNotFoundException("SC 背景资源无法读取："+name+"\n"+missing.getMessage());failure.initCause(missing);throw failure;}
+                return null;
             }
             images.put(name,p);loadedImages.add(name);
         }
@@ -297,6 +300,10 @@ public final class DesktopLegacy extends DesktopEngine {
         BufferedImage image=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D g=image.createGraphics();try{g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);scene(g,captureState.frame);}finally{g.dispose();captureState=saved;}return image;
     }
     private void at(Graphics2D g,String name,int x,int y)throws IOException {Picture p=picture(name);if(p!=null)g.drawImage(p.image,x+p.raw.x,y+p.raw.y,null);}
+    /** A requested SC background is required content. Report missing data at its
+     * source path instead of silently presenting actors over a black canvas.
+     * Empty background slots, actual black images and runtime captures remain valid. */
+    private void background(Graphics2D g,String name,int x,int y)throws IOException {Picture p=picture(name,resources.profileId.equals("dc2sc-3b69"));if(p!=null)g.drawImage(p.image,x+p.raw.x,y+p.raw.y,null);}
     private void text(Graphics2D g,String s,int x,int y,int lineHeight,int style,int width){
         g.setFont(new Font("Microsoft YaHei",Font.PLAIN,22));Color foreground=new Color(color(style),true);
         // PC1 417A5E / PC2 421CA6 / DM 4024E8 draw style 0x80 at (+1,+1), using palette 0; PC2 uses 9 for black text.
@@ -342,7 +349,7 @@ public final class DesktopLegacy extends DesktopEngine {
             g.drawImage(composed,0,0,null);return;
         }
         boolean directBackground=original||resources.profileId.equals("dc2ty-5f69");
-        g.setColor(Color.BLACK);g.fillRect(0,0,width,height);at(g,f.slots[1],directBackground?x:-x,directBackground?y:-y);
+        g.setColor(Color.BLACK);g.fillRect(0,0,width,height);background(g,f.slots[1],directBackground?x:-x,directBackground?y:-y);
         boolean pc2=host() instanceof PcHost&&((PcHost)host()).second;
         actors(g,f,pc2);drawEffects(g);for(Dc2Ui.Quad q:f.quads)quad(g,q,f.slots,false);
     }

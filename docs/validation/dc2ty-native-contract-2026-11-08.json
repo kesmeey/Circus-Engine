@@ -1,0 +1,466 @@
+{
+  "status": "Independent native core, four natural story workflows and full representative routes validated",
+  "original_exe_executed": false,
+  "original_game_written": false,
+  "profile": "dc2ty-5f69",
+  "reference_sha256": "615704413dd00960bb47f4d6c1b33dd635931f13085a9a25dd5782fd7dbdf505",
+  "core": {
+    "loader": "41B5C0",
+    "dispatcher": "41DAB0",
+    "table": "420A18",
+    "entries": 105,
+    "getter": "41B880",
+    "setter": "41BB40",
+    "model": "PC_WIDE",
+    "strict_marker": "695F",
+    "body_marks_seen": false,
+    "transfer_marks_old_seen": "wait2E calls426D30 then loader samples426DB0",
+    "cache": "AD64C4/99:251 retains prior seen byte, mode2 preserves",
+    "real_case_bodies": 92,
+    "unknown_handlers": "Unreviewed native cases retain explicit failure; no engine-wide alias or catch-all NOP."
+  },
+  "banks": {
+    "100": {
+      "base": "52A450",
+      "system_offset": 112,
+      "bytes": 100
+    },
+    "97": {
+      "base": "52A4B4",
+      "system_offset": 212,
+      "bytes": 512
+    },
+    "98": {
+      "base": "52A6B4",
+      "system_offset": 724,
+      "bytes": 1024
+    },
+    "95": {
+      "base": "52AAB4",
+      "system_offset": 1748,
+      "bytes": 100
+    },
+    "90": {
+      "base": "AD6084",
+      "bytes": 1024,
+      "bound_basis": "span ends at distinct scenario title AD6484; native access itself unchecked"
+    }
+  },
+  "system_io": {
+    "template": "43A088",
+    "live": "52A3E0",
+    "bytes": 1848,
+    "writer": "404BE0",
+    "reader": "404C90",
+    "version_check": false,
+    "read_count_must_equal": 1848,
+    "tail_read": false,
+    "story_prefix": "dc2ty",
+    "story_format_va": "5126EC",
+    "story_format": "%s\\%s%02d.dat",
+    "story_prefix_va": "5126FC",
+    "native_reader": "426860/426920",
+    "native_writer": "4269C0"
+  },
+  "actor": {
+    "stage": "AD5084/88/8C",
+    "live": "AD5078/7C/80",
+    "pivot": "AD5090/94",
+    "stride": 52,
+    "load": "41D260",
+    "wait65": "4221A0",
+    "integer_steps": [
+      8,
+      16,
+      32,
+      64
+    ],
+    "poll_millis": 10,
+    "arrival_requires_later_poll": true,
+    "geometry": "independently matched PcActorLayout.dc2pc, without FL offsets",
+    "supported_descriptors": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "fifth_nonempty": "unimplemented independent centered native consumer"
+  },
+  "scroll": {
+    "wait62": "421E10",
+    "poll_millis": 17,
+    "mode0_steps": [
+      2,
+      4,
+      8,
+      16
+    ],
+    "alpha_input_clamped": [
+      0,
+      16
+    ],
+    "feedback_blit": "40E020",
+    "clip_only_no_clear": "40DD30",
+    "destination": "native X/Y directly",
+    "journal": "initial physical front; BGR24 weight/16 cumulative; opaque prepared immutable compose at weight0",
+    "finish": "when aligned and weight>0 increments dwell; dwell+weight>16 clears weight and draws; later aligned weight0 poll releases",
+    "actual_corpus_modes": [
+      0,
+      1
+    ],
+    "actual_corpus_nonzero_weight": [
+      0,
+      -600,
+      0,
+      2
+    ]
+  },
+  "services": {
+    "6": {
+      "helper": "4071D0",
+      "active_rows": 5,
+      "page_stride": 8,
+      "save_label": "selsave",
+      "load_label": "selsave2",
+      "save_reserved_slots": [
+        0,
+        1
+      ],
+      "load_init_descriptors": 10
+    },
+    "7": {
+      "helper": "407320",
+      "list_style": 4
+    },
+    "9": {
+      "helper": "40A470",
+      "implemented": false,
+      "reason": "independent music-name background baking not a list-style alias"
+    },
+    "12": {
+      "initializer": "40AAA0",
+      "poll": "40B360",
+      "helper": "TySelector",
+      "result": "ordinary3:32,0..3 confirmed story,4 cancel",
+      "timing_inputs": [
+        "ordinary3:33",
+        "ordinary3:34",
+        "ordinary3:35"
+      ],
+      "input_contract": "Five original hit regions. First card click previews, second same-card click confirms; cancel returns native4. Real Enter uses native modal key, dialogue ADVANCE cannot auto-confirm. Intro/fade rejects clicks.",
+      "render_contract": "Native opaque backgrounds plus ordered clipped atlas patches; fixed source/target fade in255 units; no generated artwork.",
+      "music": "40B360: once99:249 voice-complete, more than400ms later starts4282E0(76,0,3); native sound223 click/224 hover.",
+      "snapshot": "Immutable prepared surfaces and elapsed/native input state retained in typed owner; replaced inactive owner frees underlay."
+    }
+  },
+  "corpus": {
+    "main_files": 153,
+    "body4c": 18467,
+    "save_load_exact_trailer": "61 64 only immediately after final STOP in SAVE.mes and LOAD.mes",
+    "all_actual62_selectors_reviewed": true
+  },
+  "validation": {
+    "core_stage2": "626 complete Java inputs, TyHostTests110 PASS; naturalSTART→4059 menu02/03; main@F4 blockedscroll baseline retained",
+    "core_stage3": "628 complete Java inputs, TyHostTests113+TyScrollTests37 PASS; natural02→main@F6F menu; start→requiredselector blocked baseline retained",
+    "pixel_scope": "renderer journal audit owned byRoot; no original native framebuffer equivalence claimed",
+    "core_stage5": {
+      "inputs": "build/holdout-dc2ty-20261108/core-stage5/inputs-manifest.json",
+      "java_inputs": 631,
+      "TyHostTests": 127,
+      "TyScrollTests": 37,
+      "native_startups": [
+        {
+          "entry": "hyd",
+          "path": "build/holdout-dc2ty-20261108/core-stage5/startup-hyd.json",
+          "sha256": "a84471e4d6800fd3b82bed1c40b92f78bf3aa826a350b22460bb0dacd2f0fe6d",
+          "status": "passed",
+          "dialogue_waits": 20,
+          "CVS2_new_VM_roundtrips": 6,
+          "actions": [
+            "02",
+            "start",
+            "ty:0",
+            "ty:0"
+          ],
+          "encoding": "GBK"
+        },
+        {
+          "entry": "1",
+          "path": "build/holdout-dc2ty-20261108/core-stage5/startup-1.json",
+          "sha256": "c6d8ef2e2fb17d2f5d88955d5d063c4ed6631dd0605f6e078f06d1de8f65d38a",
+          "status": "passed",
+          "dialogue_waits": 20,
+          "CVS2_new_VM_roundtrips": 6,
+          "actions": [
+            "02",
+            "start",
+            "ty:1",
+            "ty:1"
+          ],
+          "encoding": "GBK"
+        },
+        {
+          "entry": "2",
+          "path": "build/holdout-dc2ty-20261108/core-stage5/startup-2.json",
+          "sha256": "abeb975878f6c6bd537ce6f6988b520629a24c9db720d53c312e772dfa9c1051",
+          "status": "passed",
+          "dialogue_waits": 20,
+          "CVS2_new_VM_roundtrips": 6,
+          "actions": [
+            "02",
+            "start",
+            "ty:2",
+            "ty:2"
+          ],
+          "encoding": "GBK"
+        },
+        {
+          "entry": "3",
+          "path": "build/holdout-dc2ty-20261108/core-stage5/startup-3.json",
+          "sha256": "f62bda5e7909d5c2abc3322d61a5fc90e8f802537e98645e3b6742d0c6f18271",
+          "status": "passed",
+          "dialogue_waits": 20,
+          "CVS2_new_VM_roundtrips": 6,
+          "actions": [
+            "02",
+            "start",
+            "ty:3",
+            "ty:3"
+          ],
+          "encoding": "GBK"
+        }
+      ]
+    },
+    "physical_save_load": [
+      {
+        "entry": "hyd",
+        "path": "build/holdout-ty-20261108/core-final-platform-20261108T135001Z/hyd/report.json",
+        "sha256": "49aedb9c8cd82ebb1bd741fe22d94883d85592a192dd9be5d5c601cc01dbba81",
+        "result": "PASS",
+        "checks": 58,
+        "dialogue_waits": 20,
+        "native_save_load_checked": true,
+        "new_host_future_checked": true,
+        "scope": "Actual original SAVE/LOAD UI writes and restores runtime-owned portable slots; no native Windows SAV conversion"
+      },
+      {
+        "entry": "set",
+        "path": "build/holdout-ty-20261108/core-final-platform-20261108T135001Z/set/report.json",
+        "sha256": "b048cbb5230ee1a8b139b99931178484042abfd350d7831c6e47d9fb909d46e9",
+        "result": "PASS",
+        "checks": 58,
+        "dialogue_waits": 20,
+        "native_save_load_checked": true,
+        "new_host_future_checked": true,
+        "scope": "Actual original SAVE/LOAD UI writes and restores runtime-owned portable slots; no native Windows SAV conversion"
+      },
+      {
+        "entry": "mhr",
+        "path": "build/holdout-ty-20261108/core-final-platform-20261108T135001Z/mhr/report.json",
+        "sha256": "c78b51833930410866c2a2637d498b68373a0207d8d8423d70c07075064e2c24",
+        "result": "PASS",
+        "checks": 58,
+        "dialogue_waits": 20,
+        "native_save_load_checked": true,
+        "new_host_future_checked": true,
+        "scope": "Actual original SAVE/LOAD UI writes and restores runtime-owned portable slots; no native Windows SAV conversion"
+      },
+      {
+        "entry": "myu",
+        "path": "build/holdout-ty-20261108/core-final-platform-20261108T135001Z/myu/report.json",
+        "sha256": "e927b9dae31b0d30dac381860fe21b8ecf49618a8ddb7f8b8383c2f7b29f79e0",
+        "result": "PASS",
+        "checks": 58,
+        "dialogue_waits": 20,
+        "native_save_load_checked": true,
+        "new_host_future_checked": true,
+        "scope": "Actual original SAVE/LOAD UI writes and restores runtime-owned portable slots; no native Windows SAV conversion"
+      }
+    ],
+    "full_representative_routes": [
+      {
+        "entry": "hyd",
+        "path": "build/holdout-ty-20261108/routes-ready-20261108T135209Z/hyd/result.json",
+        "sha256": "6b712713c5a341a516eb0d9c09f55c040436a8e033756df4946d3f4aded0ab3a",
+        "observed_text_waits": 3378,
+        "returned_to_title": true,
+        "media_completion_simulated": true,
+        "scope": "Observed stable text waits; original fast/automatic mode can release additional lines inside a tick."
+      },
+      {
+        "entry": "mhr",
+        "path": "build/holdout-ty-20261108/routes-ready-20261108T135209Z/mhr/result.json",
+        "sha256": "2e2a053086d6efcb8d0b2c3c0d65711dd189c4ceac26e12501cc2231aba68908",
+        "observed_text_waits": 3734,
+        "returned_to_title": true,
+        "media_completion_simulated": true,
+        "scope": "Observed stable text waits; original fast/automatic mode can release additional lines inside a tick."
+      },
+      {
+        "entry": "set",
+        "path": "build/holdout-ty-20261108/routes-ready-extra-20261108T135410Z/set/result.json",
+        "sha256": "ab6b4e1ba5ff3617bf91f914e3ed1f92f0f16cacd6ff4040e438f69925724053",
+        "observed_text_waits": 4610,
+        "returned_to_title": true,
+        "media_completion_simulated": true,
+        "scope": "Observed stable text waits; original fast/automatic mode can release additional lines inside a tick."
+      },
+      {
+        "entry": "myu",
+        "path": "build/holdout-ty-20261108/routes-ready-extra-20261108T135410Z/myu/result.json",
+        "sha256": "1fea6855fd7e88e7ba4d741f05e635144696e0d5de9819440386c5dca81ef8e6",
+        "observed_text_waits": 5910,
+        "returned_to_title": true,
+        "media_completion_simulated": true,
+        "scope": "Observed stable text waits; original fast/automatic mode can release additional lines inside a tick."
+      }
+    ]
+  },
+  "evidence": {
+    "composer421620.evidence.json": {
+      "sha256": "bbb36c817770948448b0a13ae350550d15252e96491e1ffcc9627e76be8aa52a",
+      "evidence_id": "ev_8135362127c1a1e3336e9bd0ca268188e1f60cceaf5f02e26bece2c173a2c175"
+    },
+    "dispatch41dab0.evidence.json": {
+      "sha256": "8c22175f2b173eda0348fa0b464e34ed98696eeed50c3ea49967686dd5bc7002",
+      "evidence_id": "ev_d325c293efa948fe79d1ec4f290a61e870f4f18e2eddaae77665eb4fb8b04d12"
+    },
+    "getter41b880.evidence.json": {
+      "sha256": "1ff2ac3be12382d5cf3fc08b76115ec1f3dc15d571e721fd0e956623c495e793",
+      "evidence_id": "ev_059c8adc6b4f4d04341c966be86b56ebaa3ec277b0b06ec25a09f102c3d5c8a7"
+    },
+    "loader41b5c0.evidence.json": {
+      "sha256": "b422fdf78fa8f99743da5903449222e9d9dab92f52cebd5c6dbf0ae101855af9",
+      "evidence_id": "ev_a88f0e4850109593e68f548cb80c94c0ee98650d8f6865639a37842e99e9bd10"
+    },
+    "setter41bb40.evidence.json": {
+      "sha256": "b3bb2926b686baec12d5a9023365457fd293ac91c2adfd05ad52ea710cd14a6d",
+      "evidence_id": "ev_6aae26a7f85f6d9bd781374a89b490a57646b2f54012484f94152d5cd140fc1f"
+    },
+    "system40a010.evidence.json": {
+      "sha256": "eeed4015f11afa96548a19be0f443f2c4b58da4bb82df247adda7b9b27428a8a",
+      "evidence_id": "ev_f863f02a0748eb0648d4cfa400277ac3d155706450f44a08b06e2575b05a9897"
+    },
+    "service-list-native": {
+      "evidence_id": "ev_12349a1dd3e58e212cde8ccb1688d9c3901ddf58eb7577c53e91d6629a5ec2b1",
+      "sha256": "ef403c1de1841ff0b70ab7179a37136bcc763ec29124fbf0776b082378accdf2",
+      "written": 4
+    },
+    "service-modal-native": {
+      "evidence_id": "ev_b49abee969fe994e6f01f9076aea70faa81e33dca0f377a695011517fa4ca6da",
+      "sha256": "1e2f77c323ef3330652f6025a619437206e2bb9fd7e97d1c30ae7e73c0b6e972",
+      "written": 9
+    },
+    "service-selector-poll-native": {
+      "evidence_id": "ev_b7e932ac32ec5bfaffa97da3bb6b143d1a2768ca53ede25974f2405a5d2cce67",
+      "sha256": "3f9504833537e9aa6322db3f5781eb309a6e2375de162c488df7a18c071facbe",
+      "written": 6
+    },
+    "wait-scroll-native": {
+      "evidence_id": "ev_a38a4ff7f5445abd193fad31783461ec2658dfe083780e11e53b1eae5ba9762a",
+      "sha256": "8ea4468f59e99aff1ad88fea379eca8c94dde7c4b2c002a8f854093e6f551d27",
+      "written": 3
+    },
+    "inputs.json": {
+      "path": "build/holdout-dc2ty-20261108/inputs.json",
+      "sha256": "1ab11ffeeb9ee518d47b5fb9cde6ef6186b32cd48181550b45024ee9842fcd7a"
+    },
+    "native-defaults.json": {
+      "path": "build/holdout-dc2ty-20261108/native-defaults.json",
+      "sha256": "45a891c182ff8a7a5fa4101992d552a36d5f4e4cec35aed9056a84e4148d620a"
+    },
+    "ty-runtime-semantics.json": {
+      "path": "build/holdout-dc2ty-20261108/ty-runtime-semantics.json",
+      "sha256": "76a2a62d9199c64e7743ea3fb26b455e6e07c33604beaae238bdca1c16cc7ff3"
+    },
+    "dispatch-table.json": {
+      "path": "build/holdout-dc2ty-20261108/dispatch-table.json",
+      "sha256": "cb0c68d4453ad9d2103c6a2f240337fcb00c142c3679db1eeb75811338a93604"
+    },
+    "seen-native.asm": {
+      "path": "build/holdout-dc2ty-20261108/seen-native.asm",
+      "sha256": "99738982a25648c676b08c94242c7e49610b2fd18e5620772026613fe6d51d7a"
+    },
+    "story-slots426860.asm": {
+      "path": "build/holdout-dc2ty-20261108/story-slots426860.asm",
+      "sha256": "0f354da2696fd41f8329606cab76b179292dd23575c06a4cda0ab2da145206f5"
+    },
+    "helper-40dd30.asm": {
+      "path": "build/holdout-dc2ty-20261108/helper-40dd30.asm",
+      "sha256": "06933f74e2f2da69771afcdb65314c517fcc55e216fb98b60e24c23dfebd98aa"
+    },
+    "helper-40e020.asm": {
+      "path": "build/holdout-dc2ty-20261108/helper-40e020.asm",
+      "sha256": "cddc019423b82eee9d9654845365f4f3672ceb0830f4f3af5044a4b8bf86939d"
+    },
+    "helper-40d690.asm": {
+      "path": "build/holdout-dc2ty-20261108/helper-40d690.asm",
+      "sha256": "e177a1e50b6eaab35c240375a2eab5122c4fcd7332bd91bba051295921d98951"
+    },
+    "bg-consumer41c880.asm": {
+      "path": "build/holdout-dc2ty-20261108/bg-consumer41c880.asm",
+      "sha256": "d767c17feb805d76638047df530f4f04d545d09949794e36d67cdad08ad5e79b"
+    },
+    "wait62-421e10.asm": {
+      "path": "build/holdout-dc2ty-20261108/wait62-421e10.asm",
+      "sha256": "2a9e6ed251a976a3c1e0acebbde56e38260b332bae9efad6992287985a48e0d8"
+    },
+    "wait65-4221a0.asm": {
+      "path": "build/holdout-dc2ty-20261108/wait65-4221a0.asm",
+      "sha256": "1718d975a6264e16c0d1e34e0e8c6c77bb5d335acc3ec0cd55044295726b9518"
+    },
+    "build/holdout-ty-contract-20261108/contract.json": {
+      "path": "build/holdout-ty-contract-20261108/contract.json",
+      "sha256": "493afb8f37d3a86e8be4b7db331cb8348003fc3f1b363b5cef15b64999b67120"
+    },
+    "build/holdout-ty-contract-20261108/geometry-vectors.json": {
+      "path": "build/holdout-ty-contract-20261108/geometry-vectors.json",
+      "sha256": "e48fd337e1d2767a02accc63ad9bfb33887a7c4012f0f19e00fa4c4546ab1851"
+    },
+    "build/holdout-ty-contract-20261108/selector-native-vectors.json": {
+      "path": "build/holdout-ty-contract-20261108/selector-native-vectors.json",
+      "sha256": "9862b3e63743122ce5dc2ccd179195096dadbb27c58a90842e3dfa8d5ece3493"
+    },
+    "build/holdout-ty-20261108/exe-differences.json": {
+      "path": "build/holdout-ty-20261108/exe-differences.json",
+      "sha256": "ca4eadd190c59dad1f470c30ed345842fef683739825cdc280c1a36790dacc1c"
+    },
+    "build/holdout-ty-20261108/hyd-codec-stats.json": {
+      "path": "build/holdout-ty-20261108/hyd-codec-stats.json",
+      "sha256": "2ec83f7f1e9d65d272cae3050a6c03f258085cae3af9b54b59dff2121e2b909b"
+    },
+    "build/holdout-ty-20261108/baseline-0.14.10.json": {
+      "path": "build/holdout-ty-20261108/baseline-0.14.10.json",
+      "sha256": "7c4e42da77821d27cdc1be14173d8eadac8b95cc9010d91e41d0b474725a4493"
+    }
+  },
+  "date": "2026-11-08",
+  "reference_executables": [
+    {
+      "file": "DC2TY.EXE",
+      "bytes": 1208320,
+      "sha256": "70d118b8e7d79011d0e7443d488897ed03ae184ebc83db8abde3af007aab328e",
+      "role": "original static reference; IO/actor evidence"
+    },
+    {
+      "file": "DC2TYC.exe",
+      "bytes": 1208320,
+      "sha256": "21988ca3227d494ad8fd816fd6363670b1a6245f82ac28314c4bb4e8353d19bd",
+      "role": "three text-byte changes; never executed"
+    },
+    {
+      "file": "dc2ty_chinese(simplified)_patch.exe",
+      "bytes": 1208616,
+      "sha256": "615704413dd00960bb47f4d6c1b33dd635931f13085a9a25dd5782fd7dbdf505",
+      "role": "same layout/entry,36 changed text bytes; selected native core reference; never executed"
+    }
+  ],
+  "boundaries": [
+    "No original EXE execution or original game writes. Original prose/images are not exported into this metadata.",
+    "Original native Windows story-SAV conversion is not implemented; SAVE/LOAD tests use runtime-owned portable files through original menu scripts.",
+    "Nonempty fifth centered actor, native alias descriptors5..15, scrolling modes absent from the actual corpus, unreviewed1C services and music-name baking service9 remain explicit unsupported paths.",
+    "Actor geometry and selector clipping have bounded original-instruction vector checks; no claim of complete native process, full-screen visual or audio-playback equivalence.",
+    "Native system progress IO layout is proven; this document does not claim import of globals/settings/voice tail or arbitrary story saves.",
+    "Physical Ctrl is represented; original rapid-latch/read-checkpoint side effects are not fully modeled."
+  ]
+}

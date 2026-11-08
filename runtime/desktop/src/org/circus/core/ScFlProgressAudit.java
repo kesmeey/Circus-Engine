@@ -84,9 +84,13 @@ public final class ScFlProgressAudit {
         CircusResources data=new CircusResources(files,profile);TextCodec codec=GameText.detect(files,profile);Map<String,Object> report=Json.obj("profile",profile.id,"original_executable_run",false,"original_game_files_written",false,"nonzero_source_scope","owned clone of zero-progress original system.dat; two gallery/scene bytes only","media_completion_simulated",true);
         DesktopLegacy current=null;String stage="original-source";
         try{
-            List<String> sources=NativeProgress.sourcePaths(files,profile.id);check(sources.size()==1,"One known original system.dat path selected");
-            byte[] original=files.read(sources.get(0),NativeProgress.fileSize(profile.id));NativeProgress zero=NativeProgress.parse(profile.id,original);check(zero.source.total==0,"Original source has zero imported progress");
-            report.put("original_source",Json.obj("path",sources.get(0),"bytes",original.length,"sha256",Binary.sha256(original),"summary",summary(zero.source)));
+            List<String> sources=NativeProgress.sourcePaths(files,profile.id);String nativeSource=null;
+            for(String source:sources)if(source.equalsIgnoreCase("AdvData/SaveData/system.dat")){
+                check(nativeSource==null,"Native zero-progress fixture path is unambiguous");nativeSource=source;
+            }
+            check(nativeSource!=null,"Explicit original AdvData/SaveData/system.dat fixture is recognized");
+            byte[] original=files.read(nativeSource,NativeProgress.fileSize(profile.id));NativeProgress zero=NativeProgress.parse(profile.id,original);check(zero.source.total==0,"Original source has zero imported progress");
+            report.put("original_source",Json.obj("path",nativeSource,"bytes",original.length,"sha256",Binary.sha256(original),"summary",summary(zero.source)));
             stage="preexisting-runtime-slot";current=new DesktopLegacy(data,codec,false);story(current,sc);
             String savedScript=current.vm().scriptName(),savedBody=current.body();int savedPc=current.vm().offset();
             Path slot=current.saveDirectory.resolve("slot-4.sav");current.save(slot);String slotSha=Binary.sha256(Files.readAllBytes(slot));
@@ -123,7 +127,7 @@ public final class ScFlProgressAudit {
             check(current.host().textWaiting&&!current.body().isEmpty(),"Imported original scene action reaches a real original story sentence");
             report.put("imported_scene_playback",Json.obj("script",current.vm().scriptName(),"pc",current.vm().offset(),"body_sha256",Binary.sha256(current.body().getBytes(StandardCharsets.UTF_8))));shot(current,out,"07-imported-scene-playback");
             check(importProgress.preview(host(current)).total==0,"Original gallery navigation preserves imported native flags");preferences(host(current));
-            check(Binary.sha256(files.read(sources.get(0),original.length)).equals(Binary.sha256(original)),"Original system.dat remains byte-identical");
+            check(Binary.sha256(files.read(nativeSource,original.length)).equals(Binary.sha256(original)),"Original system.dat remains byte-identical");
             check(Binary.sha256(Files.readAllBytes(slot)).equals(slotSha),"Original UI navigation preserves preexisting owned story slot");
             report.put("preexisting_story_slot",Json.obj("relative_path","slot-4.sav","sha256",slotSha,"script",savedScript,"pc",savedPc,"body_sha256",Binary.sha256(savedBody.getBytes(StandardCharsets.UTF_8))));
             report.put("completion_import_scope",sc?"No SC completion globals imported; independently unproven completion fields excluded.":"FL allowlist0..13/52/53 supported by shared importer; this fixture changes only CG/seen.");report.put("result","PASS");

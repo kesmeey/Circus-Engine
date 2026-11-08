@@ -1,6 +1,12 @@
 # 非 Unity 引擎重写状态
 
-更新：2026-11-08。Windows 固定包为 **0.14.9-dcdx-import-dev**，Android 更新为 **0.14.10-dcdx-system-import-dev**，执行契约为rev8；旧0.14.3至0.14.8固定包保留。[包哈希与实包复查](validation/windows-sc-fl-0.14.8.json)单独记录。
+更新：2026-11-08。Windows／Android 本批版本为 **0.14.11-ty-sc-fl-dev**，执行契约为rev8；旧固定包保留。本轮[源码与交付验证](validation/ty-sc-fl-source-2026-11-08.json)单独记录。
+
+本批新增TY独立5F69绑定，1848字节系统布局、PC_WIDE变量、原两阶段卡片选择及17ms背景feedback均有独立证据；四类主要故事按首选项策略经结尾回标题，各类原Save/Load、新Host与未来执行均过，未穷举全部分支。NativeProgress仅合并TY的CG/场景标记。
+
+FL另新增用户实际2028字节旧档兼容，避免四字节偏移造成静默错位；该实际源含597项CG、360项场景已读及16项通关标记。手机汉化脚本旧尾按native STOP隔离，原标题Load同故障已复现并修复；这份汉化采用CP932＋uif字符映射，不切换GBK。
+
+SC手机实际缺少 `AdvData/DAT/names.dat`，已补齐一份匹配文件；原版和本运行时都要求该资源编号索引。SAF按列名读取元数据的鲁棒性修正独立验证，不是这次真机缺文件的原因。
 
 DCDX system.dat新增导入以本作403D40读取与版本检查、41BC60变量读取和原MES门槛为依据；前2136字节为系统表，后最多4096字节检查点不合并。Android入口复用原有预览、备份及原子写入，准确范围和源码／APK检查见[本轮验证](validation/dcdx-system-import-source-2026-11-08.json)。
 

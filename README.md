@@ -7,11 +7,11 @@
 仓库：[kesmeey/Circus-Engine](https://github.com/kesmeey/Circus-Engine)。
 项目目录与命令行工具仍沿用 `circus-runtime`／`dc_runtime` 命名。
 
-Android 更新为 **0.14.10-dcdx-system-import-dev**，新增 DCDX `system.dat` 的 CG／场景已读进度导入，见[本轮验证](docs/validation/dcdx-system-import-source-2026-11-08.json)。Windows 保留 **0.14.9-dcdx-import-dev** 固定包；此前[DCDX 运行与 SC／FL 导入验证](docs/validation/dcdx-import-workflows-source-2026-11-08.json)继续单独保留。DCDX 长流程仍有片尾／背景滚动缺口，手机整部原数据流程尚未验证。
+本批 Windows／Android 更新为 **0.14.11-ty-sc-fl-dev**：新增 DC2TY 独立宿主与系统进度导入，兼容 FL 2028 字节旧版系统存档及汉化脚本 STOP 后旧尾，改进手机目录读取和缺资源诊断。[本轮统一验证](docs/validation/ty-sc-fl-source-2026-11-08.json)记录完整范围；旧 Windows0.14.9、Android0.14.10 固定包保留。
 
 当前目标已调整为约80%的主要功能与大多数常见游戏流程，允许延期少量难处理的版本和边缘行为；这是工程范围，尚不是完成率声明。见[当前交付目标](docs/ENGINE_SCOPE.md)。
 
-本批 Android 安装包为 `build/distribution/circus-runtime-0.14.10-dcdx-system-import-dev-android.apk`，可覆盖安装，保留应用数据。新增 DCDX 系统进度导入，SC／FL 导入继续保留；DCDX 手机整部原数据流程尚未验证。
+本批 Android 安装包为 `build/distribution/circus-runtime-0.14.11-ty-sc-fl-dev-android.apk`，可覆盖安装，保留应用数据。TY、FL旧版系统进度导入与真实 SAF provider 检查单独验证；完整手机原数据流程的检查范围以本轮记录为准。
 
 此前分发的 Android 开发包 **0.13.15** 修复 W.Y. 夏露露剧情中的重复目录分隔符报错，同时覆盖 P.P. 的同类图片引用。旧安装包：`build/distribution/circus-runtime-0.13.15-android-dev.apk`，见 [修复说明](docs/ANDROID_01315.md)。保留 [0.13.14 的 W.Y.／P.P. 原版系统进度导入](docs/ANDROID_01314.md)和 [0.13.13 的手机启动与中文补丁兼容](docs/ANDROID_01313.md)。
 
@@ -23,7 +23,7 @@ Android 更新为 **0.14.10-dcdx-system-import-dev**，新增 DCDX `system.dat` 
 这会暴露此前被跳过的模块；当前重写源码不能沿用旧开发包对该作的可玩承诺。
 以下其他作品的进度保留为此前验证范围，不能据此宣称本轮已忠实复刻整个引擎。
 
-有独立版本绑定、由原版脚本驱动的一共11个入口（包含暂不推进的Unity版）。Windows与Android共用核心；
+有独立版本绑定、由原版脚本驱动的一共12个入口（包含暂不推进的Unity版）。Windows与Android共用核心；
 下表保留历史验证范围，本轮的实际验证与未实现边界以重写状态为准。
 
 | 作品 | 数据格式 | 目前能跑到哪 |
@@ -33,6 +33,7 @@ Android 更新为 **0.14.10-dcdx-system-import-dev**，新增 DCDX `system.dat` 
 | D.C.II 〜ダ・カーポII〜（2006 原版） | `dc2-3363` | 首次剧情、角色移动、闹钟存读与片尾已补齐；实际杏/七夏路线经片尾回标题；桌面支持普通ADV原Windows槽转换，少数特殊合成与全部路线尚未穷举 |
 | D.C.II Spring Celebration | `dc2sc-3b69` | 三类故事代表路线回标题，原版Save→Load恢复句子及PC；本地Coco分支一份MES截断，仍明确失败 |
 | D.C.II Fall in Love | `dc2fl-9c69` | 原菜单15个故事的自然首选路线均回标题，独立画面提交、15路片尾及原版Save→Load通过 |
+| D.C.II To You | `dc2ty-5f69` | 四个主要故事按首选项策略各3,378／4,610／3,734／5,910次正文等待后经结尾回标题；原选择界面、滚动背景与便携存读档通过，未穷举全部分支 |
 | D.C. Dream X’mas | `dcdx-7769` | 独立1024×576宿主；原轮转/滑动菜单、D.C.与D.C.II两个入口各20次正文等待；长流程分别停在片尾服务11和背景滚动62，未整线通过 |
 | D.C.II Dearest Marriage | `dc2dm-9d72` | 启动／正文／存读档／回看与语音重播／CG·场景·音乐鉴赏／到片尾 |
 | D.C.III DreamDays | `dc3dd-a5a8` | 七条剧情路线到片尾 |
@@ -46,7 +47,7 @@ Android 更新为 **0.14.10-dcdx-system-import-dev**，新增 DCDX `system.dat` 
 ### 只能识别，不能运行
 
 解包器和格式表覆盖 26 种 MES 变体（D.C. White Season、Summer Vacation、After Seasons、
-D.C.II To You 等），可以扫描、解包、反汇编、
+其他少数 FD 等），可以扫描、解包、反汇编、
 导出图片和音频；但运行时没有对应宿主，选中会直接报 `Unsupported profile`。
 
 范围只到 D.C. 1／2／3 及其 FD，不含 D.C.4／5。其他作品的格式支持不等于能运行。
@@ -68,13 +69,17 @@ python tools/build_android.py --java-home "E:\DevEco Studio\jbr"
 
 SAF 只申请读取权限；存档和解码缓存写应用私有目录。
 
+`NAMES.DAT` 是原版必需的资源编号索引，与修改主角姓名不是同一功能。SC 本次真机启动失败实际缺少 `AdvData/DAT/names.dat`，已补齐匹配文件；独立修正的 SAF 元数据列名读取不是这次缺文件的原因。请复制完整游戏目录，并保留原来的目录层级。
+
+本地 FL 汉化使用 CP932＋根目录 `uif_config.json` 字符映射，请将该配置一起复制。自动编码会读取它，不能按文件夹或 EXE 名称硬切 GBK。
+
 ### Windows
 
 ```powershell
-python tools/package_desktop.py --jdk <JDK21> --ffmpeg <ffmpeg.exe> --version 0.14.9-dcdx-import-dev
+python tools/package_desktop.py --jdk <JDK21> --ffmpeg <ffmpeg.exe> --version 0.14.11-ty-sc-fl-dev
 ```
 
-产物 `build/distribution/dc-runtime-0.14.9-dcdx-import-dev-windows-x64/`，双击 `DC Runtime.cmd`，
+产物 `build/distribution/dc-runtime-0.14.11-ty-sc-fl-dev-windows-x64/`，双击 `DC Runtime.cmd`，
 再选游戏目录。包内自带 JRE 和 FFmpeg，不需要另装 Java；存档写在包目录的 `saves/`。
 
 用当前源码构建的播放器可在同一目录有多个补丁EXE时，明确选择用于读取静态数据表的文件：
@@ -94,6 +99,12 @@ python tools/check_holdout_workflows.py --java-home <JDK21> --spring "D:\games\S
 ```
 
 包括两作原菜单20次正文等待、原版Save→Load、FL合成和片尾像素、SC三类代表及FL十五个故事的自然首选路线。时间与媒体完成由审计控制；SC截断分支的已记录结果见本批测试集验证，不声称穷举每个分支。
+
+TY 四个主要故事、原菜单存读档和整数绘制检查：
+
+```powershell
+python tools/check_ty_workflows.py "D:\gal\DC2TY" --java-home <JDK21> --full-routes
+```
 
 DCDX 的只读测试（两入口、便携存读档、角色与原菜单图集像素）：
 
@@ -128,9 +139,9 @@ python tools/build_windows_native.py --java-home <JDK21> --vcvars "<Visual Studi
 ## 存档
 
 手机存档不是原 Windows 格式。原版的系统进度（通关、CG、场景解锁）可以导入：
-游戏卡片「更多 → 导入原版进度」，支持 DCPC／DC2（2006）／DC2PC／DC2SC／DC2FL／DCDX／DC2DM／DC3DD／DC3WY／DC3PP／DC3R。
-SC本轮仅合并CG与场景已读；FL另含已确认的通关标记。两作均保留本机设置、姓名和已有剧情槽，重复导入不重复写入。DCDX现支持从 `system.dat` 合并CG及场景已读标记，保留本机设置、姓名和剧情槽；不导入通关状态、原版历史检查点或剧情槽。
-SC／FL／DCDX 的原Windows剧情槽转换仍未实现；原版Save→Load通过指运行时通过原菜单保存自己的便携槽，不能据此推断原Windows文件互通。
+游戏卡片「更多 → 导入原版进度」，支持 DCPC／DC2（2006）／DC2PC／DC2SC／DC2FL／DC2TY／DCDX／DC2DM／DC3DD／DC3WY／DC3PP／DC3R。
+SC、TY仅合并CG与场景已读；FL另含已确认的通关标记，并按2028／2032字节精确选择各自布局。本次实际2028字节源含597项CG、360项场景已读及16项通关标记，导入数量按源文件已有标记统计。三作均保留本机设置、姓名和已有剧情槽，重复导入不重复写入。DCDX现支持从 `system.dat` 合并CG及场景已读标记，保留本机设置、姓名和剧情槽；不导入通关状态、原版历史检查点或剧情槽。
+SC／FL／TY／DCDX 的原Windows剧情槽转换仍未实现；原版Save→Load通过指运行时通过原菜单保存自己的便携槽，不能据此推断原Windows文件互通。
 Android 的原版剧情槽导入入口目前仅覆盖 DC3R；本轮桌面新增 DC2（2006）普通 ADV 剧情槽转换，范围见下文。
 
 本轮非 Unity 剧情快照使用 `CVS2`，保存执行规则身份；旧非示例 `CVS1` 剧情槽会明确拒绝，
@@ -153,7 +164,7 @@ P.P. 重写已改用原生位图和持久变量别名，新版可迁移合法旧
 
 ## 已知限制
 
-- 在桌面 JVM 和 Android 模拟器上验证；实体 ARM 手机和扬声器听感尚未验证。
+- 核心与平台审计在桌面 JVM 和 Android 模拟器上验证；本次真机缺资源定位不等于实体 ARM 手机完整剧情和扬声器听感验证。
 - 部分演出时序、字体细节和系统设置副作用还没逐项对照原版。
 - 汉化版未翻译的日文页会显示乱码（例如 D.C.II 的 `kaiso_01`／`kaiso_02`）。
   这是补丁把字形表改成 GBK 顺序造成的，在原版补丁下同样如此，不是这里的额外损失。
@@ -181,7 +192,7 @@ docs/               VM 规范、各版本兼容性、版本记录
 需要 Python 3.10+、JDK 17+；打包 Android 另需上述 SDK／NDK。脚本不下载工具链、不依赖 Gradle。
 
 ```powershell
-python -m unittest discover -s tests            # 47 项 Python 测试
+python -m unittest discover -s tests            # Python 工具回归
 python tools/build_android.py --java-home ...   # APK，并运行 JVM 核心回归
 python tools/package_desktop.py ...             # Windows 包
 ```

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "validation_date": "2026-11-08",
+  "kind": "read-only-local-and-phone-script-encoding-evidence",
+  "profile": "dc2fl-9c69",
+  "status": "CP932-plus-supplied-character-substitution-confirmed; GBK-not-appropriate",
+  "original_executables_run": false,
+  "original_game_directory_written": false,
+  "phone_files_modified_by_this_audit": false,
+  "public_document_contains_original_prose_or_assets": false,
+  "native_natural_entry": {
+    "original_actions": ["03", "start", "sce01", "sce01_set", "sce01"],
+    "intro_script": "aft_1122_a0_akn",
+    "sample_body_script": "aft_1122_a1_akn",
+    "first_text_record_offset": 13152
+  },
+  "local_original_script": {
+    "path": "D:/gal/DC2FIL/AdvData/MES/aft_1122_a1_akn.mes",
+    "bytes": 19775,
+    "sha256": "347f088d6fce632576d472f57b331d1fb73bfd181db642f1bd4dc28acb42e47d",
+    "first_native_stop_end": 19775,
+    "native_4c_records": 82,
+    "native_decoded_text_bytes": 3694,
+    "native_decoded_text_sha256": "415c9163e6d6f3fe3056c131b394bd4917597604984e71e1c86225abf52eb0df",
+    "CP932": {"strict_success":82,"strict_failure":0,"halfwidth_kana":0,"replacement_characters":0},
+    "local_root_uif_config_exists": false
+  },
+  "translated_patch_script": {
+    "path": "D:/gal/DC2FIL/翻译补丁/AdvData/MES/aft_1122_a1_akn.mes",
+    "bytes": 18628,
+    "sha256": "32fb9df8d995e95e747fe174d55f8ee52eab8d7a5343e13ade2367c228b0aac5",
+    "first_native_stop_end": 18628,
+    "native_4c_records": 82,
+    "native_decoded_text_bytes": 2547,
+    "native_decoded_text_sha256": "e42ca46077607e94adce84694c075dc37b8d986afc7bd6ded3a1b9d2d0c24514",
+    "CP932": {"strict_success":82,"strict_failure":0,"han_characters":1032,"halfwidth_kana":0,"replacement_characters":0,"characters_changed_by_supplied_map":274},
+    "GBK": {"strict_success":82,"strict_failure":0,"han_characters":1268,"halfwidth_kana":0,"replacement_characters":0},
+    "interpretation": "Both charsets accept all byte sequences. A strict byte-validity score cannot select the correct codec. CP932 yields substituted Chinese; the supplied map restores simplified Chinese. The private short contrast shows GBK produces unrelated glyph sequences."
+  },
+  "phone_script_read_only_copy": {
+    "private_copy": "build/fl-title-load-20261108/phone-aft_1122_a1_akn.mes",
+    "bytes": 19775,
+    "sha256": "fc9c50888e7ffa1efde62bec2a7355ad7da3f5ea47c06d6a869af070ca1f9de5",
+    "first_native_stop_end": 18628,
+    "exact_translated_patch_prefix": true,
+    "physical_bytes_after_stop": 1147,
+    "tail_exactly_matches_original_Japanese_file_at_same_offset": true,
+    "tail_sha256": "8f1cd2a7cabf6ac53d0e066c4969da9c056d2a4e3d83c18bf2cd45975aacead4",
+    "native_text_equals_patch": true,
+    "native_decoded_text_sha256": "e42ca46077607e94adce84694c075dc37b8d986afc7bd6ded3a1b9d2d0c24514",
+    "interpretation": "This read-only sample contains the complete translated patch prefix followed by an unchanged suffix from the longer original script. No bytes were trimmed or rewritten on the phone or in the source game."
+  },
+  "supplied_character_substitution": {
+    "local_patch_path": "D:/gal/DC2FIL/翻译补丁/uif_config.json",
+    "phone_read_only_copy": "build/fl-title-load-20261108/phone-uif_config.json",
+    "bytes": 10746,
+    "local_and_phone_byte_identical": true,
+    "sha256": "465761c16f2a492603ad61770a68f8a65104e2353104e1e2da479c83aa9a7990",
+    "configuration_encoding": "UTF-8",
+    "character_substitution_enabled": true,
+    "source_codepoints": 1323,
+    "target_codepoints": 1323,
+    "tunnel_decoder_enabled": false,
+    "TextCodec_fingerprint": "3a010fc82f30acc894e056d482771c27735f8ab834ee6fe028ebccab604173be",
+    "patch_editor_configuration": {"subsJis":true,"tunnelJis":false},
+    "configuration_handling": "Parsed only as untrusted data. No patch EXE, injected DLL, installer, editor command or configuration command was executed."
+  },
+  "existing_runtime_configuration": {
+    "GameText_FL_auto_behavior": "FL falls through to configuration(files); GameText.select applies the supplied substitution map and uses windows-31j when encoding is auto.",
+    "GBK_fingerprint_required_for_this_sample": false,
+    "GameText_modified_by_this_audit": false,
+    "limitation": "This evidence verifies the copied configuration file. An active library setting that disables or overrides the map must be inspected separately."
+  },
+  "method_and_limits": [
+    "Physical records were decoded read-only through the first native STOP, respecting declared extension and string payload ownership. Complete physical-file hashes include the post-STOP suffix.",
+    "Opcode4C bytes underwent the reviewed native +32/dollar postprocess before CP932/GBK comparison.",
+    "The private helper and full statistics are under build/fl-title-load-20261108/codec-inspection. Only metadata is public; short prose contrasts remain private.",
+    "This is one named first-story encoding and prefix/tail sample. It is not a full translated-corpus, native DLL, original framebuffer or native parser-equivalence certification."
+  ]
+}

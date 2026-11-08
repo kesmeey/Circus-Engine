@@ -1,0 +1,81 @@
+{
+  "date": "2026-11-08",
+  "scope": "Android SAF cursor-index robustness regression. This independent defect is not the root cause of the reported user-phone SC error; the phone actually lacked its mandatory original names.dat. No catalog fallback was added.",
+  "actual_phone_source": "Root independently verified SC scripts match local data and restored the missing178436-byte names.dat. User then confirmed native Windows also requires that file. This agent only installed/runs fixture APKs on the emulator, not the phone.",
+  "native_missing_file_contract": {
+    "catalog_sha256": "3099c2b2152ef1b5183a05faf49f9b090efa134efcef528179085b3a8de9d067",
+    "catalog_bytes": 178436,
+    "reader": "SC422E20 opens DAT/names.dat; absentfile returnsFFFFFFFF; WinMain408223 tests and shows error/returns0. No complete embedded catalog fallback established.",
+    "REA_evidence_id": "ev_5ab50c1f202be91e8c6c25ec1cd9ce6bb339206572bda8268c54b00bd3f9041b",
+    "private_negative_evidence": "build/sc-saf-investigation-20261108/native-names/native-names-contract.json"
+  },
+  "fix": "DocumentTree resolves documentID/displayName/MIME cursor columns by name instead of fixed indices0/1/2. Missing required columns or absent IDs/names fail explicitly. Canonical lowercase lookup, nested-root behavior and save filtering remain unchanged.",
+  "fixture": "Actual registered DocumentsProvider with real Android ContentResolver queries and file-backed read-only ParcelFileDescriptors. Self-authored32-byte SC framing sample and20-byte catalog parser sample only; not original game data or native engine compatibility data. No mocked ContentResolver.",
+  "cases": [
+    "flat mixed-case folders and lowercase names.dat",
+    "single nested game root",
+    "nullable size/timestamp metadata",
+    "bounded random-access PFD reader",
+    "SaveData excluded forplay/included only for explicit import",
+    "physically missing catalog still fails after SC identification",
+    "same-tree MES cache does not hide removed catalog",
+    "DAT-only cursor columns reordered: oldcode reproduces falsemissing;newcode reads correct catalog",
+    "missing required identity column is rejected"
+  ],
+  "before_source_override": "Before APK is a complete frozen current mirror plus new test classes, with onlyDocumentTree replaced by exact saved pre-fix SHAee0fc5c229b3b531f098d9266c83baf79576bda3775866b441053d7579a91fdb; it is a declared behavioral baseline rather than the unmodified oldrelease APK.",
+  "original_game_files_copied_into_APK": false,
+  "phone_installed_or_launched_by_this_agent": false,
+  "emulator_installation": "install-r only; no uninstall, clear or reset; application data retained.",
+  "public_sources": [
+    {
+      "path": "runtime/android/src/org/circus/runtime/DocumentTree.java",
+      "sha256": "e5d802e48de48f039dfde82bf06c67762c06621d3ad75b5edfe01b2fb9c6f867"
+    },
+    {
+      "path": "runtime/android/src/org/circus/runtime/DocumentTreeFixtureProvider.java",
+      "sha256": "173fa77c5da43b9056fc81655c5b5f044f7c484e54536923ce8287f767a904f1"
+    },
+    {
+      "path": "runtime/android/src/org/circus/runtime/DocumentTreeInstrumentation.java",
+      "sha256": "c596ecdd49b8bf135df8d22033f50aa646fe8b12c379562474b234820bd1911b"
+    }
+  ],
+  "results": [
+    {
+      "variant": "before",
+      "registered_actual_provider_checks": 24,
+      "instrumentation_code": -1,
+      "device": "emulator-5586",
+      "apk_sha256": "3d13e24ec4723107edb0e982ac7cbad8655aa354103cfb71b51977dcc8f0d0f2",
+      "signature_verified": true,
+      "jvm_core_result": "PASS 1149498 assertions; self-authored fixtures; DD choices/flow/original UI/animation/macros, WY bindings, DM memory/control and collection detection; archives, CRX/CRXD, audio, save integrity",
+      "frozen_source_changes": [],
+      "input_manifest": {
+        "path": "build/sc-saf-investigation-20261108/android-before-20261108T1315/input-manifest.json",
+        "sha256": "e5389d40dad376721035beec8d10bedc3813c210c6a5e490a130e991cbafc423"
+      },
+      "device_result": {
+        "path": "build/sc-saf-investigation-20261108/android-before-20261108T1315/device-result.json",
+        "sha256": "444a81fd810862bcf048aa3d79af4ef4a7bd5d3cfea90d08c78c3cab97cf0fc5"
+      }
+    },
+    {
+      "variant": "after",
+      "registered_actual_provider_checks": 25,
+      "instrumentation_code": -1,
+      "device": "emulator-5586",
+      "apk_sha256": "50606674b8a1ccc618048c959dc270b6edcf7d48003d0d1b6771c9b6ccac6955",
+      "signature_verified": true,
+      "jvm_core_result": "PASS 1149498 assertions; self-authored fixtures; DD choices/flow/original UI/animation/macros, WY bindings, DM memory/control and collection detection; archives, CRX/CRXD, audio, save integrity",
+      "frozen_source_changes": [],
+      "input_manifest": {
+        "path": "build/sc-saf-investigation-20261108/android-after-20261108T1328/input-manifest.json",
+        "sha256": "5adafebae925a3866e812e1c12908ec84a1fa9eb61267eed1f320802106b93f3"
+      },
+      "device_result": {
+        "path": "build/sc-saf-investigation-20261108/android-after-20261108T1328/device-result.json",
+        "sha256": "715f7ba679b4db98e7b9954f2898265728333fea6ffdefd5d40e6e843a5e9b73"
+      }
+    }
+  ]
+}

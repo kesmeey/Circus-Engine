@@ -673,6 +673,22 @@
     "dcdx.actor_transform": {
       "description": "DCDX65 scale/pivot and movement branches with its own ordinary9:82/83/84 state.",
       "operands": []
+    },
+    "ty.command": {
+      "description": "TY independent40A010 service dispatcher; unreviewed real services fail explicitly.",
+      "operands": []
+    },
+    "ty.scroll": {
+      "description": "TY independent62 background and portrait scrolling.",
+      "operands": []
+    },
+    "ty.actor_position": {
+      "description": "TY staged actor XYZ producer; separate native displayed descriptors.",
+      "operands": []
+    },
+    "ty.actor_transform": {
+      "description": "TY65 stage scale/pivots and independently reviewed10ms actor movement.",
+      "operands": []
     }
   },
   "profiles": {
@@ -3657,6 +3673,654 @@
         }
       },
       "scope": "DCDX independently verified opcode roles; common primitive leaf details and profile-specific1C/actor/scroll consumers may remain explicit host failures until implemented. No original EXE executed; source files read-only."
+    },
+    "dc2ty-5f69": {
+      "native_sha256": "615704413dd00960bb47f4d6c1b33dd635931f13085a9a25dd5782fd7dbdf505",
+      "runtime_variable_model": "PC_WIDE",
+      "addresses": {
+        "loader": "0x41B5C0",
+        "dispatch": "0x41DAB0",
+        "dispatch_table": "0x420A18",
+        "fallback": "0x4209C7",
+        "getter": "0x41B880",
+        "setter": "0x41BB40"
+      },
+      "dispatch_count": 105,
+      "decoder": {
+        "version_bytes": 2,
+        "runtime_exact_version": true,
+        "extension_opcode": 82,
+        "encoded_string_postmap": {},
+        "signed_opcode_fetch": true,
+        "allow_terminal_fragment": true,
+        "extension_at_fetch": false,
+        "extension_owners": [
+          80,
+          83,
+          85,
+          87
+        ],
+        "string_payload_owners": [
+          81,
+          88,
+          96
+        ]
+      },
+      "control": {
+        "label_opcode": 53,
+        "block_marker_opcode": 30,
+        "companion_opcode": 2,
+        "block_scan_signed_opcode": true
+      },
+      "opcodes": {
+        "0x00": "stream.stop",
+        "0x01": "native.no_effect",
+        "0x02": "control.marker",
+        "0x03": "pc.history",
+        "0x04": "pc.checkpoint",
+        "0x05": "dm.audio.music",
+        "0x06": "dm.audio.music_attenuation",
+        "0x07": "dm.wait.message",
+        "0x08": "pc.choice.begin",
+        "0x09": "pc.choice.wait",
+        "0x0A": "pc.ui.wait",
+        "0x0B": "pc.grid.wait",
+        "0x0C": "pc.grid.begin",
+        "0x0D": "pc.transition",
+        "0x0E": "system.exit",
+        "0x0F": "pc.reset",
+        "0x10": "native.unmodelled",
+        "0x11": "dm.audio.fade_music",
+        "0x12": "pc.wait",
+        "0x13": "pc.wait.media_mask",
+        "0x14": "dm.ui.button_sound",
+        "0x15": "pc.grid.sound",
+        "0x16": "pc.persist",
+        "0x17": "pc.button_template",
+        "0x18": "native.unmodelled",
+        "0x19": "pc.sprite_opaque",
+        "0x1A": "native.unmodelled",
+        "0x1B": "dm.system.return",
+        "0x1C": "ty.command",
+        "0x1D": "native.unmodelled",
+        "0x1E": "block.marker",
+        "0x1F": "native.no_effect",
+        "0x20": "dm.ui.commit",
+        "0x21": "pc.quad_template",
+        "0x22": "native.unmodelled",
+        "0x23": "native.unmodelled",
+        "0x24": "native.no_effect",
+        "0x25": "dm.ui.binding",
+        "0x26": "pc.effect",
+        "0x27": "native.unmodelled",
+        "0x28": "native.no_effect",
+        "0x29": "native.no_effect",
+        "0x2A": "pc.resource",
+        "0x2B": "pc.character",
+        "0x2C": "pc.character_overlay",
+        "0x2D": "native.unmodelled",
+        "0x2E": "pc.script.transfer",
+        "0x2F": "native.no_effect",
+        "0x30": "pc.background",
+        "0x31": "pc.image6",
+        "0x32": "pc.image7",
+        "0x33": "pc.image8",
+        "0x34": "native.unmodelled",
+        "0x35": "label.named",
+        "0x36": "dm.audio.voice",
+        "0x37": "script.entry_label",
+        "0x38": "pc.movie",
+        "0x39": "native.unmodelled",
+        "0x3A": "jump.named_required",
+        "0x3B": "pc.action0",
+        "0x3C": "pc.action1",
+        "0x3D": "dm.ui.button_voice",
+        "0x3E": "native.unmodelled",
+        "0x3F": "native.unmodelled",
+        "0x40": "native.unmodelled",
+        "0x41": "native.unmodelled",
+        "0x42": "grid.item_action",
+        "0x43": "native.unmodelled",
+        "0x44": "choice.item",
+        "0x45": "choice.caption",
+        "0x46": "native.unmodelled",
+        "0x47": "ui.music_end_action",
+        "0x48": "native.unmodelled",
+        "0x49": "system.version",
+        "0x4A": "native.no_effect",
+        "0x4B": "text.speaker",
+        "0x4C": "text.body",
+        "0x4D": "choice.caption",
+        "0x4E": "native.no_effect",
+        "0x4F": "host.command_with_string",
+        "0x50": "pc.button_sprite",
+        "0x51": "ui.button_text",
+        "0x52": "arguments.extend",
+        "0x53": "pc.quad",
+        "0x54": "native.unmodelled",
+        "0x55": "pc.grid.configure",
+        "0x56": "dm.ui.grid_rect",
+        "0x57": "pc.grid.item",
+        "0x58": "pc.grid.caption",
+        "0x59": "native.unmodelled",
+        "0x5A": "native.unmodelled",
+        "0x5B": "dm.audio.sound",
+        "0x5C": "variable.update",
+        "0x5D": "variable.copy",
+        "0x5E": "variable.add_variable",
+        "0x5F": "branch.compare",
+        "0x60": "dm.ui.text",
+        "0x61": "native.unmodelled",
+        "0x62": "ty.scroll",
+        "0x63": "native.unmodelled",
+        "0x64": "ty.actor_position",
+        "0x65": "ty.actor_transform",
+        "0x66": "dm.ui.palette",
+        "0x67": "native.unmodelled",
+        "0x68": "native.unmodelled"
+      },
+      "review_scope": "Independent Chinese TY PE dispatch cases. Common operations explicitly chosen from TY observed producer/consumer fields; unreviewed handlers remain native.unmodelled. Service12 and rare transitions can still fail in TyHost.",
+      "native_case_provenance": {
+        "0x00": {
+          "target": "0x41DBC7",
+          "functions": [
+            "0041b0d0"
+          ]
+        },
+        "0x01": {
+          "target": "0x4209C7",
+          "functions": []
+        },
+        "0x02": {
+          "target": "0x4209C7",
+          "functions": []
+        },
+        "0x03": {
+          "target": "0x420831",
+          "functions": [
+            "0042cd10"
+          ]
+        },
+        "0x04": {
+          "target": "0x4208AE",
+          "functions": []
+        },
+        "0x05": {
+          "target": "0x41FF87",
+          "functions": [
+            "0040d730",
+            "004282e0",
+            "00428590",
+            "00428d80"
+          ]
+        },
+        "0x06": {
+          "target": "0x420077",
+          "functions": [
+            "00428d80"
+          ]
+        },
+        "0x07": {
+          "target": "0x41DE1C",
+          "functions": [
+            "0041b810",
+            "0041cb20",
+            "0041cc10"
+          ]
+        },
+        "0x08": {
+          "target": "0x41E8AD",
+          "functions": [
+            "00421620"
+          ]
+        },
+        "0x09": {
+          "target": "0x41E90C",
+          "functions": [
+            "00423a80"
+          ]
+        },
+        "0x0A": {
+          "target": "0x41E80D",
+          "functions": [
+            "00414f90",
+            "0041c940"
+          ]
+        },
+        "0x0B": {
+          "target": "0x41ECD0",
+          "functions": [
+            "00414f90",
+            "004150a0",
+            "0041c940"
+          ]
+        },
+        "0x0C": {
+          "target": "0x41E93D",
+          "functions": []
+        },
+        "0x0D": {
+          "target": "0x41ED2E",
+          "functions": [
+            "00402480",
+            "00403cb0",
+            "00403d40",
+            "00403dd0",
+            "0040d650",
+            "0040dd30",
+            "00419e10",
+            "0041b0d0",
+            "0041c360",
+            "0041c920",
+            "0041cea0",
+            "00421620",
+            "00423a80",
+            "00425cb0",
+            "00425e10",
+            "00426230",
+            "00426e60"
+          ]
+        },
+        "0x0E": {
+          "target": "0x41DD9D",
+          "functions": []
+        },
+        "0x0F": {
+          "target": "0x41DE09",
+          "functions": []
+        },
+        "0x11": {
+          "target": "0x41F25D",
+          "functions": [
+            "0040d730",
+            "00428480"
+          ]
+        },
+        "0x12": {
+          "target": "0x41DF21",
+          "functions": [
+            "0040d650",
+            "0041c920"
+          ]
+        },
+        "0x13": {
+          "target": "0x4202A2",
+          "functions": [
+            "00428e00"
+          ]
+        },
+        "0x14": {
+          "target": "0x41E401",
+          "functions": [
+            "004143e0"
+          ]
+        },
+        "0x15": {
+          "target": "0x41EAAF",
+          "functions": []
+        },
+        "0x16": {
+          "target": "0x41FB5D",
+          "functions": [
+            "004044d0",
+            "00404be0",
+            "0040d9c0",
+            "0040dba0",
+            "0040dbd0",
+            "0041c9f0",
+            "00426860",
+            "004269c0",
+            "0042c5ef"
+          ]
+        },
+        "0x17": {
+          "target": "0x41E040",
+          "functions": []
+        },
+        "0x19": {
+          "target": "0x41E4C2",
+          "functions": []
+        },
+        "0x1B": {
+          "target": "0x4204F5",
+          "functions": [
+            "00402480",
+            "00403cb0",
+            "004117a0",
+            "00414800",
+            "00418540",
+            "0041b3f0",
+            "0041b5c0",
+            "0041cc10",
+            "00421620",
+            "00423a80",
+            "00425e10",
+            "004263d0",
+            "00428610"
+          ]
+        },
+        "0x1C": {
+          "target": "0x41DD8E",
+          "functions": [
+            "0040a010"
+          ]
+        },
+        "0x1E": {
+          "target": "0x41F3B5",
+          "functions": [
+            "0041b510"
+          ]
+        },
+        "0x1F": {
+          "target": "0x4209C7",
+          "functions": []
+        },
+        "0x20": {
+          "target": "0x41E951",
+          "functions": [
+            "00414f90",
+            "004150a0",
+            "0041c940"
+          ]
+        },
+        "0x21": {
+          "target": "0x41F564",
+          "functions": [
+            "0041cae0",
+            "00421620",
+            "00421ab0"
+          ]
+        },
+        "0x24": {
+          "target": "0x4209C7",
+          "functions": []
+        },
+        "0x25": {
+          "target": "0x41E221",
+          "functions": []
+        },
+        "0x26": {
+          "target": "0x41F106",
+          "functions": [
+            "00418540",
+            "0041d260"
+          ]
+        },
+        "0x28": {
+          "target": "0x4209C7",
+          "functions": []
+        },
+        "0x29": {
+          "target": "0x4209C7",
+          "functions": []
+        },
+        "0x2A": {
+          "target": "0x41DFD1",
+          "functions": [
+            "00402480",
+            "00402fe0"
+          ]
+        },
+        "0x2B": {
+          "target": "0x41FE24",
+          "functions": [
+            "0041d260"
+          ]
+        },
+        "0x2C": {
+          "target": "0x41FE05",
+          "functions": [
+            "0041d560"
+          ]
+        },
+        "0x2E": {
+          "target": "0x4207B9",
+          "functions": [
+            "0041b0d0",
+            "0041b5c0"
+          ]
+        },
+        "0x2F": {
+          "target": "0x4209C7",
+          "functions": []
+        },
+        "0x30": {
+          "target": "0x41F3D7",
+          "functions": [
+            "00418540",
+            "0041b090",
+            "0041b0d0",
+            "0041b1c0",
+            "0042c5ef"
+          ]
+        },
+        "0x31": {
+          "target": "0x41F92E",
+          "functions": [
+            "0041b0d0",
+            "0041b1c0"
+          ]
+        },
+        "0x32": {
+          "target": "0x41F95B",
+          "functions": [
+            "0041b0d0",
+            "0041b1c0"
+          ]
+        },
+        "0x33": {
+          "target": "0x41F988",
+          "functions": [
+            "0041b0d0",
+            "0041b1c0"
+          ]
+        },
+        "0x35": {
+          "target": "0x4209C7",
+          "functions": []
+        },
+        "0x36": {
+          "target": "0x42008B",
+          "functions": [
+            "0041b0d0",
+            "0041b810",
+            "0041b880",
+            "0041c360",
+            "00425e10",
+            "00428ae0",
+            "00428bf0"
+          ]
+        },
+        "0x37": {
+          "target": "0x420790",
+          "functions": []
+        },
+        "0x38": {
+          "target": "0x4202F1",
+          "functions": []
+        },
+        "0x3A": {
+          "target": "0x4204D0",
+          "functions": [
+            "0041b4e0"
+          ]
+        },
+        "0x3B": {
+          "target": "0x42047E",
+          "functions": []
+        },
+        "0x3C": {
+          "target": "0x4204A7",
+          "functions": []
+        },
+        "0x3D": {
+          "target": "0x41E42D",
+          "functions": []
+        },
+        "0x42": {
+          "target": "0x41EBED",
+          "functions": []
+        },
+        "0x44": {
+          "target": "0x41E4D1",
+          "functions": [
+            "00414020",
+            "00414280"
+          ]
+        },
+        "0x45": {
+          "target": "0x4209C7",
+          "functions": []
+        },
+        "0x47": {
+          "target": "0x420383",
+          "functions": []
+        },
+        "0x49": {
+          "target": "0x41DD34",
+          "functions": []
+        },
+        "0x4A": {
+          "target": "0x4209C7",
+          "functions": []
+        },
+        "0x4B": {
+          "target": "0x420925",
+          "functions": [
+            "0041cc90"
+          ]
+        },
+        "0x4C": {
+          "target": "0x42093C",
+          "functions": [
+            "0041b0d0",
+            "0041c360",
+            "0041cc90",
+            "00425e10"
+          ]
+        },
+        "0x4D": {
+          "target": "0x4209C7",
+          "functions": []
+        },
+        "0x4E": {
+          "target": "0x4209C7",
+          "functions": []
+        },
+        "0x4F": {
+          "target": "0x41E231",
+          "functions": [
+            "00414020"
+          ]
+        },
+        "0x50": {
+          "target": "0x41E329",
+          "functions": [
+            "00414280",
+            "0041b840"
+          ]
+        },
+        "0x51": {
+          "target": "0x41E47B",
+          "functions": [
+            "00414350"
+          ]
+        },
+        "0x52": {
+          "target": "0x4209C7",
+          "functions": []
+        },
+        "0x53": {
+          "target": "0x41F682",
+          "functions": [
+            "0041b840"
+          ]
+        },
+        "0x55": {
+          "target": "0x41E9AD",
+          "functions": [
+            "00413ff0",
+            "0041b840"
+          ]
+        },
+        "0x56": {
+          "target": "0x41EAE1",
+          "functions": [
+            "00414150"
+          ]
+        },
+        "0x57": {
+          "target": "0x41EB25",
+          "functions": [
+            "0041b840"
+          ]
+        },
+        "0x58": {
+          "target": "0x41EC16",
+          "functions": [
+            "0041cc90"
+          ]
+        },
+        "0x5B": {
+          "target": "0x41DDAC",
+          "functions": [
+            "0040d730",
+            "00428610",
+            "004287e0",
+            "00428850"
+          ]
+        },
+        "0x5C": {
+          "target": "0x41F18D",
+          "functions": [
+            "0041b880",
+            "0041bb40"
+          ]
+        },
+        "0x5D": {
+          "target": "0x41F204",
+          "functions": [
+            "0041b880",
+            "0041bb40"
+          ]
+        },
+        "0x5E": {
+          "target": "0x41F22B",
+          "functions": [
+            "0041b880",
+            "0041bb40"
+          ]
+        },
+        "0x5F": {
+          "target": "0x41F2E6",
+          "functions": [
+            "0041b510",
+            "0041b880"
+          ]
+        },
+        "0x60": {
+          "target": "0x41F879",
+          "functions": []
+        },
+        "0x62": {
+          "target": "0x41FAAB",
+          "functions": []
+        },
+        "0x64": {
+          "target": "0x41FE45",
+          "functions": []
+        },
+        "0x65": {
+          "target": "0x41FF13",
+          "functions": []
+        },
+        "0x66": {
+          "target": "0x41FDF0",
+          "functions": [
+            "0040ded0"
+          ]
+        }
+      }
     }
   }
 }

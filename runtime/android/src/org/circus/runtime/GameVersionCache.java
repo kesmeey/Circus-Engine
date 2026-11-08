@@ -6,11 +6,11 @@ import java.nio.file.*;
 import java.util.*;
 import org.circus.core.*;
 
-/** Reuses a completed collection check only while the provider's script inventory is unchanged. */
+/** Reuses a START-selected profile hint while the provider's script inventory is unchanged. */
 public final class GameVersionCache {
     private static final int MAGIC=0x47564331,MAX_RECORD=2048;
     // Bump this directory when collection-admission rules change, not for UI releases.
-    private static final String START="advdata/mes/start.mes",DIRECTORY="mes-version-v1";
+    private static final String START="advdata/mes/start.mes",DIRECTORY="mes-version-v2";
     private GameVersionCache(){}
 
     public static Profile detect(DocumentTree tree,GameResources files,File cacheDir)throws IOException{
@@ -27,7 +27,7 @@ public final class GameVersionCache {
         if(cached!=null){
             // Provider timestamps are freshness hints, not content authentication.
             // Reuse the authoritative parser to check START with bounded reads; an
-            // ambiguous or changed START falls back to full collection validation.
+            // ambiguous START falls back to collection validation; changed START is identified anew.
             try{GameResources first=new GameResources(new GameResources.Storage(){
                 public Set<String> paths(){return Collections.singleton(START);}
                 public byte[] read(String name,int limit)throws IOException{return files.read(START,limit);}

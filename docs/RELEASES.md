@@ -3,6 +3,14 @@
 本文件收录各版本的变更说明。开发构建产物都在本机 `build/` 下，不随仓库分发；
 带 `-dev` 的是开发签名包，可以覆盖安装，不要卸载或清除应用数据。
 
+## 0.14.11-ty-sc-fl-dev（Windows／Android）
+
+新增DC2TY独立运行和Android CG/场景已读导入；四个主要故事按首选项策略经结尾回标题，原selector/scroll及便携Save/Load通过，未穷举全部分支。FL兼容2028字节旧版系统存档，本次实际源含597项CG、360项场景已读及16项通关标记；按native STOP结束索引以支持非截断汉化覆盖留下的旧尾，复现并修复手机原标题Load越界。该FL汉化使用CP932＋uif字符映射，不切换GBK。
+
+SC真机报错的实际原因是缺少必需资源编号索引 `AdvData/DAT/names.dat`，已补齐匹配文件。另修SAF按列名读取元数据的鲁棒性问题，并更新缺资源提示、实际版本显示和START缓存测试；SAF修正不是这次真机缺文件的原因。SC仍只验证三类代表路线，截断Coco分支保留失败；DCDX两条长流程仍在服务11／滚动62处停止，本版不宣称二者全部路线通过。
+
+[本轮验证](validation/ty-sc-fl-source-2026-11-08.json)记录来源、实际手机原文件、冻结源码与安装包；旧包保持不变。
+
 ## Android 0.14.10-dcdx-system-import-dev
 
 新增DCDX `system.dat` 的CG与场景已读合并，使用已有原版进度导入入口；预览后备份已有手机进度，再原子写入，重复导入不重复写。保留设置、姓名和已有剧情槽，不导入globals、原版历史检查点或剧情槽。SC/FL进度导入继续保留，DCDX运行范围不变。
@@ -49,7 +57,7 @@
 
 ### 0.14.8-sc-fl-dev（2026-11-08）
 
-新增SC和FL的独立版本绑定、变量布局及角色stage/live，修正PC2加载时已读缓存、默认设置与真实bank尺寸。SC补原版五格存读菜单和菜单返回的saved-stage前三字段；FL补15路独立片尾、GED长图裁切、20ms单poll及24位有序合成。两作原版Save→Load均验证同一句子和PC恢复，FL所有故事入口的完整路线结果见[本批验证](validation/sc-fl-workflows-source-2026-11-08.json)。
+新增SC和FL的独立版本绑定、变量布局及角色stage/live，修正PC2加载时已读缓存、默认设置与真实bank尺寸。SC补原版五格存读菜单和菜单返回的saved-stage前三字段；FL补15路独立片尾、GED长图裁切、20ms单poll及24位有序合成。两作原版Save→Load均验证同一句子和PC恢复，FL十五个故事入口的自然首选路线结果见[本批验证](validation/sc-fl-workflows-source-2026-11-08.json)。
 
 SC三类代表路线回标题；本地Coco一份MES截断，无备份，对应分支仍明确失败。FL目录遗留的cg_etc旧6C69不被本作loader接受，运行时也不别名放行。PC2旧执行合同的剧情快照拒绝，独立PCP1/2进度迁移到PCP3并保留旧额外尾字节。旧0.14.7固定包保留；[新包收据](validation/windows-sc-fl-0.14.8.json)单独记录。
 

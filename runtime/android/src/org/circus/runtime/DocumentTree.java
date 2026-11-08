@@ -25,9 +25,11 @@ public final class DocumentTree implements GameResources.Storage {
         Uri children=DocumentsContract.buildChildDocumentsUriUsingTree(tree,id);
         try(Cursor c=resolver.query(children,new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID,DocumentsContract.Document.COLUMN_DISPLAY_NAME,DocumentsContract.Document.COLUMN_MIME_TYPE,DocumentsContract.Document.COLUMN_SIZE,DocumentsContract.Document.COLUMN_LAST_MODIFIED},null,null,null)){
             if(c==null)throw new IOException("Document provider returned no cursor");
+            int idColumn=requiredColumn(c,DocumentsContract.Document.COLUMN_DOCUMENT_ID),nameColumn=requiredColumn(c,DocumentsContract.Document.COLUMN_DISPLAY_NAME),mimeColumn=requiredColumn(c,DocumentsContract.Document.COLUMN_MIME_TYPE);
             int sizeColumn=c.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE),modifiedColumn=c.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED);
             while(c.moveToNext()){
-                String child=c.getString(0),name=c.getString(1),mime=c.getString(2);Binary.safePath(name);
+                String child=c.getString(idColumn),name=c.getString(nameColumn),mime=c.getString(mimeColumn);
+                if(child==null||child.isEmpty()||name==null)throw new IOException("Document provider returned an absent document ID or filename");Binary.safePath(name);
                 if(name.indexOf('/')>=0||name.indexOf('\\')>=0)throw new IOException("Provider returned path-like filename");
                 if(DocumentsContract.Document.MIME_TYPE_DIR.equals(mime)){
                     if((includeSaves||!name.equalsIgnoreCase("SaveData"))&&!name.equalsIgnoreCase("backups"))scan(child,prefix+name+"/",depth+1);
@@ -35,6 +37,7 @@ public final class DocumentTree implements GameResources.Storage {
             }
         }catch(SecurityException e){throw new IOException("Directory permission revoked",e);}
     }
+    private static int requiredColumn(Cursor cursor,String name)throws IOException{int index=cursor.getColumnIndex(name);if(index<0)throw new IOException("Document provider omitted required column "+name);return index;}
     public Set<String> paths(){return Collections.unmodifiableSet(displayPaths);}
     String treeIdentity(){return tree.toString();}
     /** Re-enumerated on every launch; providers without useful metadata bypass caching. */

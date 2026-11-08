@@ -258,6 +258,8 @@ public final class CoreTests {
         assertions+=NativeGameVersionTests.run();
         assertions+=ScHostTests.run()+FlHostTests.run()+FlCreditsTests.run()+FlActorMotionTests.run()+FlCompositionTests.run()+Pc2ActorTests.run()+PcNativeStateTests.run();
         assertions+=DcdxActorTests.run()+DcdxHostTests.run();
+        assertions+=TyHostTests.run()+TyScrollTests.run();
+        assertions+=TySelectorTests.run();
         assertions+=DcdxMenuTests.run()+DcdxBannerTests.run();
         assertions+=PpStateTests.run()+PpSystem206Tests.run();
         assertions+=NativeCursorTests.run();
@@ -376,6 +378,8 @@ public final class CoreTests {
         assertions+=PcNativeProgressTests.run();
         assertions+=PcScFlProgressTests.run();
         assertions+=DcdxProgressTests.run();
+        assertions+=FlLegacyProgressTests.run();
+        assertions+=FlStoppedTailTests.run();
         assertions+=NativeProgressTests.run();
         assertions+=AudioStreamingTests.run(assets);
         Dc3Host reloading=new Dc3Host(null,TextCodec.identity(),true);Variables transientVars=new Variables(reloading);reloading.attach(transientVars);transientVars.write(3,12,77);

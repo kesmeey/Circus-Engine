@@ -48,7 +48,7 @@ public class Dc2Host implements MesVm.ContextHost,MesVm.MenuHost,MesVm.ChoiceHos
     public final List<Dc2Ui.Button> grid=new ArrayList<>();public boolean gridWaiting,saveGrid;
     public int gridHoverSound=255,gridClickSound=224,confirmX,confirmY,confirmKind;public boolean confirming;
     public final Map<Integer,String> saveLabels=new TreeMap<>();
-    public static Dc2Host create(CircusResources r,TextCodec c){return r.profile.id.equals("dcdx-7769")?new DcdxHost(r,c):r.profile.id.equals("dc2sc-3b69")?new ScHost(r,c):r.profile.id.equals("dc2fl-9c69")?new FlHost(r,c):r.profile.id.equals("dc2pc-5769")?new Pc2Host(r,c):PcHost.supports(r.profile)?new PcHost(r,c):new Dc2Host(r,c);}
+    public static Dc2Host create(CircusResources r,TextCodec c){return r.profile.id.equals("dc2ty-5f69")?new TyHost(r,c):r.profile.id.equals("dcdx-7769")?new DcdxHost(r,c):r.profile.id.equals("dc2sc-3b69")?new ScHost(r,c):r.profile.id.equals("dc2fl-9c69")?new FlHost(r,c):r.profile.id.equals("dc2pc-5769")?new Pc2Host(r,c):PcHost.supports(r.profile)?new PcHost(r,c):new Dc2Host(r,c);}
     public void enterSystem()throws IOException {
         systemScene=scene.shown;remaining=0;audioMask=0;textWaiting=presentationWaiting=false;movie="";ui.waiting=false;ui.buttons.clear();speaker=body="";registers.put(1,0);registers.put(19,0);play(5,"",false);
     }

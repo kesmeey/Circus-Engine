@@ -915,3 +915,117 @@ EXE: `DCDX.EXE`；SHA-256: `86bcd33e954b81f9b7bb731bcbc2886bc68d8d069074a32ef2af
 | 0x67 | u16x4 | 0x00426BD6 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
 | 0x68 | u16x4 | 0x00426BF5 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
 
+### dc2ty-5f69
+
+EXE: `dc2ty_chinese(simplified)_patch.exe`；SHA-256: `615704413dd00960bb47f4d6c1b33dd635931f13085a9a25dd5782fd7dbdf505`。
+
+分发表 `0x420a18`，共 105 项。
+
+| Opcode | 参数布局 | Handler VA | 语义 | 状态 | 行为 |
+|---|---|---|---|---|---|
+| 0x00 | u8x2 | 0x0041DBC7 | stream.stop | partial_binding | 终止/归还宿主；不能简单视为 pc++ 的 NOP。 |
+| 0x01 | u8x2 | 0x004209C7 | native.no_effect | partial_binding | DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md. |
+| 0x02 | u8x2 | 0x004209C7 | control.marker | partial_binding | Context-dependent 3-byte record: IF companion uses signed first byte as block ID; sum list terminator. |
+| 0x03 | u8x2 | 0x00420831 | pc.history | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x04 | u8x2 | 0x004208AE | pc.checkpoint | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x05 | u8x2 | 0x0041FF87 | dm.audio.music | partial_binding | NAMES music 索引；停止值及播放状态由版本宿主处理。 |
+| 0x06 | u8x2 | 0x00420077 | dm.audio.music_attenuation | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x07 | u8x2 | 0x0041DE1C | dm.wait.message | partial_binding | 等待文本显示/用户推进；主循环必须归还控制权给平台。 |
+| 0x08 | u8x2 | 0x0041E8AD | pc.choice.begin | partial_binding | 初始化选项集合，使用脚本先前定义的按钮模板。 |
+| 0x09 | u8x2 | 0x0041E90C | pc.choice.wait | partial_binding | 发布选项并暂停；点击根据按钮 action 跳回同一 MES 标签。 |
+| 0x0A | u8x2 | 0x0041E80D | pc.ui.wait | partial_binding | a1=1 为 200*a0 毫秒轮询等待；其他模式等待原版按钮输入。 |
+| 0x0B | u8x2 | 0x0041ECD0 | pc.grid.wait | partial_binding | 发布原版存读档网格并等待点击；PC1/2 保留槽 0/1；PC2 读档进入 selsave2，保存进入 selsave。 |
+| 0x0C | u8x2 | 0x0041E93D | pc.grid.begin | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x0D | u8x2 | 0x0041ED2E | pc.transition | partial_binding | 转场类别/时长；部分原效果尚由近似淡入实现。 |
+| 0x0E | u8x2 | 0x0041DD9D | system.exit | partial_binding | Sends WM_DESTROY to the game window and yields; portable host ends the game Activity. |
+| 0x0F | u8x2 | 0x0041DE09 | pc.reset | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x10 | u8x2 | 0x0041F288 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x11 | u8x2 | 0x0041F25D | dm.audio.fade_music | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x12 | u8x2 | 0x0041DF21 | pc.wait | partial_binding | a0=0 无限输入等待，否则 200*a0 毫秒；鼠标绑定可跳转标签。 |
+| 0x13 | u8x2 | 0x004202A2 | pc.wait.media_mask | partial_binding | PC2 41ED22 / 4230E0：位 1 等 BGM，2 等语音，4 等音效；位 8 原生计时分支尚未接入。 |
+| 0x14 | u8x2 | 0x0041E401 | dm.ui.button_sound | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x15 | u8x2 | 0x0041EAAF | pc.grid.sound | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x16 | u8x2 | 0x0041FB5D | pc.persist | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x17 | u8x2 | 0x0041E040 | pc.button_template | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x18 | u8x2 | 0x0041E3C5 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x19 | u8x2 | 0x0041E4C2 | pc.sprite_opaque | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x1A | u8x2 | 0x004208C4 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x1B | u8x2 | 0x004204F5 | dm.system.return | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x1C | u8x2 | 0x0041DD8E | ty.command | partial_binding | TY independent40A010 service dispatcher; unreviewed real services fail explicitly. |
+| 0x1D | u8x2 | 0x004203AC | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x1E | u8x2 | 0x0041F3B5 | block.marker | reviewed_primitive | a0=0 向前扫描相同有符号块编号；非零直接继续。 |
+| 0x1F | u8x2 | 0x004209C7 | native.no_effect | partial_binding | DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md. |
+| 0x20 | u8x2 | 0x0041E951 | dm.ui.commit | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x21 | u8x2 | 0x0041F564 | pc.quad_template | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x22 | u8x2 | 0x00420324 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x23 | u8x2 | 0x004201D9 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x24 | u8x2 | 0x004209C7 | native.no_effect | partial_binding | DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md. |
+| 0x25 | u8x2 | 0x0041E221 | dm.ui.binding | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x26 | u8x2 | 0x0041F106 | pc.effect | partial_binding | 版本独立的效果编号及参数；已绑定纹理，运动/时间近似，不能声称像素一致。 |
+| 0x27 | u8x2 | 0x0041FA51 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x28 | u8x2 | 0x004209C7 | native.no_effect | partial_binding | DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md. |
+| 0x29 | u8str | 0x004209C7 | native.no_effect | partial_binding | DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md. |
+| 0x2A | u8str | 0x0041DFD1 | pc.resource | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x2B | u8str | 0x0041FE24 | pc.character | partial_binding | u8 槽位 + 资源字符串；槽号和角色位置分离。 |
+| 0x2C | u8str | 0x0041FE05 | pc.character_overlay | partial_binding | u8 槽位 + 叠加资源字符串。 |
+| 0x2D | u8str | 0x004204E2 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x2E | u8str | 0x004207B9 | pc.script.transfer | partial_binding | PC2 u8 模式+脚本名：4→2，3/5→3，其他→1。 |
+| 0x2F | string | 0x004209C7 | native.no_effect | partial_binding | DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md. |
+| 0x30 | string | 0x0041F3D7 | pc.background | partial_binding | 资源字符串；写入背景及预载槽；场景发布由后续指令控制。 |
+| 0x31 | string | 0x0041F92E | pc.image6 | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x32 | string | 0x0041F95B | pc.image7 | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x33 | string | 0x0041F988 | pc.image8 | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x34 | string | 0x0041F9B5 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x35 | string | 0x004209C7 | label.named | reviewed_primitive | NUL 结尾的原始字节标签；跳转匹配不使用汉化显示字符串。 |
+| 0x36 | string | 0x0042008B | dm.audio.voice | partial_binding | 版本独立的角色开关：DM 使用 94/95，PC1/2 使用 100:60+角色号；保留位置前缀的声像及回看重播参数。PC1/2 是 64 字节旧索引，PC2 可跨 VOICE2.DAT。 |
+| 0x37 | string | 0x00420790 | script.entry_label | partial_binding | 保存下次跨脚本入口的字节标签，应用后清空。 |
+| 0x38 | string | 0x004202F1 | pc.movie | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x39 | string | 0x0042034E | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x3A | string | 0x004204D0 | jump.named_required | partial_binding | 从代码起点按原生规则扫描标签；兼容层对缺失标签报错。 |
+| 0x3B | string | 0x0042047E | pc.action0 | partial_binding | 原始标签绑定到右键/Esc；PC1 414F1E 写 9D95DC，419310..419379 消费；PC2 41EEFE 写 B0B6F0，423A4C..423AB5 消费。接受跳转后清空该绑定。 |
+| 0x3C | string | 0x004204A7 | pc.action1 | partial_binding | 原始标签绑定到左键/Enter；PC1 9D95FC / PC2 B0B710。与右键槽独立，确认框另用 action2/action3。 |
+| 0x3D | string | 0x0041E42D | dm.ui.button_voice | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x3E | string | 0x0041E454 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x3F | string | 0x004203EB | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x40 | string | 0x00420414 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x41 | string | 0x0042076C | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x42 | string | 0x0041EBED | grid.item_action | partial_binding | Attach original byte-exact action label to current data entry (PC2 41D66D; DD 434530). |
+| 0x43 | string | 0x0042043D | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x44 | string | 0x0041E4D1 | choice.item | partial_binding | 跳转标签字符串，消费紧随其后的 caption 记录，建立原版按钮。 |
+| 0x45 | string | 0x004209C7 | choice.caption | partial_binding | Encoded caption consumed by choice.item; independent dispatch uses the native fallback. |
+| 0x46 | string | 0x00420191 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x47 | string | 0x00420383 | ui.music_end_action | partial_binding | Menu-wait BGM-end callback: PC2 423571 consumes binding; DD 4340D7 retains binding and polls at >500ms until script clears it. |
+| 0x48 | string | 0x0041E79E | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x49 | string | 0x0041DD34 | system.version | partial_binding | DC3DD original UI host operation. Static native handler evidence: analysis/system-ui; implementation scope is strict and partial. |
+| 0x4A | encoded_string | 0x004209C7 | native.no_effect | partial_binding | DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md. |
+| 0x4B | encoded_string | 0x00420925 | text.speaker | partial_binding | 原始解码字符串设置说话人；不加载资源、不推进下一句。 |
+| 0x4C | encoded_string | 0x0042093C | text.body | partial_binding | 发布场景并呈现正文；文本完成与点击推进是不同等待状态。 |
+| 0x4D | encoded_string | 0x004209C7 | choice.caption | partial_binding | Encoded caption consumed by choice.item; independent dispatch uses the native fallback. |
+| 0x4E | u16x4 | 0x004209C7 | native.no_effect | partial_binding | DD normal-play host binding; unimplemented submodes fail in Dc3Host. See docs/DC3DD_PLAYBACK.md. |
+| 0x4F | u16x4 | 0x0041E231 | host.command_with_string | partial_binding | Consumes the next opcode-plus-NUL-string record as a payload and advances PC past it; passes four words and the string to a UI helper. Payload is not dispatched as a named jump. UI effects unresolved. |
+| 0x50 | u16x4 | 0x0041E329 | pc.button_sprite | partial_binding | 按钮图片参数与静态 quad 不同：src=(a0-a2,a1-a3)，尺寸=(a4,a5)。滑条配置不按图片裁切转换：PC1 state=5/7；PC2 20/21/22/23 对应配置/分段/进度/滑块，24/25/26 是分段图集正常/悬停/按下。 |
+| 0x51 | u16x4 | 0x0041E47B | ui.button_text | partial_binding | Consumes the next string record and registers state-specific button text metadata. Active text rendering remains unimplemented. |
+| 0x52 | u16x4 | 0x004209C7 | arguments.extend | reviewed_primitive | 0x52 在相邻主记录后追加四个有符号 i16，不能当成独立业务指令。 |
+| 0x53 | u16x4 | 0x0041F682 | pc.quad | partial_binding | 原生图片裁切：dest=(a0+originX,a1+originY)，src=(a2,a3)，尺寸=(a4-a2,a5-a3)；扩展字段含纹理槽及标志。 |
+| 0x54 | u16x4 | 0x00420459 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x55 | u16x4 | 0x0041E9AD | pc.grid.configure | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x56 | u16x4 | 0x0041EAE1 | dm.ui.grid_rect | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x57 | u16x4 | 0x0041EB25 | pc.grid.item | partial_binding | Append native list data entry: ID, reserved, source rectangle, resource selector, reserved (41D5A5). |
+| 0x58 | u16x4 | 0x0041EC16 | pc.grid.caption | partial_binding | PC2 41D696 消费后继原始字符串，为前一个列表条目写 x,y,正常/悬停调色板；41169A..41177D 按 cell 相对坐标绘制，x=-1 居中、y=-1 不显示。无前项仍消费字符串。 |
+| 0x59 | u16x4 | 0x0041E410 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x5A | u16x4 | 0x0041EAC0 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x5B | u16x4 | 0x0041DDAC | dm.audio.sound | partial_binding | 音效索引/参数；不是文本指令。 |
+| 0x5C | u16x4 | 0x0041F18D | variable.update | reviewed_primitive | 四个 i16: bank,index,value,mode；mode 0=set,1=add,2=sub。 |
+| 0x5D | u16x4 | 0x0041F204 | variable.copy | reviewed_primitive | 四个 i16: dstBank,dstIndex,srcBank,srcIndex。 |
+| 0x5E | u16x4 | 0x0041F22B | variable.add_variable | reviewed_primitive | PC2 将源变量值加到目标变量。 |
+| 0x5F | u16x4 | 0x0041F2E6 | branch.compare | reviewed_primitive | 四个 i16: bank,index,rhs,mode；0..5 为 == != > < >= <=；mode&0x80 时 rhs 是变量引用。紧邻 0x02 提供块编号，失败时扫描块尾。 |
+| 0x60 | u16x4 | 0x0041F879 | dm.ui.text | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x61 | u16x4 | 0x0041F841 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x62 | u16x4 | 0x0041FAAB | ty.scroll | partial_binding | TY independent62 background and portrait scrolling. |
+| 0x63 | u16x4 | 0x0041EC91 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x64 | u16x4 | 0x0041FE45 | ty.actor_position | partial_binding | TY staged actor XYZ producer; separate native displayed descriptors. |
+| 0x65 | u16x4 | 0x0041FF13 | ty.actor_transform | partial_binding | TY65 stage scale/pivots and independently reviewed10ms actor movement. |
+| 0x66 | u16x4 | 0x0041FDF0 | dm.ui.palette | partial_binding | 需继续核对参数及宿主副作用。 |
+| 0x67 | u16x4 | 0x0041FA13 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+| 0x68 | u16x4 | 0x0041FA32 | native.unmodelled | unknown | 需继续核对参数及宿主副作用。 |
+

@@ -70,8 +70,16 @@ public final class MesScript {
                 Record payload=MesRecordDecoder.stringPayload(data,p,r.offset);records.put(p,payload);p=payload.end;
             }
             if(profile.id.equals("dcpc-2063")&&r.opcode==0)break; // 41265F terminates; bytes beyond stop are not instructions.
-            // These two PC2 scripts contain the literal trailer 61 64 after their terminal stop.
-            if(profile.id.equals("dc2pc-5769")&&r.opcode==0&&data.length-p==2&&data[p]==0x61&&data[p+1]==0x64)break;
+            // FL422B1A stops fetching at00; its named/block scanners also stop
+            // there. Non-truncating translation installs can retain arbitrary
+            // old bytes beyond this STOP, including complete old prose. Keep
+            // the physical bytes/hash for snapshots, but never index that tail.
+            if(profile.id.equals("dc2fl-9c69")&&r.opcode==0&&r.end-r.offset==3){
+                for(long entry:headerOffsets)if((long)versionOffset+entry>=p)throw new IOException("Unreviewed FL header entry beyond native STOP");
+                if(p<data.length)staticIndexComplete=false;break;
+            }
+            // Original PC2 and TY SAVE/LOAD contain exactly61 64 after their terminal STOP.
+            if((profile.id.equals("dc2pc-5769")||profile.id.equals("dc2ty-5f69"))&&r.opcode==0&&data.length-p==2&&data[p]==0x61&&data[p+1]==0x64)break;
         }catch(IOException incomplete){if(!profile.id.equals("dcpc-2063"))throw incomplete;staticIndexComplete=false;break;}}
         if(records.isEmpty()&&!profile.id.equals("dcpc-2063"))throw new IOException("Empty MES code");
     }

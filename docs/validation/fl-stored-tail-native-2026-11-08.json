@@ -1,0 +1,184 @@
+{
+  "schema": "circus-source-validation-v1",
+  "date": "2026-11-08",
+  "feature": "Fall in Love translated files with old physical bytes retained after native STOP",
+  "original_executable_run": false,
+  "original_game_directory_written": false,
+  "reference": {
+    "file": "DC2FL.exe",
+    "sha256": "3adf5db19bdc67cb8c90e666572ba53538462d8ef461a29dddaa46671f1867f2",
+    "profile": "dc2fl-9c69"
+  },
+  "reported_trigger": "Original title load: main@0x191a, Binary range outside input2106+9/2112",
+  "samples": [
+    {
+      "script": "LOAD",
+      "phone": {
+        "path": "build/fl-title-load-20261108/phone-LOAD.mes",
+        "bytes": 2112,
+        "sha256": "bcda446e0bb969dc80499ed58735870bc1020c1789c465e1ee3120231932d2a4"
+      },
+      "translated_payload_bytes": 2106,
+      "translated_payload_sha256": "d81eb5cf0f2ba0d8ddb42597a55011cb06db4c205924bd6dea5c87fc89cbc22e",
+      "phone_prefix_equals_complete_translated_script": true,
+      "stored_tail_bytes": 6,
+      "tail_equals_original_file_same_offset_suffix": true,
+      "max_header_target_below_first_native_stop": true
+    },
+    {
+      "script": "SAVE",
+      "phone": {
+        "path": "build/fl-title-load-20261108/phone-SAVE.mes",
+        "bytes": 3892,
+        "sha256": "7b71074fac78face920274a591bf1ecffb76496a2da54e9264b50b4a7bb37e20"
+      },
+      "translated_payload_bytes": 3886,
+      "translated_payload_sha256": "2249fe52407923a093c92fed597b1ba2c1712734ccf5306f9c0a0c32781f953e",
+      "phone_prefix_equals_complete_translated_script": true,
+      "stored_tail_bytes": 6,
+      "tail_equals_original_file_same_offset_suffix": true,
+      "max_header_target_below_first_native_stop": true
+    },
+    {
+      "script": "main",
+      "phone": {
+        "path": "build/fl-title-load-20261108/phone-main.mes",
+        "bytes": 12288,
+        "sha256": "a92c4e777e95189a167cd8af8657bf948d74509f78ed3bd782807f9e3aaa7a4e"
+      },
+      "translated_payload_bytes": 12284,
+      "translated_payload_sha256": "9fb7316efdb84e47c54e0c5f727d9f43bb36e845bd6ebcb42d78651375d856e6",
+      "phone_prefix_equals_complete_translated_script": true,
+      "stored_tail_bytes": 4,
+      "tail_equals_original_file_same_offset_suffix": true,
+      "max_header_target_below_first_native_stop": true
+    },
+    {
+      "script": "aft_1122_a1_akn",
+      "phone": {
+        "path": "build/fl-title-load-20261108/phone-aft_1122_a1_akn.mes",
+        "bytes": 19775,
+        "sha256": "fc9c50888e7ffa1efde62bec2a7355ad7da3f5ea47c06d6a869af070ca1f9de5"
+      },
+      "translated_payload_bytes": 18628,
+      "translated_payload_sha256": "32fb9df8d995e95e747fe174d55f8ee52eab8d7a5343e13ade2367c228b0aac5",
+      "phone_prefix_equals_complete_translated_script": true,
+      "stored_tail_bytes": 1147,
+      "tail_equals_original_file_same_offset_suffix": true,
+      "max_header_target_below_first_native_stop": true
+    }
+  ],
+  "native_contract": {
+    "decoder": "422949..422997 sign-extends opcode; zero does not advance PC, unlike ordinary three-byte records",
+    "stop": "422B1A..422B30 calls4195B0(-1,0), writes waitA95F14=0",
+    "dispatch_release": "42554C..42558A loops to next fetch only when wait==-1; STOP does not fetch retained physical tail",
+    "named_search": "4198B0 begins raw PC2;4198DC..4198DE zero branches41998A returning-1, before any following label",
+    "block_search": "4199D0 stops/error419A72..419A89 on zero before consuming later physical bytes",
+    "file_integrity": "Native load reads physical bytes; it does not rewrite or shorten these files. Valid translated prefix followed by old copied bytes remains physically present."
+  },
+  "runtime_rule": {
+    "profile_scope": "Only independently reviewed dc2fl-9c69",
+    "index_boundary": "First complete native STOP; raw file bytes, complete source SHA and physical length are preserved",
+    "guard": "No native header/checkpoint target versionOffset+headerOffset may address the stored suffix",
+    "index_state": "Any retained physical suffix leaves staticIndexComplete false; no suffix records or labels enter the static execution/menu index",
+    "unchanged": "Dynamic fetch remains bounded by original bytes. Required-label scan still stops at STOP; block scan still rejects crossing STOP.",
+    "no_bypass": "Wrong marker, active truncated text/words/owner payload and header-targetable suffix remain rejected. This is not a byte-string fingerprint, filename exception or arbitrary trim."
+  },
+  "corpus": {
+    "original_native_files": 389,
+    "original_files_with_any_after_stop_bytes": 0,
+    "original_header_targets_after_stop": 0,
+    "phone_samples": 4,
+    "phone_stored_tail_sizes": [
+      6,
+      6,
+      4,
+      1147
+    ],
+    "phone_header_targets_after_stop": 0
+  },
+  "baseline": {
+    "driver": "New audit-only harness on unchanged immutable pre-fix runtime; no production class override",
+    "result": "FAIL",
+    "exact_error": "main @0x191a: Binary range outside input:2106+9/2112",
+    "evidence": {
+      "path": "build/fl-title-load-20261108/pre-fix-driver/baseline-manifest.json",
+      "bytes": 610,
+      "sha256": "d8b2f93b9f628b88f3ae2e085a87c060f9462e1845462d891182477aa9aa55ca"
+    },
+    "report": {
+      "path": "build/fl-title-load-20261108/pre-fix-driver/phone-overlay/report.json",
+      "bytes": 1488,
+      "sha256": "cd055e61824bb08c986bb8434d5b47e127158b811ca117d899b65b3596757baa"
+    }
+  },
+  "fixed_platform_audit": {
+    "complete_java_source_inputs": 635,
+    "no_class_overlay": true,
+    "result": "PASS",
+    "checks": 62,
+    "observed_dialogue_waits": 20,
+    "cases": [
+      "Natural original START to title, Load with no slots, five rows disabled, Return to title",
+      "Natural story entry uses phone translated body containing1147 stale bytes",
+      "Original SAVE menu writes runtime-owned portable slot2, without changing the game",
+      "A distinct cold VM returns through original title Load and selects the saved slot",
+      "Saved body and PC, every portable framebuffer pixel, unchanged slot bytes and the next story sentence match"
+    ],
+    "media_completion_simulated": true,
+    "native_process_fidelity_claim": false,
+    "story_save_scope": "Runtime-owned portable slot only; no arbitrary native Windows story-SAV conversion",
+    "inputs": {
+      "path": "build/fl-title-load-20261108/audit-stage1/inputs-manifest.json",
+      "bytes": 82222,
+      "sha256": "e4caaa793dd5b62dc4ac559433d256208b0df7d4ae94249ee5872e9f26c025b1"
+    },
+    "report": {
+      "path": "build/fl-title-load-20261108/audit-stage1/phone-overlay/report.json",
+      "bytes": 3001,
+      "sha256": "6a5191681423e4445cdc52b644869a0bb2a28a757bc3e1abc83145622efd3d5b"
+    }
+  },
+  "evidence": [
+    {
+      "path": "build/fl-title-load-20261108/patch-prefix-tail-comparison.json",
+      "bytes": 849,
+      "sha256": "c6ae49ad71ab5257f5447ef61af2be06544fd8480072a7ac9dcb3e1f2518efda"
+    },
+    {
+      "path": "build/fl-title-load-20261108/local-native-stop-inventory.json",
+      "bytes": 104231,
+      "sha256": "29b35d9c473088a08fb786c366a78a13f8e91579da61da5f318ce7f1603edfcc"
+    },
+    {
+      "path": "build/fl-title-load-20261108/phone-native-stop-inventory.json",
+      "bytes": 1152,
+      "sha256": "e114df7b66460741ef5de05845c01e1ca167e5107986ae282cf66f4dffc87e7c"
+    },
+    {
+      "path": "build/fl-title-load-20261108/native-4198b0.asm",
+      "bytes": 2843,
+      "sha256": "01bd85ef96f26ae279887300431548e76b274bd67e0318a4efae98fc38744844"
+    },
+    {
+      "path": "build/fl-title-load-20261108/native-4199a0.asm",
+      "bytes": 4068,
+      "sha256": "7d63affe3bd5fc9448b4da06abb946fb923e9d9683f7288222d0ca42d85612de"
+    },
+    {
+      "path": "build/fl-title-load-20261108/native-422949.asm",
+      "bytes": 1833,
+      "sha256": "d5872447f2f756bb040e9be3a7aa72f44190ecf5dee2430c3e8fc746ca473b40"
+    },
+    {
+      "path": "build/fl-title-load-20261108/native-422b1a.asm",
+      "bytes": 166,
+      "sha256": "73d0c329c6125e3ad43b59f96af1ff23e8cc88832c3da25e3404d10fecccaa11"
+    },
+    {
+      "path": "build/fl-title-load-20261108/native-42554c.asm",
+      "bytes": 613,
+      "sha256": "cfdff28763aca6dc0ee8fff584236807b21ab58297ffdaeb2564884adac9c0ff"
+    }
+  ]
+}

@@ -38,6 +38,11 @@ public final class NativeProgress {
         // route flags1..13 and all-clear0; credits409210 writes52/53 on completion.
         new Layout("dc2fl-9c69","DC2FL",2032,0x74,0,0xd8,0x358,0,640,1024,false,
             new int[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,52,53},new int[0]),
+        // TY404C90 reads exactly0x738 bytes. Getter41B880 binds CG512 at+D4,
+        // seen1024 at+2D4; no version word or independent checkpoint tail.
+        // Completion globals have no reviewed import allowlist.
+        new Layout("dc2ty-5f69","DC2TY",1848,0x70,0,0xd4,0x2d4,0,512,1024,false,
+            new int[0],new int[0]),
         // DCDX403D40 validates the first0x858 bytes and DWORD+48==0x77.
         // Its second0x1000-byte read is an independent checkpoint table; the
         // read count is ignored. Bound imports at the two native read extents.
@@ -57,6 +62,11 @@ public final class NativeProgress {
         new Layout("dc3pp-9872","DC3PP",15500,0x88,0xec,0x107,0x19d,210,1200,650,true,
             new int[]{0,1,2,3,4,5,28},new int[0])
     };
+    // Reviewed user-provided FL all-CG save predates the four bytes inserted
+    // before the names at+48. Its CG/seen/global offsets must not use the
+    // current2032-byte layout: shifted bytes can still look like valid flags.
+    private static final Layout FL_LEGACY=new Layout("dc2fl-9c69","DC2FL 旧版兼容",2028,0x70,0,0xd4,0x354,0,640,1024,false,
+        new int[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,52,53},new int[0]);
     private static Layout layout(String id)throws IOException{for(Layout l:LAYOUTS)if(l.id.equals(id))return l;throw new IOException("尚未适配此版本的原版进度："+id);}
     public static boolean supports(String id){for(Layout l:LAYOUTS)if(l.id.equals(id))return true;return false;}
     /** Maximum source read size; DCDX also accepts a valid prefix with a shorter checkpoint tail. */
@@ -66,11 +76,12 @@ public final class NativeProgress {
         layout(id);List<String> result=new ArrayList<>();
         for(String path:new String[]{"AdvData/SaveData/system.dat","SaveData/system.dat","system.dat"})if(files.paths().contains(path.toLowerCase(Locale.ROOT)))result.add(path);
         if(id.equals("dc3wy-a09f")||id.equals("dc3pp-9872")){String path=(id.equals("dc3wy-a09f")?"dc3wy":"dc3pp")+"/system.dat";if(files.paths().contains(path))result.add(path);}
+        if(id.equals("dc2fl-9c69"))for(String path:new String[]{"dc2fl/system.dat","old_source_circus_dc2fl/dc2fl/system.dat"})if(files.paths().contains(path))result.add(path);
         return result;
     }
     public static boolean storySlot(String id,String source,String path)throws IOException{
         layout(id);String parent=source.substring(0,source.lastIndexOf('/')+1).toLowerCase(Locale.ROOT),p=path.toLowerCase(Locale.ROOT);
-        String prefix=id.equals("dcpc-2063")?"dcpc":id.equals("dc2-3363")?"dc2":id.equals("dc2pc-5769")?"dc2pc":id.equals("dc2sc-3b69")?"dc2sc":id.equals("dc2fl-9c69")?"dc2fl":id.equals("dcdx-7769")?"dcdx":id.equals("dc2dm-9d72")?"dc2dm":id.equals("dc3wy-a09f")?"dc3wy":id.equals("dc3pp-9872")?"dc3pp":"dc3dd";
+        String prefix=id.equals("dcpc-2063")?"dcpc":id.equals("dc2-3363")?"dc2":id.equals("dc2pc-5769")?"dc2pc":id.equals("dc2sc-3b69")?"dc2sc":id.equals("dc2fl-9c69")?"dc2fl":id.equals("dc2ty-5f69")?"dc2ty":id.equals("dcdx-7769")?"dcdx":id.equals("dc2dm-9d72")?"dc2dm":id.equals("dc3wy-a09f")?"dc3wy":id.equals("dc3pp-9872")?"dc3pp":"dc3dd";
         return p.startsWith(parent)&&p.substring(parent.length()).matches(prefix+"[0-9]+\\.dat");
     }
     public static final class Summary {
@@ -91,6 +102,7 @@ public final class NativeProgress {
     }
     public static NativeProgress parse(String id,byte[] bytes)throws IOException{
         Layout l=layout(id);boolean dcdx=id.equals("dcdx-7769");
+        if(id.equals("dc2fl-9c69")&&bytes!=null&&bytes.length==FL_LEGACY.size)l=FL_LEGACY;
         if(bytes==null||(dcdx?bytes.length<2136||bytes.length>l.size:bytes.length!=l.size))throw new IOException(l.name+" system.dat 文件长度应为 "+(dcdx?"2136 至 6232":String.valueOf(l.size))+" 字节；所选文件格式不匹配");
         if(dcdx&&Binary.u32(bytes,0x48)!=0x77)throw new IOException("DCDX system.dat 版本标记不匹配（应为 0x77）");
         return new NativeProgress(l,bytes);

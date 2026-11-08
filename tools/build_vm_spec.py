@@ -18,7 +18,8 @@ PC={
 EXES={'dc3dd-a5a8':Path('D:/gal/DC3DD/DC3DD.EXE'),'dc2dm-9d72':Path('D:/gal/DC2DM/DC2DM.EXE'),
       'dc2sc-3b69':Path('D:/gal/D.C.II Spring Celebration/D.C.II S.C/dc2sc_CHS.exe'),
       'dc2fl-9c69':Path('D:/gal/DC2FIL/DC2FL.exe'),
-      'dcdx-7769':Path('D:/gal/DCDX/DCDX.EXE')}
+      'dcdx-7769':Path('D:/gal/DCDX/DCDX.EXE'),
+      'dc2ty-5f69':Path('D:/gal/DC2TY/dc2ty_chinese(simplified)_patch.exe')}
 
 NOTES={
  'dm.scene.character_overlay':'DM 42FAEE 设置/清除角色附属图。412504、432488、432699 调用 428990：先移除附属图的 _B 和色调标记，再继承人物资源的 _B 近景后缀及 @/* 色调，保留附属图归档名；更换人物而保留附属图时也重新匹配。',

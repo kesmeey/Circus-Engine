@@ -27,6 +27,13 @@ public final class DesktopLegacy extends DesktopEngine {
     private FlCompositionRaster flCompositionRaster;
     private static final class DcdxBannerRaster {DcdxBanner owner;UiCapture initial,background;long generation;int consumed;int[] pixels,bg;}
     private DcdxBannerRaster dcdxBannerRaster;
+    private static final class TyScrollRaster {TyScroll owner;UiCapture initial;long generation;int consumed;int[] pixels;}
+    private TyScrollRaster tyScrollRaster;
+    private TySelector tySelectorOwner;private long tySelectorGeneration=-1;
+    private UiCapture tySelectorUnderlay;private int[] tySelectorUnderlayPixels;
+    private final Map<TySelector.Surface,int[]> tySelectorSurfaces=new LinkedHashMap<TySelector.Surface,int[]>(4,.75f,true){protected boolean removeEldestEntry(Map.Entry<TySelector.Surface,int[]> entry){return size()>4;}};
+    private final Map<String,Crx.Image> tySelectorImages=new LinkedHashMap<String,Crx.Image>(6,.75f,true){protected boolean removeEldestEntry(Map.Entry<String,Crx.Image> entry){return size()>6;}};
+    private final Map<String,Crx.Image> tyScrollImages=new LinkedHashMap<String,Crx.Image>(4,.75f,true){protected boolean removeEldestEntry(Map.Entry<String,Crx.Image> entry){return size()>4;}};
     private int flCaptureMask=-1;
     private boolean flCaptureMessageText=true,flCaptureHideActors;
     private Crx.Image flLongCredits;private String flLongCreditsName="";
@@ -57,7 +64,7 @@ public final class DesktopLegacy extends DesktopEngine {
             // precedence over an older portable account saved at another time.
             if(nativeFiles!=null&&!audit&&Files.exists(nativeFiles.directory().resolve("system.dat")))((PcHost)h).reloadNativeSettingsFromBoundIo();
         });captures=new DesktopCaptures(width,height,this::drawCapture);host().captureRenderer=captures;nativeData=PcHost.supports(data.profile)?null:new Dc2NativeData(data,codec);
-        if(data.profileId.equals("dc2-3363")||data.profileId.equals("dcpc-2063")||data.profileId.equals("dc2fl-9c69")||data.profileId.equals("dcdx-7769"))((PcHost)host()).nativeFrameCapture=this::captureFramebuffer;
+        if(data.profileId.equals("dc2-3363")||data.profileId.equals("dcpc-2063")||data.profileId.equals("dc2fl-9c69")||data.profileId.equals("dcdx-7769")||data.profileId.equals("dc2ty-5f69"))((PcHost)host()).nativeFrameCapture=this::captureFramebuffer;
         if(host() instanceof FlHost)((FlHost)host()).compositionCapture=this::captureFlCompositionFrame;
         if(originalDc2())((PcHost)host()).nativeMessageTemplateCapture=this::captureOriginalMessageTemplate;
         if(pc1()!=null)session.pc1CandidateCapture=()->captureSaveMetadata(false).encode();
@@ -102,6 +109,8 @@ public final class DesktopLegacy extends DesktopEngine {
         if(h instanceof FlHost&&((FlHost)h).flCredits.active){((FlHost)h).endingInput(right?2:1);return;}
         if(h instanceof FlHost&&((FlHost)h).flComposition.active)return;
         if(h instanceof DcdxHost&&((DcdxHost)h).dcdxBanner.active)return;
+        if(h instanceof TyHost&&((TyHost)h).tyScroll.active)return;
+        if(h instanceof TyHost&&((TyHost)h).tySelector.active){if(right)((TyHost)h).nativeSelectorKey(27);else ((TyHost)h).nativeSelectorClick(x,y);return;}
         if(h instanceof DcdxHost&&((DcdxHost)h).dcdxMenu.active){
             if(!right){int item=((DcdxHost)h).dcdxMenu.hit(x,y);for(int n=0;n<h.ui.buttons.size();n++)if(h.ui.buttons.get(n).binding==item){session.vm.activateMenu(h.waitTicket(),n);break;}}
             return;
@@ -194,6 +203,8 @@ public final class DesktopLegacy extends DesktopEngine {
         toolbar=auto=rapid=false;return true;
     }
     @Override public boolean modalKey(int code)throws IOException{
+        if(host() instanceof TyHost&&((TyHost)host()).tySelector.active&&(code==KeyEvent.VK_ENTER||code==KeyEvent.VK_SPACE||code==KeyEvent.VK_ESCAPE||code==KeyEvent.VK_LEFT||code==KeyEvent.VK_RIGHT||code==KeyEvent.VK_UP||code==KeyEvent.VK_DOWN))return ((TyHost)host()).nativeSelectorKey(code==KeyEvent.VK_ENTER?13:code);
+        if(host() instanceof TyHost&&((TyHost)host()).tyScroll.active)return true;
         if(host() instanceof DcdxHost&&((DcdxHost)host()).dcdxBanner.active)return true;
         if(host() instanceof DcdxHost&&((DcdxHost)host()).dcdxMenu.active&&(code==KeyEvent.VK_ENTER||code==KeyEvent.VK_SPACE||code==KeyEvent.VK_ESCAPE||code==KeyEvent.VK_LEFT||code==KeyEvent.VK_RIGHT||code==KeyEvent.VK_UP||code==KeyEvent.VK_DOWN))return ((DcdxHost)host()).nativeMenuKey(code==KeyEvent.VK_ENTER?13:code);
         if(host() instanceof FlHost&&(((FlHost)host()).flCredits.active||((FlHost)host()).flComposition.active)&&(code==KeyEvent.VK_ENTER||code==KeyEvent.VK_SPACE||code==KeyEvent.VK_ESCAPE))return true;
@@ -207,8 +218,8 @@ public final class DesktopLegacy extends DesktopEngine {
         if(code==KeyEvent.VK_SPACE){hidden=!hidden;return true;}
         return false;
     }
-    public void hover(int x,int y)throws IOException{if(pc1()!=null&&pc1().returning())return;int old=hovered;hovered=-1;java.util.List<Dc2Ui.Button> bs=buttons();if(host() instanceof DcdxHost&&((DcdxHost)host()).dcdxMenu.active){int item=((DcdxHost)host()).dcdxMenu.hit(x,y);for(int n=0;n<bs.size();n++)if(bs.get(n).binding==item)hovered=n;}else for(int n=0;n<bs.size();n++){Dc2Ui.Button b=bs.get(n);if(x>=b.left&&x<b.right&&y>=b.top&&y<b.bottom)hovered=n;}if(host().ui.waiting)host().hoverMenu(hovered<host().ui.buttons.size()?hovered:-1);else if(old!=hovered&&hovered>=0){if(host() instanceof PcHost)((PcHost)host()).hoverButton(bs.get(hovered));else if(bs.get(hovered).hoverSound!=255)host().play(1,resources.named("sound",bs.get(hovered).hoverSound),false);}if(pc1()!=null)host().ui.hovered=hovered;if(host() instanceof PcHost){Pc2Map m=((PcHost)host()).map;if(m.active&&m.selected<0){m.hovered=-1;for(int n=0;n<m.regions().length;n++){int[] r=m.regions()[n];if(x>=r[0]&&x<r[2]&&y>=r[1]&&y<r[3])m.hovered=n;}}}}
-    public java.util.List<Control> controls(){if(pc1()!=null&&pc1().returning())return Collections.emptyList();java.util.List<Control> out=new ArrayList<>();for(Dc2Ui.Button b:buttons())if(!b.action.isEmpty())out.add(new Control(b.action,b.left,b.top,b.right,b.bottom));if(host() instanceof PcHost&&((PcHost)host()).nameInput.active){PcNameInput name=((PcHost)host()).nameInput;if(name.confirming)return out;for(int n=0;n<8;n++){int x=336+(n/4)*192+(n%4)*32;out.add(new Control("@name:field:"+n,x,40,x+32,72));}java.util.List<String> rows=name.visibleRows();for(int r=0;r<rows.size();r++)for(int c=0;c<Math.min(17,rows.get(r).length());c++){int x=280+c*24,y=96+r*24+(r>=4?8:0);if(rows.get(r).charAt(c)!='　')out.add(new Control("@name:char:"+(r*17+c),x,y,x+24,y+24));}}return out;}
+    public void hover(int x,int y)throws IOException{if(pc1()!=null&&pc1().returning())return;if(host() instanceof TyHost&&((TyHost)host()).tySelector.active){((TyHost)host()).nativeSelectorPointer(x,y);hovered=-1;int item=((TyHost)host()).tySelector.hit(x,y);for(int n=0;n<host().ui.buttons.size();n++)if(host().ui.buttons.get(n).binding==item)hovered=n;return;}int old=hovered;hovered=-1;java.util.List<Dc2Ui.Button> bs=buttons();if(host() instanceof DcdxHost&&((DcdxHost)host()).dcdxMenu.active){int item=((DcdxHost)host()).dcdxMenu.hit(x,y);for(int n=0;n<bs.size();n++)if(bs.get(n).binding==item)hovered=n;}else for(int n=0;n<bs.size();n++){Dc2Ui.Button b=bs.get(n);if(x>=b.left&&x<b.right&&y>=b.top&&y<b.bottom)hovered=n;}if(host().ui.waiting)host().hoverMenu(hovered<host().ui.buttons.size()?hovered:-1);else if(old!=hovered&&hovered>=0){if(host() instanceof PcHost)((PcHost)host()).hoverButton(bs.get(hovered));else if(bs.get(hovered).hoverSound!=255)host().play(1,resources.named("sound",bs.get(hovered).hoverSound),false);}if(pc1()!=null)host().ui.hovered=hovered;if(host() instanceof PcHost){Pc2Map m=((PcHost)host()).map;if(m.active&&m.selected<0){m.hovered=-1;for(int n=0;n<m.regions().length;n++){int[] r=m.regions()[n];if(x>=r[0]&&x<r[2]&&y>=r[1]&&y<r[3])m.hovered=n;}}}}
+    public java.util.List<Control> controls(){if(pc1()!=null&&pc1().returning())return Collections.emptyList();java.util.List<Control> out=new ArrayList<>();for(Dc2Ui.Button b:buttons())if(!b.action.isEmpty())out.add(new Control(b.action,b.left,b.top,b.right+(host() instanceof TyHost&&((TyHost)host()).tySelector.active?1:0),b.bottom+(host() instanceof TyHost&&((TyHost)host()).tySelector.active?1:0)));if(host() instanceof PcHost&&((PcHost)host()).nameInput.active){PcNameInput name=((PcHost)host()).nameInput;if(name.confirming)return out;for(int n=0;n<8;n++){int x=336+(n/4)*192+(n%4)*32;out.add(new Control("@name:field:"+n,x,40,x+32,72));}java.util.List<String> rows=name.visibleRows();for(int r=0;r<rows.size();r++)for(int c=0;c<Math.min(17,rows.get(r).length());c++){int x=280+c*24,y=96+r*24+(r>=4?8:0);if(rows.get(r).charAt(c)!='　')out.add(new Control("@name:char:"+(r*17+c),x,y,x+24,y+24));}}return out;}
     private int textSpeed()throws IOException{return host().read(99,host() instanceof PcHost?13:auto?27:26);}
     private long textDuration()throws IOException{return TextPlayback.duration(resources.profile.id,textSpeed(),body().codePointCount(0,body().length()));}
     private long autoDelay()throws IOException{if(host() instanceof PcHost){int bytes=body().getBytes(codec.charset).length;return bytes*(host().read(99,13)==3?200L/3:100L);}return Math.max(100,20-host().read(99,29))*100L;}
@@ -330,7 +341,8 @@ public final class DesktopLegacy extends DesktopEngine {
             try{cg.setColor(Color.BLACK);cg.fillRect(0,0,width,height);at(cg,f.slots[1],x,y);for(Dc2Ui.Quad q:f.quads)quad(cg,q,f.slots,false);nativeParticles(composed,1);actors(cg,f,false);nativeParticles(composed,0);}finally{cg.dispose();}
             g.drawImage(composed,0,0,null);return;
         }
-        g.setColor(Color.BLACK);g.fillRect(0,0,width,height);at(g,f.slots[1],original?x:-x,original?y:-y);
+        boolean directBackground=original||resources.profileId.equals("dc2ty-5f69");
+        g.setColor(Color.BLACK);g.fillRect(0,0,width,height);at(g,f.slots[1],directBackground?x:-x,directBackground?y:-y);
         boolean pc2=host() instanceof PcHost&&((PcHost)host()).second;
         actors(g,f,pc2);drawEffects(g);for(Dc2Ui.Quad q:f.quads)quad(g,q,f.slots,false);
     }
@@ -471,6 +483,8 @@ public final class DesktopLegacy extends DesktopEngine {
             if(flCaptureMask<0&&h instanceof FlHost&&((FlHost)h).endingVisible()){drawFlCredits(result,(FlHost)h);return result;}else if(flCaptureMask<0){flCreditsRaster=null;if(flLongCredits!=null){flLongCredits=null;flLongCreditsName="";}}
             if(flCaptureMask<0&&h instanceof FlHost&&((FlHost)h).compositionVisible()){drawFlComposition(result,((FlHost)h).flComposition);return result;}else if(flCaptureMask<0)flCompositionRaster=null;
             if(h instanceof DcdxHost&&((DcdxHost)h).bannerVisible()){drawDcdxBanner(result,((DcdxHost)h).dcdxBanner);return result;}else dcdxBannerRaster=null;
+            if(h instanceof TyHost&&((TyHost)h).tyScrollVisible()){drawTyScroll(result,((TyHost)h).tyScroll);return result;}else{tyScrollRaster=null;tyScrollImages.clear();}
+            if(h instanceof TyHost&&((TyHost)h).tySelectorVisible()){drawTySelector(result,(TyHost)h);return result;}else{tySelectorOwner=null;tySelectorUnderlay=null;tySelectorUnderlayPixels=null;tySelectorSurfaces.clear();tySelectorImages.clear();}
             if(originalDc2()&&((PcHost)h).dc2EndingUnderlay!=null){BufferedImage ending=originalCharacterEndingFrame();try{g.drawImage(ending,0,0,null);}finally{ending.flush();}return result;}
             if(originalDc2()&&((PcHost)h).dc2CreditsUnderlay!=null){drawOriginalCredits(g);return result;}
             if(originalDc2()&&!((PcHost)h).dc2Map.active&&((PcHost)h).actorChangeVisible()){g.drawImage(actorChange(((PcHost)h).dc2ActorChange),0,0,null);return result;}
@@ -553,6 +567,47 @@ public final class DesktopLegacy extends DesktopEngine {
             }
         }
         target.setRGB(0,0,width,height,pixels,0,width);
+    }
+    private void drawTyScroll(BufferedImage target,TyScroll owner)throws IOException{
+        TyScrollRaster raster=tyScrollRaster;
+        if(raster==null||raster.owner!=owner||raster.generation!=owner.generation||raster.initial!=owner.initial||raster.consumed>owner.draws().size()){
+            if(owner.initial==null)throw new IOException("TY scroll initial front absent");raster=new TyScrollRaster();raster.owner=owner;raster.generation=owner.generation;raster.initial=owner.initial;raster.pixels=captures.resolve(owner.initial).getRGB(0,0,width,height,null,0,width);tyScrollRaster=raster;
+        }
+        java.util.List<TyScroll.Frame> journal=owner.draws();
+        while(raster.consumed<journal.size()){
+            TyScroll.Frame frame=journal.get(raster.consumed++);
+            if(frame.weight==0){if(frame.compose==null)throw new IOException("TY scroll prepared composition absent");raster.pixels=captures.resolve(frame.compose).getRGB(0,0,width,height,null,0,width);continue;}
+            Crx.Image raw=tyScrollImages.get(frame.background);if(raw==null){raw=resources.image(frame.background);tyScrollImages.put(frame.background,raw);}
+            if(raw.bpp!=24)continue; // Native40E020 only handles format0/BGR24.
+            int left=Math.max(0,frame.x),top=Math.max(0,frame.y),right=(int)Math.min((long)width,(long)frame.x+raw.width),bottom=(int)Math.min((long)height,(long)frame.y+raw.height),w=frame.weight;
+            for(int y=top;y<bottom;y++)for(int x=left;x<right;x++){
+                int at=(y-frame.y)*raw.stride+(x-frame.x)*3,index=y*width+x,old=raster.pixels[index];
+                int r=((old>>>16&255)*(16-w)+(raw.pixels[at+2]&255)*w)>>4,g=((old>>>8&255)*(16-w)+(raw.pixels[at+1]&255)*w)>>4,b=((old&255)*(16-w)+(raw.pixels[at]&255)*w)>>4;
+                raster.pixels[index]=0xff000000|r<<16|g<<8|b;
+            }
+        }
+        target.setRGB(0,0,width,height,raster.pixels,0,width);
+    }
+    private Crx.Image tySelectorImage(String name)throws IOException{Crx.Image image=tySelectorImages.get(name);if(image==null){image=resources.image(name);tySelectorImages.put(name,image);}return image;}
+    private void tySelectorBlit(int[] pixels,String name,int x,int y,int l,int t,int r,int b,boolean keyed)throws IOException{
+        Crx.Image raw=tySelectorImage(name);if(raw.bpp!=24&&raw.bpp!=32)throw new IOException("Unreviewed TY selector image depth "+raw.bpp);
+        int left=Math.max(Math.max(0,l),x),top=Math.max(Math.max(0,t),y),right=(int)Math.min(Math.min((long)width,r),(long)x+raw.width),bottom=(int)Math.min(Math.min((long)height,b),(long)y+raw.height);
+        for(int dy=top;dy<bottom;dy++)for(int dx=left;dx<right;dx++){
+            int at=(dy-y)*raw.stride+(dx-x)*(raw.bpp/8),color=(raw.pixels[at+2]&255)<<16|(raw.pixels[at+1]&255)<<8|raw.pixels[at]&255;if(keyed&&raw.bpp==24&&color==0xff00ff)continue;
+            int alpha=keyed&&raw.bpp==32?raw.pixels[at+3]&255:255,index=dy*width+dx,old=pixels[index];
+            pixels[index]=0xff000000|(((old>>>16&255)*(255-alpha)+(color>>>16&255)*alpha)/255)<<16|(((old>>>8&255)*(255-alpha)+(color>>>8&255)*alpha)/255)<<8|((old&255)*(255-alpha)+(color&255)*alpha)/255;
+        }
+    }
+    private int[] tySelectorSurface(TySelector.Surface surface)throws IOException{
+        int[] pixels=tySelectorSurfaces.get(surface);if(pixels!=null)return pixels;pixels=new int[width*height];Arrays.fill(pixels,0xff000000);tySelectorBlit(pixels,surface.background,0,0,0,0,width,height,false);
+        for(TySelector.Sprite sprite:surface.sprites)tySelectorBlit(pixels,sprite.resource,sprite.drawX,sprite.drawY,sprite.clipLeft,sprite.clipTop,sprite.clipRight,sprite.clipBottom,sprite.keyed);tySelectorSurfaces.put(surface,pixels);return pixels;
+    }
+    private void drawTySelector(BufferedImage target,TyHost host)throws IOException{
+        TySelector owner=host.tySelector;TySelector.Frame frame=owner.frame();
+        if(tySelectorOwner!=owner||tySelectorGeneration!=owner.generation||tySelectorUnderlay!=host.tySelectorUnderlay){tySelectorOwner=owner;tySelectorGeneration=owner.generation;tySelectorUnderlay=host.tySelectorUnderlay;tySelectorUnderlayPixels=null;tySelectorSurfaces.clear();}
+        int[] goal=tySelectorSurface(frame.target);if(frame.weight255==255){target.setRGB(0,0,width,height,goal,0,width);return;}
+        int[] previous;if(frame.from!=null)previous=tySelectorSurface(frame.from);else{if(tySelectorUnderlayPixels==null){if(tySelectorUnderlay==null)throw new IOException("TY selector original front absent");tySelectorUnderlayPixels=captures.resolve(tySelectorUnderlay).getRGB(0,0,width,height,null,0,width);}previous=tySelectorUnderlayPixels;}
+        int[] pixels=new int[width*height];int w=frame.weight255;for(int n=0;n<pixels.length;n++){int a=previous[n],b=goal[n];pixels[n]=0xff000000|(((a>>>16&255)*(255-w)+(b>>>16&255)*w)/255)<<16|(((a>>>8&255)*(255-w)+(b>>>8&255)*w)/255)<<8|((a&255)*(255-w)+(b&255)*w)/255;}target.setRGB(0,0,width,height,pixels,0,width);
     }
     private void drawDcdxBanner(BufferedImage target,DcdxBanner owner)throws IOException{
         DcdxBannerRaster raster=dcdxBannerRaster;

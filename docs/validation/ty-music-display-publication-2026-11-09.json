@@ -1,0 +1,101 @@
+{
+  "schema": "circus-runtime.validation.ty-music-display-publication.v1",
+  "captured_utc": "2026-11-08T18:20:07.236435+00:00",
+  "version": "0.14.13-ty-music-display-dev",
+  "verified_source_commit": "0ec968f270b24e5f4af257bc41c64ee49fa7415f",
+  "source_proof": {
+    "path": "docs/validation/ty-music-display-source-2026-11-09.json",
+    "bytes": 99664,
+    "sha256": "c298e6da6bb7546a97032600dce2b71018ad4de6655767b245e19d9e9de80807",
+    "git_lf_sha256": "b7a16b34e3b4f78c7131873cf027327e404d850e8aba277a8c48913223f15c4f"
+  },
+  "source_commit_verification": {
+    "pass": true,
+    "desktop_inputs": 645,
+    "android_inputs": 799,
+    "merged_inputs": 799,
+    "byte_exact_blob_matches": 268,
+    "line_ending_only_blob_matches": 531,
+    "shared_capture_deltas": [],
+    "live_source_deltas": [],
+    "method": "Exact source commit blobs matched all799 final captured files; only CRLF/LF normalization accepted for text.",
+    "private_complete_comparison": {
+      "path": "build/ty-display-20261109/source-commit-verification.json",
+      "bytes": 136586,
+      "sha256": "061d4541fe72013f6fea5618bf081ab98034f285e2c0381f7bb44c72ef234ac8",
+      "git_lf_sha256": "8c8f12eb14619ed9f7e0f9b48392b50c80af56442ece285afb7499395a23bb3a"
+    }
+  },
+  "android": {
+    "artifact": {
+      "path": "build/distribution/circus-runtime-0.14.13-ty-music-display-dev-android.apk",
+      "bytes": 12732264,
+      "sha256": "d5e7796d01adb54606ad854ac1ad1cb870ea1d4407aba534efa54a75a7540d1a"
+    },
+    "receipt": {
+      "path": "docs/validation/android-ty-music-display-0.14.13.json",
+      "bytes": 126237,
+      "sha256": "07b017a6de3bde38f3aaa812c4684f2b0f044fc501addde82c47ce28e6b48c01",
+      "git_lf_sha256": "4448e9979eab6e0588b612d0fde1fcb111ca580e80dbc9a3ada3803f9c776fd4"
+    },
+    "version_code": 43,
+    "same_existing_debug_certificate": true,
+    "emulator_ART_groups_passed": 9,
+    "emulator_actual_TY_engine_and_RuntimeActivity_MediaPlayer_checks_passed": 37
+  },
+  "windows": {
+    "artifact": {
+      "path": "build/distribution/dc-runtime-0.14.13-ty-music-display-dev-windows-x64.zip",
+      "bytes": 69549774,
+      "sha256": "6f384e25b6e888f46ead3189488a313f7523f9cf150a8c0576e46835cfa3bfc4"
+    },
+    "receipt": {
+      "path": "docs/validation/windows-ty-music-display-0.14.13.json",
+      "bytes": 8053,
+      "sha256": "2922a5088b8f03699ca18e06b81ba8708bfa3643ee82e9a370b489da74ebe23c",
+      "git_lf_sha256": "4e02195e554d836166f22ab9e7f1bb41c883feb94f5ec72ceb6eef8f76ca7642"
+    },
+    "actual_packaged_workflow_jobs_passed": 35
+  },
+  "physical_phone": {
+    "version43_install_r_completed": true,
+    "existing_library_shared_save_file_hashes_preserved_at_upgrade": 73,
+    "first_install_time_preserved": true,
+    "actual_SAF_engine_Canvas_music_and_replay_checks": 32,
+    "actual_SAF_engine_Canvas_music_and_replay_result": "PASS",
+    "real_touch_and_MediaPlayer_complete_result": "NOT COMPLETED",
+    "observed_block": "Instrumentation thread waited inside android.app.Instrumentation.startActivitySync at mediaSmoke entry, confirmed via temporary JDWP stack collection. The32-check report predates this platform stage; it is not evidence of phone playback.",
+    "external_timeout_seconds": 360,
+    "last_connection": "Phone disconnected after user requested APK delivery and self-testing.",
+    "user_direction": "Stop further physical-device testing; deliver APK for the user to test.",
+    "remaining_hung_instrument": "The last observed phone process still held the diagnostic instrumentation. Since the phone is now disconnected, force-stop the app locally before manual testing; do not clear app data.",
+    "game_files_written": false,
+    "private_partial_report": {
+      "path": "build/ty-display-20261109/phone/v43/partial-device-report.json",
+      "bytes": 1643,
+      "sha256": "f2d15baf76af470caac2d0b6a74e3174465f286725005b0e64ec2908096210d9",
+      "git_lf_sha256": "f2d15baf76af470caac2d0b6a74e3174465f286725005b0e64ec2908096210d9"
+    },
+    "private_hang_stack": {
+      "path": "build/ty-display-20261109/phone/v43/hung-audit-jdwp-socket.txt",
+      "bytes": 3980,
+      "sha256": "4a7ce17833183b263ae82dcdc08cca7e406cac7fd36cb44ecc8e8cbfe88b02cf"
+    },
+    "private_before_install_state": {
+      "path": "build/ty-display-20261109/phone/v43/state-before-install.txt",
+      "bytes": 9964,
+      "sha256": "ab658fabdfc7dcfcaee9096195f06ea289f0d1cd569feb18f587909b4d1c86e3"
+    },
+    "private_after_install_state": {
+      "path": "build/ty-display-20261109/phone/v43/state-after-install.txt",
+      "bytes": 9964,
+      "sha256": "ab658fabdfc7dcfcaee9096195f06ea289f0d1cd569feb18f587909b4d1c86e3"
+    }
+  },
+  "delivery": "Install APK over existing app; do not uninstall or clear data. Keep verified TY encoding automatic (GBK prose); replay captions are separately CP932. Music names use the selected verified EXE table. The original CHS PE has one punctuation conversion omission, retained and documented in the native proof.",
+  "old_fixed_artifacts_overwritten": false,
+  "original_PC_executables_run": false,
+  "original_PC_game_directories_written": false,
+  "game_assets_embedded_in_installers_or_repository": false,
+  "hash_semantics": "Physical workspace/artifact SHA256 identifies the actual built bytes. JSON references also include git_lf_sha256 for Git-normalized text."
+}

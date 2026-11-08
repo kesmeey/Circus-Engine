@@ -653,6 +653,26 @@
     },
     "fl.actor_transform": {
       "description": "FL65 native displayed actor movement and float progress; independent of PC2."
+    },
+    "dcdx.command": {
+      "description": "DCDX independently reviewed40AE70 service table. Unknown real services remain explicit failures; do not borrow FL ending/UI services.",
+      "operands": []
+    },
+    "dcdx.external_program": {
+      "description": "DCDX4188A0 external program path. The portable host must not execute original companion game EXEs.",
+      "operands": []
+    },
+    "dcdx.scroll": {
+      "description": "DCDX independently reviewed 1024x576 background scroll consumer; not a PC2 viewport alias.",
+      "operands": []
+    },
+    "dcdx.actor_position": {
+      "description": "DCDX staged actor descriptors from its own64 consumer, separate from displayed coordinates.",
+      "operands": []
+    },
+    "dcdx.actor_transform": {
+      "description": "DCDX65 scale/pivot and movement branches with its own ordinary9:82/83/84 state.",
+      "operands": []
     }
   },
   "profiles": {
@@ -2549,6 +2569,1094 @@
       ],
       "host_status": "Independent Fall in Love host; native9C69 loader only, not legacy6C69",
       "evidence_status": "static_native_verified_subset"
+    },
+    "dcdx-7769": {
+      "native_sha256": "86bcd33e954b81f9b7bb731bcbc2886bc68d8d069074a32ef2af716fede395cb",
+      "runtime_variable_model": "PC_WIDE",
+      "addresses": {
+        "loader": "0x41F040",
+        "dispatch": "0x424E10",
+        "dispatch_table": "0x427ADC",
+        "fallback": "0x427A9C",
+        "getter": "0x41BC60",
+        "setter": "0x41BF10"
+      },
+      "dispatch_count": 105,
+      "decoder": {
+        "version_bytes": 2,
+        "runtime_exact_version": true,
+        "extension_opcode": 82,
+        "encoded_string_postmap": {},
+        "signed_opcode_fetch": true,
+        "allow_terminal_fragment": true,
+        "extension_at_fetch": false,
+        "extension_owners": [
+          80,
+          83,
+          85,
+          87
+        ],
+        "string_payload_owners": [
+          81,
+          88,
+          96
+        ]
+      },
+      "control": {
+        "label_opcode": 53,
+        "block_marker_opcode": 30,
+        "companion_opcode": 2,
+        "block_scan_signed_opcode": true
+      },
+      "opcodes": {
+        "0x00": "stream.stop",
+        "0x01": "native.no_effect",
+        "0x02": "control.marker",
+        "0x03": "pc.history",
+        "0x04": "pc.checkpoint",
+        "0x05": "dm.audio.music",
+        "0x06": "native.unmodelled",
+        "0x07": "dm.wait.message",
+        "0x08": "pc.choice.begin",
+        "0x09": "pc.choice.wait",
+        "0x0A": "pc.ui.wait",
+        "0x0B": "pc.grid.wait",
+        "0x0C": "native.unmodelled",
+        "0x0D": "pc.transition",
+        "0x0E": "system.exit",
+        "0x0F": "pc.reset",
+        "0x10": "native.unmodelled",
+        "0x11": "dm.audio.fade_music",
+        "0x12": "pc.wait",
+        "0x13": "pc.wait.media_mask",
+        "0x14": "dm.ui.button_sound",
+        "0x15": "pc.grid.sound",
+        "0x16": "pc.persist",
+        "0x17": "pc.button_template",
+        "0x18": "native.unmodelled",
+        "0x19": "pc.sprite_opaque",
+        "0x1A": "native.unmodelled",
+        "0x1B": "dm.system.return",
+        "0x1C": "dcdx.command",
+        "0x1D": "native.unmodelled",
+        "0x1E": "block.marker",
+        "0x1F": "native.no_effect",
+        "0x20": "dm.ui.commit",
+        "0x21": "pc.quad_template",
+        "0x22": "native.unmodelled",
+        "0x23": "native.unmodelled",
+        "0x24": "native.no_effect",
+        "0x25": "dm.ui.binding",
+        "0x26": "pc.effect",
+        "0x27": "native.unmodelled",
+        "0x28": "native.no_effect",
+        "0x29": "native.no_effect",
+        "0x2A": "pc.resource",
+        "0x2B": "pc.character",
+        "0x2C": "pc.character_overlay",
+        "0x2D": "native.unmodelled",
+        "0x2E": "pc.script.transfer",
+        "0x2F": "native.no_effect",
+        "0x30": "pc.background",
+        "0x31": "pc.image6",
+        "0x32": "pc.image7",
+        "0x33": "pc.image8",
+        "0x34": "native.unmodelled",
+        "0x35": "label.named",
+        "0x36": "dm.audio.voice",
+        "0x37": "script.entry_label",
+        "0x38": "pc.movie",
+        "0x39": "dcdx.external_program",
+        "0x3A": "jump.named_required",
+        "0x3B": "pc.action0",
+        "0x3C": "native.unmodelled",
+        "0x3D": "dm.ui.button_voice",
+        "0x3E": "native.unmodelled",
+        "0x3F": "native.unmodelled",
+        "0x40": "native.unmodelled",
+        "0x41": "native.unmodelled",
+        "0x42": "native.unmodelled",
+        "0x43": "native.unmodelled",
+        "0x44": "choice.item",
+        "0x45": "choice.caption",
+        "0x46": "native.unmodelled",
+        "0x47": "native.unmodelled",
+        "0x48": "native.unmodelled",
+        "0x49": "system.version",
+        "0x4A": "native.no_effect",
+        "0x4B": "text.speaker",
+        "0x4C": "text.body",
+        "0x4D": "choice.caption",
+        "0x4E": "native.no_effect",
+        "0x4F": "host.command_with_string",
+        "0x50": "pc.button_sprite",
+        "0x51": "ui.button_text",
+        "0x52": "arguments.extend",
+        "0x53": "pc.quad",
+        "0x54": "native.unmodelled",
+        "0x55": "pc.grid.configure",
+        "0x56": "dm.ui.grid_rect",
+        "0x57": "native.unmodelled",
+        "0x58": "native.unmodelled",
+        "0x59": "native.unmodelled",
+        "0x5A": "native.unmodelled",
+        "0x5B": "dm.audio.sound",
+        "0x5C": "variable.update",
+        "0x5D": "native.unmodelled",
+        "0x5E": "variable.add_variable",
+        "0x5F": "branch.compare",
+        "0x60": "dm.ui.text",
+        "0x61": "native.unmodelled",
+        "0x62": "dcdx.scroll",
+        "0x63": "native.unmodelled",
+        "0x64": "dcdx.actor_position",
+        "0x65": "dcdx.actor_transform",
+        "0x66": "dm.ui.palette",
+        "0x67": "native.unmodelled",
+        "0x68": "native.unmodelled"
+      },
+      "native_case_review": {
+        "0x00": {
+          "target": "0x0042503A",
+          "reference_count": 152,
+          "operation": "stream.stop",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041b6b0"
+          ]
+        },
+        "0x01": {
+          "target": "0x00427A9C",
+          "reference_count": 0,
+          "operation": "native.no_effect",
+          "basis": "Exact native shared fallback427A9C; control/label/caption roles are independently confirmed by native scanner/owning choice handlers.",
+          "case_calls": []
+        },
+        "0x02": {
+          "target": "0x00427A9C",
+          "reference_count": 3496,
+          "operation": "control.marker",
+          "basis": "Exact native shared fallback427A9C; control/label/caption roles are independently confirmed by native scanner/owning choice handlers.",
+          "case_calls": []
+        },
+        "0x03": {
+          "target": "0x0042790E",
+          "reference_count": 22460,
+          "operation": "pc.history",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x04": {
+          "target": "0x00427986",
+          "reference_count": 118,
+          "operation": "pc.checkpoint",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x05": {
+          "target": "0x00427109",
+          "reference_count": 533,
+          "operation": "dm.audio.music",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0040c1b0",
+            "00428d00",
+            "00428f90",
+            "00429740"
+          ]
+        },
+        "0x06": {
+          "target": "0x004271ED",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "00429740"
+          ]
+        },
+        "0x07": {
+          "target": "0x0042514E",
+          "reference_count": 21993,
+          "operation": "dm.wait.message",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041bbd0",
+            "0041c7c0",
+            "0041c8c0"
+          ]
+        },
+        "0x08": {
+          "target": "0x00425B6A",
+          "reference_count": 16,
+          "operation": "pc.choice.begin",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041f940"
+          ]
+        },
+        "0x09": {
+          "target": "0x00425BC5",
+          "reference_count": 16,
+          "operation": "pc.choice.wait",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "00420590"
+          ]
+        },
+        "0x0A": {
+          "target": "0x00425AD0",
+          "reference_count": 53,
+          "operation": "pc.ui.wait",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "00414b20",
+            "00421a80"
+          ]
+        },
+        "0x0B": {
+          "target": "0x00425F07",
+          "reference_count": 2,
+          "operation": "pc.grid.wait",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "00414b20",
+            "00414c20",
+            "00421a80"
+          ]
+        },
+        "0x0C": {
+          "target": "0x00425C14",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x0D": {
+          "target": "0x00425F66",
+          "reference_count": 1848,
+          "operation": "pc.transition",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "004016f0",
+            "00402ba0",
+            "00402c10",
+            "00402c80",
+            "0040c0b0",
+            "0040e860",
+            "00419d70",
+            "0041b6b0",
+            "0041e380",
+            "0041e6c0",
+            "0041f310",
+            "0041f830",
+            "0041f940",
+            "00420590",
+            "00421420",
+            "00424310",
+            "004244f0"
+          ]
+        },
+        "0x0E": {
+          "target": "0x004250CB",
+          "reference_count": 1,
+          "operation": "system.exit",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x0F": {
+          "target": "0x00425135",
+          "reference_count": 2,
+          "operation": "pc.reset",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x10": {
+          "target": "0x0042652E",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "0041baa0",
+            "0041bc60"
+          ]
+        },
+        "0x11": {
+          "target": "0x00426503",
+          "reference_count": 671,
+          "operation": "dm.audio.fade_music",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0040c1b0",
+            "00428e80"
+          ]
+        },
+        "0x12": {
+          "target": "0x0042529E",
+          "reference_count": 482,
+          "operation": "pc.wait",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0040c0b0",
+            "0041f830"
+          ]
+        },
+        "0x13": {
+          "target": "0x004273F1",
+          "reference_count": 7,
+          "operation": "pc.wait.media_mask",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "00429770"
+          ]
+        },
+        "0x14": {
+          "target": "0x0042570D",
+          "reference_count": 638,
+          "operation": "dm.ui.button_sound",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "00413fc0"
+          ]
+        },
+        "0x15": {
+          "target": "0x00425D73",
+          "reference_count": 2,
+          "operation": "pc.grid.sound",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x16": {
+          "target": "0x00426D23",
+          "reference_count": 50,
+          "operation": "pc.persist",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "00403350",
+            "00403c70",
+            "0040c600",
+            "0040c630",
+            "0040cdf0",
+            "0041eaf0",
+            "0041f850",
+            "004212c0",
+            "0042db22"
+          ]
+        },
+        "0x17": {
+          "target": "0x004253C1",
+          "reference_count": 111,
+          "operation": "pc.button_template",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x18": {
+          "target": "0x004256D6",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x19": {
+          "target": "0x004257D8",
+          "reference_count": 9,
+          "operation": "pc.sprite_opaque",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x1A": {
+          "target": "0x0042799C",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x1B": {
+          "target": "0x004275E7",
+          "reference_count": 6,
+          "operation": "dm.system.return",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "004016f0",
+            "00402ba0",
+            "00411690",
+            "00414410",
+            "0041b530",
+            "0041b9b0",
+            "0041c8c0",
+            "0041e890",
+            "0041f040",
+            "0041f940",
+            "00420590",
+            "00424310",
+            "00429010"
+          ]
+        },
+        "0x1C": {
+          "target": "0x004250BC",
+          "reference_count": 19,
+          "operation": "dcdx.command",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0040ae70"
+          ]
+        },
+        "0x1D": {
+          "target": "0x004274D9",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "00413c20"
+          ]
+        },
+        "0x1E": {
+          "target": "0x00426660",
+          "reference_count": 3978,
+          "operation": "block.marker",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041bad0"
+          ]
+        },
+        "0x1F": {
+          "target": "0x00427A9C",
+          "reference_count": 0,
+          "operation": "native.no_effect",
+          "basis": "Exact native shared fallback427A9C; control/label/caption roles are independently confirmed by native scanner/owning choice handlers.",
+          "case_calls": []
+        },
+        "0x20": {
+          "target": "0x00425C28",
+          "reference_count": 2,
+          "operation": "dm.ui.commit",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "00414b20",
+            "00414c20",
+            "00421a80"
+          ]
+        },
+        "0x21": {
+          "target": "0x00426797",
+          "reference_count": 98,
+          "operation": "pc.quad_template",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041c790",
+            "0041f940",
+            "0041fda0"
+          ]
+        },
+        "0x22": {
+          "target": "0x00427464",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x23": {
+          "target": "0x0042732D",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "004294b0",
+            "004295e0",
+            "00429660"
+          ]
+        },
+        "0x24": {
+          "target": "0x00427A9C",
+          "reference_count": 0,
+          "operation": "native.no_effect",
+          "basis": "Exact native shared fallback427A9C; control/label/caption roles are independently confirmed by native scanner/owning choice handlers.",
+          "case_calls": []
+        },
+        "0x25": {
+          "target": "0x00425578",
+          "reference_count": 1,
+          "operation": "dm.ui.binding",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x26": {
+          "target": "0x00426354",
+          "reference_count": 145,
+          "operation": "pc.effect",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041b530",
+            "00424660"
+          ]
+        },
+        "0x27": {
+          "target": "0x00426C14",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "0041a350",
+            "0041a470"
+          ]
+        },
+        "0x28": {
+          "target": "0x00427A9C",
+          "reference_count": 0,
+          "operation": "native.no_effect",
+          "basis": "Exact native shared fallback427A9C; control/label/caption roles are independently confirmed by native scanner/owning choice handlers.",
+          "case_calls": []
+        },
+        "0x29": {
+          "target": "0x00427A9C",
+          "reference_count": 0,
+          "operation": "native.no_effect",
+          "basis": "Exact native shared fallback427A9C; control/label/caption roles are independently confirmed by native scanner/owning choice handlers.",
+          "case_calls": []
+        },
+        "0x2A": {
+          "target": "0x0042534D",
+          "reference_count": 1,
+          "operation": "pc.resource",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "004016f0",
+            "00403a60"
+          ]
+        },
+        "0x2B": {
+          "target": "0x00426FC2",
+          "reference_count": 12582,
+          "operation": "pc.character",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "00424660"
+          ]
+        },
+        "0x2C": {
+          "target": "0x00426FA3",
+          "reference_count": 15,
+          "operation": "pc.character_overlay",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "004248e0"
+          ]
+        },
+        "0x2D": {
+          "target": "0x004275D4",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "0041f850"
+          ]
+        },
+        "0x2E": {
+          "target": "0x004278A4",
+          "reference_count": 569,
+          "operation": "pc.script.transfer",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041b6b0",
+            "0041f040"
+          ]
+        },
+        "0x2F": {
+          "target": "0x00427A9C",
+          "reference_count": 0,
+          "operation": "native.no_effect",
+          "basis": "Exact native shared fallback427A9C; control/label/caption roles are independently confirmed by native scanner/owning choice handlers.",
+          "case_calls": []
+        },
+        "0x30": {
+          "target": "0x00426682",
+          "reference_count": 2022,
+          "operation": "pc.background",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041b530",
+            "0041b6b0",
+            "0041b7a0",
+            "0042db22"
+          ]
+        },
+        "0x31": {
+          "target": "0x00426B08",
+          "reference_count": 57,
+          "operation": "pc.image6",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041b6b0",
+            "0041b7a0"
+          ]
+        },
+        "0x32": {
+          "target": "0x00426B34",
+          "reference_count": 35,
+          "operation": "pc.image7",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041b6b0",
+            "0041b7a0"
+          ]
+        },
+        "0x33": {
+          "target": "0x00426B60",
+          "reference_count": 11,
+          "operation": "pc.image8",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041b6b0",
+            "0041b7a0"
+          ]
+        },
+        "0x34": {
+          "target": "0x00426B8C",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "00402a60",
+            "0041b6b0"
+          ]
+        },
+        "0x35": {
+          "target": "0x00427A9C",
+          "reference_count": 1218,
+          "operation": "label.named",
+          "basis": "Exact native shared fallback427A9C; control/label/caption roles are independently confirmed by native scanner/owning choice handlers.",
+          "case_calls": []
+        },
+        "0x36": {
+          "target": "0x00427201",
+          "reference_count": 9997,
+          "operation": "dm.audio.voice",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041b6b0",
+            "0041bbd0",
+            "0041f310",
+            "00424310",
+            "004294b0",
+            "00429a60"
+          ]
+        },
+        "0x37": {
+          "target": "0x00427886",
+          "reference_count": 27,
+          "operation": "script.entry_label",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x38": {
+          "target": "0x00427440",
+          "reference_count": 1,
+          "operation": "pc.movie",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x39": {
+          "target": "0x0042748E",
+          "reference_count": 4,
+          "operation": "dcdx.external_program",
+          "basis": "Four originalMAIN references launch separate MINI EXEs; dedicated host must fail explicitly, never execute them.",
+          "case_calls": [
+            "004188a0",
+            "004297a0",
+            "00429a80"
+          ]
+        },
+        "0x3A": {
+          "target": "0x00427874",
+          "reference_count": 2022,
+          "operation": "jump.named_required",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041baa0"
+          ]
+        },
+        "0x3B": {
+          "target": "0x00427595",
+          "reference_count": 101,
+          "operation": "pc.action0",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x3C": {
+          "target": "0x004275B4",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x3D": {
+          "target": "0x00425739",
+          "reference_count": 210,
+          "operation": "dm.ui.button_voice",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x3E": {
+          "target": "0x00425763",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x3F": {
+          "target": "0x0042751A",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x40": {
+          "target": "0x00427534",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x41": {
+          "target": "0x00427862",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "0041ea10"
+          ]
+        },
+        "0x42": {
+          "target": "0x00425E33",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x43": {
+          "target": "0x00427554",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "00420ce0"
+          ]
+        },
+        "0x44": {
+          "target": "0x004257E7",
+          "reference_count": 33,
+          "operation": "choice.item",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "00413c60",
+            "00413f50"
+          ]
+        },
+        "0x45": {
+          "target": "0x00427A9C",
+          "reference_count": 0,
+          "operation": "choice.caption",
+          "basis": "Exact native shared fallback427A9C; control/label/caption roles are independently confirmed by native scanner/owning choice handlers.",
+          "case_calls": []
+        },
+        "0x46": {
+          "target": "0x004272F4",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x47": {
+          "target": "0x004274C3",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x48": {
+          "target": "0x00425A65",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "0041baa0"
+          ]
+        },
+        "0x49": {
+          "target": "0x00425055",
+          "reference_count": 1,
+          "operation": "system.version",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x4A": {
+          "target": "0x00427A9C",
+          "reference_count": 0,
+          "operation": "native.no_effect",
+          "basis": "Exact native shared fallback427A9C; control/label/caption roles are independently confirmed by native scanner/owning choice handlers.",
+          "case_calls": []
+        },
+        "0x4B": {
+          "target": "0x004279F9",
+          "reference_count": 13744,
+          "operation": "text.speaker",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041c930"
+          ]
+        },
+        "0x4C": {
+          "target": "0x00427A10",
+          "reference_count": 21994,
+          "operation": "text.body",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041b6b0",
+            "0041c930",
+            "0041f310",
+            "00424310"
+          ]
+        },
+        "0x4D": {
+          "target": "0x00427A9C",
+          "reference_count": 33,
+          "operation": "choice.caption",
+          "basis": "Exact native shared fallback427A9C; control/label/caption roles are independently confirmed by native scanner/owning choice handlers.",
+          "case_calls": []
+        },
+        "0x4E": {
+          "target": "0x00427A9C",
+          "reference_count": 0,
+          "operation": "native.no_effect",
+          "basis": "Exact native shared fallback427A9C; control/label/caption roles are independently confirmed by native scanner/owning choice handlers.",
+          "case_calls": []
+        },
+        "0x4F": {
+          "target": "0x00425588",
+          "reference_count": 692,
+          "operation": "host.command_with_string",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "00413c60"
+          ]
+        },
+        "0x50": {
+          "target": "0x0042565D",
+          "reference_count": 2122,
+          "operation": "pc.button_sprite",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "00413e80",
+            "0041bc20"
+          ]
+        },
+        "0x51": {
+          "target": "0x0042578D",
+          "reference_count": 248,
+          "operation": "ui.button_text",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "00413f50"
+          ]
+        },
+        "0x52": {
+          "target": "0x00427A9C",
+          "reference_count": 0,
+          "operation": "arguments.extend",
+          "basis": "Exact native shared fallback427A9C; control/label/caption roles are independently confirmed by native scanner/owning choice handlers.",
+          "case_calls": []
+        },
+        "0x53": {
+          "target": "0x004268B2",
+          "reference_count": 1792,
+          "operation": "pc.quad",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041bc20"
+          ]
+        },
+        "0x54": {
+          "target": "0x00427570",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x55": {
+          "target": "0x00425C83",
+          "reference_count": 2,
+          "operation": "pc.grid.configure",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "00413c30",
+            "0041bc20"
+          ]
+        },
+        "0x56": {
+          "target": "0x00425DA4",
+          "reference_count": 20,
+          "operation": "dm.ui.grid_rect",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "00413d70"
+          ]
+        },
+        "0x57": {
+          "target": "0x00425DBF",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "0041bc20"
+          ]
+        },
+        "0x58": {
+          "target": "0x00425E54",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "0041c930"
+          ]
+        },
+        "0x59": {
+          "target": "0x0042571C",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "00413fe0"
+          ]
+        },
+        "0x5A": {
+          "target": "0x00425D84",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x5B": {
+          "target": "0x004250DA",
+          "reference_count": 480,
+          "operation": "dm.audio.sound",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0040c1b0",
+            "00429010",
+            "004291c0",
+            "00429230"
+          ]
+        },
+        "0x5C": {
+          "target": "0x00426437",
+          "reference_count": 2017,
+          "operation": "variable.update",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041bc60",
+            "0041bf10"
+          ]
+        },
+        "0x5D": {
+          "target": "0x004264AA",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "0041bc60",
+            "0041bf10"
+          ]
+        },
+        "0x5E": {
+          "target": "0x004264D1",
+          "reference_count": 284,
+          "operation": "variable.add_variable",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041bc60",
+            "0041bf10"
+          ]
+        },
+        "0x5F": {
+          "target": "0x00426592",
+          "reference_count": 3494,
+          "operation": "branch.compare",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0041bad0",
+            "0041bc60"
+          ]
+        },
+        "0x60": {
+          "target": "0x00426A41",
+          "reference_count": 18,
+          "operation": "dm.ui.text",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x61": {
+          "target": "0x00426A18",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x62": {
+          "target": "0x00426C71",
+          "reference_count": 65,
+          "operation": "dcdx.scroll",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x63": {
+          "target": "0x00425ECF",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": []
+        },
+        "0x64": {
+          "target": "0x00426FE3",
+          "reference_count": 3574,
+          "operation": "dcdx.actor_position",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x65": {
+          "target": "0x00427099",
+          "reference_count": 4703,
+          "operation": "dcdx.actor_transform",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": []
+        },
+        "0x66": {
+          "target": "0x00426F8E",
+          "reference_count": 1,
+          "operation": "dm.ui.palette",
+          "basis": "Reviewed original DCDX handler body and control/data calls retained in native-case-slices, not a version/name alias.",
+          "case_calls": [
+            "0040ea00"
+          ]
+        },
+        "0x67": {
+          "target": "0x00426BD6",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "00419e50"
+          ]
+        },
+        "0x68": {
+          "target": "0x00426BF5",
+          "reference_count": 0,
+          "operation": "native.unmodelled",
+          "basis": "Real native handler but absent from152-script execution corpus; left unmodelled.",
+          "case_calls": [
+            "00419f90"
+          ]
+        }
+      },
+      "scope": "DCDX independently verified opcode roles; common primitive leaf details and profile-specific1C/actor/scroll consumers may remain explicit host failures until implemented. No original EXE executed; source files read-only."
     }
   }
 }

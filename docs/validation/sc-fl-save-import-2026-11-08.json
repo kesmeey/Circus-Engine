@@ -1,0 +1,314 @@
+{
+  "date": "2026-11-08",
+  "scope": "SC3B69 and FL9C69 original system progress import; no original story-SAV conversion; original executable static analysis only",
+  "original_executables_launched": false,
+  "original_game_files_written": false,
+  "baseline_0_14_8": {
+    "system_dat_import": {
+      "dc2sc-3b69": "unsupported",
+      "dc2fl-9c69": "unsupported"
+    },
+    "original_story_slots_import": {
+      "dc2sc-3b69": "unsupported",
+      "dc2fl-9c69": "unsupported"
+    },
+    "actual_frozen_parse_result": {
+      "scope": "Frozen released0.14.8 NativeProgress; original EXEs not executed; source read-only",
+      "sources": [
+        {
+          "profile": "dc2sc-3b69",
+          "size": 2340,
+          "sha256": "22e00ef2b14bea0c0ec41e480835e41210d07090e806d6660f0c4e28801115e1",
+          "supports": false,
+          "parse_failure": "尚未适配此版本的原版进度：dc2sc-3b69"
+        },
+        {
+          "profile": "dc2fl-9c69",
+          "size": 2032,
+          "sha256": "c700e29dcc9607e1a99559ff61e5085b38a2faad9f82687fc8a22b05fdd6dbe6",
+          "supports": false,
+          "parse_failure": "尚未适配此版本的原版进度：dc2fl-9c69"
+        }
+      ]
+    },
+    "evidence": {
+      "path": "build/holdout-contract-20261108/sc-fl-progress-0148-baseline.json",
+      "sha256": "46f07468c8cfe587485e7f2a2439412154dbf51de47f51ce5786e78f353c8778"
+    },
+    "frozen_NativeProgress_class": {
+      "path": "build/holdout-contract-20261108/fl-credits-feedback-final-v3/classes/org/circus/core/NativeProgress.class",
+      "sha256": "7ed1dc0e9caee51cd1e282c262d417ae28aadddcb698d01ef9c7a3a14a7a64c2"
+    }
+  },
+  "new_source_support": {
+    "release_status": "working-tree implementation; this report does not claim a packaged release",
+    "entry_points": {
+      "core": "NativeProgress.parse/Target/preview/apply admit only independently selected exact profiles",
+      "android": "Existing original-progress picker/folder importer uses the new layouts; SC-specific partial-scope text is handled by the application",
+      "desktop": "No generic original-system.dat import UI currently exists; core/service fixtures can merge progress.dat. Original-story import menu/CLI remains limited to dc2-3363."
+    },
+    "sc": {
+      "profile": "dc2sc-3b69",
+      "pe_sha256": "11f0507fd4e317ebf07a430eb221f4ecf4c7a1f1e27a4431d3ef9e5daef13abc",
+      "system_dat_size": 2340,
+      "native_system_image_base": "0x4809B0",
+      "getter": "0x4181A0",
+      "setter": "0x418400",
+      "global_bank100_offset": "0x70",
+      "completion_allowlist": [],
+      "completion_scope": "No completion globals imported. Title reads globals1..6, but their ordinary route writers were not independently established; debug writes are insufficient evidence. Global80 also remains excluded.",
+      "cg_bank97": {
+        "offset": "0xD4",
+        "bytes": 1024,
+        "encoding": "unsigned byte flags0/1"
+      },
+      "scene_seen_bank98": {
+        "offset": "0x4D4",
+        "bytes": 1024,
+        "encoding": "unsigned byte flags0/1"
+      },
+      "music_bank96_imported": false,
+      "native_story_slot_prefix": "dc2sc",
+      "real_source": {
+        "family": "sc",
+        "pe_sha256": "11f0507fd4e317ebf07a430eb221f4ecf4c7a1f1e27a4431d3ef9e5daef13abc",
+        "native_template_va": "0x433088",
+        "native_template_size": 2340,
+        "native_template_sha256": "22e00ef2b14bea0c0ec41e480835e41210d07090e806d6660f0c4e28801115e1",
+        "actual_source_sha256": "22e00ef2b14bea0c0ec41e480835e41210d07090e806d6660f0c4e28801115e1",
+        "source_exact_fallback_template": true,
+        "native_story_filename_format": "%s\\%s%02d.dat",
+        "native_story_filename_prefix": "dc2sc",
+        "native_original_story_slots_found": [],
+        "preview": {
+          "profile": "dc2sc-3b69",
+          "size": 2340,
+          "sha256": "22e00ef2b14bea0c0ec41e480835e41210d07090e806d6660f0c4e28801115e1",
+          "source_total": 0,
+          "additions_total": 0,
+          "target_unchanged": true
+        }
+      }
+    },
+    "fl": {
+      "profile": "dc2fl-9c69",
+      "pe_sha256": "3adf5db19bdc67cb8c90e666572ba53538462d8ef461a29dddaa46671f1867f2",
+      "system_dat_size": 2032,
+      "native_system_image_base": "0x55B950",
+      "getter": "0x419B10",
+      "setter": "0x419DC0",
+      "global_bank100_offset": "0x74",
+      "completion_allowlist": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        52,
+        53
+      ],
+      "completion_scope": "ED writes route1..13 according to ordinary3:50, sums all13 before setting100:0. Native credits writes100:52/53 on completion; skip does not create completion.",
+      "completion_producers": {
+        "ed_mes_sha256": "0c9da1881681b0691c9ab492b2b529188b0988323e798289f644a8966fde16ba",
+        "route_setter_offsets": [
+          "0x12",
+          "0x2a",
+          "0x42",
+          "0x5a",
+          "0x72",
+          "0x8a",
+          "0xa2",
+          "0xba",
+          "0xd2",
+          "0xea",
+          "0x102",
+          "0x11a",
+          "0x132"
+        ],
+        "all_clear_setter_offset": "0x1D1",
+        "native_credits_setter_call": "0x4092C2",
+        "native_slide_completion_sites": [
+          "0x4095D7",
+          "0x4096F7"
+        ]
+      },
+      "cg_bank97": {
+        "offset": "0xD8",
+        "bytes": 640,
+        "encoding": "unsigned byte flags0/1"
+      },
+      "scene_seen_bank98": {
+        "offset": "0x358",
+        "bytes": 1024,
+        "encoding": "unsigned byte flags0/1"
+      },
+      "music_bank96_imported": false,
+      "native_story_slot_prefix": "DC2FL",
+      "real_source": {
+        "family": "fl",
+        "pe_sha256": "3adf5db19bdc67cb8c90e666572ba53538462d8ef461a29dddaa46671f1867f2",
+        "native_template_va": "0x46b018",
+        "native_template_size": 2032,
+        "native_template_sha256": "c700e29dcc9607e1a99559ff61e5085b38a2faad9f82687fc8a22b05fdd6dbe6",
+        "actual_source_sha256": "c700e29dcc9607e1a99559ff61e5085b38a2faad9f82687fc8a22b05fdd6dbe6",
+        "source_exact_fallback_template": true,
+        "native_story_filename_format": "%s\\%s%02d.dat",
+        "native_story_filename_prefix": "DC2FL",
+        "native_original_story_slots_found": [],
+        "preview": {
+          "profile": "dc2fl-9c69",
+          "size": 2032,
+          "sha256": "c700e29dcc9607e1a99559ff61e5085b38a2faad9f82687fc8a22b05fdd6dbe6",
+          "source_total": 0,
+          "additions_total": 0,
+          "target_unchanged": true
+        }
+      }
+    },
+    "merge_contract": {
+      "identity": "Game profile comes from selected START.MES; original system.dat has no reliable game signature. Filename/length alone never chooses a profile.",
+      "source_validation": "Exact byte extent; imported completion/CG/scene flags must be0/1. Preferences and unreviewed globals are ignored, rather than copied or interpreted.",
+      "selective_merge": "Only nonzero reviewed source unlocks missing from target are added. Existing nonzero target flags remain unchanged; an empty source cannot erase unlocks.",
+      "preserved": [
+        "phone names",
+        "all native settings/preference fields",
+        "unreviewed bank100 fields",
+        "bank95 voice preference bytes",
+        "bank90 scratch",
+        "ordinary story variables",
+        "runtime read-text journal",
+        "narrative slot availability and files",
+        "opaque excess bytes migrated from PCP1/PCP2"
+      ],
+      "idempotence": "Second import has zero additions and byte-identical target persistence.",
+      "android_existing_transaction": "Source hash/START identity rechecked; current phone progress loaded afresh; merged bytes decoded and checked; previous progress backed up, then progress.dat atomically replaced. Original source/story slots are not written.",
+      "transaction_scope": "This audit exercises core parse/preview/merge/persistence; independent application importer/gallery checks are reported separately."
+    }
+  },
+  "original_story_SAV": {
+    "SC": "unsupported",
+    "FL": "unsupported",
+    "native_slot_counting": "Filename prefix/format independently found in each PE. Counting a neighboring native slot does not parse or convert it.",
+    "actual_native_slots_found": {
+      "SC": 0,
+      "FL": 0
+    },
+    "source_guard": "DesktopRuntime.importNativeSlot requires dc2-3363; Android non-Unity NativeSaveImport only merges original system progress."
+  },
+  "runtime_portable_slots": {
+    "container": "DCS2 containing CVS2 VM state",
+    "android_current_engine": "RuntimeActivity uses shared DesktopLegacy/ DesktopSave rather than a separate SC/FL slot format",
+    "same_game_desktop_android": "Format compatible with matching profile, START identity, saved-script hash, execution contract and codec. This audit did not exercise manual cross-device file transfer.",
+    "SC_to_FL": "rejected: different profiles/native bank layouts",
+    "original_EXE_SAV": "not compatible with DCS2/CVS2",
+    "directory_identity": "profileId + first16 hex SHA256(START.MES); moving same source game to another folder does not by itself change the key"
+  },
+  "verification": {
+    "full_frozen_compile": {
+      "production_and_test_java_sources": 607,
+      "additional_read_only_preview_tool": 1,
+      "result": "PASS",
+      "release_target": "Java8"
+    },
+    "PcScFlProgressTests": {
+      "result": "PASS",
+      "assertions": 341,
+      "fixtures": "Synthetic only; both profiles, exact/mismatched/truncated lengths, all nonallowlist globals, first/last CG and scene bytes, malformed flags, nonzero-target preservation, full parent settings/state prefix, names, story state, PCP1/PCP2 opaque tails, idempotence and reload"
+    },
+    "existing_NativeProgressTests": {
+      "result": "PASS",
+      "assertions": 237
+    },
+    "actual_source_preview": {
+      "result": "PASS",
+      "SC_additions": 0,
+      "FL_additions": 0,
+      "original_sources_equal_native_fallback_templates": true,
+      "target_persistence_unchanged": true
+    },
+    "freeze_manifest": {
+      "path": "build/holdout-contract-20261108/sc-fl-progress-core-v2/inputs-manifest.json",
+      "sha256": "3f5cf58ef5545ba8751dc1a399400cb8afe3c0a795fb4b8fdf246792a9a89742"
+    },
+    "recorded_input_deltas_at_report": [],
+    "results": [
+      {
+        "path": "build/holdout-contract-20261108/sc-fl-progress-core-v2/tests.stdout",
+        "sha256": "d953f63596dfb319b9a76389338e4f37b3f877417a9c2a6b4fd4061359817b9e"
+      },
+      {
+        "path": "build/holdout-contract-20261108/sc-fl-progress-core-v2/real-preview.json",
+        "sha256": "fb41d069be75a51590c1b962d9dd1f813a9e5b0ac252f769f35cbfa63b7d933f"
+      }
+    ]
+  },
+  "source_hashes": [
+    {
+      "path": "runtime/core/src/org/circus/core/NativeProgress.java",
+      "sha256": "b67c5a84449ca98cc464e18751aeb3800669d1265cada6e39abe9ffa93065eae"
+    },
+    {
+      "path": "runtime/tests/org/circus/core/PcScFlProgressTests.java",
+      "sha256": "830a752417407f6da35c6c339237d98c6884d333c09d7351f30181307374c970"
+    }
+  ],
+  "private_evidence": [
+    {
+      "path": "build/holdout-contract-20261108/sc-fl-progress-native-layout-proof.json",
+      "sha256": "44fa8fd8fb1040c8eed85d750fd1b7911a03e8bb2d40e289cfe743e39a14f4d9"
+    },
+    {
+      "path": "build/holdout-contract-20261108/native-default-settings.json",
+      "sha256": "c2cc0f29542647dbcd77476c5b817100ced893cb26905996e16e6d2518d117dd"
+    },
+    {
+      "path": "build/holdout-sc-20261108/native-core-functions/functions/0x4181a0.c",
+      "sha256": "ed4ae6d1470e27cdf221101fbc5de1db4cd08f434bd588e4426fb88ce15c8038"
+    },
+    {
+      "path": "build/holdout-sc-20261108/native-core-functions/functions/0x418400.c",
+      "sha256": "373d36611bd57b3d692af5d514f82631647d4af3d3c6b6923ca7d550ca27e347"
+    },
+    {
+      "path": "build/holdout-contract-20261108/sc-all-global-destinations.json",
+      "sha256": "7f355f28b18e174c8de8cd8af5265c19c3bcf781181902a7e1625b040a29afc0"
+    },
+    {
+      "path": "build/holdout-contract-20261108/sc-bank100-native-xrefs.json",
+      "sha256": "7a40d54d7c871b85256a576d21f10b962f298d6d5207bb1d4fdb3656a282172f"
+    },
+    {
+      "path": "build/holdout-fl-20261108/getter419b10.evidence.json",
+      "sha256": "f84704abf8d4d2088e0649439f43a6ca011b818b1ce1eeb7276d0d945378ae60"
+    },
+    {
+      "path": "build/holdout-fl-20261108/setter419dc0.evidence.json",
+      "sha256": "4bc43d3970d4987731eb283a72761613a8f3fc4b5ccfd42f5f865fa462a4af6a"
+    },
+    {
+      "path": "build/holdout-fl-20261108/credits-poll409210.evidence.json",
+      "sha256": "a8717bc37cc10e0ba8e7fb92c98d665e32fd7c970affb32af51eba3a083d5f08"
+    }
+  ],
+  "rea_evidence_ids": {
+    "sc_core_functions": "ev_00b14491687049eb668072f99c6b5e8194b48f4dc2cf942df4725c1f53e4b9d1",
+    "fl_getter": "ev_8b06bab09d925fccb6ae53a0c1c10a357ff8df795d9929f012591f2d38f167f6",
+    "fl_setter": "ev_a8b7c3803e7b3dd4211ea63535ddc243b42e43c616976fa0dcf41114322b2554",
+    "fl_credits_poll": "ev_ac7d0802b4716f56c6a4d6151a28c3267bd90dd27d09b7e808d92d07a1244703"
+  },
+  "SC_completion_evidence_limit": {
+    "scripts_scanned": 415,
+    "framing_error_explicit": "drm_0621_b1_kko.mes trailing unterminated string0x1E26; incomplete trailing framing is not treated as proof of absence",
+    "import_policy": "No completion globals admitted without native/normal-route producer evidence"
+  },
+  "redistribution": "This report contains metadata, addresses, hashes and validation results only; no original save, script text, executable or media bytes."
+}

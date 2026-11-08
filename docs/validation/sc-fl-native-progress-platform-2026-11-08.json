@@ -1,0 +1,576 @@
+{
+  "date": "2026-11-08",
+  "scope": "Actual read-only SC/FL original zero system.dat discovery + shared NativeProgress Target/apply on isolated two-byte clone + actual DesktopLegacy persistence/restart/old-story-slot restore + original CG and scene menus and playback. Nonzero clone is a test fixture, not evidence that original user progress was completed.",
+  "original_executables_executed": false,
+  "original_game_files_written": false,
+  "public_audit": {
+    "path": "runtime/desktop/src/org/circus/core/ScFlProgressAudit.java",
+    "sha256": "423ac0031d93e17c5531a4314603a164d09b89140ef78c8ad43f2e74f1a4287e",
+    "arguments": "GAME OUTPUT (output must be outside selected original game)"
+  },
+  "private_freeze": {
+    "directory": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z",
+    "sources": 614,
+    "compile_exit": 0,
+    "manifest_sha256": "f0a07545f4a6f7213f704536bab3ce7d3c9b9612b10f5ee6010c445714883fb7",
+    "NativeProgress_frozen_sha256": "b67c5a84449ca98cc464e18751aeb3800669d1265cada6e39abe9ffa93065eae"
+  },
+  "methods": {
+    "native_source": "Audit-only read-only wrapper exposes exactly the three shared NativeProgress known source locations because generic LocalGameStorage deliberately excludes SaveData; game source path is realpath-contained. Shared sourcePaths finds one actual original file for each game.",
+    "fixture": "Clone original byte array and alter only specified CG and scene bytes, preserving exact native size and every other byte. parse and preview before apply.",
+    "persistence": "Start actual original story and save owned slot-4.sav before import. Persist current names KEEP/NAME and transition speed2; load owned progress.dat into shared Target, apply, atomic-save; actual DesktopLegacy non-audit constructor restarts; restore preimport old slot without losing imported progress/current names/settings. Verify original source SHA and owned slot SHA unchanged.",
+    "ui": "Navigate original window03/title/extra then CG and scene scripts. Compare available original actions before/after; click imported CG and verify expected original catalog image in displayed scene; click imported scene using actual control (FL list grid @slot:1) and reach a real original story text wait.",
+    "media": "Nonlooping audio/movie completion simulated for deterministic headless menu progress; no original EXE or screen comparison."
+  },
+  "results": [
+    {
+      "game": "sc",
+      "profile": "dc2sc-3b69",
+      "original_executable_run": false,
+      "original_game_files_written": false,
+      "nonzero_source_scope": "owned clone of zero-progress original system.dat; two gallery/scene bytes only",
+      "media_completion_simulated": true,
+      "original_source": {
+        "path": "AdvData/SaveData/system.dat",
+        "bytes": 2340,
+        "sha256": "22e00ef2b14bea0c0ec41e480835e41210d07090e806d6660f0c4e28801115e1",
+        "summary": {
+          "completion": 0,
+          "music": 0,
+          "cg": 0,
+          "scenes": 0,
+          "total": 0
+        }
+      },
+      "fixture": {
+        "path": "fixture-system.dat",
+        "bytes": 2340,
+        "sha256": "0943486b479a27bc4cd07b24f1021d9707a8e01ffc169e30929574fee41f9211",
+        "CG_bank97_index": 0,
+        "scene_bank98_index": 1,
+        "changed_offsets": [
+          212,
+          1237
+        ]
+      },
+      "preview": {
+        "completion": 0,
+        "music": 0,
+        "cg": 1,
+        "scenes": 1,
+        "total": 2
+      },
+      "applied": {
+        "completion": 0,
+        "music": 0,
+        "cg": 1,
+        "scenes": 1,
+        "total": 2
+      },
+      "CG_actions_added": [
+        "cg1_a"
+      ],
+      "scene_actions_added": [
+        "01"
+      ],
+      "imported_scene_playback": {
+        "script": "aft_0314_e1_otm",
+        "pc": 709,
+        "body_sha256": "8f0d771e38e6cb0152208d78961e4b4db4eddfb4f21ce30e2ce06376b1b7cd69"
+      },
+      "preexisting_story_slot": {
+        "relative_path": "slot-4.sav",
+        "sha256": "9f54bef30f12c419dcedf579ff8ede84ee5e78064434641d7075e160d1ee93cf",
+        "script": "aft_0314_a1_otm",
+        "pc": 7673,
+        "body_sha256": "cac263aa60eb4c5223a7abbd988c24d840c637ee3a0e7aebeb2e51618b58afc7"
+      },
+      "completion_import_scope": "No SC completion globals imported; independently unproven completion fields excluded.",
+      "result": "PASS",
+      "checks": 43,
+      "menus": [
+        {
+          "at": "START@f7f",
+          "actions": [
+            "02",
+            "03"
+          ]
+        },
+        {
+          "at": "title_01@1171",
+          "actions": [
+            "start",
+            "load",
+            "extra",
+            "config",
+            "end"
+          ]
+        },
+        {
+          "at": "story_select@958",
+          "actions": [
+            "after_story",
+            "geki_story",
+            "ultimate_story",
+            "return_title"
+          ]
+        },
+        {
+          "at": "story_select@ccd",
+          "actions": [
+            "after_otm",
+            "after_yme",
+            "after_kko",
+            "after_nnk",
+            "after_anz",
+            "after_mnt",
+            "return_main",
+            "read_after"
+          ]
+        },
+        {
+          "at": "story_select@ccd",
+          "actions": [
+            "after_otm",
+            "after_yme",
+            "after_kko",
+            "after_nnk",
+            "after_anz",
+            "after_mnt",
+            "return_main",
+            "read_after"
+          ]
+        },
+        {
+          "at": "START@f7f",
+          "actions": [
+            "02",
+            "03"
+          ]
+        },
+        {
+          "at": "title_01@1171",
+          "actions": [
+            "start",
+            "load",
+            "extra",
+            "config",
+            "end"
+          ]
+        },
+        {
+          "at": "title_01@246c",
+          "actions": [
+            "cg",
+            "scene",
+            "bgm"
+          ]
+        },
+        {
+          "at": "cg_mode_otm@cadc",
+          "actions": [
+            "yume",
+            "nanaka",
+            "koko",
+            "anzu",
+            "minatu",
+            "other",
+            "page1",
+            "page2",
+            "return"
+          ]
+        },
+        {
+          "at": "af_otm_00@ce6",
+          "actions": [
+            "00",
+            "af_yme",
+            "af_nnk",
+            "af_kko",
+            "af_anz",
+            "af_mnt",
+            "af_other",
+            "back",
+            "next",
+            "return"
+          ]
+        },
+        {
+          "at": "START@f7f",
+          "actions": [
+            "02",
+            "03"
+          ]
+        },
+        {
+          "at": "title_01@1171",
+          "actions": [
+            "start",
+            "load",
+            "extra",
+            "config",
+            "end"
+          ]
+        },
+        {
+          "at": "title_01@246c",
+          "actions": [
+            "cg",
+            "scene",
+            "bgm"
+          ]
+        },
+        {
+          "at": "cg_mode_otm@cadc",
+          "actions": [
+            "yume",
+            "nanaka",
+            "koko",
+            "anzu",
+            "minatu",
+            "other",
+            "page1",
+            "page2",
+            "cg1_a",
+            "return"
+          ]
+        },
+        {
+          "at": "af_otm_00@ce6",
+          "actions": [
+            "00",
+            "01",
+            "af_yme",
+            "af_nnk",
+            "af_kko",
+            "af_anz",
+            "af_mnt",
+            "af_other",
+            "back",
+            "next",
+            "return"
+          ]
+        }
+      ],
+      "report": {
+        "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/sc/report.json",
+        "sha256": "702e3c46ff85ccedd0f7c12be9017b9acd86b49c9f0ddbc35ba4106399f3a904"
+      },
+      "screenshots_private_only": [
+        {
+          "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/sc/01-cg-before.png",
+          "sha256": "18b5638c211b9cbaf4c684b4bc530f9c2f03152b94b9f3664a9e89d299dbe775"
+        },
+        {
+          "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/sc/02-scenes-before.png",
+          "sha256": "0f276c44e8e95d2cecbda8cbd1d608442a8ec28c416998dd112dea1e3a80295f"
+        },
+        {
+          "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/sc/03-imported-title.png",
+          "sha256": "08586c7d096af4f83529f0090b170a479e7692abd24d1d4e02bc54d4ecda564f"
+        },
+        {
+          "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/sc/04-cg-imported.png",
+          "sha256": "2bee9a7d19f11d7a3311c1f5187ba4deaf2a7659658b2d371d4ef12de54cc91b"
+        },
+        {
+          "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/sc/05-imported-CG-viewer.png",
+          "sha256": "f86def4cea31e4d1b94ed96da63d1e7dcad64b6c257a5815218ca9e39a3db1ce"
+        },
+        {
+          "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/sc/06-scenes-imported.png",
+          "sha256": "4678fa5f39f2a5d618a3e1df43531d8d994cf1d5fd434802ea26cb172a3879ec"
+        },
+        {
+          "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/sc/07-imported-scene-playback.png",
+          "sha256": "732681db06338cc4708f31e8b974e9ba38845a6e13b12d34da9c6a856450350e"
+        }
+      ]
+    },
+    {
+      "game": "fl",
+      "profile": "dc2fl-9c69",
+      "original_executable_run": false,
+      "original_game_files_written": false,
+      "nonzero_source_scope": "owned clone of zero-progress original system.dat; two gallery/scene bytes only",
+      "media_completion_simulated": true,
+      "original_source": {
+        "path": "AdvData/SaveData/system.dat",
+        "bytes": 2032,
+        "sha256": "c700e29dcc9607e1a99559ff61e5085b38a2faad9f82687fc8a22b05fdd6dbe6",
+        "summary": {
+          "completion": 0,
+          "music": 0,
+          "cg": 0,
+          "scenes": 0,
+          "total": 0
+        }
+      },
+      "fixture": {
+        "path": "fixture-system.dat",
+        "bytes": 2032,
+        "sha256": "6db57f85ac6083bae6d0551bfef3e435aa04b55d8a2557201275e0a716874dc5",
+        "CG_bank97_index": 0,
+        "scene_bank98_index": 97,
+        "changed_offsets": [
+          216,
+          953
+        ]
+      },
+      "preview": {
+        "completion": 0,
+        "music": 0,
+        "cg": 1,
+        "scenes": 1,
+        "total": 2
+      },
+      "applied": {
+        "completion": 0,
+        "music": 0,
+        "cg": 1,
+        "scenes": 1,
+        "total": 2
+      },
+      "CG_actions_added": [
+        "cg0"
+      ],
+      "scene_actions_added": [
+        "sce1"
+      ],
+      "imported_scene_playback": {
+        "script": "aft_1122_a1_akn",
+        "pc": 13193,
+        "body_sha256": "5cfce092aa2872a8c62eb0ac5eb801d22dc2b2bde88dba782cfcd0c358cce961"
+      },
+      "preexisting_story_slot": {
+        "relative_path": "slot-4.sav",
+        "sha256": "5586c63cc7dd030716d329e616e43a30d1161ed34004905b080b2e3eaaba0206",
+        "script": "aft_1122_a0_akn",
+        "pc": 12942,
+        "body_sha256": "7ef3cf70450e366839d3b5704baaa4b7a93a705777e6dc7d47f51f0a6d1a244c"
+      },
+      "completion_import_scope": "FL allowlist0..13/52/53 supported by shared importer; this fixture changes only CG/seen.",
+      "result": "PASS",
+      "checks": 44,
+      "menus": [
+        {
+          "at": "START@1047",
+          "actions": [
+            "02",
+            "03"
+          ]
+        },
+        {
+          "at": "main@fad",
+          "actions": [
+            "start",
+            "load",
+            "extra",
+            "config",
+            "end"
+          ]
+        },
+        {
+          "at": "sce_sel@8a5",
+          "actions": [
+            "sce01",
+            "sce02",
+            "sce03",
+            "return"
+          ]
+        },
+        {
+          "at": "sce_sel01@64c",
+          "actions": [
+            "sce01_set",
+            "sce02_set",
+            "sce03_set",
+            "sce04_set",
+            "sce05_set",
+            "sce06_set",
+            "return"
+          ]
+        },
+        {
+          "at": "sce_sel01@64c",
+          "actions": [
+            "sce01",
+            "sce02_set",
+            "sce03_set",
+            "sce04_set",
+            "sce05_set",
+            "sce06_set",
+            "return"
+          ]
+        },
+        {
+          "at": "START@1047",
+          "actions": [
+            "02",
+            "03"
+          ]
+        },
+        {
+          "at": "main@fad",
+          "actions": [
+            "start",
+            "load",
+            "extra",
+            "config",
+            "end"
+          ]
+        },
+        {
+          "at": "main@2337",
+          "actions": [
+            "cg",
+            "scene",
+            "bgm"
+          ]
+        },
+        {
+          "at": "cg_akn@c6d",
+          "actions": [
+            "mya",
+            "myk",
+            "erk",
+            "ais",
+            "mhr",
+            "cmn",
+            "page--",
+            "page++",
+            "return"
+          ]
+        },
+        {
+          "at": "sce_akn@2c61",
+          "actions": [
+            "mya",
+            "myk",
+            "erk",
+            "ais",
+            "mhr",
+            "akk",
+            "back",
+            "next",
+            "return",
+            "@slot:0",
+            "@slot:1",
+            "@slot:2",
+            "@slot:3",
+            "@slot:4",
+            "@slot:5",
+            "@slot:6",
+            "@slot:7",
+            "sce0"
+          ]
+        },
+        {
+          "at": "START@1047",
+          "actions": [
+            "02",
+            "03"
+          ]
+        },
+        {
+          "at": "main@fad",
+          "actions": [
+            "start",
+            "load",
+            "extra",
+            "config",
+            "end"
+          ]
+        },
+        {
+          "at": "main@2337",
+          "actions": [
+            "cg",
+            "scene",
+            "bgm"
+          ]
+        },
+        {
+          "at": "cg_akn@c6d",
+          "actions": [
+            "mya",
+            "myk",
+            "erk",
+            "ais",
+            "mhr",
+            "cmn",
+            "cg0",
+            "page--",
+            "page++",
+            "return"
+          ]
+        },
+        {
+          "at": "sce_akn@2c61",
+          "actions": [
+            "mya",
+            "myk",
+            "erk",
+            "ais",
+            "mhr",
+            "akk",
+            "back",
+            "next",
+            "return",
+            "@slot:0",
+            "@slot:1",
+            "@slot:2",
+            "@slot:3",
+            "@slot:4",
+            "@slot:5",
+            "@slot:6",
+            "@slot:7",
+            "sce0",
+            "sce1"
+          ]
+        }
+      ],
+      "report": {
+        "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/fl/report.json",
+        "sha256": "48bf48404250105c7bde28ccc420b6a5065a3d25fd2f6cc3cfc751bd09f7b7d0"
+      },
+      "screenshots_private_only": [
+        {
+          "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/fl/01-cg-before.png",
+          "sha256": "d5e4deed9fede7f5feb7f0e4c359ff6e98b13d5eec5b3ffca33e4711d42ca8b3"
+        },
+        {
+          "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/fl/02-scenes-before.png",
+          "sha256": "a4828bb87cc5fd2d57eaf6acfc932babb437ef7e749deb0f456c571ba7f2d9a3"
+        },
+        {
+          "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/fl/03-imported-title.png",
+          "sha256": "b34208c50b80330301e185e5501361968145cc788eb37874f575097dc1f6f05f"
+        },
+        {
+          "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/fl/04-cg-imported.png",
+          "sha256": "15b24f1b0a86d49a3c36bdae1e526a35d56f6dcf0eef2e7e7694c8fab1c300f9"
+        },
+        {
+          "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/fl/05-imported-CG-viewer.png",
+          "sha256": "0ff19e8cab776a2b03ee3f3b23be2fcd1e8de6fa6e1aa92f9e60202d2f73e669"
+        },
+        {
+          "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/fl/06-scenes-imported.png",
+          "sha256": "7e8787da2d398a85936364e3b81fbfd72748d3adb236af121ff436ccc23dac37"
+        },
+        {
+          "path": "build/sc-fl-progress-audit-20261108/full-freeze-20261108T082036744116Z/fl/07-imported-scene-playback.png",
+          "sha256": "27e97192e0dd774e035bbf45092dfe74b868d1ad59d32e2fa531cf4001ae2139"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Native original files are fresh zero-progress templates, so original-source preview/apply result is precisely zero. Nonzero unlock UI is proven with isolated edited clones only.",
+    "SC completion globals are excluded: no independently proven completion allowlist exists.",
+    "FL completion0..13/52/53 is tested by shared importer unit contracts; these platform fixtures modify only CG/seen.",
+    "No native story SAV import is claimed; tested slot is existing runtime-owned desktop save and retains unchanged file bytes.",
+    "No whole-engine or original-EXE full-screen equivalence is claimed."
+  ]
+}

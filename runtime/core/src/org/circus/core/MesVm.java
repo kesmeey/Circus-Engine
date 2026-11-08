@@ -308,6 +308,9 @@ public final class MesVm {
         case "ui.confirm":case "dm.ui.confirm":{
             emit(op,args,r.bytes);if(host instanceof MenuHost){byte[] action=((MenuHost)host).automaticMenuAction();if(action!=null){Integer target=script.label(action);if(target==null)throw new IOException("Automatic UI label missing");next=target;nativeControl=bound;}}break;
         }
+        case "dcdx.command":{
+            emit(op,args,r.bytes);if(host instanceof MenuHost){byte[] action=((MenuHost)host).automaticMenuAction();if(action!=null){Integer target=script.label(action);if(target==null)throw new IOException("DCDX system action label missing");next=target;}}break;
+        }
         case "text.speaker":case "text.body":emit(op,args,script.nativeText(r));break;
         case "choice.item":{
             if(!(host instanceof ChoiceHost))throw new IOException("Choice-aware host required");

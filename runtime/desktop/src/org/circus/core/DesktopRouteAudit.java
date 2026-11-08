@@ -66,7 +66,7 @@ public final class DesktopRouteAudit {
                         log.write(Json.text(Json.obj("menu",where,"selected",selected,"actions",actions)));log.newLine();e.choose(selected);continue;
                     }
                     boolean stable=e instanceof DesktopLegacy?((DesktopLegacy)e).host().textWaiting:e.textWaiting();
-                    if(stable&&!where.equals(previous)){previous=where;lines++;if(lines%1000==0){e.render();byte[] saved=e.snapshot();e.restore(saved);}}
+                    if(stable&&!where.equals(previous)){previous=where;lines++;started=true;if(lines%1000==0){e.render();byte[] saved=e.snapshot();e.restore(saved);}}
                     for(int ch=0;ch<6;ch++)e.audioCompleted(ch,e.audioGeneration(ch));
                     m=e.vm();m.signalHost(e.ticket(),MesVm.HostSignal.MEDIA_COMPLETE);m.signalHost(e.ticket(),MesVm.HostSignal.TEXT_COMPLETE);
                     if(m.status()==MesVm.Status.WAIT_HOST&&(lines==0||m.scriptName().equalsIgnoreCase("MAIN")||e.textWaiting()||(e instanceof DesktopDd&&((DesktopDd)e).host.remainingMillis()<0)||(e instanceof DesktopLegacy&&((DesktopLegacy)e).host().remainingMillis()<0)))e.click(e.width/2,e.height/2,false);

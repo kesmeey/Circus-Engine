@@ -25,10 +25,13 @@ public final class DesktopLegacy extends DesktopEngine {
     private FlCreditsRaster flCreditsRaster;
     private static final class FlCompositionRaster {FlComposition owner;long generation;int consumed;int[] pixels,target,prepared;}
     private FlCompositionRaster flCompositionRaster;
+    private static final class DcdxBannerRaster {DcdxBanner owner;UiCapture initial,background;long generation;int consumed;int[] pixels,bg;}
+    private DcdxBannerRaster dcdxBannerRaster;
     private int flCaptureMask=-1;
     private boolean flCaptureMessageText=true,flCaptureHideActors;
     private Crx.Image flLongCredits;private String flLongCreditsName="";
     private final Map<Dc2Motion,MotionRaster> motionRasters=new LinkedHashMap<Dc2Motion,MotionRaster>(4,.75f,true){protected boolean removeEldestEntry(Map.Entry<Dc2Motion,MotionRaster> entry){return size()>4;}};
+    private final Map<String,Crx.Image> dcdxMenuImages=new LinkedHashMap<String,Crx.Image>(4,.75f,true){protected boolean removeEldestEntry(Map.Entry<String,Crx.Image> entry){return size()>4;}};
     private long textClock,textTicket=-1;
     /** Newest story line; the system menu clears {@code body}, so a save made from SAVE.mes still needs it. */
     private String lastLine="";
@@ -43,7 +46,7 @@ public final class DesktopLegacy extends DesktopEngine {
     private int pendingSystemEvent;
     private final Dc2NativeData nativeData;
     public DesktopLegacy(CircusResources data,TextCodec codec,boolean audit)throws Exception {
-        super(data,codec,audit,PcHost.supports(data.profile)?800:1024,PcHost.supports(data.profile)?600:576);
+        super(data,codec,audit,data.profileId.equals("dcdx-7769")?1024:PcHost.supports(data.profile)?800:1024,data.profileId.equals("dcdx-7769")?576:PcHost.supports(data.profile)?600:576);
         nativeFiles=data.profileId.equals("dcpc-2063")?new DesktopNativeFiles(saveDirectory):null;
         final Path progress=saveDirectory.resolve("progress.dat");
         session=new Dc2Session(data,codec,h->{
@@ -54,7 +57,7 @@ public final class DesktopLegacy extends DesktopEngine {
             // precedence over an older portable account saved at another time.
             if(nativeFiles!=null&&!audit&&Files.exists(nativeFiles.directory().resolve("system.dat")))((PcHost)h).reloadNativeSettingsFromBoundIo();
         });captures=new DesktopCaptures(width,height,this::drawCapture);host().captureRenderer=captures;nativeData=PcHost.supports(data.profile)?null:new Dc2NativeData(data,codec);
-        if(data.profileId.equals("dc2-3363")||data.profileId.equals("dcpc-2063")||data.profileId.equals("dc2fl-9c69"))((PcHost)host()).nativeFrameCapture=this::captureFramebuffer;
+        if(data.profileId.equals("dc2-3363")||data.profileId.equals("dcpc-2063")||data.profileId.equals("dc2fl-9c69")||data.profileId.equals("dcdx-7769"))((PcHost)host()).nativeFrameCapture=this::captureFramebuffer;
         if(host() instanceof FlHost)((FlHost)host()).compositionCapture=this::captureFlCompositionFrame;
         if(originalDc2())((PcHost)host()).nativeMessageTemplateCapture=this::captureOriginalMessageTemplate;
         if(pc1()!=null)session.pc1CandidateCapture=()->captureSaveMetadata(false).encode();
@@ -98,6 +101,11 @@ public final class DesktopLegacy extends DesktopEngine {
         Dc2Host h=host();
         if(h instanceof FlHost&&((FlHost)h).flCredits.active){((FlHost)h).endingInput(right?2:1);return;}
         if(h instanceof FlHost&&((FlHost)h).flComposition.active)return;
+        if(h instanceof DcdxHost&&((DcdxHost)h).dcdxBanner.active)return;
+        if(h instanceof DcdxHost&&((DcdxHost)h).dcdxMenu.active){
+            if(!right){int item=((DcdxHost)h).dcdxMenu.hit(x,y);for(int n=0;n<h.ui.buttons.size();n++)if(h.ui.buttons.get(n).binding==item){session.vm.activateMenu(h.waitTicket(),n);break;}}
+            return;
+        }
         if(originalDc2()&&((PcHost)h).dc2CharacterEnding.active){Dc2CharacterEnding ending=((PcHost)h).dc2CharacterEnding;ending.input(right?2:1,vm().variables.read(100,ending.clearIndex()));return;}
         if(originalDc2()&&((PcHost)h).dc2Credits.active){((PcHost)h).dc2Credits.input(right?2:1,vm().variables.read(100,59));return;}
         if(pc1()!=null&&pc1().returning())return;
@@ -186,6 +194,8 @@ public final class DesktopLegacy extends DesktopEngine {
         toolbar=auto=rapid=false;return true;
     }
     @Override public boolean modalKey(int code)throws IOException{
+        if(host() instanceof DcdxHost&&((DcdxHost)host()).dcdxBanner.active)return true;
+        if(host() instanceof DcdxHost&&((DcdxHost)host()).dcdxMenu.active&&(code==KeyEvent.VK_ENTER||code==KeyEvent.VK_SPACE||code==KeyEvent.VK_ESCAPE||code==KeyEvent.VK_LEFT||code==KeyEvent.VK_RIGHT||code==KeyEvent.VK_UP||code==KeyEvent.VK_DOWN))return ((DcdxHost)host()).nativeMenuKey(code==KeyEvent.VK_ENTER?13:code);
         if(host() instanceof FlHost&&(((FlHost)host()).flCredits.active||((FlHost)host()).flComposition.active)&&(code==KeyEvent.VK_ENTER||code==KeyEvent.VK_SPACE||code==KeyEvent.VK_ESCAPE))return true;
         if(originalDc2()&&(((PcHost)host()).dc2CharacterEnding.active||((PcHost)host()).dc2Credits.active)&&(code==KeyEvent.VK_ENTER||code==KeyEvent.VK_SPACE||code==KeyEvent.VK_ESCAPE))return true;
         Pc1Runtime nativeText=pc1();if(nativeText!=null&&nativeText.returning())return true;if(nativeText==null||nativeText.waitKind()!=7&&nativeText.waitKind()!=9)return false;
@@ -197,7 +207,7 @@ public final class DesktopLegacy extends DesktopEngine {
         if(code==KeyEvent.VK_SPACE){hidden=!hidden;return true;}
         return false;
     }
-    public void hover(int x,int y)throws IOException{if(pc1()!=null&&pc1().returning())return;int old=hovered;hovered=-1;java.util.List<Dc2Ui.Button> bs=buttons();for(int n=0;n<bs.size();n++){Dc2Ui.Button b=bs.get(n);if(x>=b.left&&x<b.right&&y>=b.top&&y<b.bottom)hovered=n;}if(host().ui.waiting)host().hoverMenu(hovered<host().ui.buttons.size()?hovered:-1);else if(old!=hovered&&hovered>=0){if(host() instanceof PcHost)((PcHost)host()).hoverButton(bs.get(hovered));else if(bs.get(hovered).hoverSound!=255)host().play(1,resources.named("sound",bs.get(hovered).hoverSound),false);}if(pc1()!=null)host().ui.hovered=hovered;if(host() instanceof PcHost){Pc2Map m=((PcHost)host()).map;if(m.active&&m.selected<0){m.hovered=-1;for(int n=0;n<m.regions().length;n++){int[] r=m.regions()[n];if(x>=r[0]&&x<r[2]&&y>=r[1]&&y<r[3])m.hovered=n;}}}}
+    public void hover(int x,int y)throws IOException{if(pc1()!=null&&pc1().returning())return;int old=hovered;hovered=-1;java.util.List<Dc2Ui.Button> bs=buttons();if(host() instanceof DcdxHost&&((DcdxHost)host()).dcdxMenu.active){int item=((DcdxHost)host()).dcdxMenu.hit(x,y);for(int n=0;n<bs.size();n++)if(bs.get(n).binding==item)hovered=n;}else for(int n=0;n<bs.size();n++){Dc2Ui.Button b=bs.get(n);if(x>=b.left&&x<b.right&&y>=b.top&&y<b.bottom)hovered=n;}if(host().ui.waiting)host().hoverMenu(hovered<host().ui.buttons.size()?hovered:-1);else if(old!=hovered&&hovered>=0){if(host() instanceof PcHost)((PcHost)host()).hoverButton(bs.get(hovered));else if(bs.get(hovered).hoverSound!=255)host().play(1,resources.named("sound",bs.get(hovered).hoverSound),false);}if(pc1()!=null)host().ui.hovered=hovered;if(host() instanceof PcHost){Pc2Map m=((PcHost)host()).map;if(m.active&&m.selected<0){m.hovered=-1;for(int n=0;n<m.regions().length;n++){int[] r=m.regions()[n];if(x>=r[0]&&x<r[2]&&y>=r[1]&&y<r[3])m.hovered=n;}}}}
     public java.util.List<Control> controls(){if(pc1()!=null&&pc1().returning())return Collections.emptyList();java.util.List<Control> out=new ArrayList<>();for(Dc2Ui.Button b:buttons())if(!b.action.isEmpty())out.add(new Control(b.action,b.left,b.top,b.right,b.bottom));if(host() instanceof PcHost&&((PcHost)host()).nameInput.active){PcNameInput name=((PcHost)host()).nameInput;if(name.confirming)return out;for(int n=0;n<8;n++){int x=336+(n/4)*192+(n%4)*32;out.add(new Control("@name:field:"+n,x,40,x+32,72));}java.util.List<String> rows=name.visibleRows();for(int r=0;r<rows.size();r++)for(int c=0;c<Math.min(17,rows.get(r).length());c++){int x=280+c*24,y=96+r*24+(r>=4?8:0);if(rows.get(r).charAt(c)!='　')out.add(new Control("@name:char:"+(r*17+c),x,y,x+24,y+24));}}return out;}
     private int textSpeed()throws IOException{return host().read(99,host() instanceof PcHost?13:auto?27:26);}
     private long textDuration()throws IOException{return TextPlayback.duration(resources.profile.id,textSpeed(),body().codePointCount(0,body().length()));}
@@ -309,6 +319,11 @@ public final class DesktopLegacy extends DesktopEngine {
     }
     private void scene(Graphics2D g,Dc2Scene.Frame f,int x,int y)throws IOException {
         if(host() instanceof FlHost&&!((FlHost)host()).fifthCharacter.isEmpty())throw new IOException("Unimplemented nonempty FL fifth actor renderer");
+        if(resources.profileId.equals("dcdx-7769")){
+            BufferedImage composed=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D cg=composed.createGraphics();
+            try{cg.setColor(Color.BLACK);cg.fillRect(0,0,width,height);at(cg,f.slots[1],-x,-y);dcdxActors(composed,f);drawEffects(cg);for(Dc2Ui.Quad q:f.quads)quad(cg,q,f.slots,false);}finally{cg.dispose();}
+            try{g.drawImage(composed,0,0,null);}finally{composed.flush();}return;
+        }
         boolean original=resources.profileId.equals("dc2-3363");
         if(original){
             BufferedImage composed=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D cg=composed.createGraphics();
@@ -331,6 +346,29 @@ public final class DesktopLegacy extends DesktopEngine {
             if(pc2){PcActorLayout r=resources.profileId.equals("dc2sc-3b69")?PcActorLayout.spring(a,p.raw.width,p.raw.height):PcActorLayout.dc2pc(a,p.raw.width,p.raw.height);g.drawImage(p.image,r.x,r.y,r.x+r.width,r.y+r.height,0,0,p.raw.width,p.raw.height,null);}
             else{AffineTransform tr=g.getTransform();g.translate(a[0]+a[3],a[1]+a[4]);g.scale(a[2]/100.0,a[2]/100.0);g.drawImage(p.image,p.raw.x-a[3],p.raw.y-a[4],null);g.setTransform(tr);}
         }}
+    }
+    /** DCDX's global actor weight is combined with per-pixel opacity before
+     * integer division. Java2D global-alpha rounding is a different operation. */
+    private void dcdxActors(BufferedImage target,Dc2Scene.Frame frame)throws IOException{
+        int[] pixels=target.getRGB(0,0,width,height,null,0,width);
+        for(int actor=0;actor<4;actor++)for(int slot:new int[]{actor+2,actor+6}){
+            Picture picture=picture(frame.slots[slot]);if(picture==null)continue;Crx.Image raw=picture.raw;
+            if(raw.bpp!=24&&raw.bpp!=32)throw new IOException("Unreviewed DCDX actor depth "+raw.bpp);
+            int[] pose=frame.actors[actor];DcdxActorLayout place=DcdxActorLayout.place(pose,raw.width,raw.height,pose[5]);
+            if(place.width<=0||place.height<=0||place.weight16==0)continue;
+            int left=Math.max(0,place.x),top=Math.max(0,place.y),right=(int)Math.min((long)width,(long)place.x+place.width),bottom=(int)Math.min((long)height,(long)place.y+place.height);
+            for(int y=top;y<bottom;y++)for(int x=left;x<right;x++){
+                int dx=x-place.x,dy=y-place.y;
+                int sx=DcdxActorLayout.stretchSample(raw.width,place.width,dx),sy=DcdxActorLayout.stretchSample(raw.height,place.height,dy),at=sy*raw.stride+sx*(raw.bpp/8);
+                int color=((raw.pixels[at+2]&255)<<16)|((raw.pixels[at+1]&255)<<8)|(raw.pixels[at]&255);
+                if(raw.bpp==24&&color==0xff00ff)continue;
+                int opacity=raw.bpp==32?raw.pixels[at+3]&255:255,weight=opacity*place.weight16;if(weight==0)continue;
+                int index=y*width+x,old=pixels[index],inverse=4080-weight;
+                int r=((old>>>16&255)*inverse+(color>>>16&255)*weight)/4080,gc=((old>>>8&255)*inverse+(color>>>8&255)*weight)/4080,b=((old&255)*inverse+(color&255)*weight)/4080;
+                pixels[index]=0xff000000|r<<16|gc<<8|b;
+            }
+        }
+        target.setRGB(0,0,width,height,pixels,0,width);
     }
     private BufferedImage actorChange(Dc2ActorChange value)throws IOException{
         ActorChangeRaster raster=actorChangeRaster;
@@ -432,6 +470,7 @@ public final class DesktopLegacy extends DesktopEngine {
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);Dc2Host h=host();
             if(flCaptureMask<0&&h instanceof FlHost&&((FlHost)h).endingVisible()){drawFlCredits(result,(FlHost)h);return result;}else if(flCaptureMask<0){flCreditsRaster=null;if(flLongCredits!=null){flLongCredits=null;flLongCreditsName="";}}
             if(flCaptureMask<0&&h instanceof FlHost&&((FlHost)h).compositionVisible()){drawFlComposition(result,((FlHost)h).flComposition);return result;}else if(flCaptureMask<0)flCompositionRaster=null;
+            if(h instanceof DcdxHost&&((DcdxHost)h).bannerVisible()){drawDcdxBanner(result,((DcdxHost)h).dcdxBanner);return result;}else dcdxBannerRaster=null;
             if(originalDc2()&&((PcHost)h).dc2EndingUnderlay!=null){BufferedImage ending=originalCharacterEndingFrame();try{g.drawImage(ending,0,0,null);}finally{ending.flush();}return result;}
             if(originalDc2()&&((PcHost)h).dc2CreditsUnderlay!=null){drawOriginalCredits(g);return result;}
             if(originalDc2()&&!((PcHost)h).dc2Map.active&&((PcHost)h).actorChangeVisible()){g.drawImage(actorChange(((PcHost)h).dc2ActorChange),0,0,null);return result;}
@@ -439,6 +478,7 @@ public final class DesktopLegacy extends DesktopEngine {
             boolean mapBackdrop=h instanceof PcHost&&((PcHost)h).dc2Map.backdrop;
             if(h instanceof PcHost&&(((PcHost)h).dc2Map.active||mapBackdrop)){drawDc2Map(g,(PcHost)h);if(((PcHost)h).dc2Map.active)return result;}
             else{if(h instanceof PcHost&&((PcHost)h).frozenOriginalBatch()!=null){g.drawImage(captures.resolve(((PcHost)h).frozenOriginalBatch()),0,0,null);return result;}if(h instanceof PcHost&&((PcHost)h).map.active){drawMap(g,(PcHost)h);return result;}if(h.scene.nativeMotion!=null){g.drawImage(motion(h.scene.nativeMotion),0,0,null);if(originalDc2()&&!h.scene.nativeMotion.prepareOnly)return result;}else scene(g,h.scene.shown);if(h instanceof PcHost&&((PcHost)h).sceneCommandDeferred())return result;drawTransition(g);}
+            if(h instanceof DcdxHost&&((DcdxHost)h).menuVisible()){drawDcdxMenu(result,((DcdxHost)h).dcdxMenu);return result;}else dcdxMenuImages.clear();
             if(h instanceof PcHost&&((PcHost)h).pcCredits.active){PcCredits c=((PcHost)h).pcCredits;int first=(int)c.scroll()/c.stripHeight();g.setColor(Color.BLACK);g.fillRect(0,0,width,height);for(int n=first;n<=Math.min(c.lastStrip(),first+1);n++)at(g,c.image(n),0,(int)(n*c.stripHeight()-c.scroll()));return result;}if(h.credits.active()){drawCredits(g);return result;}
             if(!mapBackdrop&&!h.body.isEmpty()&&!hidden&&(flCaptureMask<0||(flCaptureMask&16)!=0&&flCaptureMessageText)){
                 boolean nativePc1=h instanceof PcHost&&((PcHost)h).pc1!=null;
@@ -490,6 +530,58 @@ public final class DesktopLegacy extends DesktopEngine {
             if(raw.bpp==24&&(long)layer.x+raw.width>=width&&(long)layer.y+raw.height>=height){raster.consumed=n;break outer;}
         }
         while(raster.consumed<journal.size())applyFlCreditsFrame(raster.pixels,journal.get(raster.consumed++));
+        target.setRGB(0,0,width,height,raster.pixels,0,width);
+    }
+    /** Native menu atlases are read as clipped BGR surfaces. Keeping the raw
+     * sheet avoids a full ARGB expansion of the four-screen preview atlas. */
+    private void drawDcdxMenu(BufferedImage target,DcdxMenu menu)throws IOException{
+        int[] pixels=target.getRGB(0,0,width,height,null,0,width);
+        for(DcdxMenu.Layer layer:menu.layers()){
+            if(layer.dw<=0||layer.dh<=0||layer.alpha<=0)continue;
+            Crx.Image raw=dcdxMenuImages.get(layer.resource);if(raw==null){raw=resources.image(layer.resource);dcdxMenuImages.put(layer.resource,raw);}
+            if(raw.bpp!=24&&raw.bpp!=32)throw new IOException("Unreviewed DCDX menu image depth "+raw.bpp);
+            int left=Math.max(0,layer.x),top=Math.max(0,layer.y),right=(int)Math.min((long)width,(long)layer.x+layer.dw),bottom=(int)Math.min((long)height,(long)layer.y+layer.dh);
+            for(int y=top;y<bottom;y++)for(int x=left;x<right;x++){
+                int sx=layer.sx+(int)((long)(x-layer.x)*layer.sw/layer.dw),sy=layer.sy+(int)((long)(y-layer.y)*layer.sh/layer.dh);
+                if(sx<0||sy<0||sx>=raw.width||sy>=raw.height)continue;
+                int at=sy*raw.stride+sx*(raw.bpp/8),color=((raw.pixels[at+2]&255)<<16)|((raw.pixels[at+1]&255)<<8)|(raw.pixels[at]&255);
+                if(layer.keyed&&raw.bpp==24&&color==0xff00ff)continue;
+                int opacity=raw.bpp==32?raw.pixels[at+3]&255:255;if(opacity==0)continue;
+                int index=y*width+x,old=pixels[index],inverse=255-opacity;
+                int r=((old>>>16&255)*inverse+(color>>>16&255)*opacity)/255,gc=((old>>>8&255)*inverse+(color>>>8&255)*opacity)/255,b=((old&255)*inverse+(color&255)*opacity)/255;
+                pixels[index]=0xff000000|r<<16|gc<<8|b;
+            }
+        }
+        target.setRGB(0,0,width,height,pixels,0,width);
+    }
+    private void drawDcdxBanner(BufferedImage target,DcdxBanner owner)throws IOException{
+        DcdxBannerRaster raster=dcdxBannerRaster;
+        // A loaded snapshot can reuse the owner/generation while rewinding its
+        // journal. Rebuild from its immutable starting front in that case.
+        if(raster==null||raster.owner!=owner||raster.generation!=owner.generation||raster.initial!=owner.initial||raster.background!=owner.bg||raster.consumed>owner.rawLayers().size()){
+            if(owner.initial==null||owner.bg==null)throw new IOException("DCDX banner surfaces absent");
+            raster=new DcdxBannerRaster();raster.owner=owner;raster.initial=owner.initial;raster.background=owner.bg;raster.generation=owner.generation;
+            raster.pixels=captures.resolve(owner.initial).getRGB(0,0,width,height,null,0,width);
+            raster.bg=captures.resolve(owner.bg).getRGB(0,0,width,height,null,0,width);dcdxBannerRaster=raster;
+        }
+        java.util.List<DcdxBanner.Layer> journal=owner.rawLayers();
+        while(raster.consumed<journal.size()){
+            DcdxBanner.Layer layer=journal.get(raster.consumed++);
+            int left=Math.max(0,layer.x),top=Math.max(0,layer.y),right=Math.min(width,layer.x+layer.dw),bottom=Math.min(height,layer.y+layer.dh);
+            if(layer.kind==DcdxBanner.RESTORE_BG){
+                for(int y=top;y<bottom;y++)for(int x=left;x<right;x++){int sx=layer.sx+x-layer.x,sy=layer.sy+y-layer.y;if(sx>=0&&sy>=0&&sx<width&&sy<height)raster.pixels[y*width+x]=raster.bg[sy*width+sx];}
+            }else{
+                Crx.Image raw=dcdxMenuImages.get(layer.resource);if(raw==null){raw=resources.image(layer.resource);dcdxMenuImages.put(layer.resource,raw);}
+                if(raw.bpp!=24&&raw.bpp!=32)throw new IOException("Unreviewed DCDX banner image depth "+raw.bpp);
+                for(int y=top;y<bottom;y++)for(int x=left;x<right;x++){
+                    int sx=layer.sx+x-layer.x,sy=layer.sy+y-layer.y;if(sx<0||sy<0||sx>=raw.width||sy>=raw.height)continue;
+                    int at=sy*raw.stride+sx*(raw.bpp/8),color=(raw.pixels[at+2]&255)<<16|(raw.pixels[at+1]&255)<<8|raw.pixels[at]&255;
+                    if(raw.bpp==24&&color==0xff00ff)continue;int opacity=raw.bpp==32?raw.pixels[at+3]&255:255;if(opacity==0)continue;
+                    int index=y*width+x,old=raster.pixels[index],inverse=255-opacity;
+                    raster.pixels[index]=0xff000000|(((old>>>16&255)*inverse+(color>>>16&255)*opacity)/255)<<16|(((old>>>8&255)*inverse+(color>>>8&255)*opacity)/255)<<8|((old&255)*inverse+(color&255)*opacity)/255;
+                }
+            }
+        }
         target.setRGB(0,0,width,height,raster.pixels,0,width);
     }
     private void drawFlComposition(BufferedImage target,FlComposition owner)throws IOException{

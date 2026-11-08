@@ -17,7 +17,8 @@ PC={
 }
 EXES={'dc3dd-a5a8':Path('D:/gal/DC3DD/DC3DD.EXE'),'dc2dm-9d72':Path('D:/gal/DC2DM/DC2DM.EXE'),
       'dc2sc-3b69':Path('D:/gal/D.C.II Spring Celebration/D.C.II S.C/dc2sc_CHS.exe'),
-      'dc2fl-9c69':Path('D:/gal/DC2FIL/DC2FL.exe')}
+      'dc2fl-9c69':Path('D:/gal/DC2FIL/DC2FL.exe'),
+      'dcdx-7769':Path('D:/gal/DCDX/DCDX.EXE')}
 
 NOTES={
  'dm.scene.character_overlay':'DM 42FAEE 设置/清除角色附属图。412504、432488、432699 调用 428990：先移除附属图的 _B 和色调标记，再继承人物资源的 _B 近景后缀及 @/* 色调，保留附属图归档名；更换人物而保留附属图时也重新匹配。',
@@ -134,7 +135,7 @@ def main():
             operation=p['opcodes'].get(f'0x{op:02X}','unknown')
             shape=next((kind for kind,lo,hi in framing[pid]['ranges'] if lo<=op<=hi),'unknown')
             description=NOTES.get(operation,sem['operations'].get(operation,{}).get('description','需继续核对参数及宿主副作用。'))
-            status='unknown' if operation in ['unknown','native.unmodelled'] else 'unimplemented' if operation in ['pc.external'] else 'partial_binding'
+            status='unknown' if operation in ['unknown','native.unmodelled'] else 'unimplemented' if operation in ['pc.external','dcdx.external_program'] else 'partial_binding'
             if operation in ['variable.update','variable.copy','variable.sum_list','variable.add_variable','branch.compare','arguments.extend','label.named','block.marker']:status='reviewed_primitive'
             logical=LOGICAL.get(operation)
             rows.append({'opcode':f'0x{op:02X}','handler_va':f'0x{handler:08X}','args':shape,'logical_operands':logical,'operation':operation,'behavior':description,'semantic_status':status,'shared_fallback':handler==fallback})

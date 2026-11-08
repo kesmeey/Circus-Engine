@@ -3,6 +3,12 @@
 本文件收录各版本的变更说明。开发构建产物都在本机 `build/` 下，不随仓库分发；
 带 `-dev` 的是开发签名包，可以覆盖安装，不要卸载或清除应用数据。
 
+## 0.14.9-dcdx-import-dev（Windows／Android）
+
+新增独立DCDX宿主、两个自然剧情入口、原轮转及滑动菜单；完整路线、独立MINI和特殊消费者仍有边界。Android新增SC/FL系统进度合并，SC为CG/已读，FL另含已确认通关标记；SC/FL/DCDX原Windows剧情槽转换仍未实现，DCDX系统进度未导入。
+
+准确源码/平台/打包范围见[本批验证](validation/dcdx-import-workflows-source-2026-11-08.json)。固定Windows0.14.8与旧APK均保留。
+
 ## Android
 
 按时间倒序。每个版本的范围、验证方式和已知缺口见对应 `ANDROID_*.md`。

@@ -4,7 +4,8 @@ import java.io.*;
 import java.util.*;
 
 /** Version-bound original system progress. Never copies native preferences or story state.
- * Layout evidence and completion allowlists: docs/ANDROID_0135.md.
+ * Layout evidence and completion allowlists: docs/ANDROID_0135.md and
+ * docs/validation/sc-fl-save-import-2026-11-08.json.
  * Native files have no game signature: independently identify the selected game's MES first.
  */
 public final class NativeProgress {
@@ -27,6 +28,15 @@ public final class NativeProgress {
             new int[]{1,2,3,4,5,6,7,59},new int[]{59}),
         new Layout("dc2pc-5769","DC2PC",3312,0x70,0,0xd4,0x6b0,0,1500,1500,false,
             new int[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,21,28,29},new int[0]),
+        // SC loads 0x924 bytes at 4809B0; getter4181A0/setter418400 bind CG/seen
+        // to +D4/+4D4. No independently proven completion writer: globals excluded.
+        new Layout("dc2sc-3b69","DC2SC",2340,0x70,0,0xd4,0x4d4,0,1024,1024,false,
+            new int[0],new int[0]),
+        // FL loads 0x7F0 bytes at 55B950; getter419B10/setter419DC0 bind globals
+        // to +74 (not +70), CG to +D8 (640), seen to +358 (1024). ED.mes writes
+        // route flags1..13 and all-clear0; credits409210 writes52/53 on completion.
+        new Layout("dc2fl-9c69","DC2FL",2032,0x74,0,0xd8,0x358,0,640,1024,false,
+            new int[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,52,53},new int[0]),
         new Layout("dc2dm-9d72","DC2DM",15716,0xe4,0x148,0x17a,0x210,400,1200,650,true,
             new int[]{0,1,2,14,15,20,29,30,31,32},new int[0]),
         new Layout("dc3dd-a5a8","DC3DD",21356,0xcc,0x174,0x304,0x7b4,400,1200,650,false,
@@ -52,7 +62,7 @@ public final class NativeProgress {
     }
     public static boolean storySlot(String id,String source,String path)throws IOException{
         layout(id);String parent=source.substring(0,source.lastIndexOf('/')+1).toLowerCase(Locale.ROOT),p=path.toLowerCase(Locale.ROOT);
-        String prefix=id.equals("dcpc-2063")?"dcpc":id.equals("dc2-3363")?"dc2":id.equals("dc2pc-5769")?"dc2pc":id.equals("dc2dm-9d72")?"dc2dm":id.equals("dc3wy-a09f")?"dc3wy":id.equals("dc3pp-9872")?"dc3pp":"dc3dd";
+        String prefix=id.equals("dcpc-2063")?"dcpc":id.equals("dc2-3363")?"dc2":id.equals("dc2pc-5769")?"dc2pc":id.equals("dc2sc-3b69")?"dc2sc":id.equals("dc2fl-9c69")?"dc2fl":id.equals("dc2dm-9d72")?"dc2dm":id.equals("dc3wy-a09f")?"dc3wy":id.equals("dc3pp-9872")?"dc3pp":"dc3dd";
         return p.startsWith(parent)&&p.substring(parent.length()).matches(prefix+"[0-9]+\\.dat");
     }
     public static final class Summary {

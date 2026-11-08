@@ -1,0 +1,534 @@
+{
+  "schema": 1,
+  "date": "2026-11-08",
+  "scope": "Independent static native contracts plus original-data portable/desktop workflows; no original Windows framebuffer or audio equivalence claim.",
+  "subject": {
+    "selected_executable": "D:/gal/DCDX/DCDX.EXE",
+    "bytes": 1618944,
+    "sha256": "86bcd33e954b81f9b7bb731bcbc2886bc68d8d069074a32ef2af716fede395cb",
+    "clean_test_duplicate_same_sha256": true,
+    "image_base": "0x400000",
+    "entry": "0x42FBB4",
+    "machine": "x86",
+    "viewport": [
+      1024,
+      576
+    ],
+    "original_executable_run": false,
+    "original_game_directory_written": false
+  },
+  "main_data": {
+    "mes_files": 152,
+    "mes_total_bytes": 2065945,
+    "all_markers": "69 77",
+    "header_label_stride": 4,
+    "inventory": "build/holdout-dcdx-20261108/inputs.json",
+    "framing_errors": 0,
+    "nested_MINI_games_excluded": true
+  },
+  "unadapted_baseline": {
+    "runtime": "0.14.8",
+    "classes": "build/native-rewrite/producer-integration-20261107T192220873515Z/classes",
+    "report": "build/holdout-dcdx-20261108/baseline.json",
+    "result": "failed_initialization",
+    "error": "尚未实现此脚本版本的指令语义：dcdx-7769"
+  },
+  "independent_profile": {
+    "id": "dcdx-7769",
+    "loader": "0x41F040",
+    "fetch_dispatch": "0x424E10",
+    "dispatch_table": "0x427ADC",
+    "dispatch_entries": 105,
+    "unsigned_max_opcode": "0x68",
+    "fallback": "0x427A9C",
+    "strict_version": true,
+    "shared_primitive_vocabulary_not_blanket_profile_alias": true,
+    "proposal": "build/holdout-dcdx-20261108/dcdx-runtime-semantics.json",
+    "unreviewed_targets_remain_explicit_failures": true
+  },
+  "variables": {
+    "model": "PC_WIDE",
+    "getter": "0x41BC60",
+    "setter": "0x41BF10",
+    "ordinary_banks": "0..9,100 bytes/bank",
+    "ordinary_address": "0xA843E8",
+    "wide_banks": "200..209, big-endian32, index0..96",
+    "persistent_banks": {
+      "100": {
+        "address": "0x59537C",
+        "bytes": 100
+      },
+      "97": {
+        "address": "0x5953E0",
+        "bytes": 640
+      },
+      "98": {
+        "address": "0x595660",
+        "bytes": 1024
+      },
+      "95": {
+        "address": "0x595A60",
+        "bytes": 256
+      }
+    },
+    "runtime_bank90": {
+      "address": "0xA858D4",
+      "runtime_bytes": 1024,
+      "span_basis": "end immediately precedes native title bufferA85CD4; runtime intentionally rejects unreviewed cross-object indices, not a proof of native bounds checks"
+    }
+  },
+  "settings_template": {
+    "address": "0x446018",
+    "runtime_copy_base": "0x595308",
+    "native_read_bytes": 2136,
+    "native_size_hex": "0x858",
+    "signature_offset": "0x48",
+    "signature_hex": "0x77",
+    "signature_decimal": 119,
+    "template_sha256": "5dd22a930213ccd42a8c3dd0ded3efc309ec59be9f6edc9eaab155b01e27afb3",
+    "names": [
+      "朝倉",
+      "純一"
+    ],
+    "name_offsets": [
+      "0x4C",
+      "0x60"
+    ],
+    "bank_offsets": {
+      "100": "0x74",
+      "97": "0xD8",
+      "98": "0x358",
+      "95": "0x758"
+    },
+    "native_defaults99_5_through18": [
+      1,
+      1,
+      25,
+      25,
+      29,
+      1,
+      8,
+      1,
+      0,
+      1,
+      1,
+      8,
+      0,
+      1
+    ],
+    "native_default99_20": 1,
+    "palette_grb13": "0x5725B8",
+    "local_system_dat_physical_bytes": 6232,
+    "local_size_is_not_layout_evidence": true,
+    "native_system_dat_import_implemented": false
+  },
+  "read_state": {
+    "cached_99_251": "A85D14 stores previous seen98 byte, not a catalog index",
+    "sampler": "0x41EF70",
+    "cache_refresh_modes": [
+      1,
+      3
+    ],
+    "mode2_retains_cached_value": true,
+    "body4C_does_not_mark98_or90": true,
+    "mark_helper": "0x41EDF0",
+    "mark_caller": "0x422F43 in native wait2E",
+    "mark_order": "Mark old scenario98/90 before loading and sampling target; raw2E argument4 calls loader2 directly and does not mark old scenario."
+  },
+  "actors": {
+    "stage": "A848D4/D8/DC stride34",
+    "live": "A848C8/CC/D0 stride34",
+    "normal_load": "commit stageXYZ without FL -41/+1 correction",
+    "pivot": "staged fields3/4, frame alpha samples ordinary3:(51+n)",
+    "wait65": "0x4227C0",
+    "timer_ms": 10,
+    "coalesced_polls": true,
+    "ordinary65_arg2_ignored": true,
+    "relative_gate": "ordinary9:84 ==1 latches origin, target=origin+offset, step=ordinary9:82+1, completion nextpoll clears origin but retains modifiers",
+    "absolute": "8/16/32/64 base +9:82 -9:83, min1; completion nextpoll clears82/83",
+    "ctrl_scope": "physical Ctrl gated by99:25; native rapid-latch/readlog helper branch remains outside this complete contract",
+    "fifth_actual_corpus": "Only two2B selector4 records, both -- in ADVMENU/qload. Empty saved owner is supported; nonempty fifth resource fails explicitly."
+  },
+  "native_services": {
+    "6": "ten rows/page, fixed quick0/1 plus8 ordinary slots; Save rejects0/1",
+    "50_mode0": "4079F0/408360/407EE0 independent4-card wheel, story/ard/3do/end, native atlas binding, oldY sort before coordinate update, nonfront click rotates before activation, Enter front, mode0 right consumed",
+    "53": "407CD0 resumes existing wheel without table reinitialization",
+    "12": "40A1D0/40A300 two5-row banner tables at572268; ±24px/poll,25poll including completion, per-item oldBG restore then keyed new sprite, retained outside-clip front",
+    "52": "3:40 selects100:(60+index); nonzero->0+on, zero->1+off; synchronous native label jump, missing label is an error",
+    "30Hz_clock": "406C00(1000,30) preserves same tuple;406C50 uses floor deadlines33/66/100 and coalesces expired deadlines into one update; host preserves phase/idle time across wheel/banner owners",
+    "raster": "40EA30 background24BGR opaque;40F0A0 24BGR magenta key and32BGR coverage /255; raw clipped atlas layers, no implicit rectangle clear",
+    "capture_lifecycle": "0D9 captures old physical front before publishing captured texture. Inactive owners lose retained heavy surfaces after a different scene serial presents. Unreferenced uiCapture is freed only when stage/front/active previous transition/suspended caller no longer references it."
+  },
+  "validation": {
+    "portable_startup20": [
+      {
+        "name": "dc1",
+        "path": "build/holdout-dcdx-20261108/startup-current/startup/dc1.json",
+        "sha256": "7748619c23f99d6ac10c774061e2acea0c3fcffd0b40e214fd93061e02154146",
+        "status": "passed",
+        "script": "dcdx_dc1a_00",
+        "pc": 2271,
+        "lines": 20,
+        "steps": 1523,
+        "snapshot_checks": 8,
+        "image_count": 21,
+        "audio_count": 16,
+        "requested_actions": [
+          "window",
+          "story",
+          "ystory",
+          "sce",
+          "dc",
+          "ydc"
+        ]
+      },
+      {
+        "name": "dc2",
+        "path": "build/holdout-dcdx-20261108/startup-current/startup/dc2.json",
+        "sha256": "2877acf7c7d0c5b2e9c754ca2c9d75f18b68d201cb93091283163198ca1c4d4b",
+        "status": "passed",
+        "script": "dx2_1222_c10_cmn",
+        "pc": 3934,
+        "lines": 20,
+        "steps": 1588,
+        "snapshot_checks": 8,
+        "image_count": 21,
+        "audio_count": 12,
+        "requested_actions": [
+          "window",
+          "story",
+          "ystory",
+          "sce",
+          "dc2",
+          "ydc2"
+        ]
+      }
+    ],
+    "host_checks": 44,
+    "menu_checks": 42,
+    "banner_checks": 1949,
+    "desktop_save_load": "Both original-menu workflows pass32 checks and20 dialogue waits each, including independently created new host and same future sentence/PC after native menu Load.",
+    "old_history_failure": "Retained inactive banner/menu captures made rewind snapshots exceed existing history bounds; fixed by native presentation/capture lifetime cleanup, without raising history caps.",
+    "desktop_save_load_v3": [
+      {
+        "entry": "dc",
+        "path": "build/holdout-dcdx-20261108/desktop-holdout-v3/physical-dc/result.json",
+        "sha256": "e265b8e3feab8d3b13c80b355a90aa96e7ad9372d67d0a282fc2b5f6147f6a80",
+        "passed": true,
+        "checks": 30,
+        "dialogue_waits": 20,
+        "story_location": "dcdx_dc1a_00@8df",
+        "story_body_sha256": "463f2dfb5e4aa957fe474868af0c44878cd5b862289d5057c7d049953e6745c2",
+        "scope": "Original natural menus, direct file pixel/VM restore, actual SAVE slot2/asksave/return and LOAD slot2/doload restore. Portable CVS2 only."
+      },
+      {
+        "entry": "dc2",
+        "path": "build/holdout-dcdx-20261108/desktop-holdout-v3/physical-dc2/result.json",
+        "sha256": "ea19f19b9bb4f9be19fa8d639c82dcdc834b6716bb965212277207e9a7b5fd08",
+        "passed": true,
+        "checks": 30,
+        "dialogue_waits": 20,
+        "story_location": "dx2_1222_c10_cmn@f5e",
+        "story_body_sha256": "aa228f0775471e88950b6bf58031b3c5312d63ba401b9cd5df20e856623ff282",
+        "scope": "Original natural menus, direct file pixel/VM restore, actual SAVE slot2/asksave/return and LOAD slot2/doload restore. Portable CVS2 only."
+      }
+    ],
+    "natural_long_routes": {
+      "path": "build/dcdx-import-inspection-20261108/routes-life-fixed-20261108T085923542339Z/result.json",
+      "sha256": "806955fb086216011486958bf4390c38f96bcd83191c42a5add2be15603ef3b4",
+      "runs": [
+        {
+          "entry": "dc",
+          "status": "blocked_at_explicit_unimplemented_native_effect",
+          "passed_full_route": false,
+          "terminal_location": "med@1EE",
+          "dialogue_waits_at_terminal_script_entry": 3558,
+          "story_script_entries_observed": 25,
+          "story_scripts": [
+            "dcdx_dc1a_00",
+            "dcdx_dc1a_01",
+            "dcdx_dc1a_02",
+            "dcdx_dc1a_03",
+            "dcdx_dc1a_04",
+            "dcdx_dc1a_05",
+            "dcdx_dc1a_06",
+            "dcdx_dc1a_07",
+            "dcdx_dc1a_08",
+            "dcdx_dc1a_09",
+            "dcdx_dc1a_10",
+            "dcdx_dc1a_11",
+            "dcdx_dc1a_12",
+            "dcdx_dc1a_13",
+            "dcdx_dc1a_14",
+            "dcdx_dc1a_15",
+            "dcdx_dc1a_16",
+            "dcdx_dc1a_17",
+            "dcdx_dc1a_18",
+            "dcdx_dc1a_19",
+            "dcdx_dc1a_20",
+            "dcdx_dc1a_21",
+            "dcdx_dc1a_22",
+            "dcdx_dc1a_23",
+            "dcdx_dc1a_24"
+          ],
+          "failure": "med@1ee\njava.io.IOException: med @0x1ee: DCDX1C native modal service not reviewed/implemented [11, 0]",
+          "history_snapshot_1000_2000_3000_checks_passed": true
+        },
+        {
+          "entry": "dc2",
+          "status": "blocked_at_explicit_unimplemented_native_effect",
+          "passed_full_route": false,
+          "terminal_location": "dx2_1222e_c1_cm1@108C",
+          "dialogue_waits_at_terminal_script_entry": 3940,
+          "story_script_entries_observed": 28,
+          "story_scripts": [
+            "dx2_1222_c10_cmn",
+            "dx2_1222_c11_nnk",
+            "dx2_1222_d1_cmn",
+            "dx2_1222_d2_cmn",
+            "dx2_1222_d30_cmn",
+            "dx2_1222_d31_cm1",
+            "dx2_1222_e1_cm1",
+            "dx2_1222_e2_cm1",
+            "dx2_1222_e30_cm1",
+            "dx2_1222_e31_otm",
+            "dx2_1222_f1_cm1",
+            "dx2_1222_f2_cm1",
+            "dx2_1222b_a1_cm1",
+            "dx2_1222b_b10_cm1",
+            "dx2_1222b_b11_otm",
+            "dx2_1222b_c1_cm1",
+            "dx2_1222b_f1_otm",
+            "dx2_1222c_a10_cm1",
+            "dx2_1222c_a11_otm",
+            "dx2_1222c_c1_cm1",
+            "dx2_1222c_f1_cm1",
+            "dx2_1222d_a10_cm1",
+            "dx2_1222d_a11_otm",
+            "dx2_1222d_c1_cm1",
+            "dx2_1222d_f1_cm1",
+            "dx2_1222e_a1_cm1",
+            "dx2_1222e_b1_cm1",
+            "dx2_1222e_c1_cm1"
+          ],
+          "failure": "dx2_1222e_c1_cm1@108c\njava.io.IOException: dx2_1222e_c1_cm1 @0x108c: DCDX62 native scrolling consumer not yet implemented [0, 0, 0, 0]",
+          "history_snapshot_1000_2000_3000_checks_passed": true
+        }
+      ],
+      "scope": "Representative natural menu-selected stories; cannot claim route completion, endings or 100% engine fidelity."
+    },
+    "original_file_recheck": {
+      "path": "build/holdout-dcdx-20261108/original-files-rechecked.json",
+      "sha256": "5e4c9607875a8afeb31ec35e7a6a38f563b6b6ba10b31f963d15d91115010e05",
+      "original_executable_run": false,
+      "original_game_directory_written": false,
+      "selected_executable_sha256": "86bcd33e954b81f9b7bb731bcbc2886bc68d8d069074a32ef2af716fede395cb",
+      "mes_sha256_rechecked": 152,
+      "changed_mes_files": []
+    },
+    "desktop_save_load_v4": [
+      {
+        "entry": "dc",
+        "path": "build/holdout-dcdx-20261108/desktop-holdout-v4/physical-dc/result.json",
+        "sha256": "d7379b252190e9ed6131a250ae6b5c6eebc5d6bf9c2d6294daed8104051b82cf",
+        "pass": true,
+        "checks": 32,
+        "dialogue_waits": 20,
+        "story_location": "dcdx_dc1a_00@8df",
+        "story_body_sha256": "463f2dfb5e4aa957fe474868af0c44878cd5b862289d5057c7d049953e6745c2",
+        "new_host_future_checked": true,
+        "future_location": "dcdx_dc1a_00@921",
+        "scope": "Natural original menus; direct save/restored pixel and VM equality; factory-created new host; original SAVE slot2/asksave/return and LOAD slot2/doload; subsequent original sentence/PC matches the previously observed continuation. Portable CVS2 only."
+      },
+      {
+        "entry": "dc2",
+        "path": "build/holdout-dcdx-20261108/desktop-holdout-v4/physical-dc2/result.json",
+        "sha256": "8070e179c1c5962c6a38eae5af3e310cb83dd850e0564a57d2959952c31c8cdb",
+        "pass": true,
+        "checks": 32,
+        "dialogue_waits": 20,
+        "story_location": "dx2_1222_c10_cmn@f5e",
+        "story_body_sha256": "aa228f0775471e88950b6bf58031b3c5312d63ba401b9cd5df20e856623ff282",
+        "new_host_future_checked": true,
+        "future_location": "dx2_1222_c10_cmn@f6c",
+        "scope": "Natural original menus; direct save/restored pixel and VM equality; factory-created new host; original SAVE slot2/asksave/return and LOAD slot2/doload; subsequent original sentence/PC matches the previously observed continuation. Portable CVS2 only."
+      }
+    ],
+    "v4_complete_java_freeze": {
+      "path": "build/holdout-dcdx-20261108/desktop-holdout-v4/inputs-manifest.json",
+      "sha256": "89bac341d0a9d286147342569b4d06f2aba922b42139359578aa527bbc2341ab",
+      "java_sources": 621,
+      "all_java_and_resource_entries": 623,
+      "current_source_deltas": [],
+      "overlay_classes": false,
+      "classes": "build/holdout-dcdx-20261108/desktop-holdout-v4/classes",
+      "host_test_result": "44 checks PASS"
+    }
+  },
+  "limits": [
+    "No whole-engine or native Windows full-frame/audio equivalence claim.",
+    "Native service11 credits/endings, service51 music browser and service50 nonzero voice wheel remain explicit unsupported paths.",
+    "Native SAV import and native DCDX system.dat progress import remain unimplemented; original files remain read-only. Portable CVS2 slots have independent roundtrip/workflow validation.",
+    "Nonempty fifth-actor drawing remains unsupported.",
+    "Optional opcode39 external MINI executables are never launched and fail explicitly.",
+    "Opcode62 animated modes0/3 and unreviewed scalar/actor aliases fail explicitly; common stage modes1/2 and reviewed native default4..7 remain supported.",
+    "Common PC host transitions/effects/UI primitives include portable approximations; this document does not upgrade them to native pixel equivalence."
+  ],
+  "receipts": [
+    {
+      "path": "build/holdout-dcdx-20261108/loader.evidence.json",
+      "bytes": 755317,
+      "sha256": "eccc0b76e34f5e8b10c29890dcb55efa1212a705e87329991bfcca39c9e3a805",
+      "evidence_ids": [
+        "ev_c1fce6e4d4ec8e7e4f0e3fa55f433e09e8fba7933c1fd7e8c28d62f71bb65412"
+      ]
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/dispatch.evidence.json",
+      "bytes": 4719841,
+      "sha256": "1d96bdcc9d0bd890631889abd8fe44f88215d8746159f73c89d60b40c6f534b8",
+      "evidence_ids": [
+        "ev_f5884e433792b6a1e4039604434a5e45ddd758fb40acb2009a3803b3e173dacc"
+      ]
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/getter41bc60.evidence.json",
+      "bytes": 784944,
+      "sha256": "b889d9cdae036839233cd6fbf5958663dae13fd7a0655b63a1da6080d30418e2",
+      "evidence_ids": [
+        "ev_d0f42991667f079f4d85ac2fcc9a488637372f53f68d5090c965c2b54104030e"
+      ]
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/setter41bf10.evidence.json",
+      "bytes": 882036,
+      "sha256": "7bd1a757a4c62c5fef18aff67216d448b95705f85fd31d931f62d8cb7122b7d4",
+      "evidence_ids": [
+        "ev_4c9aa1cff852d9c8439202f15226dd2c485a1f27bff5509b3f2e49eb26fa75ab"
+      ]
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/system40ae70.evidence.json",
+      "bytes": 1629471,
+      "sha256": "d650c41fa7dcd3f9f657411c343ab2376a9abc917bcff1eb31464991badd2a91",
+      "evidence_ids": [
+        "ev_73d718d05653db30d746137c210225c57a9a4721b44e4cc269e31b63eae6c850"
+      ]
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/main-fetch.asm",
+      "bytes": 2438,
+      "sha256": "9462f0be77733fd0611b11ffb980f85c951ee669076ebfd48b88f68d3d35de9c"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/readcache41ef70.asm",
+      "bytes": 1794,
+      "sha256": "44ea393d27b263eb4d1615e40c9cf541fc797527da619dc7b6a0cb0c2f3dab22"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/mark-read41edb0.asm",
+      "bytes": 2082,
+      "sha256": "408bc6ae2b0463981086d9ebb4c3372d1ea0cc0b59a8e2996431ba749096a869"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/mark-read-callers.asm",
+      "bytes": 435,
+      "sha256": "2e0590a33704a9900a663aa0aa6e0abf0e018a08b13a7c03d1bb8292e988ead7"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/wait-transfer422cc0.asm",
+      "bytes": 5291,
+      "sha256": "abef07fc75892a1dae6307aedb219af2b315d02522260510e54f308ad802c39b"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/label41baa0.asm",
+      "bytes": 325,
+      "sha256": "9b007ce3ae74acbaedeb48fbdbcb966c4bb3fee4021744df18ef6c6068249016"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/native-default-template.json",
+      "bytes": 987,
+      "sha256": "8104b7862d9e7d3ecfbe74bf3a9c06384f6b748c3641057560320264aee09da5"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/native-settings99.json",
+      "bytes": 1500,
+      "sha256": "c225baa46731c842d1034667cdc36e9ddfc6a0ff2f5f6a7acdcdce97470c5426"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/palette.json",
+      "bytes": 439,
+      "sha256": "6db8068d69489cc43e12dd10177314ebdbc24d6173b19f99564f648b24787e45"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/palette40ea00.asm",
+      "bytes": 1939,
+      "sha256": "ab65873e94ec604ab9f258b5ad670a935bf3e245d1c3a29d4fec2de353986086"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/settings-copy.asm",
+      "bytes": 2488,
+      "sha256": "e60b1ac5f888745ae0d78257b96146c59305329d18d8d560894e1b0920ace22e"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/actor424660.asm",
+      "bytes": 5134,
+      "sha256": "adcaa0f6519640f94fce8948d8cc508acdb565248a96551ad6dcc17b060a995f"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/overlay4248e0.asm",
+      "bytes": 11219,
+      "sha256": "37227c6974026207e9281e4f1f30f2caab53d9909b66567f4cfa8a7d4ac0caa2"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/case64.asm",
+      "bytes": 1721,
+      "sha256": "33d7015c6ac12135f7b648a5e3e3ee9c4aa6490cee5734ca5563f79f5573523b"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/case65.asm",
+      "bytes": 1565,
+      "sha256": "8abe3cc2ecd078b4218b08d53426d27238e9cd211cd18f06d99df8a6d0e11d0c"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/menu-tables.json",
+      "bytes": 14086,
+      "sha256": "03bd5028a9587ec7f0a125451fe5ac3ba10f9e10b71e51d46506348eb6b428c6"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/helper-0x40f0a0.asm",
+      "bytes": 3340,
+      "sha256": "c271b50afe80ea94f322a897ae6429b47dba533bb21864a0a0821879de4bf314"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/helper-0x40ee80.asm",
+      "bytes": 5135,
+      "sha256": "5db38e8e99fc484c88a10e2deed66dd2b1e70cb531b3aca70a090debcce5de8f"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/helper-0x40ea30.asm",
+      "bytes": 3200,
+      "sha256": "ba5f848f48184e76585380be08ee9e61828ae1ad8a8570ccc5ae930ae8066548"
+    },
+    {
+      "path": "build/holdout-dcdx-20261108/banner-table.json",
+      "bytes": 1201,
+      "sha256": "5c0b48b5be3aaadb504de8e0155281c85b9090a139e0e98d606809d527b69da3"
+    },
+    {
+      "path": "build/dcdx-import-inspection-20261108/system50-modal-contract.json",
+      "bytes": 7564,
+      "sha256": "c39876ea2e184be5c9c8f99f6e95686fd25acbc82adad1e2042f2a3e721bd28d"
+    },
+    {
+      "path": "build/dcdx-import-inspection-20261108/system50-53-contract.json",
+      "bytes": 3751,
+      "sha256": "c86b84458309db5547a92692733d544a9f2eb1898b7929fc1e7814aa6c908123"
+    },
+    {
+      "path": "build/holdout-contract-20261108/dcdx-actor/wait65.asm",
+      "bytes": 13806,
+      "sha256": "e85b16f78a083ec97e2320bf0cc4989e61d47705abcf6920af1f790d483d2b93"
+    }
+  ]
+}

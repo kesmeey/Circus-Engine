@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--jdk', type=Path, required=True)
     parser.add_argument('--ffmpeg', type=Path, required=True)
-    parser.add_argument('--version', default='0.14.12-sc-display-dev')
+    parser.add_argument('--version', default='0.14.13-ty-music-display-dev')
     args = parser.parse_args()
     if any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_' for c in args.version):
         raise SystemExit('Invalid version')
@@ -66,6 +66,7 @@ DC2桌面菜单「存档 → 导入原版剧情存档…」可转换普通ADV文
 当前不把约80%的工程目标当作精确完成率，实际范围见 COMMON_WORKFLOWS.md。
 SC/FL采用各自原生证据和独立宿主；SC本地Coco剧本有一份截断文件，对应分支仍会明确报错。
 TY新增独立5F69宿主、两次确认的原故事选择界面及滚动背景；四主要故事代表流程和原菜单便携存读档通过。
+TY补齐Music Mode原生曲名背景处理，读取所选EXE中的曲名数据；Scene Replay标题按原菜单编码解码，GBK正文保持独立。
 FL按原生STOP结束静态指令索引，兼容汉化覆盖后留下的旧文件尾；保留原文件及完整哈希。
 NAMES.DAT是原版使用的资源索引；请复制完整AdvData目录，缺失时会明确提示资源不完整。
 SC的原菜单按钮标题保留CP932，汉化正文使用GBK；现在分别解码，修正Scene Replay标题和日期乱码。

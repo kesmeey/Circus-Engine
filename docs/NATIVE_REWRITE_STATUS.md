@@ -1,6 +1,8 @@
 # 非 Unity 引擎重写状态
 
-Windows／Android 本批版本为 **0.14.12-sc-display-dev**，执行契约为rev8；旧固定包保留。本轮[源码与交付验证](validation/sc-display-source-2026-11-09.json)单独记录。
+Windows／Android 本批版本为 **0.14.13-ty-music-display-dev**，执行契约为rev8；旧固定包保留。本轮[源码与交付验证](validation/ty-music-display-source-2026-11-09.json)单独记录。
+
+TY补齐原生服务9的曲名背景处理：以ordinary3:5索引所选EXE内48项260字节曲名表，汉化EXE按GBK、两原版EXE按CP932解码；平台一次绘入背景并沿用UiCapture持久化，旧TYH3格式保留，恢复后继续换曲的callback也保留。Scene Replay的58列表标题另按CP932处理；正文和其他UI指令仍保留各自编码规则。Music Mode与回放标题已进入标准TY工作流，不以四故事正文通过替代这些菜单检查。
 
 SC鉴赏标题原来与正文共用GBK，已将51按钮文字按本作保留的原CP932解码；4B/4C正文、选择项与60自由文字继续各自规则。原菜单53份脚本2733个非ASCII字段及翻页／快照／回放正文有独立检查。手机同句黑背景实查为缺失257份BG素材，已仅补缺并核验新旧文件哈希；运行时只增加显式背景缺失路径诊断，没有改变合法黑场或背景坐标。手机验证范围见本轮记录。
 

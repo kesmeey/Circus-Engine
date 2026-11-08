@@ -23,6 +23,21 @@ public final class TyHost extends PcHost {
     private boolean serviceGridBound;
     private boolean actorMoving,firstActorPoll;
     private int movingActor,targetX,targetY,actorPollPhase;
+    /** Native40A470 modifies only the loaded background bitmap. The platform
+     * returns immutable baked pixels; existing UI-capture persistence owns them. */
+    public interface MusicTitleBaker {UiCapture bake(String resource,UiCapture previous,String text,int size,int shadow,int foreground)throws IOException;}
+    public MusicTitleBaker musicTitleBaker;
+    private TyMusicNames musicNames;
+    @Override public void copyPersistentFrom(Dc2Host other)throws IOException{super.copyPersistentFrom(other);musicTitleBaker=((TyHost)other).musicTitleBaker;}
+    public TyMusicNames musicNames()throws IOException{if(musicNames==null)musicNames=TyMusicNames.load(resources);return musicNames;}
+    private void musicTitle()throws IOException{
+        if(musicTitleBaker==null)throw new IOException("TY music-name bitmap renderer is unavailable");
+        TyMusicNames names=musicNames();int index=variables.read(3,5);byte[] raw=names.raw(index);String background=scene.slots[1];
+        if(background.isEmpty())throw new IOException("TY music-name background bitmap is absent");
+        UiCapture result=musicTitleBaker.bake(background,background.equals("@ui-capture")?uiCapture:null,names.text(index),TyMusicNames.fontSize(raw.length,variables.read(3,30),variables.read(3,31)),ui.palette[15],ui.palette[7]);
+        if(result==null||result.kind!=UiCapture.ARGB)throw new IOException("TY music-name bake did not return immutable pixels");
+        uiCapture=result;scene.slots[1]="@ui-capture";scene.revision++;
+    }
 
     public TyHost(CircusResources resources,TextCodec codec){this(resources,codec,(int)(System.nanoTime()/1000000L));}
     public TyHost(CircusResources resources,TextCodec codec,int startupTick){
@@ -30,6 +45,12 @@ public final class TyHost extends PcHost {
         if(!resources.profile.id.equals("dc2ty-5f69")||!second||pc1!=null)
             throw new IllegalArgumentException("TY host requires its own PC_WIDE profile and TY family binding");
         Arrays.fill(ui.palette,13,63,0xff000000);scene.bindActorProjection(this::projectActors);
+    }
+
+    /** TY58/41EC16 keeps the original replay list captions in CP932;
+     * translated4B/4C prose and other UI fields retain the selected codec. */
+    @Override protected String gridCaption(byte[] raw)throws IOException{
+        return TextCodec.cp932(raw).replace("$n",givenName).replace("$s",familyName).replace("$f",familyName);
     }
 
     private void projectActors(Dc2Scene.Frame frame){
@@ -236,6 +257,7 @@ public final class TyHost extends PcHost {
             if(args==null||args.length!=2)throw new IOException("TY system command requires two bytes");
             if(args[0]==6&&args[1]>=0&&args[1]<=255){saveLoadPage(args[1]);return true;}
             if(args[0]==7){list.textStyle=4;return true;}
+            if(args[0]==9){musicTitle();return true;}
             if(args[0]==12){startSelector();return true;}
             throw new IOException("Unimplemented TY native system service "+Arrays.toString(args));
         }

@@ -1,0 +1,202 @@
+{
+  "schema": "circus-runtime.validation.ty-replay-encoding.v1",
+  "captured_utc": "2026-11-08T17:28:40.254469+00:00",
+  "profile": "dc2ty-5f69",
+  "feature": "TY58 original native replay caption bytes decoded independently from GBK localized4B/4C prose.",
+  "selected_PE": {
+    "file": "dc2ty_chinese(simplified)_patch.exe",
+    "bytes": 1208616,
+    "sha256": "615704413dd00960bb47f4d6c1b33dd635931f13085a9a25dd5782fd7dbdf505"
+  },
+  "native_contract": {
+    "dispatcher": {
+      "entry": "0x41DAB0",
+      "case": "0x58",
+      "target": "0x41EC16",
+      "REA_evidence_ids": [
+        "ev_d325c293efa948fe79d1ec4f290a61e870f4f18e2eddaae77665eb4fb8b04d12"
+      ],
+      "retained_evidence": {
+        "path": "build/holdout-dc2ty-20261108/dispatch41dab0.evidence.json",
+        "bytes": 4027380,
+        "sha256": "8c22175f2b173eda0348fa0b464e34ed98696eeed50c3ea49967686dd5bc7002",
+        "git_lf_sha256": "8c22175f2b173eda0348fa0b464e34ed98696eeed50c3ea49967686dd5bc7002"
+      }
+    },
+    "field_owner": "Case58 copies x/y/normal/hover palette words to the current0x74-byte list entry, then calls41CC90 on the following raw string. Physical cursor advances over the complete source string.",
+    "formatter": {
+      "entry": "0x41CC90",
+      "end": "0x41CE9E",
+      "role": "Byte string copy/formatter into list-caption field at A36C0C+entry_index*74. Native name and numeric expansions do not transform retained prose from one character encoding to another.",
+      "provider": "REA Ghidra12.1.4",
+      "retained_index": {
+        "path": "build/holdout-ty-contract-20261108/actor-native/decompile-index.json",
+        "bytes": 41201,
+        "sha256": "6467284d9274980da32572224d22a109d1f069efa22de2e538556977ace60d6e",
+        "git_lf_sha256": "6467284d9274980da32572224d22a109d1f069efa22de2e538556977ace60d6e"
+      },
+      "retained_pseudocode": {
+        "path": "build/holdout-ty-contract-20261108/actor-native/functions/0x41cc90.c",
+        "bytes": 6241,
+        "sha256": "2f4fba4ed59fce9b61990d0fe353b3e9a1a42eba9f4a7093a99ef72a881fd88c",
+        "git_lf_sha256": "1418c28a32222502a9b945aa6691320d88659b0621f4712865300c4d642e4edb"
+      },
+      "native_code_bytes_sha256": "9a62e7f76f835c4715662860d3d22ae9e511c339da4ab43202f97ccb7a64cccd",
+      "Japanese_and_selected_CHS_function_bytes_identical": true,
+      "original_PE_sha256": "70d118b8e7d79011d0e7443d488897ed03ae184ebc83db8abde3af007aab328e"
+    },
+    "decoding_scope": "Native proof establishes a separate raw list-caption owner, not a native Unicode charset API. CP932 classification follows the retained source byte strings:258 fields in4 actual replay MES,459 kana codepoints, all strict CP932. Both GBK and CP932 accept these bytes, so strict-byte validity alone cannot choose their meaning. Original EXE was not run; no native font/pixel equivalence claim."
+  },
+  "corpus": {
+    "report": {
+      "path": "build/ty-display-20261109/caption-corpus/report.json",
+      "bytes": 861,
+      "sha256": "08bbf892edb750d81c44a9fc1c933f37321227941906e27c72019191ac8d7ece",
+      "git_lf_sha256": "08bbf892edb750d81c44a9fc1c933f37321227941906e27c72019191ac8d7ece"
+    },
+    "source_files": [
+      {
+        "path": "advdata/mes/sce_hyd.mes",
+        "bytes": 10088,
+        "sha256": "0992c9c9b0ff8aefa0bd49d830f6115748ba920362dc18ecc8571d384798e1d2",
+        "caption_fields": 84
+      },
+      {
+        "path": "advdata/mes/sce_mhr.mes",
+        "bytes": 7412,
+        "sha256": "e7367c78b9047b4d15abb374cc67597a5e0195c304bb1e9cd176efdf596affac",
+        "caption_fields": 50
+      },
+      {
+        "path": "advdata/mes/sce_myu.mes",
+        "bytes": 8070,
+        "sha256": "aa4cf53ad5a96214cfcb0222c6ec188ddcc8eefa7117fc4575371ba9e9eb29e1",
+        "caption_fields": 58
+      },
+      {
+        "path": "advdata/mes/sce_set.mes",
+        "bytes": 8763,
+        "sha256": "bb6dd660d7627429920ea4c6da08c4c55d07453009a1e0d49f7a4681a5bfb4d9",
+        "caption_fields": 66
+      }
+    ],
+    "caption_fields": 258,
+    "nonASCII_fields": 258,
+    "CP932_only": 0,
+    "GBK_only": 0,
+    "strict_CP932_errors": [],
+    "kana_codepoints": 459,
+    "placeholder_fields": 0
+  },
+  "runtime_change": {
+    "PcHost.gridCaption": "New protected hook defaults to exactly the old prose/raw→selected-codec plus$f expansion behavior.",
+    "TyHost.gridCaption": "Strict CP932 only for pc.grid.caption58; keep previously supported$n/$s/$f replacements. Actual reviewed captions contain none of these placeholders.",
+    "unchanged": [
+      "4B/4C GBK body and speaker",
+      "GBK choices",
+      "51 ordinary button text",
+      "60 free text",
+      "resource paths and NAMES catalog decoding",
+      "raw-byte width and normal/hover layers",
+      "date generation from scenario resource names",
+      "other profiles default list-caption behavior",
+      "existing snapshot field layout"
+    ],
+    "native_formatter_limit": "This change does not implement unexercised$t/$m/numeric native formatting; no such token occurs in258 reviewed source captions."
+  },
+  "validation": {
+    "synthetic_core_tests": {
+      "entry": "TyUiCaptionTests",
+      "checks": 14,
+      "result": "PASS",
+      "cases": [
+        "CP932 caption versus valid-but-wrong GBK counterfactual",
+        "native raw width, origin and normal/hover layers",
+        "native date unchanged",
+        "prior player-name replacements",
+        "GBK body, choice,51 and60 unaffected",
+        "other profile default behavior",
+        "Japanese TY field rule",
+        "malformed CP932 strict rejection",
+        "snapshot restores Unicode caption and body separately"
+      ]
+    },
+    "audit_entry": "org.circus.core.TySceneReplayCaptionAudit readonly_TY_GAME owned_OUTPUT [--baseline]",
+    "baseline": {
+      "result": "OLD_BEHAVIOR_REPRODUCED",
+      "checks": 1432,
+      "report": {
+        "path": "build/ty-display-20261109/audit-baseline-final/report.json",
+        "bytes": 17597,
+        "sha256": "1cceffc8cf6a41c715def7a7cf649efcef032cc84251d267162d0e61e5be4a34",
+        "git_lf_sha256": "1cceffc8cf6a41c715def7a7cf649efcef032cc84251d267162d0e61e5be4a34"
+      },
+      "runtime_class_directory": "build/native-rewrite/sc-display-final-20261108T160700831447Z/classes",
+      "only_new_audit_harness_was_added": true,
+      "wrong_caption_fields_per_natural_page": [
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20
+      ]
+    },
+    "fixed_focused": {
+      "result": "PASS",
+      "checks": 1432,
+      "report": {
+        "path": "build/ty-display-20261109/audit-fixed-final/report.json",
+        "bytes": 17572,
+        "sha256": "27af4b836fdd296910528346e59a9d128d51e12f26ed861ceaa97f63447ada58",
+        "git_lf_sha256": "27af4b836fdd296910528346e59a9d128d51e12f26ed861ceaa97f63447ada58"
+      },
+      "class_prefix_manifest": {
+        "path": "build/ty-display-20261109/focused-prefix-classes.json",
+        "bytes": 1380,
+        "sha256": "f0a96a435c90d56486eed16cfaad82e2613821a30ec7336160e600bc3e450e48",
+        "git_lf_sha256": "5c0612ad7c62c0a49110130aca1ffd5e8f3ca2ff00f2dc203b58be56946595a3"
+      },
+      "method": "Caption-only PcHost/TyHost class prefix plus new audit on otherwise immutable0.14.12 full test dependencies. Root final release freeze must recompile and rerun full current source, including concurrent Music Mode changes. This focused pass does not attest final APK/package class identity.",
+      "wrong_caption_fields_per_natural_page": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "natural_flows": [
+      "Title02→extra→scene (Hydrangea)",
+      "Originalset/mhr/myu category actions and return tohyd",
+      "Originalnext page",
+      "Cold new host with same owned synthetic persistent scene flags, restoring replay snapshot",
+      "Originalnext×3 to fourthpage, row9 binds catalog39",
+      "Original@slot:9→hyd_b_028_pst@1F2C body and following07 wait"
+    ],
+    "reported_body": {
+      "script": "hyd_b_028_pst",
+      "script_sha256": "8adcece2c3541c5aa6ee79503e0b469421376c1f827a972bfcda477580b3a12b",
+      "instruction_pc": 7980,
+      "successful_vm_pc": 8046,
+      "native_bytes": 61,
+      "GBK_body_sha256": "7b3cea08d6a56f7ad54b63db10ae7e98c5d5c35ccf038e5814998b16512da933",
+      "native_menu_actions": [
+        "02",
+        "extra",
+        "scene",
+        "next",
+        "next",
+        "next",
+        "@slot:9"
+      ],
+      "Japanese_decode_rejected": true
+    }
+  },
+  "original_game_files_written": false,
+  "original_executables_run": false,
+  "game_assets_or_original_prose_in_repository": false
+}

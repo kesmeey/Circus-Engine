@@ -7,11 +7,11 @@
 仓库：[kesmeey/Circus-Engine](https://github.com/kesmeey/Circus-Engine)。
 项目目录与命令行工具仍沿用 `circus-runtime`／`dc_runtime` 命名。
 
-本批 Windows／Android 更新为 **0.14.12-sc-display-dev**：修正 SC 的 Scene Replay 标题／日期乱码，分别处理原菜单 CP932 标题与汉化 GBK 正文；SC 显式背景文件缺失时报告具体路径。手机黑背景还查明缺了257份背景素材，已从对应电脑副本补齐并校验，安装包本身不含素材。[本轮验证](docs/validation/sc-display-source-2026-11-09.json)记录修复和实测范围。此前 [0.14.11](docs/validation/ty-sc-fl-source-2026-11-08.json) 的 TY 适配、FL 旧系统进度和脚本尾兼容保留，旧固定包不覆盖。
+本批 Windows／Android 更新为 **0.14.13-ty-music-display-dev**：补齐 To You 的 Music Mode 原生曲名处理，修正 Scene Replay 标题与 GBK 正文共用编码造成的乱码；曲名按所选 EXE 的独立数据表读取，回放标题按原菜单 CP932 解码。[本轮验证](docs/validation/ty-music-display-source-2026-11-09.json)记录实际范围。此前 [SC 显示修复](docs/validation/sc-display-source-2026-11-09.json)及 [TY／FL 兼容](docs/validation/ty-sc-fl-source-2026-11-08.json)保留，旧固定包不覆盖。安装包不含游戏素材。
 
 当前目标已调整为约80%的主要功能与大多数常见游戏流程，允许延期少量难处理的版本和边缘行为；这是工程范围，尚不是完成率声明。见[当前交付目标](docs/ENGINE_SCOPE.md)。
 
-本批 Android 安装包为 `build/distribution/circus-runtime-0.14.12-sc-display-dev-android.apk`，可覆盖安装，保留应用数据。SC 汉化副本请选择自动识别或 GBK，字符替换保持自动；Scene Replay 标题由独立菜单编码处理。完整手机原数据流程的检查范围以本轮记录为准。
+本批 Android 安装包为 `build/distribution/circus-runtime-0.14.13-ty-music-display-dev-android.apk`，可覆盖安装，保留应用数据。已验证的 TY／SC 汉化副本请选择自动识别或 GBK，字符替换保持自动；原菜单标题由各自字段编码处理。完整手机原数据流程的检查范围以本轮记录为准。
 
 此前分发的 Android 开发包 **0.13.15** 修复 W.Y. 夏露露剧情中的重复目录分隔符报错，同时覆盖 P.P. 的同类图片引用。旧安装包：`build/distribution/circus-runtime-0.13.15-android-dev.apk`，见 [修复说明](docs/ANDROID_01315.md)。保留 [0.13.14 的 W.Y.／P.P. 原版系统进度导入](docs/ANDROID_01314.md)和 [0.13.13 的手机启动与中文补丁兼容](docs/ANDROID_01313.md)。
 

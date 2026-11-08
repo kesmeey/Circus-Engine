@@ -66,6 +66,7 @@ public final class DesktopLegacy extends DesktopEngine {
         });captures=new DesktopCaptures(width,height,this::drawCapture);host().captureRenderer=captures;nativeData=PcHost.supports(data.profile)?null:new Dc2NativeData(data,codec);
         if(data.profileId.equals("dc2-3363")||data.profileId.equals("dcpc-2063")||data.profileId.equals("dc2fl-9c69")||data.profileId.equals("dcdx-7769")||data.profileId.equals("dc2ty-5f69"))((PcHost)host()).nativeFrameCapture=this::captureFramebuffer;
         if(host() instanceof FlHost)((FlHost)host()).compositionCapture=this::captureFlCompositionFrame;
+        if(host() instanceof TyHost)((TyHost)host()).musicTitleBaker=this::bakeTyMusicTitle;
         if(originalDc2())((PcHost)host()).nativeMessageTemplateCapture=this::captureOriginalMessageTemplate;
         if(pc1()!=null)session.pc1CandidateCapture=()->captureSaveMetadata(false).encode();
         if(originalDc2())session.dc2BorrowedCapture=()->captureSaveMetadata(false).encode();
@@ -80,6 +81,20 @@ public final class DesktopLegacy extends DesktopEngine {
     }
     private Dc2MessageWindow captureOriginalMessageTemplate()throws IOException{return Dc2MessageWindow.capture(host());}
     public Dc2Host host(){return session.host;}
+    /**40A470 binds native bitmap0 and draws twice; no per-frame repaint or
+     * compositor shortcut. A later background reload naturally discards it. */
+    private UiCapture bakeTyMusicTitle(String resource,UiCapture previous,String text,int size,int shadow,int foreground)throws IOException{
+        BufferedImage image=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);Graphics2D g=image.createGraphics();
+        try{
+            if(previous!=null)g.drawImage(captures.resolve(previous),0,0,null);
+            else {Crx.Image raw=resources.image(resource);if(raw.width!=width||raw.height!=height||raw.x!=0||raw.y!=0)throw new IOException("Unreviewed TY music background canvas");BufferedImage base=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);try{base.setRGB(0,0,width,height,raw.argb(true),0,width);g.drawImage(base,0,0,null);}finally{base.flush();}}
+            g.setFont(new Font("Microsoft YaHei",Font.PLAIN,size));g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            //4117A0 resets clipping to the bound bitmap before424240. Menu
+            // strings use native top-left coordinates; font shape is platform supplied.
+            g.setColor(new Color(shadow,true));g.drawString(text,81,99+size);g.setColor(new Color(foreground,true));g.drawString(text,80,98+size);
+            return UiCapture.pixels(width,height,image.getRGB(0,0,width,height,null,0,width));
+        }finally{g.dispose();image.flush();}
+    }
     public MesVm vm(){return session.vm;}
     private Pc1Runtime pc1(){return host() instanceof PcHost?((PcHost)host()).pc1:null;}
     private boolean originalDc2(){return resources.profileId.equals("dc2-3363");}

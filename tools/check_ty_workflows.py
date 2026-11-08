@@ -1,4 +1,4 @@
-"""Check original TY story selectors, runtime saves and native-derived rasters read-only."""
+"""Check original TY stories, saves, music mode, replay text and rasters read-only."""
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
@@ -33,6 +33,7 @@ def main():
     plan = [('startup-'+name, 'NativeStartupAudit', n, name) for n, name in enumerate(['hyd', 'set', 'mhr', 'myu'])]
     plan += [('save-load-'+name, 'TyDesktopHoldoutAudit', n, name) for n, name in enumerate(['hyd', 'set', 'mhr', 'myu'])]
     plan += [('selector', 'TySelectorRasterAudit', -1, ''), ('scroll', 'TyScrollRasterAudit', -1, '')]
+    plan += [('music-mode', 'TyMusicModeAudit', -1, ''), ('replay-captions', 'TySceneReplayCaptionAudit', -1, '')]
     if args.full_routes:
         plan += [('route-'+name, 'DesktopRouteAudit', n, name) for n, name in enumerate(['hyd', 'set', 'mhr', 'myu'])]
 

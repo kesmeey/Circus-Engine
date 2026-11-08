@@ -591,7 +591,7 @@ public class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesVm.Nati
             if(!second||a.length!=4)throw new IOException("PC2 list caption arguments");
             if(list.items.isEmpty())return true;
             ScriptList.Item item=list.last();item.sprites.removeIf(q->q.type==2);
-            String caption=prose(bytes).replace("$f",familyName);
+            String caption=gridCaption(bytes);
             for(int n=0;n<2;n++){Dc2Ui.Quad q=new Dc2Ui.Quad();q.type=2;q.x=a[0];q.y=a[1];q.flags=a[2+n];q.state=n==0?99:1;q.text=caption;q.width=bytes.length*14;q.height=28;item.sprites.add(q);}
             return true;
         }
@@ -788,6 +788,8 @@ public class PcHost extends Dc2Host implements MesVm.ScriptSystemHost,MesVm.Nati
     public int nativeCrtRandom()throws IOException{if(pc1==null)throw new IOException("PC1 CRT owner unavailable");return nextRandom();}
     /** Menu caption bytes can have a different source encoding from localized prose. */
     protected String buttonCaption(byte[] raw)throws IOException{return codec.decode(raw);}
+    /** List captions are retained native UI fields in some translated games. */
+    protected String gridCaption(byte[] raw)throws IOException{return prose(raw).replace("$f",familyName);}
     private String prose(byte[] raw)throws IOException{return codec.decode(raw).replace("$n",pc1==null?givenName:codec.decode(nativeGivenName())).replace("$s",pc1==null?familyName:codec.decode(nativeFamilyName()));}
     @Override public void copyPersistentFrom(Dc2Host other)throws IOException{
         PcHost p=(PcHost)other;nativeFrameCapture=p.nativeFrameCapture;nativeMessageTemplateCapture=p.nativeMessageTemplateCapture;

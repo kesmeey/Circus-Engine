@@ -258,7 +258,7 @@ public final class CoreTests {
         assertions+=NativeGameVersionTests.run();
         assertions+=ScHostTests.run()+ScUiCaptionTests.run()+FlHostTests.run()+FlCreditsTests.run()+FlActorMotionTests.run()+FlCompositionTests.run()+Pc2ActorTests.run()+PcNativeStateTests.run();
         assertions+=DcdxActorTests.run()+DcdxHostTests.run();
-        assertions+=TyHostTests.run()+TyScrollTests.run();
+        assertions+=TyHostTests.run()+TyScrollTests.run()+TyUiCaptionTests.run()+TyMusicNamesTests.run();
         assertions+=TySelectorTests.run();
         assertions+=DcdxMenuTests.run()+DcdxBannerTests.run();
         assertions+=PpStateTests.run()+PpSystem206Tests.run();

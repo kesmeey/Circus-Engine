@@ -6,7 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import subprocess
-from build_desktop import ROOT, build
+from build_desktop import ROOT, build, build_environment, build_root
 
 
 def main():
@@ -17,16 +17,19 @@ def main():
     parser.add_argument('--player-jar', type=Path)
     parser.add_argument('--out', type=Path)
     parser.add_argument('--full-routes', action='store_true')
+    parser.add_argument('--build-root',type=Path,help='Generated output root; defaults to CIRCUS_BUILD_ROOT or workspace build')
     args = parser.parse_args()
     game = args.game.resolve(strict=True)
-    out = (args.out or ROOT/'build/ty-workflows'/datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')).resolve()
+    generated_build=build_root(args.build_root)
+    env=build_environment(generated_build)
+    out = (args.out or generated_build/'ty-workflows'/datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')).resolve()
     if out == game or game in out.parents or out.exists():
         parser.error('Use a new output directory outside the original game')
     out.mkdir(parents=True)
     if args.classes:
         java, classes = str(args.java_home/'bin/java.exe'), args.classes.resolve(strict=True)
     else:
-        java, classes = build(args.java_home, with_tests=True)
+        java, classes = build(args.java_home, with_tests=True, build_dir=generated_build)
     classpath = str(classes)
     if args.player_jar:
         classpath = str(args.player_jar.resolve(strict=True))+';'+classpath
@@ -56,7 +59,7 @@ def main():
             for action in ['02', 'start', 'ty:'+str(index), 'ty:'+str(index)]:
                 command += ['--action', action]
         with (dest/'stdout.log').open('wb') as stdout, (dest/'stderr.log').open('wb') as stderr:
-            result = subprocess.run(command, cwd=ROOT, stdout=stdout, stderr=stderr, timeout=900)
+            result = subprocess.run(command, cwd=ROOT, stdout=stdout, stderr=stderr, timeout=900,env=env)
         row = {'exit_code': result.returncode, 'command': command}
         report = next((dest/n for n in ['report.json', 'result.json'] if (dest/n).exists()), None)
         if report is None and audit == 'NativeStartupAudit':

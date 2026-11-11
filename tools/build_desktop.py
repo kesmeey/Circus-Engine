@@ -6,10 +6,15 @@ from pathlib import Path
 import os
 import shutil
 import subprocess
+try:
+    from .build_paths import build_environment, build_root
+except ImportError:
+    from build_paths import build_environment, build_root
 
 ROOT = Path(__file__).resolve().parent.parent
 
-def build(java_home=None, with_tests=False):
+def build(java_home=None, with_tests=False, build_dir=None):
+    generated_build = build_root(build_dir)
     javac = str(Path(java_home)/'bin'/('javac.exe' if os.name == 'nt' else 'javac')) if java_home else shutil.which('javac')
     if not javac:
         raise RuntimeError('A JDK 17+ is required; set JAVA_HOME or pass --java-home')
@@ -26,7 +31,9 @@ def build(java_home=None, with_tests=False):
     resources = sorted(p for p in (ROOT/'runtime/core/resources').rglob('*') if p.is_file())
     captured={p:p.read_bytes() for p in files+resources}
     digest = hashlib.sha256(b'desktop-class-output-v4\0'+b''.join(str(p).encode()+captured[p] for p in files+resources)).hexdigest()
-    scope=ROOT/'build'/('desktop-tests' if with_tests else 'desktop')
+    scope=generated_build/('desktop-tests' if with_tests else 'desktop')
+    if not scope.resolve().is_relative_to(generated_build):
+        raise RuntimeError('Desktop class output escaped the selected build directory')
     output=scope/'classes'; marker=scope/'source.sha256'
     if not marker.exists() or marker.read_text(encoding='utf-8') != digest:
         # A failed compile invalidates the previous output. Restoring its old
@@ -36,8 +43,8 @@ def build(java_home=None, with_tests=False):
         # javac does not remove deleted/renamed inputs. Clear prior classes
         # and copied resources so packaging cannot retain obsolete entries.
         generated_root=output.resolve()
-        if not generated_root.is_relative_to((ROOT/'build').resolve()):
-            raise RuntimeError('Desktop class output escaped the workspace build directory')
+        if not generated_root.is_relative_to(generated_build):
+            raise RuntimeError('Desktop class output escaped the selected build directory')
         generated=[p for p in output.rglob('*') if p.is_file()]
         if any(not p.resolve().is_relative_to(generated_root) for p in generated):
             raise RuntimeError('Desktop class output contains an external path')
@@ -57,7 +64,7 @@ def build(java_home=None, with_tests=False):
         response=scope/'javac-inputs.txt'
         response.write_text('\n'.join('"'+str(p).replace('\\','/').replace('"','\\"')+'"' for p in arguments)+'\n',encoding='utf-8')
         command=[javac,'-J-Dfile.encoding=UTF-8','-J-Duser.language=en','-Xlint:-options','@'+str(response)]
-        subprocess.run(command,check=True)
+        subprocess.run(command,check=True,env=build_environment(generated_build))
         for resource in resources:
             target=output/resource.relative_to(ROOT/'runtime/core/resources')
             target.parent.mkdir(parents=True,exist_ok=True)
@@ -69,5 +76,6 @@ if __name__ == '__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--java-home',default=os.environ.get('JAVA_HOME'))
     parser.add_argument('--with-tests',action='store_true',help='Compile all core tests and physical audit entrypoints into a separate output')
+    parser.add_argument('--build-root',type=Path,help='Generated output root; defaults to CIRCUS_BUILD_ROOT or workspace build')
     args=parser.parse_args()
-    print(build(args.java_home,args.with_tests))
+    print(build(args.java_home,args.with_tests,args.build_root))

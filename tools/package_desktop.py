@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import zipfile
 
-from build_desktop import build, ROOT
+from build_desktop import build, ROOT, build_root, build_environment
 
 
 def main():
@@ -15,11 +15,14 @@ def main():
     parser.add_argument('--jdk', type=Path, required=True)
     parser.add_argument('--ffmpeg', type=Path, required=True)
     parser.add_argument('--version', default='0.14.13-ty-music-display-dev')
+    parser.add_argument('--build-root',type=Path,help='Generated output root; defaults to CIRCUS_BUILD_ROOT or workspace build')
     args = parser.parse_args()
     if any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_' for c in args.version):
         raise SystemExit('Invalid version')
-    _, classes = build(args.jdk)
-    dist = ROOT / 'build/distribution'
+    generated_build=build_root(args.build_root)
+    env=build_environment(generated_build)
+    _, classes = build(args.jdk, build_dir=generated_build)
+    dist = generated_build / 'distribution'
     dist.mkdir(parents=True, exist_ok=True)
     package = dist / ('dc-runtime-' + args.version + '-windows-x64')
     package.mkdir(exist_ok=True)
@@ -27,11 +30,11 @@ def main():
     if not (package / 'jre/bin/javaw.exe').exists():
         subprocess.run([str(args.jdk/'bin/jlink.exe'), '--add-modules', 'java.desktop,jdk.charsets',
                         '--strip-debug', '--no-header-files', '--no-man-pages', '--compress=zip-6',
-                        '--output', str(package/'jre')], check=True)
+                        '--output', str(package/'jre')], check=True,env=env)
     icon = ROOT/'runtime/android/res/drawable-nodpi/launcher_logo.png'
     subprocess.run([str(args.jdk/'bin/jar.exe'), '--create', '--file', str(package/'dc-runtime.jar'),
                     '--main-class', 'org.circus.core.DesktopRuntime', '-C', str(classes), '.',
-                    '-C', str(icon.parent), icon.name], check=True)
+                    '-C', str(icon.parent), icon.name], check=True,env=env)
     shutil.copy2(args.ffmpeg, package/'bin/ffmpeg.exe')
     for name in ['LICENSE', 'THIRD_PARTY.md']:
         shutil.copy2(ROOT/name, package/name)
@@ -89,9 +92,9 @@ PC_COMPATIBILITY.md 包含旧版兼容层记录，不是本次全引擎忠实度
     (package/'validation').mkdir(exist_ok=True)
     for path in sorted((ROOT/'docs/validation').glob('*.json')):
         shutil.copy2(path, package/'validation'/path.name)
-    ffmpeg_version = subprocess.run([str(args.ffmpeg), '-version'], capture_output=True, text=True, check=True).stdout
+    ffmpeg_version = subprocess.run([str(args.ffmpeg), '-version'], capture_output=True, text=True, check=True,env=env).stdout
     (package/'FFMPEG-BUILD.txt').write_text(ffmpeg_version, encoding='utf-8')
-    report = {'version': args.version, 'game_assets_included': False, 'source_sha256': (ROOT/'build/desktop/source.sha256').read_text(),
+    report = {'version': args.version, 'game_assets_included': False, 'source_sha256': (classes.parent/'source.sha256').read_text(),
               'ffmpeg_sha256': hashlib.sha256(args.ffmpeg.read_bytes()).hexdigest(), 'files': {}}
     for p in sorted(package.rglob('*')):
         if p.is_file() and p.name != 'BUILD.json' and not any(x in {'saves','cache'} for x in p.relative_to(package).parts):

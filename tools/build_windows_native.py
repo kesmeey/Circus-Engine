@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+from build_paths import build_environment, build_root
 
 ROOT = Path(__file__).resolve().parent.parent
 TARGETS = {
@@ -30,6 +31,7 @@ def main():
     parser.add_argument('--java-home', type=Path, required=True)
     parser.add_argument('--vcvars', type=Path, required=True, help='Visual Studio VC/Auxiliary/Build/vcvarsall.bat')
     parser.add_argument('--target', action='append', choices=sorted(TARGETS))
+    parser.add_argument('--build-root',type=Path,help='Generated output root; defaults to CIRCUS_BUILD_ROOT or workspace build')
     args = parser.parse_args()
     if os.name != 'nt':
         parser.error('This service build requires Windows and MSVC')
@@ -37,7 +39,9 @@ def main():
     for path in [jdk/'include/jni.h', jdk/'include/win32/jni_md.h', vcvars]:
         if not path.is_file():
             parser.error('Missing build input: '+str(path))
-    out = ROOT/'build/windows-native'/datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+    generated_build=build_root(args.build_root)
+    env=build_environment(generated_build)
+    out = generated_build/'windows-native'/datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
     source = out/'source'
     source.mkdir(parents=True)
     inputs = {}
@@ -59,7 +63,7 @@ def main():
                          'if errorlevel 1 exit /b %errorlevel%\n'+' '.join(command)+'\n'
                          'exit /b %errorlevel%\n', encoding='utf-8')
         result = subprocess.run(['cmd.exe', '/d', '/v:off', '/c', str(batch)], cwd=out,
-                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,env=env)
         (out/(target+'.log')).write_bytes(result.stdout)
         item = {'exit_code': result.returncode}
         if result.returncode == 0:

@@ -14,7 +14,7 @@ final class NativeSaveImport {
     static final class Request {
         final CircusResources data;final TextCodec codec;final Path root,legacyProgress;final List<String> sources;
         Request(CircusResources data,TextCodec codec,Path root,Path legacy)throws IOException{this(data,codec,root,legacy,true);}
-        Request(CircusResources data,TextCodec codec,Path root,Path legacy,boolean requireSource)throws IOException{this.data=data;this.codec=codec;this.root=root;legacyProgress=legacy;sources=NativeProgress.sourcePaths(data.files,data.profileId);if(requireSource&&sources.isEmpty())throw new IOException("未找到原版 system.dat。可返回游戏卡片，选择“导入原版进度（选文件）”直接点选文件。目录查找支持 AdvData/SaveData、SaveData、游戏根目录，以及 F.L. 的 dc2fl 和已知旧版备份目录、W.Y. 的 dc3wy、P.P. 的 dc3pp 文件夹。其他备份目录请直接选文件。");}
+        Request(CircusResources data,TextCodec codec,Path root,Path legacy,boolean requireSource)throws IOException{this.data=data;this.codec=codec;this.root=root;legacyProgress=legacy;sources=NativeProgress.sourcePaths(data.files,data.profileId);if(requireSource&&sources.isEmpty())throw new IOException("未找到原版 system.dat。可返回游戏卡片，选择“导入原版进度（选文件）”直接点选文件。目录查找支持各已验证版本（含 D.C.4 PH）的 AdvData/SaveData、SaveData、游戏根目录，以及 F.L. 的 dc2fl 和已知旧版备份目录、W.Y. 的 dc3wy、P.P. 的 dc3pp 文件夹。其他备份目录请直接选文件。");}
         Preview prepare(String source)throws IOException{if(!sources.contains(source))throw new IOException("无效的原版进度来源");Preview p=NativeSaveImport.prepare(data,codec,root,source);p.legacyProgress=legacyProgress;requireMigrated(p.directory.resolve("progress.dat"),legacyProgress);return p;}
     }
     static final class Preview {
@@ -26,7 +26,15 @@ final class NativeSaveImport {
             this.data=data;this.codec=codec;this.directory=directory;this.progress=progress;sourcePath=path;sourceHash=hash;storySlots=slots;
             identity=DesktopEngine.mesIdentity(data);additions=progress.preview(readTarget(this));
         }
-        String description(){String action=progress.source.total==0?"原版系统存档中没有可导入的解锁记录。":additions.total==0?"手机已包含这些解锁记录，无需重复导入，不会修改文件。":"将合并已解锁进度；导入前备份手机现有系统进度。手机设置和已有剧情存档保留。";String scope=data.profileId.equals("dc2sc-3b69")?"\n\nSC 当前仅合并 CG 和场景已读标记，不导入通关状态。":data.profileId.equals("dc2ty-5f69")?"\n\nTo You 当前仅合并 CG 和场景已读标记，不导入通关状态、原版剧情存档或逐行已读文本。":data.profileId.equals("dcdx-7769")?"\n\nDCDX 当前仅合并 CG 和场景已读标记，不导入通关状态、原版剧情存档或逐行已读文本。":"";String slots="同目录检测到 "+storySlots+" 个原版剧情存档槽位；此版本仅导入系统解锁进度，不转换剧情槽位或已读文本记录。";return "来源："+sourcePath+"\n版本："+data.profileId+"\n\n"+counts(additions)+"\n（统计内部标记，不等于路线或图片数量）\n\n"+action+scope+"\n\n"+slots;}
+        String description(){
+            String action=progress.source.total==0?"原版系统存档中没有可导入的解锁记录。":additions.total==0?"手机已包含这些解锁记录，无需重复导入，不会修改文件。":"将合并已解锁进度；导入前备份手机现有系统进度。手机设置和已有剧情存档保留。";
+            String scope=data.profileId.equals("dc2sc-3b69")?"\n\nSC 当前仅合并 CG 和场景已读标记，不导入通关状态。":
+                data.profileId.equals("dc2ty-5f69")?"\n\nTo You 当前仅合并 CG 和场景已读标记，不导入通关状态、原版剧情存档或逐行已读文本。":
+                data.profileId.equals("dcdx-7769")?"\n\nDCDX 当前仅合并 CG 和场景已读标记，不导入通关状态、原版剧情存档或逐行已读文本。":
+                data.profileId.equals("dc4ph-abb6")?"\n\nD.C.4 PH 合并已解锁的 CG、场景、音乐及已确认的通关标记；不导入姓名、设置、原版剧情槽位或逐行已读文本。":"";
+            String slots="同目录检测到 "+storySlots+" 个原版剧情存档槽位；此版本仅导入系统解锁进度，不转换剧情槽位或已读文本记录。";
+            return "来源："+sourcePath+"\n版本："+data.profileId+"\n\n"+counts(additions)+"\n（统计内部标记，不等于路线或图片数量）\n\n"+action+scope+"\n\n"+slots;
+        }
     }
     static final class Result {
         final NativeProgress.Summary added;final Path backup;
@@ -40,7 +48,7 @@ final class NativeSaveImport {
     private static Request inspect(Context context,GameLibrary.Entry entry,boolean folderSearch)throws IOException{
         if(!entry.configured)throw new IOException("请先保存此游戏的配置，再导入原版进度");
         if(UnityCircusResources.ID.equals(entry.profile))throw new IOException("DC3R Unity 请使用游戏卡片的“导入原版存档”入口。");
-        if(!NativeProgress.supports(entry.profile))throw new IOException("原版进度导入支持 DCPC、DC2（2006）、DC2PC、DC2SC、DC2FL、DCDX、DC2TY、DC2DM、DC3DD、DC3WY、DC3PP 的已验证版本；此游戏版本尚未适配");
+        if(!NativeProgress.supports(entry.profile))throw new IOException("原版进度导入支持 DCPC、DC2（2006）、DC2PC、DC2SC、DC2FL、DCDX、DC2TY、DC2DM、DC3DD、DC3WY、DC3PP、DC4PH 的已验证版本；此游戏版本尚未适配");
         GameResources files=new GameResources(new DocumentTree(context.getContentResolver(),Uri.parse(entry.tree),folderSearch),entry.executable);
         Profile profile=GameVersion.detect(files).profile();if(!profile.id.equals(entry.profile))throw new IOException("游戏目录版本已改变，请重新配置游戏");
         TextCodec codec=GameText.select(files,profile,entry.encoding,entry.configuration);

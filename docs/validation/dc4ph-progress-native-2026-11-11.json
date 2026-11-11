@@ -1,0 +1,250 @@
+{
+  "schema": "circus-runtime.dc4ph.native-progress-contract.v1",
+  "date": "2026-11-11",
+  "profile": "dc4ph-abb6",
+  "scope": "Static original-engine data and user-owned native system.dat observations for a conservative progress-only import. No original Windows executable execution; no game directory writes; no claim of original story-slot interoperability.",
+  "engine": {
+    "path": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\engine-DC4PHDL.exe",
+    "bytes": 995328,
+    "sha256": "178ee9a5e34356b11942213e2e32a34afe4933c90d563bf5a3d6402250f54ab7",
+    "origin": "Exact 995328-byte PE slice from the user-supplied original ZIP, as established by the previous PH native receipt. Identity with the packed cracked launcher engine remains unproven."
+  },
+  "rea": {
+    "evidence_id": "ev_1fe7fa1d56ac3a1579323eefcfad42339845f28304d3fda8117c9c2049cbc7ec",
+    "provider": "Ghidra12.1.4",
+    "analysis_profile_digest": "ebb88298d4efe5aa28de7b16b6964d95be4b995862bf73d8430a36130119fa99",
+    "reused_existing_exports": true,
+    "new_REA_analysis_invoked": false,
+    "native_exports": {
+      "0x40eb40.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x40eb40.c",
+        "bytes": 3158,
+        "sha256": "8e27c187bb8f7c02a4c444faf8fdaa94a2ef69101a5413d768189fe60d0b707d",
+        "git_lf_sha256": "3b11aec22ff3c7d5e24012a1b86c58a04c4337cb64cd19ed821a698ff6b886a6"
+      },
+      "0x40c1c0.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x40c1c0.c",
+        "bytes": 2689,
+        "sha256": "bd7c4f4650e506aa899d5c7a87411b4f087b035adbab166214b2483d314245df",
+        "git_lf_sha256": "14964450f1944cba326e7d8bbb9fdec8b03bcc6147b186646c2122136e861950"
+      },
+      "0x40cc50.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x40cc50.c",
+        "bytes": 12814,
+        "sha256": "4e1af65d9ec1daf2619e78c0493a89734a624bff17b4c017ce1084062d4b0147",
+        "git_lf_sha256": "b9122c66ceabe2210ddd21f87c3a6565caf2621d7d7d14206bd14d8cf93a7102"
+      },
+      "0x40d240.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x40d240.c",
+        "bytes": 14883,
+        "sha256": "bb15866b1c9dd42536b1eeff087f29f59a1ea23276b8e8b3b11b52e99c0102e9",
+        "git_lf_sha256": "de6f46cd3c442397854c6276d832fda204d1d35b6626ea4fe4a2c2a9b5ddeb40"
+      },
+      "0x40c7b0.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x40c7b0.c",
+        "bytes": 3536,
+        "sha256": "3c6774f8ef3ac18d235dc35a29dc620695a865b32b5041c8f00d0e119ed1d312",
+        "git_lf_sha256": "afca18939b1f6e8c308018f05b4a15c44d571c271ee565033de8fd9e205300be"
+      },
+      "0x40c950.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x40c950.c",
+        "bytes": 2189,
+        "sha256": "df2560cd5c4a5ab8ebf88ed848cc839456b803d34bb09d869d3c5bb5e89ce68f",
+        "git_lf_sha256": "cf978441e74d2aafbe3622440cc2c3f5710e3472a4133e4824958be88dab3d85"
+      },
+      "0x40ea70.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x40ea70.c",
+        "bytes": 2016,
+        "sha256": "d7a085fa874dbb09d315f98cc4d0c15f99d9c14f62311ba07fff02328b5c970b",
+        "git_lf_sha256": "1365a1c7e49261418bc80713f1ab72171056f50c5c029923466c62bbcbf4ba88"
+      },
+      "0x40ca30.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x40ca30.c",
+        "bytes": 3395,
+        "sha256": "9ac3c0837d886dfe1df8f7a4a63c74a585c2866a06133e8bc7da179ec150c3d7",
+        "git_lf_sha256": "96b77abdfea7845f5a9cea07826c90ab9c8e61eefc48174e665918e6dd8ec492"
+      },
+      "0x40cb40.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x40cb40.c",
+        "bytes": 3395,
+        "sha256": "e2fe0c09f3dd9a91f59e3fd3a57fb07e33e5e4f14a3dc45af7b102fce9d3fc3a",
+        "git_lf_sha256": "a3efc57276546dfb62654c4ee8daeedb489d9b97d70d29396549580825264fd9"
+      },
+      "0x459120.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x459120.c",
+        "bytes": 7220,
+        "sha256": "ba9e66b1f35b55795a0fd3fbac926bfd362474a6985695a2d730977916da9a70",
+        "git_lf_sha256": "d0e0f2afc05d64f22e03b86574d4adbb28e29a39395df738168eb0a19fb45814"
+      },
+      "0x412090.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x412090.c",
+        "bytes": 11380,
+        "sha256": "66f0ae975ac9e0296fc6f815173438ad1a9436ba7737c100bbdcfa32ad71ca61",
+        "git_lf_sha256": "e37522503e0ed2a1f85b1177b7711b7311a9fdf994e01af62edca8228738a221"
+      },
+      "0x40f510.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x40f510.c",
+        "bytes": 2838,
+        "sha256": "ff57303ee42c1e08ede7cf795021d7eb371a811d96227c22debcad63b6a0841e",
+        "git_lf_sha256": "85c8d33d8da5770a3829cd917517f24ef8990945d0246ad19dd5d6ec56e14ee5"
+      },
+      "0x40c360.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x40c360.c",
+        "bytes": 2381,
+        "sha256": "f05db4353937ad85f7e16fad96ea96003a95970c5401810742c283dd06b8a1cd",
+        "git_lf_sha256": "d6744ad6449952a547ce0b11a3419d32571182afb2b570962d56462deed14ab7"
+      },
+      "0x40c590.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x40c590.c",
+        "bytes": 2299,
+        "sha256": "774a6f0e3b528548997e426ce82bd7135cdd8e4950ee2eb43173ce00979eda89",
+        "git_lf_sha256": "27e9e95878f76758a0d0255c4f5372829c6d9955f804eabd55830f11f39eed68"
+      },
+      "0x426300.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x426300.c",
+        "bytes": 20567,
+        "sha256": "44093e0933d2a5b6830139686f2b28a9dc2f1b26ed3debee0ce94ffc56e4879a",
+        "git_lf_sha256": "2a41fc0fc68344158841fd66b1d6182cbe3dc8874b47321b5653f4cfe1d73bed"
+      },
+      "0x427200.c": {
+        "file": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile\\dc4ph-decompile\\functions\\0x427200.c",
+        "bytes": 16600,
+        "sha256": "78e0ae0ca95903f36bb01c78472684753f9a016a6d5ff11907a1e2db1f3f8672",
+        "git_lf_sha256": "68e667811b539e5278a198fa9e2fa7263d4957756cc9f5f1997da58a7fd40cf8"
+      }
+    }
+  },
+  "native_file": {
+    "loader": "0x40eb40",
+    "writer": "0x40c1c0 (0x40e7c0 thunk)",
+    "main_bytes": 19328,
+    "voice_tail_bytes": 2040,
+    "total_bytes": 21368,
+    "layout": "Writer issues two sequential writes: object[0..0x4b80), then object[0x12231c..0x1223b14). Loader performs the corresponding two reads, copying the first table directly and the tail into the remote voice array.",
+    "magic_or_version_check": "None in the inspected loader/writer. Do not invent a format version word. Target game must first be independently identified as PH ABB6; exact size and reviewed field checks are conservative portable validation, not an original signature.",
+    "read_count_limit": "Native loader does not check returned read lengths. Portable import should require all21368 bytes rather than accepting uninitialized/truncated native memory behavior.",
+    "default_path": "<EXE-directory>/Advdata/savedata/system.dat",
+    "path_evidence": "412090 initializes SaveDir to EXE-directory + \\Advdata\\savedata; 40F510 optionally substitutes the configured registry SaveDir under Software\\CIRCUS\\DC4PHDL.",
+    "native_story_names": "DC4PHDL%02d.dat; pre-save files PREDC4PHDL%02d.dat. DC4PH is not the native slot prefix.",
+    "no_unproven_discovery_alias": "No default dc4ph/system.dat folder was found. Explicit user-picked files may of course reside elsewhere; that does not establish another native default."
+  },
+  "banks": {
+    "100": {
+      "offset": 216,
+      "bytes": 150,
+      "getter": "40CC50 bank100 byte load at this+D8+index",
+      "setter": "40D240 accepts signed index0..149 and stores one byte; index49 also changes text speed. Most globals are configuration/context, not clear flags."
+    },
+    "96": {
+      "offset": 384,
+      "bytes": 400,
+      "packed": false,
+      "producer": "40C950 finds the music catalogue entry and writes1 at this+180+index. Setter40D240 limits index<400."
+    },
+    "97": {
+      "offset": 784,
+      "bytes": 1200,
+      "packed": false,
+      "producer": "40EA70 ->40CA30 performs catalogue filename matching then writes1 at this+310+index. Setter40D240 limits index<1200."
+    },
+    "98": {
+      "offset": 1984,
+      "bytes": 650,
+      "packed": false,
+      "producer": "40EA90 ->40CB40 performs scenario catalogue filename matching then writes1 at this+7C0+index. Setter40D240 limits index<650. See exact machine-code sidecar for40EA90."
+    }
+  },
+  "native_merge_corrobation": "426300 native transfer parser independently names SYSCG/SYSBGM/SYSSCE, loops over1200/400/650 entries at310/180/7C0 and merges any seen state into1. This is corroborating native logical-bank evidence, not authorization to merge the complete native settings table.",
+  "import_projection": {
+    "strict_boolean_source_banks": [
+      96,
+      97
+    ],
+    "scene_source_normalization": "Bank98 is an unsigned byte in40CC50; actual Scene Replay MES checks98:index>0. Normalize any nonzero source byte into target1. The original source byte may be0x80 or0xff and still satisfies the native scene gate. Bank97 CG gates instead compare exactly1; do not apply this normalization to CG.",
+    "menu_gate_examples": {
+      "CG": "cg_nin.mes @0x1f32: branch.compare[97,227,1,0], strict equality to1; each0..959 catalogue index is read twice across the eight CG menu scripts.",
+      "SCENE": "sce_nin.mes @0x8ca: branch.compare[98,89,0,2], greater than0; each0..492 scenario index is read once across the eight scene scripts.",
+      "MUSIC": "MAIN.mes @0x267c checks100:109!=0. Music list contains43 items with IDs0..42; no direct bank96 gating occurs in the inspected music script."
+    },
+    "completion_allowlist": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112
+    ],
+    "completion_boolean": true,
+    "completion_counters": [],
+    "completion_evidence": {
+      "100": "ed.mes literal assignment1",
+      "101..108": "NIN/SOR/HIY/SII/MIU/TIY/ASA/ASU route-tail MES each assigns1 once",
+      "109": "DC4_DC99990101A assigns1; MAIN tests100:109 for its music-mode availability branch",
+      "110": "17 MES assignments1 in the eight ED scripts and MED, plus native459120 ending completion mode1; used for already-seen ending behavior",
+      "111": "Native459120 ending completion mode!=1 assigns1; used for already-seen ending skip",
+      "112": "Four completed-route MES assign1 and four common-story choices test it as an unlock boolean"
+    },
+    "excluded_globals": {
+      "0..99": "Configuration, cursors and play context; includes10(first-run initialized),20(CG behavior),21/26(music preferences),48/49/54/55/56(settings/UI),90/91/99(context),97/98(gallery cursors).",
+      "113..119,122..149": "No reviewed completion writer; preserve target.",
+      "120": "Prologue progress counter uses +=1; not a boolean completion flag.",
+      "121": "Prologue branch/selection state uses values0,1,2; not a completion boolean."
+    },
+    "preserve_target": "Merge only source1 into target0. Never lower an existing seen/clear flag. Do not copy settings, protagonist names, confirm/voice settings, favorites, play history, ordinary state, native checkpoints or story files.",
+    "source_zero_behavior": "A source0 does not unlock or clear anything. No synthetic all-unlock is inferred from an empty or partially read source."
+  },
+  "actual_source": {
+    "path": "D:\\gal\\D.C.4 Plus Harmony(已破解)\\D.C.4 Plus Harmony\\Advdata\\SAVEDATA\\system.dat",
+    "bytes": 21368,
+    "sha256": "47101ee4b3f47474ac3dc22716812ad6bbc4ff145b2eb4c2efdcf1dd5291a2ea",
+    "banks": {
+      "96": {
+        "offset": "0x180",
+        "count": 400,
+        "nonzero": 1,
+        "value_distribution": {
+          "0": 399,
+          "1": 1
+        }
+      },
+      "97": {
+        "offset": "0x310",
+        "count": 1200,
+        "nonzero": 0,
+        "value_distribution": {
+          "0": 1200
+        }
+      },
+      "98": {
+        "offset": "0x7c0",
+        "count": 650,
+        "nonzero": 0,
+        "value_distribution": {
+          "0": 650
+        }
+      }
+    },
+    "globals_nonzero": {
+      "10": 1
+    },
+    "not_an_all_CG_save": true
+  },
+  "all_CG_source_availability": "The only currently observed local system.dat has0 CG and0 scenario marks and is not an all-CG save. Synthetic full flag maps are appropriate schema/menu test fixtures but must not be represented as an observed original all-CG save.",
+  "machine_code_sidecar": {
+    "path": "F:\\circus-runtime-work\\dc4ph-progress-20261111\\native\\native-layout-probe.json",
+    "bytes": 8002,
+    "sha256": "4ef7293e5acb3f67a16752327c8f09eaa633f33be5a3466a8cfbef2525c16ba0"
+  },
+  "limits": [
+    "Exact length plus boolean ranges cannot prove the provenance of every arbitrary binary with coincidentally matching bytes; independently selected PH target is necessary.",
+    "This receipt establishes a system-progress import projection, not a native Windows story-save loader.",
+    "Static evidence uses the original ZIP engine and actual ABB6 scripts. Original cracked-launcher execution was not used to resolve other edition differences."
+  ]
+}

@@ -1,0 +1,229 @@
+{
+  "schema": "circus-runtime-dc4ph-progress-source-validation-1",
+  "date": "2026-11-11",
+  "version": "0.14.15-dc4ph-progress-dev",
+  "base_commit": "e113e8d",
+  "scope": "Version-bound PH native-system progress merge through the existing Android selected-document service. Existing engine scenes/VM and native Windows story format are not rewritten in this change.",
+  "profile": "dc4ph-abb6",
+  "original_executable_executed": false,
+  "original_game_or_native_save_written": false,
+  "game_assets_or_native_full_save_in_APK_or_Git": false,
+  "native_layout": {
+    "bytes": 21368,
+    "global": 216,
+    "music": 384,
+    "CG": 784,
+    "scenes": 1984,
+    "counts": {
+      "music": 400,
+      "CG": 1200,
+      "scenes": 650
+    },
+    "completion_allowlist": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112
+    ],
+    "scene_unsigned_nonzero_normalized": true,
+    "CG_music_completion_source_flags_strict_boolean": true,
+    "native_magic_or_version_word_available": false
+  },
+  "current_native_source": {
+    "path": "D:\\gal\\D.C.4 Plus Harmony(已破解)\\D.C.4 Plus Harmony\\Advdata\\SAVEDATA\\system.dat",
+    "bytes": 21368,
+    "sha256": "47101ee4b3f47474ac3dc22716812ad6bbc4ff145b2eb4c2efdcf1dd5291a2ea",
+    "summary": {
+      "completion": 0,
+      "music": 1,
+      "cg": 0,
+      "scenes": 0,
+      "total": 1
+    }
+  },
+  "current_native_source_is_all_CG": false,
+  "synthetic_full_fixture": {
+    "scope": "Private clone only; changes reviewed native progress fields to exercise import and original menus; not a user-provided all-clear save",
+    "summary": {
+      "completion": 13,
+      "music": 400,
+      "cg": 1200,
+      "scenes": 650,
+      "total": 2263
+    },
+    "new_target_additions": {
+      "completion": 13,
+      "music": 398,
+      "cg": 1200,
+      "scenes": 650,
+      "total": 2261
+    },
+    "sha256": "6bc0db28003814d4bd24480df3af9de0036af9fc1b772ec5c3407423d4b5d9fd"
+  },
+  "evidence": [
+    {
+      "path": "docs/validation/dc4ph-progress-native-2026-11-11.json",
+      "bytes": 14140,
+      "sha256": "e399be6d591a524152c162123d4a34edb4b7d5cb4c01253f70ddff0ab74b6fcc",
+      "git_lf_sha256": "711da28a4746b789e02fbaf9f78121298043563e3b020f9ff30590606a11c00c"
+    },
+    {
+      "path": "docs/validation/dc4ph-progress-sample-gates-2026-11-11.json",
+      "bytes": 12243,
+      "sha256": "541c5828ae7f2b0a40f985c03af9ebccf482889afbbeccc997f3c5156e661ee6",
+      "git_lf_sha256": "a01e408b6783fa704263ad4002f4a45bf89b66bbdb0ab1e877aba5a2088e800f"
+    },
+    {
+      "path": "docs/validation/android-dc4ph-progress-0.14.15.json",
+      "bytes": 6328,
+      "sha256": "e774346f0158e01df2dd0691ec0f85a0614e4113059119f0aa7b08b1f7b77d54",
+      "git_lf_sha256": "b45a2c706145392afe6d68033ebd137e2f27874a4fcde5811d780a2a2f7dd41c"
+    }
+  ],
+  "core": {
+    "jvm": "PASS 1150211 assertions; self-authored fixtures; DD choices/flow/original UI/animation/macros, WY bindings, DM memory/control and collection detection; archives, CRX/CRXD, audio, save integrity",
+    "new_PH_core_checks": 52,
+    "desktop_inputs": {
+      "path": "F:\\circus-runtime-work\\dc4ph-progress-20261111\\core-check-v2\\desktop-tests\\inputs-manifest.json",
+      "bytes": 87929,
+      "sha256": "9b1773b5916a674675f09382bf03bea9bc4eea3b983acf583cae7c014701b62e",
+      "git_lf_sha256": "fe852e07c62f6a646859fd34a93001627bd0d7023eb8f81cf9075d47509e32e0"
+    },
+    "shared_inputs_differing_from_APK": []
+  },
+  "desktop_original_menus": {
+    "result": {
+      "path": "F:\\circus-runtime-work\\dc4ph-progress-20261111\\gallery-check-v1\\report.json",
+      "bytes": 3285,
+      "sha256": "9cecb430cd90f95902fe4b3c69022323e506378c86d36291fe4ecd61f10b4f9f",
+      "git_lf_sha256": "9cecb430cd90f95902fe4b3c69022323e506378c86d36291fe4ecd61f10b4f9f"
+    },
+    "pass": true,
+    "checks": 63,
+    "first_CG_resource": "bg\\dc4_ev_asa07b",
+    "first_music_resource": "music\\001",
+    "viewer_right_click_and_CG_page2": true,
+    "scene_menu": true,
+    "music_list_entries": 43,
+    "imported_flags_survive_restart_and_portable_restore": true,
+    "time_media_controlled": true,
+    "audible_output_verified": false
+  },
+  "locked_negative_control": {
+    "result": {
+      "path": "F:\\circus-runtime-work\\dc4ph-progress-20261111\\negative-control-v2\\report.json",
+      "bytes": 1500,
+      "sha256": "93ee719a4c508aafd797bf1f3d8f4a0eb465d99e352cf770414fc2fcccada962",
+      "git_lf_sha256": "93ee719a4c508aafd797bf1f3d8f4a0eb465d99e352cf770414fc2fcccada962"
+    },
+    "pass": true,
+    "checks": 7,
+    "no_import_or_manual_flags": true,
+    "CG0_before_after": [
+      0,
+      0
+    ],
+    "CG0_action_available": false,
+    "same_original_thumbnail_coordinate": [
+      441,
+      175
+    ],
+    "same_imported_viewer_entered": false,
+    "original_source_unchanged": true,
+    "probe_source_in_repository": false
+  },
+  "recorded_original_range_pack": {
+    "path": "F:\\circus-runtime-work\\dc4ph-progress-20261111\\gallery-check-v1\\gallery-original.pack",
+    "bytes": 13794763,
+    "sha256": "4267a56ef7e9f094d5d71a30b96f172cf9bf4875895edc72215fbb919831ae2d",
+    "git_lf_sha256": "c084ae0557fb2828af04dcaa48523c14aea0b088bdba060f342e07101f24bbb8"
+  },
+  "frozen_android": {
+    "inputs": {
+      "path": "F:\\circus-runtime-work\\dc4ph-progress-20261111\\android-final-v1\\input-manifest.json",
+      "bytes": 108597,
+      "sha256": "587da6f2db3f1b6fadef61ab4bbac58f2794e87c8a1e0fc9311d3df34a3541cb",
+      "git_lf_sha256": "f5d08817a18dc1954740de878a172e7de6df1bb0c75186d19dc596ceddd25134"
+    },
+    "captured_files": 840,
+    "result": {
+      "path": "F:\\circus-runtime-work\\dc4ph-progress-20261111\\android-final-v1\\result.json",
+      "bytes": 698,
+      "sha256": "8da3113a825e80f08f10f1f8ae03573e0a94ffa22b2a86cf07c543a1fa3dc937",
+      "git_lf_sha256": "11bda1b32a7ce270fe91d3f31733f0c0b6090f6652bbd4cab36e9626e0d7726d"
+    },
+    "source_differences": []
+  },
+  "apk": {
+    "path": "F:\\circus-runtime-work\\dc4ph-progress-20261111\\distribution\\circus-runtime-0.14.15-dc4ph-progress-dev-android.apk",
+    "bytes": 12818280,
+    "sha256": "b65423a1930e3ce542e04d1ba3f5cc8497b32466b6bde6d75c477644573f529f",
+    "git_lf_sha256": "6cac504ed490eca832f888f8ce4e2a8113c86b39d00996a5e2ca100b733761a1"
+  },
+  "source_files": {
+    "runtime/core/src/org/circus/core/NativeProgress.java": {
+      "frozen_raw_sha256": "8823386557f5e77ad1d2973fe51df2e0fe734d17bace7e2913e522ca79474888",
+      "git_lf_sha256": "961600e9386df210a9d4113ad991e3a93e2424b87b6801a299311be64ba0742a"
+    },
+    "runtime/core/src/org/circus/core/Dc3State.java": {
+      "frozen_raw_sha256": "7b7a25d4bf1457c6bcefd11f20b4234cfffa53ea819feb808169c4154d33606d",
+      "git_lf_sha256": "5774218a25a233248c9b1c075b79be3a882064fa20f3cfacb5cc9aa34f86dd34"
+    },
+    "runtime/tests/org/circus/core/CoreTests.java": {
+      "frozen_raw_sha256": "93802d998544cc1527d2e38160b16cd26439d24eb4e8b5963124508a6a6b8414",
+      "git_lf_sha256": "98fb308df53a5f5edc1c0f8c23b052082947bf23662a0799be96bf8d579a12cc"
+    },
+    "runtime/tests/org/circus/core/Dc4ProgressTests.java": {
+      "frozen_raw_sha256": "69fd7aa37c052ced0791ad1d3f1873e843b1dd0ab8706ecb3fba157f89a463c5",
+      "git_lf_sha256": "69fd7aa37c052ced0791ad1d3f1873e843b1dd0ab8706ecb3fba157f89a463c5"
+    },
+    "runtime/desktop/src/org/circus/core/Dc4ProgressGalleryAudit.java": {
+      "frozen_raw_sha256": "0e15ae90beccd63927983fbd17a713569cdc56995fa739644419da3b3d17b833",
+      "git_lf_sha256": "0e15ae90beccd63927983fbd17a713569cdc56995fa739644419da3b3d17b833"
+    },
+    "runtime/android/AndroidManifest.xml": {
+      "frozen_raw_sha256": "4468324376f49aa4c976124d7f01139bda0ed1a62a6da26adf088601583fb840",
+      "git_lf_sha256": "9e4f7790ff541a835562b2baba5305841becad6bc8ed60e8a0aba39404ae3040"
+    },
+    "runtime/android/src/org/circus/runtime/LauncherActivity.java": {
+      "frozen_raw_sha256": "9e7d25711ccb89037127c42c92d70a985e00fd6257e17743d0ff4f0d5e1f5a64",
+      "git_lf_sha256": "88a2699677a2b01d744e8f0625aa50bc023a7ec883a8193f4ea756bb834f45a4"
+    },
+    "runtime/android/src/org/circus/runtime/NativeSaveImport.java": {
+      "frozen_raw_sha256": "60f80d2ee66cc1ec1c81c7cfc797e62ecdfa95ad98dffa44ad879890844f0872",
+      "git_lf_sha256": "756e8cdf8d704bb6e7e2f3c8758c8f21860ede1e190160817b82f781695d5fd4"
+    },
+    "runtime/android/src/org/circus/runtime/Dc4ProgressImportInstrumentation.java": {
+      "frozen_raw_sha256": "a336d450dd4cee5e66d60f41ce309f8a8e84eb366e9084320743f934bf715a68",
+      "git_lf_sha256": "a336d450dd4cee5e66d60f41ce309f8a8e84eb366e9084320743f934bf715a68"
+    }
+  },
+  "preservation": [
+    "Only missing source unlocks are added; existing nonzero phone progress retained.",
+    "Native preferences/names/favorites/voice data and unreviewed globals are excluded.",
+    "Phone progress gets an exact backup before atomic replacement.",
+    "Existing CVS2 story slot is byte-identical after import.",
+    "Repeated or empty import causes no extra persistent write/backup.",
+    "Changed source/START identity and corrupt target fail without overwriting phone state."
+  ],
+  "limits": [
+    "This is the independently reviewed Plus Harmony ABB6 system format, not other D.C.4 releases.",
+    "Current supplied native system.dat has0 CG/scene entries; the positive full-gallery validation uses an explicitly synthetic private full map.",
+    "Counts are internal capacities, not actual numbers of CG pictures, songs or routes.",
+    "Native Windows story slots, per-line text-read history and native settings are not imported.",
+    "Android tests exercise real ContentResolver documents and the shipping import service, plus production Canvas gallery execution; actual picker taps, SAF game-tree discovery, Activity lifecycle and a physical Xiaomi14 are outside this run."
+  ],
+  "storage": {
+    "new_outputs_root": "F:\\circus-runtime-work\\dc4ph-progress-20261111",
+    "old_APK_and_user_saves_deleted": false
+  }
+}

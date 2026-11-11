@@ -1,0 +1,151 @@
+{
+  "schema": "circus-runtime.android-dc4ph-progress-0.14.15.v1",
+  "recorded_utc": "2026-11-11T15:12:36.149495+00:00",
+  "scope": "Shipping selected-document NativeSaveImport transactions through an actual ContentResolver/DocumentsProvider; exact-original-range PH CG menu and viewer after persisted synthetic-full-map import. No original EXE run, user/phone state writes or actual user all-CG-save claim.",
+  "apk": {
+    "path": "F:\\circus-runtime-work\\dc4ph-progress-20261111\\distribution\\circus-runtime-0.14.15-dc4ph-progress-dev-android.apk",
+    "bytes": 12818280,
+    "sha256": "b65423a1930e3ce542e04d1ba3f5cc8497b32466b6bde6d75c477644573f529f",
+    "package": "org.circus.runtime",
+    "version_code": 45,
+    "version_name": "0.14.15-dc4ph-progress-dev",
+    "certificate_sha256": "eac9f2b2ac9d83250e1427a580a02d8d3d4f270d51b96ecf3865f86656c7097f",
+    "same_development_certificate": true,
+    "signature_verified": true,
+    "min_sdk": 26,
+    "target_sdk": 35,
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86_64"
+    ],
+    "original_game_assets_bundled": false
+  },
+  "frozen_source": {
+    "root": "F:\\circus-runtime-work\\dc4ph-progress-20261111\\android-final-v1",
+    "input_count": 840,
+    "input_manifest_sha256": "587da6f2db3f1b6fadef61ab4bbac58f2794e87c8a1e0fc9311d3df34a3541cb",
+    "mirror_changes": [],
+    "live_changes_at_build_completion": [],
+    "source_changes_during_build": [],
+    "live_changes_at_delivery": []
+  },
+  "core": {
+    "jvm_assertions": 1150211,
+    "art_assertions": 1150211,
+    "emulator": "emulator-5586",
+    "abi": "x86_64",
+    "canvas_pixel_contracts": 8,
+    "transition_mask_pixel_comparisons": 484,
+    "result": "PASS"
+  },
+  "import": {
+    "checks": 52,
+    "pass": true,
+    "native_bytes": 21368,
+    "content_uri_actual_provider": true,
+    "provider_metadata": "Reordered columns, unknown size, renamed .unusual selected file; byte limits checked from the actual stream",
+    "primary_synthetic_fixture": {
+      "music_flags": 400,
+      "CG_flags": 1200,
+      "scene_flags": 650,
+      "completion_flags": 0,
+      "scene_nonzero_inputs": [
+        2,
+        128,
+        255
+      ],
+      "unreviewed_global_bytes": 255,
+      "sha256": "4a346a724ba332d43e492152ae705a3c4b0392feba98a56b0817b0b48a2ae5c2"
+    },
+    "separate_completion_fixture": "Exactly100..112=1, thirteen imported completion flags cold-loaded; counters120/121=255 excluded",
+    "merge_checks": [
+      "Read-only preview creates no destination and scans no sibling slots",
+      "Shipping atomic backup retains exact prior progress bytes",
+      "All150 existing globals and every settings/favorite/voice byte outside the imported banks are byte-identical for the zero-completion primary source",
+      "PH-only preferences180/181/182 and control-bar227 persist",
+      "Existing real CVS2 portable story slot is byte-identical",
+      "Repeat renamed import makes no write and no extra backup",
+      "Empty source does not erase progress",
+      "Wrong/truncated/other-game extents and oversize provider returns rejected",
+      "Nonbinary music/CG source flags rejected; unsigned nonzero scene flags normalize to seen",
+      "Actual selected content URI changed after preview rejected before destination creation",
+      "Changed START identity and corrupt prior progress rejected without replacing data"
+    ],
+    "existing_story_sha256": "7f4ad67625a79c5f3edd738481a4525436774d87a80de22cccc386b12fb0181d",
+    "backup_sha256": "a7872117ecd0423bceae5be93f88ecdb9ed8594536e587cd74c1874bf083aa73"
+  },
+  "original_gallery": {
+    "pack_sha256": "4267a56ef7e9f094d5d71a30b96f172cf9bf4875895edc72215fbb919831ae2d",
+    "synthetic_full_map_imported": true,
+    "steps": [
+      {
+        "script": "MAIN",
+        "pc": 6144,
+        "action": "extra",
+        "pointer": [
+          1142,
+          452
+        ]
+      },
+      {
+        "script": "MAIN",
+        "pc": 10150,
+        "action": "cgmode",
+        "pointer": [
+          1142,
+          228
+        ]
+      },
+      {
+        "script": "CG_ASA",
+        "pc": 3901,
+        "action": "cg0",
+        "pointer": [
+          441,
+          175
+        ]
+      }
+    ],
+    "final_script": "CG_ASA",
+    "final_pc": 31770,
+    "actions": [],
+    "background": "bg\\dc4_ev_asa07b",
+    "missing_images": [],
+    "game_executable_run": false,
+    "android_activity_touch_or_saf_game_tree_tested": false
+  },
+  "visual_review": {
+    "gallery-title.png": {
+      "sha256": "84320a6728df736d4c52a0eac11210246868f7e183a7c7b989efc03f1d09723b",
+      "review": "Original title and extras control visible at1280x720"
+    },
+    "gallery-imported.png": {
+      "sha256": "154ef4fb804671dc3e8e3df69527a47494ad52150d7a512543070e4afec6a5e6",
+      "review": "Original CG viewer displays the expected cg0 image without missing assets; no native GPU pixel-equivalence claim"
+    }
+  },
+  "boundaries": {
+    "phone_touched": false,
+    "original_game_directory_written": false,
+    "original_game_EXE_executed": false,
+    "original_user_full_CG_save_available_or_tested": false,
+    "synthetic_full_map_explicitly_labeled": true,
+    "actual_native_original_range_bytes_used": true,
+    "LauncherActivity_or_system_picker_UI_interaction_tested": false,
+    "game_SAF_document_tree_tested": false,
+    "physical_touch_vsync_or_lifecycle_tested": false,
+    "Windows_story_save_conversion_supported": false,
+    "name_settings_voice_or_line_read_history_imported": false,
+    "all_gallery_pages_or_all_variations_on_ART_verified": false
+  },
+  "private_evidence": {
+    "platform_result": "F:\\circus-runtime-work\\dc4ph-progress-20261111\\android-final-v1\\platform-validation\\result.json",
+    "platform_result_sha256": "c8eae6e7857344a41997e3fb4c145d2f5a1d5d9a3051c030a0ce549691a7a8d0",
+    "core_art_log_sha256": "6b6c5cae1435e6b1e103bdc0e21150f1df04e538a34d112c7063a411d62ed1e5",
+    "import_log_sha256": "9ef98bf3ff5fbff334adc146bf834559b249f3e3b60c5dafd872ce5c94358f66",
+    "range_pack_sha256": "4267a56ef7e9f094d5d71a30b96f172cf9bf4875895edc72215fbb919831ae2d",
+    "range_pack_committed_or_APK_bundled": false
+  },
+  "new_generated_files_drive": "F"
+}

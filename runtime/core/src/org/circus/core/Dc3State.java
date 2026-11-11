@@ -124,7 +124,7 @@ public final class Dc3State implements Variables.Special {
         if(packedProgress!=null&&(b==93||b==94||b==95))return;
         if(packedProgress!=null&&b==99&&!ppWritableRegister(i))return;
         if(packedProgress!=null&&b==99&&(i==5||i==7||i==8||i==9)){b99[i]=value;return;}
-        byte[] bytes=bank(b);if(bytes!=null){if(i<0||i>=bytes.length)return;if(b==100&&i==49)write(99,11,value);if(bytes[i]!=(byte)value&&(b==97||b==98||b==100&&i>=100&&(i<=110||profileId.equals("dc4ph-abb6")&&i==111)))progressRevision++;bytes[i]=(byte)value;return;}
+        byte[] bytes=bank(b);if(bytes!=null){if(i<0||i>=bytes.length)return;if(b==100&&i==49)write(99,11,value);if(bytes[i]!=(byte)value&&(b==97||b==98||b==100&&i>=100&&(i<=110||profileId.equals("dc4ph-abb6")&&i<=112)))progressRevision++;bytes[i]=(byte)value;return;}
         if(b==93){if(i>=0&&i<20)b93[i]=value;return;}
         if(b==94||b==95){if(i==50||(i>=0&&i<voiceCount))(b==94?b94:b95)[i]=b==94?Math.min(value,100):value;return;}
         if(b!=99)return;index(i,256);

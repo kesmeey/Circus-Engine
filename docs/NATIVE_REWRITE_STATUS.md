@@ -1,5 +1,7 @@
 # 非 Unity 引擎重写状态
 
+Android **0.14.15-dc4ph-progress-dev** 增加PH原版system.dat进度合并：严格21,368字节、独立D8/180/310/7C0偏移、CG/音乐布尔值、场景无符号非零语义及13项通关allowlist。settings/姓名/剧情槽和序章counter、分支值保留，新增PH112的持久化dirty通知；原生依据与实际样本范围见[PH进度导入](DC4PH_PROGRESS.md)。此前固定包和各阶段验证记录保留。
+
 本批版本为 **0.14.14-dc4ph-dev**，执行契约为rev8；旧固定包保留。新增D.C.4 Plus Harmony的ABB6独立绑定，使用该目录原版ZIP内静态提取的引擎、536份MES及实际素材核对，不执行原EXE，也不把它当作D.D.同版。1280×720场景、资源槽、缩放、长镜头、文本宏、语音/COMU、粒子、模糊、PCK动画、片尾和菜单分别有版本owner。具体检查与近似边界见[本作说明](DC4PH.md)。此前[TY源码与交付验证](validation/ty-music-display-source-2026-11-09.json)作为历史记录保留。
 
 TY补齐原生服务9的曲名背景处理：以ordinary3:5索引所选EXE内48项260字节曲名表，汉化EXE按GBK、两原版EXE按CP932解码；平台一次绘入背景并沿用UiCapture持久化，旧TYH3格式保留，恢复后继续换曲的callback也保留。Scene Replay的58列表标题另按CP932处理；正文和其他UI指令仍保留各自编码规则。Music Mode与回放标题已进入标准TY工作流，不以四故事正文通过替代这些菜单检查。

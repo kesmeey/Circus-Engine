@@ -391,6 +391,7 @@ public final class CoreTests {
         reloading.settingsLoader=target->{throw new IOException("unreadable settings");};reject(()->reloading.command("system.persist",new int[]{26,0},new byte[0]),"persist 26 storage failure is not ignored");
         assertions+=Dc4GeometryTests.run()+Dc4SystemCommandsTests.run()+Dc4NativeStateTests.run()+Dc4SceneTests.run()+Dc4CreditsTests.run()+Dc4ParticlesTests.run()+Dc4BindingTests.run()+Dc4UiMoveTests.run()+Dc4BlurTests.run()+Dc4CameraTests.run()+Dc4BacklogTests.run()+Dc4AnimationTests.run()+Dc4NoticeTests.run()+Dc4SwayTransitionTests.run()+Dc4RubyTests.run()+Dc4ChoiceTests.run()+Dc4ControlsTests.run();
         assertions+=Dc4AudioStatusTests.run();
+        assertions+=Dc4ProgressTests.run();
         assertions+=ResourceSelectionTest.run();
         assertions+=DdGalleryTests.run();
         assertions+=CircusScrVmTests.run();

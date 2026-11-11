@@ -5,7 +5,8 @@ import java.util.*;
 
 /** Version-bound original system progress. Never copies native preferences or story state.
  * Layout evidence and completion allowlists: docs/ANDROID_0135.md and
- * docs/validation/sc-fl-save-import-2026-11-08.json and dcdx-system-import-native-2026-11-08.json.
+     * docs/validation/sc-fl-save-import-2026-11-08.json, dcdx-system-import-native-2026-11-08.json
+     * and dc4ph-progress-native-2026-11-11.json.
  * Independently identify the selected game's MES first; a format version word
  * such as DCDX's 0x77 does not identify the game by itself.
  */
@@ -60,7 +61,11 @@ public final class NativeProgress {
         // PP writes 3C8C bytes from 7410D8. Getter 4256A0/425AF3 binds globals
         // at 741160 and LSB-first flag arrays at 7411C4/7411DF/741275.
         new Layout("dc3pp-9872","DC3PP",15500,0x88,0xec,0x107,0x19d,210,1200,650,true,
-            new int[]{0,1,2,3,4,5,28},new int[0])
+            new int[]{0,1,2,3,4,5,28},new int[0]),
+        // PH40EB40/40C1C0 read/write4B80 main bytes plus7F8 voice bytes.
+        // Getter40CC50 and setter40D240 own byte arrays, not packed bits.
+        new Layout("dc4ph-abb6","D.C.4 PH",21368,0xd8,0x180,0x310,0x7c0,400,1200,650,false,
+            new int[]{100,101,102,103,104,105,106,107,108,109,110,111,112},new int[0])
     };
     // Reviewed user-provided FL all-CG save predates the four bytes inserted
     // before the names at+48. Its CG/seen/global offsets must not use the
@@ -81,6 +86,7 @@ public final class NativeProgress {
     }
     public static boolean storySlot(String id,String source,String path)throws IOException{
         layout(id);String parent=source.substring(0,source.lastIndexOf('/')+1).toLowerCase(Locale.ROOT),p=path.toLowerCase(Locale.ROOT);
+        if(id.equals("dc4ph-abb6"))return p.startsWith(parent)&&p.substring(parent.length()).matches("(?:pre)?dc4phdl[0-9]+\\.dat");
         String prefix=id.equals("dcpc-2063")?"dcpc":id.equals("dc2-3363")?"dc2":id.equals("dc2pc-5769")?"dc2pc":id.equals("dc2sc-3b69")?"dc2sc":id.equals("dc2fl-9c69")?"dc2fl":id.equals("dc2ty-5f69")?"dc2ty":id.equals("dcdx-7769")?"dcdx":id.equals("dc2dm-9d72")?"dc2dm":id.equals("dc3wy-a09f")?"dc3wy":id.equals("dc3pp-9872")?"dc3pp":"dc3dd";
         return p.startsWith(parent)&&p.substring(parent.length()).matches(prefix+"[0-9]+\\.dat");
     }
@@ -95,9 +101,9 @@ public final class NativeProgress {
         layout=l;profileId=l.id;completion=new int[l.completion.length];
         for(int n=0;n<completion.length;n++){int index=l.completion[n],v=bytes[l.global+index]&255;if(!l.counter(index))flag(v,100,index);completion[n]=v;}
         music=flags(bytes,l.music,l.musicCount,l.packed,96);cg=flags(bytes,l.cg,l.cgCount,l.packed,97);
-        // DCDX98 uses MOVZX then native5F signed >0. Normalize the source to
-        // boolean seen flags; CG gates instead compare exactly==1.
-        scenes=flags(bytes,l.scenes,l.sceneCount,l.packed,98,l.id.equals("dcdx-7769"));
+        // DCDX98/PH98 use MOVZX then their native menu's >0 gate. Normalize
+        // positive seen bytes; CG menus instead compare exactly==1.
+        scenes=flags(bytes,l.scenes,l.sceneCount,l.packed,98,l.id.equals("dcdx-7769")||l.id.equals("dc4ph-abb6"));
         source=new Summary(count(completion),count(music),count(cg),count(scenes));sourceSummary=l.name+" system.dat ("+bytes.length+" bytes; "+source+")";
     }
     public static NativeProgress parse(String id,byte[] bytes)throws IOException{

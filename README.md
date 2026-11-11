@@ -7,11 +7,11 @@
 仓库：[kesmeey/Circus-Engine](https://github.com/kesmeey/Circus-Engine)。
 项目目录与命令行工具仍沿用 `circus-runtime`／`dc_runtime` 命名。
 
-本批版本为 **0.14.14-dc4ph-dev**：新增 D.C.4 Plus Harmony 的独立 ABB6 绑定、1280×720 画布、原标题与剧情执行、背景适配、粒子、文本宏、PCK 动画、原菜单与便携存读档。具体范围、原生证据与演出近似见 [D.C.4 PH 说明](docs/DC4PH.md)。此前 [TY 音乐与回放文字修复](docs/validation/ty-music-display-source-2026-11-09.json)、[SC 显示修复](docs/validation/sc-display-source-2026-11-09.json)保留，旧固定包不覆盖。安装包不含游戏素材。
+Android 当前版本为 **0.14.15-dc4ph-progress-dev**：补上 D.C.4 PH 原版 `system.dat` 的全 CG 进度导入，合并 CG、场景、音乐及13项经确认的通关标记，保留手机设置和剧情槽，见[使用与范围](docs/DC4PH_PROGRESS.md)。此前0.14.14新增的独立 ABB6 绑定、1280×720场景、原标题/剧情/UI/动画与便携存读档继续保留，详见 [D.C.4 PH 说明](docs/DC4PH.md)。此前 [TY 音乐与回放文字修复](docs/validation/ty-music-display-source-2026-11-09.json)、[SC 显示修复](docs/validation/sc-display-source-2026-11-09.json)保留，旧固定包不覆盖。安装包不含游戏素材。
 
 当前目标已调整为约80%的主要功能与大多数常见游戏流程，允许延期少量难处理的版本和边缘行为；这是工程范围，尚不是完成率声明。见[当前交付目标](docs/ENGINE_SCOPE.md)。
 
-本批 Android 安装包为 `circus-runtime-0.14.14-dc4ph-dev-android.apk`，沿用开发签名，可覆盖安装。当前本机构建输出移到 F 盘，见 [外置构建目录](docs/BUILD_STORAGE.md)。D.C.4 PH 的这份日文数据使用自动或日文编码；已验证的 TY／SC 汉化副本继续使用自动识别或 GBK，字符替换保持自动。
+本批 Android 安装包为 `circus-runtime-0.14.15-dc4ph-progress-dev-android.apk`，沿用开发签名，可覆盖安装。当前本机构建输出移到 F 盘，见 [外置构建目录](docs/BUILD_STORAGE.md)。D.C.4 PH 的这份日文数据使用自动或日文编码；已验证的 TY／SC 汉化副本继续使用自动识别或 GBK，字符替换保持自动。
 
 此前分发的 Android 开发包 **0.13.15** 修复 W.Y. 夏露露剧情中的重复目录分隔符报错，同时覆盖 P.P. 的同类图片引用。旧安装包：`build/distribution/circus-runtime-0.13.15-android-dev.apk`，见 [修复说明](docs/ANDROID_01315.md)。保留 [0.13.14 的 W.Y.／P.P. 原版系统进度导入](docs/ANDROID_01314.md)和 [0.13.13 的手机启动与中文补丁兼容](docs/ANDROID_01313.md)。
 
@@ -140,7 +140,8 @@ python tools/build_windows_native.py --java-home <JDK21> --vcvars "<Visual Studi
 ## 存档
 
 手机存档不是原 Windows 格式。原版的系统进度（通关、CG、场景解锁）可以导入：
-游戏卡片「更多 → 导入原版进度」，支持 DCPC／DC2（2006）／DC2PC／DC2SC／DC2FL／DC2TY／DCDX／DC2DM／DC3DD／DC3WY／DC3PP／DC3R。
+游戏卡片「更多 → 导入原版进度」，支持 DCPC／DC2（2006）／DC2PC／DC2SC／DC2FL／DC2TY／DCDX／DC2DM／DC3DD／DC3WY／DC3PP／DC3R／DC4PH。
+DC4PH使用独立21,368字节布局，合并已有CG、场景、音乐及已确认的13项通关标记；不复制原设置、姓名、原Windows剧情槽或逐行已读。当前本地那份原档没有CG/场景记录，并非全CG，详见[PH进度说明](docs/DC4PH_PROGRESS.md)。
 SC、TY仅合并CG与场景已读；FL另含已确认的通关标记，并按2028／2032字节精确选择各自布局。本次实际2028字节源含597项CG、360项场景已读及16项通关标记，导入数量按源文件已有标记统计。三作均保留本机设置、姓名和已有剧情槽，重复导入不重复写入。DCDX现支持从 `system.dat` 合并CG及场景已读标记，保留本机设置、姓名和剧情槽；不导入通关状态、原版历史检查点或剧情槽。
 SC／FL／TY／DCDX 的原Windows剧情槽转换仍未实现；原版Save→Load通过指运行时通过原菜单保存自己的便携槽，不能据此推断原Windows文件互通。
 Android 的原版剧情槽导入入口目前仅覆盖 DC3R；本轮桌面新增 DC2（2006）普通 ADV 剧情槽转换，范围见下文。

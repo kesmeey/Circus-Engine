@@ -1,0 +1,75 @@
+{
+  "schema": "circus-runtime-dc4ph-blur-ui-static-and-portable-1",
+  "date": "2026-11-11",
+  "source_game_executed": false,
+  "engine_sha256": "178ee9a5e34356b11942213e2e32a34afe4933c90d563bf5a3d6402250f54ab7",
+  "rea_evidence": "ev_1fe7fa1d56ac3a1579323eefcfad42339845f28304d3fda8117c9c2049cbc7ec",
+  "decompile_files": {
+    "0x4284b0.c": "4e3fb7e00afd94d3646016eb19bdde32cfb2d5682579f26193de609224c689e0",
+    "0x444cb0.c": "f747711ed0410c79969e9a28937b9f36320f2d53f5a16be5838982fb6d9d9995",
+    "0x447c10.c": "2d0bb9c395777fb87eab9e08446ca0eb300e42f8d84ffe171159ce5648d0f423",
+    "0x448ce0.c": "3a95cc8e97b1c7a296073ef3f6e54b4bb8eb86672ae61aa8c8d16878b2ff20b8",
+    "0x4432e0.c": "bd578c3e86d5901b0b654d2331da4a1b44e097f51a6307394bc3f61d6f90e1d5",
+    "0x412b50.c": "ca8dfddaba5cf5ce0ceae5008309b7721c3afef74c7ede88161157a9fe3ed3ea",
+    "0x412b00.c": "230df107dd9e276db5a3d0ae0148a1017b9c83dc0aca042b14d536033f0d33a1"
+  },
+  "corpus": {
+    "scripts": 536,
+    "physical_framing_errors": 0,
+    "private_receipt": "F:/circus-runtime-work/dc4ph-20261111/native/blur-ui-corpus-scan.json",
+    "receipt_sha256": "17c994d15e730684524239e45ed85ef7fc5e2808e7f157bbd89d0aaaea54a1c7",
+    "B1": [{"args": [30, 0, 0, 0], "count": 45}, {"args": [50, 0, 0, 0], "count": 1}],
+    "B2": [
+      {"args": [30, 100, 120, 0], "count": 19},
+      {"args": [30, 100, 180, 0], "count": 14},
+      {"args": [50, 70, 30, 0], "count": 1},
+      {"args": [70, 100, 30, 0], "count": 1}
+    ],
+    "78": [{"script": "main.mes", "args": [1280, 0, 0, 0], "count": 2}, {"script": "main.mes", "args": [0, 0, 360, 0], "count": 2}]
+  },
+  "blur_native_contract": {
+    "meaning": "Gaussian blur; neither gamma correction nor a pow/color transform",
+    "scope": "Interpreter object-pointer table this+0x5FA0, first60 objects only. BG logical1 maps to native0; cast logical4..8 to10/20/30/40/50; portrait logical25 to56. The native UI objects are outside this range.",
+    "B1": "a0=0 clears pass0. For1..100, set shader pass4 and call444CB0(a0*10,a0*10). Values outside0..100 leave these objects unchanged.",
+    "444CB0": "If either input is0 or1000, set ordinary pass0. Otherwise object+0x74=1/inputX, +0x78=1/inputY.",
+    "B2": "Normal branch enqueues447C10(a0*10,a1*10,a2,mode0,id=-1), once per object. Native skip/restore branch immediately sets target shader and reciprocal. Fourth script argument is unused here.",
+    "447C10": "Store single precision start=1/from and target=1/to, delta=(target-start)/ticks. A zero delta does not enqueue. The animation queue has100 entries per render object.",
+    "448CE0": "Animation initialization sets pass4 and starting reciprocal; subsequent updates add the reciprocal delta. Native input/time factors and skip multiplier can alter update cadence. Target raw value1000 resets ordinary shader when completed.",
+    "shader_resource": {
+      "file_range": "0xF1E3D..0xF22A5 exclusive",
+      "sha256": "26c3db33e485b2004730b5f0f9caaaf42f5203e8e5333bed77ef65e09f4985ad",
+      "technique_pass": 4,
+      "shader": "ps_main_gauss",
+      "uv": "center and eight horizontal/vertical/diagonal neighbors at +/-m_TU,+/-m_TV; both sampler address modes Clamp",
+      "weights": "center0.2; eight neighbors0.1 each; four-channel weighted result",
+      "bindings": "443B2B..443B6F calls effect SetFloat(m_TU) and SetFloat(m_TV), constant strings at492594/49258C. The object reciprocal fields feed those values.",
+      "alpha": "A local center alpha multiplication is unused by the returned p0..p8 sum; the returned nine-sample RGBA does not apply that local alpha."
+    }
+  },
+  "ui_78_native_contract": {
+    "call": "412B50(current construction panel,a0,a1,a2,a3,20,0)",
+    "origin": "412B00 stores starting float X/Y in panel+3A0/+3A4. 412B50 stores target+3A8/+3AC and velocity(target-start)/20 in+3B0/+3B4.",
+    "guard": "panel+37C busy means ignore the new request; a stationary start/target does not start an animation",
+    "barrier_15_255": "4284B0 sets this+62C=1 and yields15. 433E50 case15 calls414BC0(primary286C,0) each frame, then4128E0(primary) returns panel+37C. Only when this primary panel is no longer moving does the interpreter clear62C and mark3D08=1 to resume. This is a UI movement barrier, not an input wait or255*200ms timer. Dc4UiCommands.remainingMillis(0) exposes the portable barrier duration.",
+    "portable": "Dc4UiCommands keeps separate builder origins, moves quads/sprites/text and button hit rectangles together, and uses20 ticks at60Hz (334ms integer boundary). Existing geometry is translated once per delta, including alias deduplication. The PHU2 appendix saves start/target/current offset/clock/busy state."
+  },
+  "voice_spatial_46_native_contract": {
+    "actual_callers": "All494 physical46 records across536 scripts are exactly(a0=0, bytes='-').",
+    "native": "4284B0 clears global41E18. On '-' or a0=255,40E3B0 clears the0x72C-byte name/pan table416E8 and count41E14;255 additionally enables actor tracking41E18. Other names register uppercase name32+pan4 via40E3E0 with a0*100 (a0>100 first subtracts256). The duplicate prefix search returns without replacing an existing record.",
+    "consumer": "At voice-start processing in4284B0,41E18 controls optional actorX-following pan, and nonempty41E14 overrides pan by voice name through40E470. This registration command itself does not play or stop sound.",
+    "portable": "Dc4Speech accepts the audited(0,'-') clear, retaining an empty positional override registry and actor tracking disabled. Independent AF buffer panning remains intact. Unused name registration or actor-tracking enable explicitly fails rather than pretending to implement spatial audio."
+  },
+  "portable_boundaries": [
+    "Native D3D shader and original game were examined statically; no original executable or native GPU screenshot was executed for this receipt.",
+    "Dc4Blur uses a60Hz clock, one shared animation queue for the uniformly addressed object group, and point-sampled integer-rounded RGBA. Exact GPU subpixel filtering, per-object input factors and skip acceleration remain approximations.",
+    "The standalone ARGB filter accepts a whole texture. Filtering a scene after composition rather than every native render object changes occlusion edges and texture-coordinate scales. The renderer must explicitly declare its chosen approximation, and must leave UI outside the blurred stage.",
+    "Zero B2 endpoint/duration is absent from the audited game and can yield native infinities/division by zero; the portable helper rejects these unreviewed calls explicitly.",
+    "The portable78 move translates built panel geometry on elapsed updates rather than reproducing the native floating draw-origin pipeline. Native animation frame jitter and construction during an active origin animation are not claimed identical."
+  ],
+  "verification": {
+    "frozen_build": "F:/circus-runtime-work/dc4ph-20261111/blur-ui-check-v4/desktop-tests/inputs-manifest.json",
+    "Dc4BlurTests": "19 PASS: reciprocal midpoint, queued job order, target100 reset, cold helper restore, nine-tap pixel impulse/constant clamp, source immutability, invalid snapshot rejection",
+    "Dc4UiMoveTests": "7 PASS: native start origin, alias-safe geometry translation, input/text alignment,20-tick midpoint/target, primary-panel barrier duration, busy guard, restored remaining move and builder isolation",
+    "Dc4NativeStateTests": "25 PASS retained after UI appendix upgrade, including native46 clear preserving AF pan and refusing unreviewed actor tracking"
+  }
+}

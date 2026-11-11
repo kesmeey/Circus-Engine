@@ -389,6 +389,8 @@ public final class CoreTests {
         check(reads[0]==1&&reloading.read(99,7)==37&&reloading.read(100,10)==1,"persist 26 reloads stored settings and initialized flag");
         check(reloading.read(97,14)==1&&reloading.read(94,50)==22&&transientVars.read(3,12)==77,"persist 26 retains progress and voice preferences without replacing ordinary variables");
         reloading.settingsLoader=target->{throw new IOException("unreadable settings");};reject(()->reloading.command("system.persist",new int[]{26,0},new byte[0]),"persist 26 storage failure is not ignored");
+        assertions+=Dc4GeometryTests.run()+Dc4SystemCommandsTests.run()+Dc4NativeStateTests.run()+Dc4SceneTests.run()+Dc4CreditsTests.run()+Dc4ParticlesTests.run()+Dc4BindingTests.run()+Dc4UiMoveTests.run()+Dc4BlurTests.run()+Dc4CameraTests.run()+Dc4BacklogTests.run()+Dc4AnimationTests.run()+Dc4NoticeTests.run()+Dc4SwayTransitionTests.run()+Dc4RubyTests.run()+Dc4ChoiceTests.run()+Dc4ControlsTests.run();
+        assertions+=Dc4AudioStatusTests.run();
         assertions+=ResourceSelectionTest.run();
         assertions+=DdGalleryTests.run();
         assertions+=CircusScrVmTests.run();

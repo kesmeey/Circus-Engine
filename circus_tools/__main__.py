@@ -14,7 +14,7 @@ from .semantics import analyze_source
 
 
 def main() -> int:
-    cli = argparse.ArgumentParser(description="D.C.1/2/3 static analysis (never executes games)")
+    cli = argparse.ArgumentParser(description="D.C.1/2/3 and verified D.C.4 PH static analysis (never executes games)")
     commands = cli.add_subparsers(dest="command", required=True)
     commands.add_parser("catalog", help="list reference-only framing profiles")
     scan_parser = commands.add_parser("scan", help="inventory, hash, parse and optionally unpack data")

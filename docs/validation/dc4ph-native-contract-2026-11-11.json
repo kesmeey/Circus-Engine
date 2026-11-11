@@ -1,0 +1,665 @@
+{
+  "schema": "circus-runtime-dc4ph-native-contract-1",
+  "date": "2026-11-11",
+  "scope": "Static native executable observations for user-supplied D.C.4 Plus Harmony; no original EXE execution, no gameplay/runtime equivalence claimed.",
+  "originals_read_only": true,
+  "target_directory": "D:/gal/D.C.4 Plus Harmony(已破解)/D.C.4 Plus Harmony",
+  "artifacts": {
+    "supplied_cracked_exe": {
+      "relative": "DC4PHDL.exe",
+      "bytes": 2703360,
+      "sha256": "e6a3ca1afda95b5803d19a9abfb7448cf17c219a20a9fc823b51b325bead5e97",
+      "sections_note": "Outer Enigma executable; not executed or dynamically unpacked."
+    },
+    "supplied_zip_original_exe": {
+      "zip": "未破解原版.zip",
+      "member": "DC4PHDL.exe",
+      "bytes": 1318912,
+      "sha256": "fc06a259540aea5e040beb2fd616cb5cef7280b1f9c82b0630cd9d3fef65ec8f"
+    },
+    "embedded_engine": {
+      "source_member_offset": "0x4f000",
+      "bytes": 995328,
+      "sha256": "178ee9a5e34356b11942213e2e32a34afe4933c90d563bf5a3d6402250f54ab7",
+      "image_base": "0x400000",
+      "note": "Complete PE occupies remaining bytes in supplied original EXE; exact slice only, original target not launched."
+    }
+  },
+  "rea": {
+    "evidence_id": "ev_1fe7fa1d56ac3a1579323eefcfad42339845f28304d3fda8117c9c2049cbc7ec",
+    "provider": {
+      "id": "ghidra",
+      "name": "Ghidra",
+      "version": "12.1.4"
+    },
+    "analysis_profile_digest": "ebb88298d4efe5aa28de7b16b6964d95be4b995862bf73d8430a36130119fa99",
+    "result_path": "F:\\circus-runtime-work\\dc4ph-20261111\\native\\decompile-result-temp-d-output-d.json",
+    "export_root": "F:/circus-runtime-work/dc4ph-20261111/native/decompile/dc4ph-decompile/functions",
+    "counts": {
+      "written": 2044,
+      "failed": 1,
+      "external": 244
+    },
+    "failure": {
+      "address": "0x48549d",
+      "reason": "Ghidra overlapping input varnodes; unrelated procedure remains undecompiled."
+    },
+    "storage_limitation": "Current REA Windows native authority refused F drive path attributes (Win32 87). Used identical 995328-byte engine copy and required private Ghidra runtime in existing D build/rea-temp, copied finished exports to F. Guard was not bypassed. Other task outputs stay F."
+  },
+  "selected_function_files": {
+    "0x4284b0": {
+      "relative_path": "functions/0x4284b0.c",
+      "sha256": "4e3fb7e00afd94d3646016eb19bdde32cfb2d5682579f26193de609224c689e0",
+      "status": "written"
+    },
+    "0x437fd0": {
+      "relative_path": "functions/0x437fd0.c",
+      "sha256": "a9e71424fc63c594e5ed5622796acb0affdf830f7d8abd55023c535b54cc2879",
+      "status": "written"
+    },
+    "0x438560": {
+      "relative_path": "functions/0x438560.c",
+      "sha256": "c1537bf2be3540e125809f40cf973b44f03ded08ebe894b18a978e0388bae828",
+      "status": "written"
+    },
+    "0x4381d0": {
+      "relative_path": "functions/0x4381d0.c",
+      "sha256": "cf6feb354dc8435e735918a4790bcf8a845816c1afb3c97a074b14b4d211d195",
+      "status": "written"
+    },
+    "0x4381f0": {
+      "relative_path": "functions/0x4381f0.c",
+      "sha256": "8a8e7c5770353f01be6c3464e3231de216898555e0d62cf1969fea47bdd95faa",
+      "status": "written"
+    },
+    "0x438370": {
+      "relative_path": "functions/0x438370.c",
+      "sha256": "c513dd3a70641c10d3707ce443c5231dc73b40663fe43debed784dbd2d7eaaca",
+      "status": "written"
+    },
+    "0x407b10": {
+      "relative_path": "functions/0x407b10.c",
+      "sha256": "dbcaf3e54310b71cad3c0857e47dcf8a179bd87f96632162ba3142ad4832c220",
+      "status": "written"
+    },
+    "0x40cc50": {
+      "relative_path": "functions/0x40cc50.c",
+      "sha256": "4e1af65d9ec1daf2619e78c0493a89734a624bff17b4c017ce1084062d4b0147",
+      "status": "written"
+    },
+    "0x40d240": {
+      "relative_path": "functions/0x40d240.c",
+      "sha256": "bb15866b1c9dd42536b1eeff087f29f59a1ea23276b8e8b3b11b52e99c0102e9",
+      "status": "written"
+    },
+    "0x40a2e0": {
+      "relative_path": "functions/0x40a2e0.c",
+      "sha256": "7cc540a7a517116f4afc4ed904bc63d86fd9bd71fd97c9b82939baab1df30921",
+      "status": "written"
+    },
+    "0x432b90": {
+      "relative_path": "functions/0x432b90.c",
+      "sha256": "62094be68bb1a3887eedc487d989869df10dd2b8b851234fb31f0d4fbd33772d",
+      "status": "written"
+    },
+    "0x422cf0": {
+      "relative_path": "functions/0x422cf0.c",
+      "sha256": "c6981957f34e41666cab3e792681aa713b86ffece2734118239a7415e1d99674",
+      "status": "written"
+    },
+    "0x422de0": {
+      "relative_path": "functions/0x422de0.c",
+      "sha256": "304997ed5098ce39a161a79826c53b48e699164e4da6b3e7ee0edb57cd279d96",
+      "status": "written"
+    },
+    "0x439010": {
+      "relative_path": "functions/0x439010.c",
+      "sha256": "108c6d432a60990248c7deca81cb442336cc3cc5401e921b46dbd38f0bcd4fc7",
+      "status": "written"
+    },
+    "0x444040": {
+      "relative_path": "functions/0x444040.c",
+      "sha256": "6361c2497fdb7c378191f30355d91af2608bd1ebd540d7b79c9766aebe692950",
+      "status": "written"
+    }
+  },
+  "mes": {
+    "loader": "0x437fd0",
+    "physical_header": "u32 count followed by count*u32 body offsets and count*u16 metadata; body starts at 4+6*count.",
+    "signature": "body[0]=0xb6; body[1..2] u16=0x00ab; combined stamp 0xabb6.",
+    "record_reader": "0x438560",
+    "u8_u8": [
+      0,
+      58
+    ],
+    "u8_nulstring": [
+      59,
+      71
+    ],
+    "nulstring": [
+      72,
+      109
+    ],
+    "encoded_nulstring": [
+      105,
+      109
+    ],
+    "four_i16": [
+      110,
+      255
+    ],
+    "extension_at_fetch": 119,
+    "label_opcode": 75,
+    "checkpoint_opcode": 3,
+    "block_opcode": 32,
+    "fetch_unsigned": true,
+    "scanner_opcodes_unsigned": true,
+    "block_id_signed_8": true,
+    "four_word_operands_signed_16": true,
+    "text_transform_function": "0x407b10",
+    "text_transform": "Every stored byte before raw NUL is increased by 0x20 modulo 256. If transformed byte equals $, substitute space.",
+    "main_dispatch": "0x428c20",
+    "jump_table": "0x431b10",
+    "jump_table_entries": 182,
+    "extension_note": "Immediately following 0x77 supplies four extra signed-i16 words and adds nine bytes; explicit owner string/payload handlers additionally advance native PC."
+  },
+  "static_semantic_labels": {
+    "00": {
+      "semantic": "stream.stop",
+      "target": "0x42e47e"
+    },
+    "02": {
+      "semantic": "control.marker",
+      "target": "0x430d4a"
+    },
+    "03": {
+      "semantic": "checkpoint",
+      "target": "0x42ecbf"
+    },
+    "04": {
+      "semantic": "history.range",
+      "target": "0x42edbd"
+    },
+    "06": {
+      "semantic": "wait.message",
+      "target": "0x42900d"
+    },
+    "0b": {
+      "semantic": "ui.wait",
+      "target": "0x429793"
+    },
+    "0c": {
+      "semantic": "dd.grid.wait",
+      "target": "0x429e2a"
+    },
+    "0f": {
+      "semantic": "scene.transition",
+      "target": "0x429e68"
+    },
+    "10": {
+      "semantic": "system.exit",
+      "target": "0x428d78"
+    },
+    "11": {
+      "semantic": "state.reset_scenario",
+      "target": "0x428ede"
+    },
+    "13": {
+      "semantic": "audio.music_stop",
+      "target": "0x42adcb"
+    },
+    "15": {
+      "semantic": "wait.duration",
+      "target": "0x42904b"
+    },
+    "16": {
+      "semantic": "wait.audio",
+      "target": "0x42e3df"
+    },
+    "17": {
+      "semantic": "ui.button_sound",
+      "target": "0x4295f6"
+    },
+    "18": {
+      "semantic": "system.persist",
+      "target": "0x42b8b6"
+    },
+    "1a": {
+      "semantic": "ui.panel",
+      "target": "0x429221"
+    },
+    "1c": {
+      "semantic": "scene.checkpoint",
+      "target": "0x42ee02"
+    },
+    "1e": {
+      "semantic": "system.command",
+      "target": "0x428cfb"
+    },
+    "20": {
+      "semantic": "block.marker",
+      "target": "0x42af82"
+    },
+    "22": {
+      "semantic": "ui.flush",
+      "target": "0x429aee"
+    },
+    "24": {
+      "semantic": "ui.template",
+      "target": "0x42b3b7"
+    },
+    "25": {
+      "semantic": "state.random",
+      "target": "0x42e55d"
+    },
+    "3d": {
+      "semantic": "ui.resource",
+      "target": "0x42917a"
+    },
+    "4b": {
+      "semantic": "label.named",
+      "target": "0x430d4a"
+    },
+    "4f": {
+      "semantic": "script.transfer",
+      "target": "0x42eb2f"
+    },
+    "50": {
+      "semantic": "script.transfer_alt",
+      "target": "0x42ec08"
+    },
+    "51": {
+      "semantic": "script.entry_label",
+      "target": "0x42eb08"
+    },
+    "54": {
+      "semantic": "jump.named",
+      "target": "0x42e98c"
+    },
+    "5c": {
+      "semantic": "choice.item",
+      "target": "0x4296f1"
+    },
+    "5e": {
+      "semantic": "text.speaker",
+      "target": "0x42ee5d"
+    },
+    "5f": {
+      "semantic": "ph.text.skip_string",
+      "target": "0x42976c"
+    },
+    "63": {
+      "semantic": "system.version",
+      "target": "0x428c91"
+    },
+    "6a": {
+      "semantic": "text.speaker",
+      "target": "0x42ee5d"
+    },
+    "6b": {
+      "semantic": "text.body",
+      "target": "0x42eeb3"
+    },
+    "77": {
+      "semantic": "arguments.extend",
+      "target": "0x430d4a"
+    },
+    "82": {
+      "semantic": "variable.update",
+      "target": "0x42abc5"
+    },
+    "83": {
+      "semantic": "variable.copy",
+      "target": "0x42ac4b"
+    },
+    "84": {
+      "semantic": "variable.sum_list",
+      "target": "0x42ac7b"
+    },
+    "85": {
+      "semantic": "variable.add_variable",
+      "target": "0x42ad8e"
+    },
+    "86": {
+      "semantic": "branch.compare",
+      "target": "0x42ae62"
+    },
+    "09": {
+      "semantic": "choice.begin",
+      "target": "0x4297fe",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "0a": {
+      "semantic": "choice.show",
+      "target": "0x42983c",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "70": {
+      "semantic": "audio.music",
+      "target": "0x42df44",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "71": {
+      "semantic": "audio.sound",
+      "target": "0x428d98",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "72": {
+      "semantic": "host.command_with_string",
+      "target": "0x42936c",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "73": {
+      "semantic": "ui.button_sprite",
+      "target": "0x4293fe",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "74": {
+      "semantic": "dd.grid.common_sprite",
+      "target": "0x429d1c",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "75": {
+      "semantic": "dd.grid.item_sprite",
+      "target": "0x429dcf",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "76": {
+      "semantic": "ui.button_text",
+      "target": "0x429644",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "79": {
+      "semantic": "ui.confirm_position",
+      "target": "0x42e960",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "7a": {
+      "semantic": "ui.image_quad",
+      "target": "0x42b53d",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "7b": {
+      "semantic": "ui.text_style",
+      "target": "0x42b5ba",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "7d": {
+      "semantic": "dd.grid.configure",
+      "target": "0x429b73",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "7e": {
+      "semantic": "dd.grid.rect",
+      "target": "0x429be3",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "7f": {
+      "semantic": "dd.grid.item",
+      "target": "0x429c13",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "80": {
+      "semantic": "dd.grid.text",
+      "target": "0x429c74",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "81": {
+      "semantic": "dd.grid.sound",
+      "target": "0x429bc3",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "87": {
+      "semantic": "ui.text",
+      "target": "0x42b6bb",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "88": {
+      "semantic": "ui.origin",
+      "target": "0x42b69d",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "89": {
+      "semantic": "scene.background_move",
+      "target": "0x42b75c",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "8b": {
+      "semantic": "scene.character_transform",
+      "target": "0x42d085",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "8d": {
+      "semantic": "ui.message_position",
+      "target": "0x42d063",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "90": {
+      "semantic": "ui.palette",
+      "target": "0x42bf4c",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "99": {
+      "semantic": "scene.camera_speed",
+      "target": "0x42cbd8",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "9b": {
+      "semantic": "scene.camera",
+      "target": "0x42cc1b",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "9d": {
+      "semantic": "scene.camera",
+      "target": "0x42cd93",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "9f": {
+      "semantic": "scene.background_move_x",
+      "target": "0x4301f9",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "a0": {
+      "semantic": "scene.background_move_y",
+      "target": "0x4302f7",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "a1": {
+      "semantic": "scene.background_set",
+      "target": "0x4303e0",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "a4": {
+      "semantic": "scene.record_motion",
+      "target": "0x42a8a6",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "a5": {
+      "semantic": "scene.replay_motion",
+      "target": "0x42a842",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "ac": {
+      "semantic": "scene.center_background",
+      "target": "0x42b29b",
+      "note": "Semantic label describes native behavior; payload and state details must be checked before reusing DD handlers."
+    },
+    "32": {
+      "semantic": "ui.focus",
+      "target": "0x430032"
+    },
+    "33": {
+      "semantic": "ui.option_flag",
+      "target": "0x430042"
+    },
+    "34": {
+      "semantic": "ui.navigation",
+      "target": "0x430066"
+    },
+    "35": {
+      "semantic": "ui.navigation_extra",
+      "target": "0x4301cd"
+    },
+    "3c": {
+      "semantic": "ph.scene.resource",
+      "target": "0x42bf8d"
+    },
+    "43": {
+      "semantic": "ui.action",
+      "target": "0x42e5ef"
+    },
+    "55": {
+      "semantic": "ph.ui.hover_sound",
+      "target": "0x429614"
+    },
+    "56": {
+      "semantic": "ph.ui.click_sound",
+      "target": "0x42962c"
+    },
+    "61": {
+      "semantic": "ui.music_end_action",
+      "target": "0x42e5c9"
+    },
+    "65": {
+      "semantic": "audio.voice_register",
+      "target": "0x42fed4"
+    },
+    "68": {
+      "semantic": "ph.ui.cursor_resource",
+      "target": "0x430757"
+    },
+    "ad": {
+      "semantic": "dd.grid.columns",
+      "target": "0x43073f"
+    }
+  },
+  "direct_default_opcodes": [
+    "01",
+    "02",
+    "08",
+    "0d",
+    "0e",
+    "12",
+    "14",
+    "19",
+    "1f",
+    "23",
+    "27",
+    "29",
+    "2a",
+    "2b",
+    "2c",
+    "2d",
+    "2e",
+    "2f",
+    "30",
+    "31",
+    "3a",
+    "3b",
+    "42",
+    "48",
+    "4b",
+    "53",
+    "57",
+    "5d",
+    "60",
+    "62",
+    "66",
+    "69",
+    "6c",
+    "6e",
+    "77",
+    "8a",
+    "91",
+    "92",
+    "93",
+    "97",
+    "98",
+    "a3",
+    "a6"
+  ],
+  "state": {
+    "getter": "0x40cc50",
+    "setter": "0x40d240",
+    "note": "Root independently reviewing exact ordinary/special arrays and initialization against these decompilations; labels alone do not authorize inheriting another edition state behavior."
+  },
+  "system_service_dispatch": "0x40a2e0",
+  "system_service_notes": {
+    "1": "native local hour -> ordinary3:0",
+    "2": "index of maximum ordinary5:0..3 ->ordinary3:0",
+    "18": "settings backup/compare/restore; size0x4b80; special global100:54 excluded during compare",
+    "19": "selected original native save existence ->ordinary9:87",
+    "20": "native page loads/frees ten PNG slot thumbnails",
+    "98": "backup state/reset temporary status",
+    "99": "restore backup state",
+    "200": "music selection/playback modes, internal catalog/index tracking",
+    "201": "music favorites flags toggle/all-set/all-clear",
+    "202": "music favorite status ->ordinary3:0",
+    "206": "random enabled voice character from global offsets0x13e..0x142 ->ordinary5:0",
+    "211": "clear ordinary5:50..57 and5:60..69",
+    "105": "native online clear bonus registration with configured name/email; not executed or reproduced by static analysis"
+  },
+  "limitations": [
+    "The static engine was extracted from the supplied original executable, while the selected cracked launcher includes Enigma. No claim that all wrappers or patches are byte-identical.",
+    "Semantic labels describe native behavior; exact payload/state and geometry must be verified before sharing host handlers.",
+    "Only source code and validation metadata belong in Git; copied native files/decompilations are private F-drive analysis inputs.",
+    "Actual gameplay, Android rendering, audio, menus and saves require separate execution checks of the rewritten runtime."
+  ],
+  "string_payload_contract": {
+    "unconditional_raw_skip_byte_nul": [
+      114,
+      118
+    ],
+    "conditional_raw_skip_byte_nul": {
+      "0x80": "a3!=99",
+      "0x87": "a2!=0"
+    },
+    "encoded_caption_after_owner": "0x5c owns the next marker+rawNUL payload and unconditionally applies byte+32/$space. All74 actual choice captions use marker6C (seven other6C records are87 UI payloads); standalone6C remains dispatch default. Its own raw string is the choice label.5F skips another following raw string and is not a caption opcode."
+  },
+  "ui_contract_notes": {
+    "panel_templates": "Native1A and24 selector mapping exactly matches existing Dc3Ui.store arrays; no new indices inferred.",
+    "slots": "3D checks u8<6, resolves logical resource slot37+u8; minus reuses stored name.",
+    "navigation": "34 selectors0..8 plus99, where a1=1/2 switches builder pointer2870/2874; otherwise286C. Native32/33/35 set booleans to1 regardless of operands.",
+    "actions": "43 selectors0/1 clear2/3; selectors7..9 no native cases;6 records currentwindowmode and16 registers60s idle. Helper registers fields but idle/window frame callback execution deferred.",
+    "cursor": "68 has native Windows CUR path and SetCursor; rewritten runtime stores cursor resource only.",
+    "voice_register": "65 (40E080/40E1D0) appends/clears voice names with enabled1 andvolume100. 61 is music-end callback string, not voice registry.",
+    "ui_effects": "34 selectors5..7 request last-button pulse/rotation, preserved metadata but precise timing deferred."
+  },
+  "macros": {
+    "record_opcode": "0xb0",
+    "native_fetch_and_record_gate": "0x4287c0..0x428c20",
+    "record_bank": "0x41e1c",
+    "record_stride": "0x844",
+    "record_group_stride": "0x52a8",
+    "replay_origin": "0x3cb74",
+    "trigger": "@cmdN or @dN ->eventkind0x24 ->431F20 invokes4284B0(this,-N,0)",
+    "replay_group_bias": "recordGroup0 is @d1 (3CB74 +10*844 =41E1C); recordGroup1 is @d2.",
+    "skips_original_handler_during_recording": true,
+    "slot_limit": 10,
+    "native_group_selector": "B0 a0=255 selects min(a1,9) and resets cursor when it changes; otherwise toggles recording.",
+    "prose_reset": "6A/6B reset recording cursor/group0 and dispatch their ordinary behavior.",
+    "timing": "explicit @tN*100ms or integer((prefix_native_byte_length/2*22)/(text_speed*2+16))*16.65999984741211",
+    "native_bank_clear": "memset(41E1C,0,19D48) in433E50 before normal VM phase; 19D48=50 records.",
+    "implementation_scope": "Own helper snapshots registered host commands and scheduled events; owning UI payload/core-VM macro commands reject explicitly. Common sampled recording corpus contains no UI payload or variable/jump opcodes.",
+    "no_original_runtime_observation": true
+  },
+  "speech": {
+    "coordinates_registration": "AE modeFF stores group/x/y;47 only registers name when all three initialized;40E560 upcases name and updates or appends exact name in20groups x100 records.",
+    "source_coverage": "Independent full physical record scan by resources agent found all59280 AE records have flag255.",
+    "comu_text": "6D native text transform happens before457F70; type1 queue20/type2 queue200; inactive no-op. Queued bytes are decoded native text, not re-decoded by helper.",
+    "voice_pan": "AF=SetPan group0 BGM buffers0..1,group1 SE2..7,group2 VOICE8..11;43AC20 wrapsIDirectSoundBuffer vtable40.",
+    "pan_source_coverage": "All1482 AF records are(0,0,0,0),(0,0,0,1),(0,0,0,2),494 each. Dynamic target pan is outside initial tested scope."
+  },
+  "implementation_helpers": [
+    "runtime/core/src/org/circus/core/Dc4UiCommands.java",
+    "runtime/core/src/org/circus/core/Dc4Speech.java",
+    "runtime/core/src/org/circus/core/Dc4Macros.java"
+  ],
+  "implementation_limits": [
+    "UI navigation5..7 retain construction metadata; exact button pulse/rotation and60second idle/window callback timing are deferred.",
+    "Face positions are registered and snapshot-persistent; eye/mouth frame animation is not inferred from registration alone.",
+    "Macro replay supports reviewed host operations. Owning UI payload and control-flow/variable/script-transfer macro entries reject explicitly; none appeared among the physical-record scan of recorded source commands.",
+    "Macro replay timings use native formula; ordering tied with the older shared inline audio/image scheduler is not claimed native-equivalent.",
+    "AF only immediate SetPan is implemented; all1482 physical AF records in the corpus are zero-pan/no-duration."
+  ]
+}

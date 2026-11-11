@@ -33,6 +33,9 @@ public final class MesVm {
         void position(MesScript script,int pc);
         /** The fetch has actually happened; a preceding wait never calls this. */
         default void fetched(MesScript.Instruction instruction)throws IOException{}
+        /** Native command recording may consume a decoded instruction without
+         * dispatching it. Return its next file PC, or -1 for normal execution. */
+        default int interceptInstruction(MesScript script,MesScript.Instruction instruction)throws IOException{return -1;}
         /** Commit dispatcher-local bookkeeping after the command's real effects. */
         default void dispatched(MesScript.Instruction instruction)throws IOException{}
         /** Attempt scope closes on STOP and on a precise handler failure too. */
@@ -210,6 +213,10 @@ public final class MesVm {
         MesScript.Instruction instruction=ownedProducer?new MesScript.Instruction(nativeHead,nativeHead.args,nativeHead.end,null):script.instruction(pc);MesScript.Record r=instruction.record;
         if(bound)knownNativeRead(r.offset,instruction.next-r.offset);
         if(host instanceof ContextHost)((ContextHost)host).fetched(instruction);
+        if(host instanceof ContextHost){int recorded=((ContextHost)host).interceptInstruction(script,instruction);if(recorded>=0){
+            if(bound||!script.executableOffset(recorded))throw new IOException("Invalid recorded instruction continuation");
+            pc=recorded;((ContextHost)host).dispatched(instruction);return;
+        }}
         String op=p.operation(opcode);int next=instruction.next;
         boolean nativeControl=false,nativeExtension=bound&&!ownedProducer&&p.ownsExtension(r.opcode);
         if(nativeExtension)advanceNativeCursor(1);
@@ -311,13 +318,22 @@ public final class MesVm {
         case "dcdx.command":{
             emit(op,args,r.bytes);if(host instanceof MenuHost){byte[] action=((MenuHost)host).automaticMenuAction();if(action!=null){Integer target=script.label(action);if(target==null)throw new IOException("DCDX system action label missing");next=target;}}break;
         }
-        case "text.speaker":case "text.body":emit(op,args,script.nativeText(r));break;
+        case "text.speaker":case "text.body":case "ph.comment.text":emit(op,args,script.nativeText(r));break;
         case "choice.item":{
             if(!(host instanceof ChoiceHost))throw new IOException("Choice-aware host required");
+            if(p.id.equals("dc4ph-abb6")){
+                // PH4284B0:5C owns the following marker+raw NUL string.
+                // Its marker is6C in all actual74 choices, but the handler
+                // skips it without decoding it as an independent instruction.
+                MesScript.Record caption=instruction.stringPayload!=null?instruction.stringPayload:script.stringPayload(next,r.offset);
+                byte[] decoded=caption.bytes.clone();for(int i=0;i<decoded.length;i++){int value=(decoded[i]&255)+32&255;decoded[i]=(byte)(value==36?32:value);}
+                ((ChoiceHost)host).addChoice(r.bytes,decoded);next=caption.end;break;
+            }
             MesScript.Record caption=script.fetchRecord(next);
             if(!p.operation(caption.opcode).equals("choice.caption"))throw new IOException("Choice caption does not match "+p.id);
             if(bound){knownNativeRead(caption.offset,caption.end-caption.offset);nativeArgument0(caption.bytes.length*14);}((ChoiceHost)host).addChoice(r.bytes,script.nativeText(caption));if(bound)advanceNativeCursor(caption.end-r.end);next=caption.end;break;
         }
+        case "ph.text.skip_string":if(!p.id.equals("dc4ph-abb6"))throw new IOException("PH raw text owner on another profile");next=instruction.stringPayload!=null?instruction.stringPayload.end:script.stringPayload(next,r.offset).end;break;
         case "choice.show":emit(op,args,new byte[0]);if(args[0]==0)status=Status.WAIT_CHOICE;break;
         case "wait.audio":{
             int mask=args[0];while(next<script.length()&&script.profile.operation(script.fetchRecord(next).opcode).equals(op)){MesScript.Record term=script.fetchRecord(next);mask|=(byte)term.args[0];next=term.end;}

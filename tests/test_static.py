@@ -211,8 +211,12 @@ class StaticTests(unittest.TestCase):
             with self.assertRaises(FormatError):
                 parse(data)
 
-    def test_dc45_excluded(self):
-        self.assertFalse(any(p["alias"].startswith(("dc4", "dc5")) for p in profiles()))
+    def test_only_verified_dc4ph_is_admitted(self):
+        self.assertEqual([p["id"] for p in profiles()
+                          if p["alias"].startswith(("dc4", "dc5"))], ["dc4ph-abb6"])
+        info, tokens = parse(mes_fixture(0xABB6, b"\x01\0\0"))
+        self.assertEqual(info["profile"], "dc4ph-abb6")
+        self.assertEqual(tokens[0].kind, "u8x2")
         with self.assertRaises(FormatError):
             parse(mes_fixture(0xAAB6, b"\x01\0\0"))
 

@@ -1081,6 +1081,47 @@
         6755,
         12643
       ]
+    },
+    {
+      "id": "dc4ph-abb6",
+      "alias": "dc4ph",
+      "layout": "offset2",
+      "version": 43958,
+      "ranges": [
+        [
+          "u8x2",
+          0,
+          58
+        ],
+        [
+          "u8str",
+          59,
+          71
+        ],
+        [
+          "string",
+          72,
+          104
+        ],
+        [
+          "encoded_string",
+          105,
+          109
+        ],
+        [
+          "u16x4",
+          110,
+          255
+        ]
+      ],
+      "string_key": 32,
+      "plain_text_opcodes": [
+        94,
+        95
+      ],
+      "title": "D.C.4 Plus Harmony",
+      "evidence": "native_static_178ee9a5e34356b1",
+      "execution_supported": false
     }
   ]
 }

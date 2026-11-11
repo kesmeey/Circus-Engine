@@ -23,7 +23,7 @@ public final class DesktopDd extends DesktopEngine {
     private BufferedImage transitionFrame;
     private final DesktopImageCache<Picture> pictures=new DesktopImageCache<>(Picture::residentBytes);
     private static final class Picture {final Crx.Image raw;final BufferedImage image,opaque;Picture(BufferedImage b){raw=new Crx.Image(0,0,b.getWidth(),b.getHeight(),32,new byte[0],null);image=opaque=b;}Picture(Crx.Image r){raw=r;image=new BufferedImage(r.width,r.height,BufferedImage.TYPE_INT_ARGB);image.setRGB(0,0,r.width,r.height,r.argb(true),0,r.width);opaque=new BufferedImage(r.width,r.height,BufferedImage.TYPE_INT_ARGB);opaque.setRGB(0,0,r.width,r.height,r.argb(),0,r.width);}private static long rawBytes(Crx.Image r){return 1024L+r.pixels.length+(r.palette==null?0:4L*r.palette.length);}static long constructionBytes(Crx.Image r){return rawBytes(r)+12L*r.width*r.height;}long residentBytes(){return rawBytes(raw)+4L*image.getWidth()*image.getHeight()+(opaque==image?0:4L*opaque.getWidth()*opaque.getHeight());}}
-    public DesktopDd(CircusResources r,TextCodec c,boolean audit)throws IOException{super(r,c,audit,1024,576);nativeData=new Dc3NativeData(r,c);host=new Dc3Host(r,c,true);host.settingsLoader=this::reloadSettings;captures=new DesktopCaptures(width,height,this::drawCapture);host.captureRenderer=captures;vm=new MesVm(r.scripts(),host,"START");Path p=saveDirectory.resolve("progress.dat");if(!audit&&Files.exists(p))loadProgress(host.state,Files.readAllBytes(p));if(!audit)recoverGallerySaves();savedProgressRevision=host.state.progressRevision;scanSaves();}
+    public DesktopDd(CircusResources r,TextCodec c,boolean audit)throws IOException{super(r,c,audit,r.profileId.equals("dc4ph-abb6")?1280:1024,r.profileId.equals("dc4ph-abb6")?720:576);nativeData=new Dc3NativeData(r,c);host=Dc3Host.create(r,c,true);host.settingsLoader=this::reloadSettings;captures=new DesktopCaptures(width,height,this::drawCapture);host.captureRenderer=captures;vm=new MesVm(r.scripts(),host,"START");Path p=saveDirectory.resolve("progress.dat");if(!audit&&Files.exists(p))loadProgress(host.state,Files.readAllBytes(p));if(!audit)recoverGallerySaves();savedProgressRevision=host.state.progressRevision;scanSaves();}
     public MesVm vm(){return vm;}
     public void tick(long elapsed)throws Exception{
         host.ppSkipVoice=rapid&&host.skipAllowed;
@@ -42,7 +42,12 @@ public final class DesktopDd extends DesktopEngine {
     }
     public List<Control> controls(){List<Control> r=new ArrayList<>();if(host.ui.waiting){for(Dc3Ui.Button b:host.ui.current.buttons)if(!b.action.isEmpty()&&(!host.ui.noticeActive()||DdModalNotice.actionable(b)))r.add(new Control(b.action,b.left,b.top,b.right,b.bottom));if(host.ui.gridWaiting&&!host.ui.noticeActive())for(int n=0;n<host.ui.grid.size();n++){Dc3Ui.Button b=host.ui.grid.get(n);r.add(new Control("@slot:"+n,b.left,b.top,b.right,b.bottom));}}
         else if(host.choosing()){Dc3Ui.Panel p=host.ui.templates[11];if(p!=null)for(int n=0;n<host.choices().size()&&n+1<p.buttons.size();n++){Dc3Ui.Button b=p.buttons.get(n+1);r.add(new Control("@choice:"+n,b.left,b.top,b.right,b.bottom));}}
-        else if(textWaiting()&&!hidden){Dc3Ui.Panel p=host.ui.templates[10];if(p!=null)for(Dc3Ui.Button b:p.buttons)if(!b.action.isEmpty())r.add(new Control(b.action,b.left,b.top,b.right,b.bottom));}return r;
+        else if(textWaiting()&&!hidden){Dc3Ui.Panel p=messageControls();if(p!=null)for(Dc3Ui.Button b:p.buttons)if(!b.action.isEmpty())r.add(new Control(b.action,b.left,b.top,b.right,b.bottom));}return r;
+    }
+    private Dc3Ui.Panel messageControls(){
+        int index=10;
+        if(host instanceof Dc4Host)try{index=host.read(99,227)==0?9:10;}catch(IOException invalid){host.ui.nativeFailure(invalid);return null;}
+        return host.ui.templates[index];
     }
     public void scroll(int units)throws IOException{if(host.ui.noticeActive())return;if(host.history.active){host.history.scroll(units);Dc3Backlog.build(host.ui,host.history,resources.profile.id);return;}if(host.ui.gridWaiting&&host.list.active())host.write(99,246,host.list.clamp(host.read(99,246)+units*host.list.columns,host.ui.grid.size()));if(host.ui.gridWaiting&&!host.ui.actions[15].isEmpty())vm.activateMenu(ticket(),-15);}
     public void click(int x,int y,boolean right)throws Exception{
@@ -59,15 +64,24 @@ public final class DesktopDd extends DesktopEngine {
             if(begin){dragged=null;dragKind=0;int index=host.ui.noticeHit(x,y);if(index<0||!DdModalNotice.boundFill(host.ui.current.buttons.get(index)))return false;host.inputMouseButton();dragged=host.ui.current.buttons.get(index);dragKind=3;host.ui.hovered=host.ui.pressed=index;}
             if(dragKind!=3||dragged==null)return false;Integer value=DdBoundControl.drag(DdBoundControl.Binding.zero(),x);if(value!=null)vm.variables.write(0,0,value);host.ui.updateBoundSprites();return true;
         }
-        if(begin){dragged=null;dragKind=0;if(!host.ui.waiting)return false;if(host.history.active&&host.history.entries.size()>4&&x>=940&&x<980&&y>=76&&y<416)dragKind=1;else if(host.ui.gridWaiting&&host.list.active()&&x>=host.ui.gridBounds[0]-4&&x<host.ui.gridBounds[2]+4&&y>=host.ui.gridBounds[1]&&y<host.ui.gridBounds[3])dragKind=2;else for(Dc3Ui.Button b:host.ui.current.buttons)if(b.contains(x,y))for(Dc3Ui.Sprite s:b.sprites)if(s.state==5)dragged=b;}
-        if(dragKind==1){int max=Math.max(0,host.history.entries.size()-4);host.history.cursor=Math.max(0,Math.min(max,(int)Math.round((y-80)*max/332.0)));Dc3Backlog.build(host.ui,host.history,resources.profile.id);return true;}
+        if(begin){dragged=null;dragKind=0;if(!host.ui.waiting)return false;if(host.history.active&&host.history.entries.size()>4&&(host instanceof Dc4Host?x>=Dc4Backlog.SCROLL_LEFT&&x<Dc4Backlog.SCROLL_RIGHT&&y>=Dc4Backlog.SCROLL_TOP&&y<Dc4Backlog.SCROLL_BOTTOM:x>=940&&x<980&&y>=76&&y<416))dragKind=1;else if(host.ui.gridWaiting&&host.list.active()&&x>=host.ui.gridBounds[0]-4&&x<host.ui.gridBounds[2]+4&&y>=host.ui.gridBounds[1]&&y<host.ui.gridBounds[3])dragKind=2;else for(Dc3Ui.Button b:host.ui.current.buttons)if(b.contains(x,y))for(Dc3Ui.Sprite s:b.sprites)if(s.state==5)dragged=b;}
+        if(dragKind==1){int max=Math.max(0,host.history.entries.size()-4);host.history.cursor=Math.max(0,Math.min(max,(int)Math.round((y-(host instanceof Dc4Host?82:80))*max/(host instanceof Dc4Host?550.0:332.0))));Dc3Backlog.build(host.ui,host.history,resources.profile.id);return true;}
         if(dragKind==2){int[] b=host.ui.gridBounds;int cy=Math.max(b[1],Math.min(b[3]-1,y));host.write(99,246,y>=b[3]?host.list.clamp(Integer.MAX_VALUE,host.ui.grid.size()):host.list.scrollAt((b[0]+b[2])/2,cy,b,host.read(99,246),host.ui.grid.size()));return true;}
         if(dragged==null)return false;for(Dc3Ui.Sprite s:dragged.sprites)if(s.state==5){Dc3Scene.Quad q=s.quad;int value=(int)Math.round(Math.max(0,Math.min(1,(x-q.x)/(double)Math.max(1,q.y-q.x)))*Math.max(0,q.sx-1));vm.variables.write(q.sy,q.width,value);if(q.sy==99&&q.width==189)vm.variables.write(99,187,value);}return true;
     }
     public void endDrag()throws Exception{int kind=dragKind;dragKind=0;if(kind==3&&dragged!=null){int index=host.ui.current.buttons.indexOf(dragged);dragged=null;host.ui.pressed=-1;host.ui.updateBoundSprites();if(index>=0)vm.activateMenu(ticket(),index);return;}if(kind==2&&!host.ui.actions[15].isEmpty()){vm.activateMenu(ticket(),-15);return;}if(dragged==null)return;String action=dragged.action;dragged=null;if(!action.isEmpty())for(int n=0;n<host.ui.current.buttons.size();n++)if(host.ui.current.buttons.get(n).action.equals(action)){vm.activateMenu(ticket(),n);break;}}
     protected void cancelDrag(){dragged=null;dragKind=0;}
     protected void pressed(int x,int y,boolean down){host.ui.pressed=down&&host.ui.waiting?hit(x,y):-1;host.ui.updateBoundSprites();pressedControl=-1;if(down){List<Control> controls=controls();for(int n=0;n<controls.size();n++)if(controls.get(n).contains(x,y))pressedControl=n;}}
-    public void action(String a)throws IOException{switch(a){case ":auto":auto=!auto;return;case ":rapid":rapid=!rapid;return;case ":close":case ":clear":hidden=true;return;case ":full":fullscreenRequested=!fullscreenRequested;return;case ":qsave":case ":qs":save(slot(1));scanSaves();return;case ":qload":case ":ql":if(Files.exists(slot(1)))restore(slot(1));return;
+    public void action(String a)throws IOException{
+        // PH's own MAIN message controls name the full data menus :ds/:dl.
+        // Keep the original action in hit testing; only its backend dispatch
+        // aliases the already implemented portable save/load entry points.
+        if(host instanceof Dc4Host){
+            if(a.equals(":ds"))a=":save";else if(a.equals(":dl"))a=":load";
+            else if(a.equals(":n")){host.state.togglePhMessageControls();return;}
+            else if(a.equals(":voice")){host.replayVoice(host.history.entries.isEmpty()?"":host.history.entries.get(host.history.entries.size()-1).voice);return;}
+        }
+        switch(a){case ":auto":auto=!auto;return;case ":rapid":rapid=!rapid;return;case ":close":case ":clear":hidden=true;return;case ":full":fullscreenRequested=!fullscreenRequested;return;case ":qsave":case ":qs":save(slot(1));scanSaves();return;case ":qload":case ":ql":if(Files.exists(slot(1)))restore(slot(1));return;
         case ":menu":case ":option":case ":backlog":case ":save":case ":load":case ":torisetu":
             if(caller!=null)throw new IOException("Nested system caller");if(!textWaiting())return;
             vm.signalHost(ticket(),MesVm.HostSignal.TEXT_COMPLETE);vm.run(1000);caller=vm.snapshot();beginSystemAudio();host.enterSystem();if(a.equals(":backlog")){host.history.open();Dc3Backlog.build(host.ui,host.history,resources.profile.id);auto=rapid=false;return;}vm.enterSystem(a.equals(":menu")?"ADVMENU":a.equals(":option")?"CONFIG":a.equals(":backlog")?"LOG":a.equals(":torisetu")?"MANUAL":a.substring(1).toUpperCase(Locale.ROOT));auto=rapid=false;return;
@@ -104,24 +118,49 @@ public final class DesktopDd extends DesktopEngine {
         int bodyIndex=host.scene.novelMode?3:0,nameIndex=host.scene.novelMode?4:1;Dc3Ui.Panel p=host.ui.templates[bodyIndex],name=host.ui.templates[nameIndex];panel(g,p);if(!host.dialogue.shownSpeaker.isEmpty())panel(g,name);
         if(p==null)throw new IOException("Original dialogue template missing");
         for(int slot:new int[]{host.scene.layout.face,host.scene.layout.face+1}){Picture face=picture(host.scene.slots[slot].resource);if(face!=null)g.drawImage(face.image,host.ui.messageX+face.raw.x,host.ui.messageY+face.raw.y,null);}
-        if(name!=null&&!host.dialogue.shownSpeaker.isEmpty())for(Dc3Ui.Text t:name.texts)if(t.args[2]>0)text(g,host.dialogue.shownSpeaker,t.args[0],t.args[1],t.args[2],t.args[3],width-t.args[0]-30);
-        for(Dc3Ui.Text t:p.texts)if(t.args[2]>0)text(g,visibleBody(),t.args[0],t.args[1],t.args[2],t.args[3],width-t.args[0]-60);
-        panel(g,host.ui.templates[10]);
+        if(name!=null&&!host.dialogue.shownSpeaker.isEmpty())for(Dc3Ui.Text t:name.texts)if(t.args[2]>0)text(g,host.dialogue.shownSpeaker,t.args[0],t.args[1],host instanceof Dc4Host&&t.args[2]>=99?32:t.args[2],t.args[3],width-t.args[0]-30);
+        for(Dc3Ui.Text t:p.texts)if(t.args[2]>0)text(g,visibleBody(),t.args[0],t.args[1],host instanceof Dc4Host&&t.args[2]>=99?32:t.args[2],t.args[3],width-t.args[0]-60);
+        panel(g,messageControls());
     }
     private void scene(Graphics2D g,Dc3Scene.Layer[] layers,List<Dc3Scene.Quad> quads,Dc3Camera camera,Dc3Petals petals,boolean fog,boolean clouds,long time,boolean live)throws IOException{
         Dc3Layout layout=host.scene.layout;
         Integer[] order=new Integer[layout.order.length];for(int n=0;n<order.length;n++)order[n]=layout.order[n];
         Arrays.sort(order,(a,b)->Integer.compare(a<0?50:layers[a].priority,b<0?50:layers[b].priority));
-        for(int s:order){if(s<0){petals(g,layout.petalGroup(s),petals,layers[layout.petals].resource);continue;}if(s==layout.fog&&!fog)continue;Dc3Scene.Layer l=layers[s];Picture p=picture(l.resource);if(p==null)continue;AffineTransform old=g.getTransform();Composite alpha=g.getComposite();
+        for(int s:order){if(s<0){petals(g,layout.petalGroup(s),petals,layers[petals.ph()!=null&&petals.ph().mode()==2?29:layout.petals].resource);continue;}if(s==layout.fog&&!fog)continue;Dc3Scene.Layer l=layers[s];Picture p=picture(l.resource);if(p==null)continue;AffineTransform old=g.getTransform();Composite alpha=g.getComposite();
             if(s==1||layout.cast(s)){float px=512+camera.x*(s!=1?.8f:1),py=288+camera.y*(s!=1?.8f:1);g.translate(px,py);g.scale(camera.zoom/100f,camera.zoom/100f);g.translate(-px,-py);}
             boolean extra=layout.cast(s)&&!layout.lead(s);int motion=extra?s-layout.companionDelta:s;
             Dc3Scene.Layer t=extra?layers[motion]:l;
-            g.translate(t.x+t.pivotX+(live?host.scene.displacement(motion,0):0),t.y+t.pivotY+(live?host.scene.displacement(motion,1):0));g.scale(t.scaleX/100f,t.scaleY/100f);g.translate(-t.pivotX,-t.pivotY);g.setComposite(AlphaComposite.SrcOver.derive(t.alpha/255f));g.drawImage(p.image,l.centered?(width-p.image.getWidth())/2:p.raw.x,l.centered?(height-p.image.getHeight())/2:p.raw.y,null);g.setTransform(old);g.setComposite(alpha);
+            if(s==1&&l.centered&&resources.profile.id.equals("dc4ph-abb6")){
+                // PH B4 sets mode1 and an explicit source-size fit. Actors
+                // and ordinary unmarked backgrounds retain their CRX origin.
+                Dc4Geometry.Fit fit=Dc4Geometry.fit(p.image.getWidth(),p.image.getHeight());
+                double px=t.pivotX==0?p.image.getWidth()/2.0:t.pivotX,py=t.pivotY==0?p.image.getHeight()/2.0:t.pivotY;
+                // 443401/443432 supplies the source half-size when the
+                // native pivot is zero. Mode1 subtracts the viewport gap.
+                // In the common37->49->B4 chain this cancels37's raw center.
+                g.translate(t.x+px-fit.left+(live?host.scene.displacement(motion,0):0),t.y+py-fit.top+(live?host.scene.displacement(motion,1):0));
+                g.scale(fit.scaleX,fit.scaleY);g.translate(-px,-py);
+                g.setComposite(AlphaComposite.SrcOver.derive(t.alpha/255f));g.drawImage(p.image,p.raw.x,p.raw.y,null);
+            }else{
+                g.translate(t.x+t.pivotX+(live?host.scene.displacement(motion,0):0),t.y+t.pivotY+(live?host.scene.displacement(motion,1):0));g.scale(t.scaleX/100f,t.scaleY/100f);g.translate(-t.pivotX,-t.pivotY);g.setComposite(AlphaComposite.SrcOver.derive(t.alpha/255f));g.drawImage(p.image,l.centered?(width-p.image.getWidth())/2:p.raw.x,l.centered?(height-p.image.getHeight())/2:p.raw.y,null);
+            }
+            g.setTransform(old);g.setComposite(alpha);
         }
         if(clouds){Picture p=picture(layers[layout.clouds].resource);if(p!=null)for(int row=0;row<2;row++){int x=(int)(-2048*(time%(row==0?120000:60000))/(row==0?120000:60000));g.drawImage(p.image,x,0,x+3072,576,0,row*600,3072,row*600+576,null);}}
         for(Dc3Scene.Quad q:quads)quad(g,q);
     }
     private void petals(Graphics2D g,int group,Dc3Petals ps,String name)throws IOException{
+        if(ps.ph()!=null){
+            Picture p=picture(name);if(p==null)return;Composite old=g.getComposite();AffineTransform before=g.getTransform();
+            try{for(Dc4Particles.Sprite a:ps.ph().sprites())if(a.group==group){
+                g.setTransform(before);g.setComposite(AlphaComposite.SrcOver.derive(Math.max(0,Math.min(1,a.alpha))));
+                g.translate(a.x,a.y);g.scale(a.scale/100f,a.scale/100f);
+                // 41CF60 gives glow sprites a source-half pivot; falling
+                // sprites keep their original top-left position.
+                if(a.scale>=300)g.translate(-a.width/2f,-a.height/2f);
+                g.drawImage(p.image,0,0,a.width,a.height,a.sx,a.sy,a.sx+a.width,a.sy+a.height,null);
+            }}finally{g.setTransform(before);g.setComposite(old);}return;
+        }
         if(ps.pp4()!=null){
             // PP submits to two native render objects (1 behind, 7 in front).
             // The current scene compositor places them in its outer petal passes.
@@ -150,7 +189,16 @@ public final class DesktopDd extends DesktopEngine {
                     g.drawImage(before,0,0,null);
                 }finally{g.setComposite(AlphaComposite.SrcOver);}
             }
+            if(host instanceof Dc4Host&&((Dc4Host)host).phBlur.active()){
+                int[] source=image.getRGB(0,0,width,height,null,0,width);
+                image.setRGB(0,0,width,height,((Dc4Host)host).phBlur.applyArgb(source,width,height),0,width);
+            }
+            if(host instanceof Dc4Host&&((Dc4Host)host).phAnimation.active()){
+                Dc4Animation animation=((Dc4Host)host).phAnimation;Picture frame=picture(animation.resource());
+                if(frame!=null)g.drawImage(frame.image,animation.x()+frame.raw.x,animation.y()+frame.raw.y,null);
+            }
             if(host.ppScrollCredits.active()){drawPpScrollCredits(g);return image;}
+            if(host instanceof Dc4Host&&((Dc4Host)host).phCredits.active()){drawPhCredits(g,((Dc4Host)host).phCredits);return image;}
             if(host.credits.active()){drawCredits(g);return image;}
             if(textWaiting()&&!hidden)dialogue(g);
             if(host.ui.noticeActive()){
@@ -163,10 +211,30 @@ public final class DesktopDd extends DesktopEngine {
                 sliders(g);if(host.history.active)drawHistory(g);if(host.ui.gridWaiting)drawGrid(g);
                 for(Dc3Scene.Quad q:host.ui.visibleNoticeOverlay())quad(g,q);uiTexts(g,host.ui.noticeOverlay());
             }
+            drawPhComments(g);
             if(host.choosing()){Dc3Ui.Panel p=host.ui.templates[11];if(p==null||p.buttons.size()<=host.choices().size())throw new IOException("Original choice template missing");for(int n=0;n<host.choices().size();n++){Dc3Ui.Button b=p.buttons.get(n+1);button(g,b,n==pressedControl?2:n==hovered?1:99);Dc3Ui.Text style=p.texts.size()>n*3?p.texts.get(n*3):null;if(style==null)throw new IOException("Original choice text position missing");text(g,host.choices().get(n).caption,style.args[0],style.args[1],32,style.args[2],b.right-style.args[0]-20);}}
         }finally{g.dispose();}return image;}
     private void uiTexts(Graphics2D g,Dc3Ui.Panel panel){if(panel!=null&&!panel.hidden)for(Dc3Ui.Text t:panel.texts)if(!t.text.isEmpty())text(g,codec.apply(t.text),t.args[0],t.args[1],32,t.args[2],width-t.args[0]);}
-    private void drawHistory(Graphics2D g)throws IOException{for(int row=0;row<4&&row+host.history.cursor<host.history.entries.size();row++){Dc2History.Entry e=host.history.entries.get(row+host.history.cursor);Shape clip=g.getClip();g.clipRect(206,44+130*row,679,131);int face=nativeData.face(e);if(face>=0){Picture atlas=picture("SYSTEM/LOGCHIP");int sx=face%6*116,sy=132+face/6*116;g.drawImage(atlas.image,220,48+row*130,335,163+row*130,sx,sy,sx+115,sy+115,null);}else text(g,e.speaker,230,52+130*row,27,0x87,120);text(g,e.body,366,54+130*row,27,0x87,510);g.setClip(clip);}
+    private void drawPhComments(Graphics2D g)throws IOException{
+        if(!(host instanceof Dc4Host))return;Dc4Host ph=(Dc4Host)host;Dc4SceneCommands state=ph.phScene;
+        int count=ph.phSpeech.commentCount();if(!state.commentsVisible||count==0)return;
+        // PH keeps native CP932 caption bytes and original supplied atlases.
+        // This portable view uses the native COMU origin/row spacing while
+        // presenting the last five messages without native scroll/stamp timing.
+        Shape clip=g.getClip();Composite alpha=g.getComposite();
+        try{
+            if(state.commentType==2){
+                g.setComposite(AlphaComposite.SrcOver.derive(.5f));g.setColor(Color.BLACK);g.fillRect(0,0,width,height);g.setComposite(AlphaComposite.SrcOver);
+                Picture atlas=picture("SYSTEM/COMUCHIP");if(atlas!=null)g.drawImage(atlas.image,440,16,812,534,0,0,372,518,null);
+                g.clipRect(480,80,304,430);int first=Math.max(state.commentOffset,Math.max(0,count-5));
+                for(int n=first;n<count;n++)text(g,NativeText.plain(ph.phSpeech.commentRaw(n),codec,host.dialogue.familyName,host.dialogue.givenName,false),480,80+(n-first)*81,16,0x87,304);
+            }else if(state.commentType==1){
+                Picture back=picture("SYSTEM/COMMENTBACK");if(back!=null)g.drawImage(back.image,8,390,null);g.clipRect(10,390,width-20,height-390);
+                int first=Math.max(state.commentOffset,Math.max(0,count-6));for(int n=first;n<count;n++)text(g,NativeText.plain(ph.phSpeech.commentRaw(n),codec,host.dialogue.familyName,host.dialogue.givenName,false),10,390+(n-first)*25,12,0x87,width-20);
+            }
+        }finally{g.setClip(clip);g.setComposite(alpha);}
+    }
+    private void drawHistory(Graphics2D g)throws IOException{if(host instanceof Dc4Host){drawPhHistory(g);return;}for(int row=0;row<4&&row+host.history.cursor<host.history.entries.size();row++){Dc2History.Entry e=host.history.entries.get(row+host.history.cursor);Shape clip=g.getClip();g.clipRect(206,44+130*row,679,131);int face=nativeData.face(e);if(face>=0){Picture atlas=picture("SYSTEM/LOGCHIP");int sx=face%6*116,sy=132+face/6*116;g.drawImage(atlas.image,220,48+row*130,335,163+row*130,sx,sy,sx+115,sy+115,null);}else text(g,e.speaker,230,52+130*row,27,0x87,120);text(g,e.body,366,54+130*row,27,0x87,510);g.setClip(clip);}
         Dc2History history=host.history;int index=history.cursor+historyHover;
         if(history.previewEnabled&&historyHover>=0&&index<history.entries.size()){byte[] bytes=history.entries.get(index).scene;if(bytes.length>0){
             // 406670: 12.5% about the 512,288 pivot. Position -400,row*130-196
@@ -182,11 +250,41 @@ public final class DesktopDd extends DesktopEngine {
         if(c.currentPage()>=0){Picture p=picture(c.image(c.currentPage()));if(p!=null)g.drawImage(p.image,0,0,PpScrollCredits.WIDTH,split,0,c.offset(),PpScrollCredits.WIDTH,PpScrollCredits.HEIGHT,null);}
         if(c.nextPage()>=0){Picture p=picture(c.image(c.nextPage()));if(p!=null)g.drawImage(p.image,0,split,PpScrollCredits.WIDTH,PpScrollCredits.HEIGHT,0,0,PpScrollCredits.WIDTH,c.offset(),null);}
     }
+    private void drawPhCredits(Graphics2D g,Dc4Credits r)throws IOException{
+        g.setComposite(AlphaComposite.SrcOver);g.setColor(Color.BLACK);g.fillRect(0,0,width,height);
+        int y=-r.offset();creditPicture(g,r.image(r.currentPage()),0,y,1,1);
+        if(r.nextPage()>=0)creditPicture(g,r.image(r.nextPage()),0,y+Dc4Credits.HEIGHT,1,1);
+        g.setColor(new Color(0f,0f,0f,r.fadeAlpha()));g.fillRect(0,0,width,height);
+    }
     private void drawCredits(Graphics2D g)throws IOException{Dc3Credits r=host.credits;g.setColor(Color.BLACK);g.fillRect(0,0,width,height);creditPicture(g,r.image("01",r.index()),r.x(),r.y(),r.scale(),1);creditPicture(g,r.image("02",r.index()),r.x(),r.y(),r.scale(),r.variantAlpha());g.setColor(new Color(1f,1f,1f,r.whiteAlpha()));g.fillRect(0,0,width,height);creditPicture(g,"ED/EDBACK",0,0,1,1);float y=-(r.scroll()%576);creditStrip(g,r,r.strip(),y);if(r.strip()+1<r.strips)creditStrip(g,r,r.strip()+1,y+576);g.setColor(new Color(0f,0f,0f,r.blackAlpha()));g.fillRect(0,0,width,height);}
     private void creditStrip(Graphics2D g,Dc3Credits credits,int index,float y)throws IOException{String resource=credits.image("",index);if(credits.stripCropLeft()==0){creditPicture(g,resource,0,y,1,1);return;}Picture p=picture(resource);if(p==null)return;AffineTransform before=g.getTransform();try{g.translate(credits.stripX(p.image.getWidth()),y);g.drawImage(p.image,0,0,p.image.getWidth()-credits.stripCropLeft(),p.image.getHeight(),credits.stripCropLeft(),0,p.image.getWidth(),p.image.getHeight(),null);}finally{g.setTransform(before);}}
     private void listQuad(Graphics2D g,Dc2Ui.Quad q)throws IOException{if(q.type==2){text(g,codec.apply(q.text),q.x,q.y,32,q.flags,width);return;}if(q.width<=0||q.height<=0)return;Picture p=picture(host.scene.slots[q.slot()].resource);if(p!=null)g.drawImage(p.image,q.x,q.y,q.x+q.width,q.y+q.height,q.sx,q.sy,q.sx+q.width,q.sy+q.height,null);}
+    private void drawPhHistory(Graphics2D g){
+        for(int row=0;row<Dc4Backlog.ROWS&&row+host.history.cursor<host.history.entries.size();row++){
+            Dc2History.Entry e=host.history.entries.get(row+host.history.cursor);int y=Dc4Backlog.BODY_Y+row*Dc4Backlog.ROW_STEP;
+            text(g,e.speaker,330,y-20,26,0x87,140);Shape clip=g.getClip();
+            try{g.clipRect(Dc4Backlog.BODY_X,y,Dc4Backlog.BODY_WIDTH,Dc4Backlog.BODY_HEIGHT);text(g,e.body,Dc4Backlog.BODY_X,y,27,0x87,Dc4Backlog.BODY_WIDTH);}finally{g.setClip(clip);}
+        }
+    }
+    private void drawPhSaveGrid(Graphics2D g)throws IOException{
+        Picture p=picture(host.scene.slots[19].resource);if(p==null)throw new IOException("PH save atlas missing");
+        for(int n=0;n<host.ui.grid.size();n++){
+            Dc3Ui.Button b=host.ui.grid.get(n);int slot=host.gridSlot(n),x=b.left,y=b.top;
+            g.drawImage(p.image,x,y,x+447,y+105,2,21,449,126,null);
+            boolean hover=b.contains(host.ui.pointerX,host.ui.pointerY);int frame=hover?148:16;
+            BufferedImage thumb=thumbnails.get(slot);if(thumb!=null)g.drawImage(thumb,x+16,y+16,125,71,null);
+            g.drawImage(p.image,x+14,y+14,x+143,y+89,frame,127,frame+129,202,null);
+            text(g,String.format(Locale.ROOT,"%02d",slot-2),x+80,y+6,22,13,340);
+            Path file=slot(slot);if(Files.exists(file)){
+                DesktopSave saved=metadata(file);long time=saved==null?Files.getLastModifiedTime(file).toMillis():saved.created;
+                text(g,new java.text.SimpleDateFormat("MM/dd HH:mm").format(new Date(time)),x+80,y+25,22,13,340);
+                if(saved!=null&&!saved.caption.isEmpty()){Shape clip=g.getClip();try{g.clipRect(x+150,y+51,280,49);text(g,saved.caption,x+150,y+51,20,13,280);}finally{g.setClip(clip);}}
+            }
+        }
+    }
     private void drawGrid(Graphics2D g)throws IOException{
         if(host.list.active()){if(host.musicRoom.caption){int index=host.musicRoom.catalogueIndex();if(index<host.list.items.size())for(Dc2Ui.Quad q:host.list.items.get(index).sprites)if(q.type==2&&q.state==99){text(g,codec.apply(q.text),428,36,32,0x87,560);break;}}int offset=host.list.clamp(host.read(99,246),host.ui.grid.size());for(int n=0;n<host.ui.grid.size();n++){ScriptList.Item item=host.list.at(offset,n,host.ui.grid.size());if(item==null)continue;Dc3Ui.Button b=host.ui.grid.get(n);int state=99;List<Control> controls=controls();if(hovered>=0&&hovered<controls.size()&&controls.get(hovered).action.equals("@slot:"+n))state=1;AffineTransform old=g.getTransform();g.translate(b.left,b.top);for(Dc2Ui.Quad q:ScriptList.visible(host.list.common,state))listQuad(g,q);for(Dc2Ui.Quad q:ScriptList.visible(item.sprites,state))listQuad(g,q);g.setTransform(old);}if(host.list.marker!=null){Dc2Ui.Quad thumb=host.list.marker;int[] b=host.ui.gridBounds;int max=host.list.clamp(Integer.MAX_VALUE,host.ui.grid.size());AffineTransform old=g.getTransform();g.translate((b[0]+b[2]-thumb.width)/2-thumb.x,b[1]+(b[3]-b[1])*offset/Math.max(1,max)-thumb.height/2-thumb.y);listQuad(g,thumb);g.setTransform(old);}return;}
+        if(host instanceof Dc4Host){drawPhSaveGrid(g);return;}
         Picture p=picture(host.scene.slots[host.scene.layout.chipFirst].resource);if(p==null)throw new IOException("DD save atlas missing");
         for(int n=0;n<host.ui.grid.size();n++){Dc3Ui.Button b=host.ui.grid.get(n);int slot=host.gridSlot(n);int sx=vm.variables.read(3,20)==1?336:0,sy=0;g.drawImage(p.image,b.left,b.top,b.right,b.bottom,sx,sy,sx+b.right-b.left,sy+76,null);
             BufferedImage thumb=thumbnails.get(slot);if(thumb!=null)g.drawImage(thumb,b.left+5,b.top+25,64,36,null);
@@ -221,7 +319,7 @@ public final class DesktopDd extends DesktopEngine {
     public float volume(int ch)throws IOException{if(host.isPp())return host.ppOutputGain(ch);return (host.read(99,203)==0?0:Math.max(0,Math.min(1,host.read(99,225)/100f)))*(ch==0?host.musicGain:ch==5?host.voiceGain():1)*Math.max(0,Math.min(1,host.read(99,ch==0?7:ch==5?9:8)/100f))*(host.read(99,ch==0?14:ch==5?5:15)==0?0:1);}
     private Path slot(int n)throws IOException{if(n<0||n>255)throw new IOException("Invalid DD save slot "+n);return saveDirectory.resolve("slot-"+n+".sav");}
     public byte[] snapshot()throws IOException{return caller==null?vm.snapshot():caller.clone();}
-    public void restore(byte[] bytes)throws IOException{cancelPointer();Dc3Host h=new Dc3Host(resources,codec,true);h.displayCapabilities(displayWidth,displayHeight,displayBits);MesVm m=new MesVm(resources.scripts(),h,"START");m.restore(bytes);h.gallery.recover(h);Dc3State globals=new Dc3State(resources.profile.id,true);globals.restoreSettings(host.state.settingsSnapshot());globals.mergeGallery(h.state);h.state.restoreSettings(globals.settingsSnapshot());clearTransitionBuffers();host=h;host.settingsLoader=this::reloadSettings;host.captureRenderer=captures;vm=m;host.ui.pressed=-1;savedAutoGeneration=h.autosaveGeneration;textTicket=-1;historyHover=-1;hidden=false;caller=null;scanSaves();persist();}
+    public void restore(byte[] bytes)throws IOException{cancelPointer();Dc3Host h=Dc3Host.create(resources,codec,true);h.displayCapabilities(displayWidth,displayHeight,displayBits);MesVm m=new MesVm(resources.scripts(),h,"START");m.restore(bytes);h.gallery.recover(h);Dc3State globals=new Dc3State(resources.profile.id,true);globals.restoreSettings(host.state.settingsSnapshot());globals.mergeGallery(h.state);h.state.restoreSettings(globals.settingsSnapshot());clearTransitionBuffers();host=h;host.settingsLoader=this::reloadSettings;host.captureRenderer=captures;vm=m;host.ui.pressed=-1;savedAutoGeneration=h.autosaveGeneration;textTicket=-1;historyHover=-1;hidden=false;caller=null;scanSaves();persist();}
     private void reloadSettings(Dc3State state)throws IOException{Path p=saveDirectory.resolve("progress.dat");if(!audit&&Files.exists(p))loadProgress(state,Files.readAllBytes(p));else state.restoreSettings(new Dc3State(resources.profile.id,true).settingsSnapshot());}
     private void loadProgress(Dc3State state,byte[] bytes)throws IOException{state.loadPersistent(bytes);}
     public String saveCaption(){return host.checkpointLabel().isEmpty()?body():codec.apply(host.checkpointLabel());}
@@ -234,7 +332,7 @@ public final class DesktopDd extends DesktopEngine {
         for(Path path:paths)if(Files.isRegularFile(path)){
             try{
                 if(Files.size(path)>64*1024*1024)throw new IOException("Save size limit");
-                DesktopSave saved=DesktopSave.decode(Files.readAllBytes(path));Dc3Host prior=new Dc3Host(resources,codec,true);
+                DesktopSave saved=DesktopSave.decode(Files.readAllBytes(path));Dc3Host prior=Dc3Host.create(resources,codec,true);
                 new MesVm(resources.scripts(),prior,"START").restore(saved.state);prior.gallery.recover(prior);host.state.mergeGallery(prior.state);
                 report.append("Recovered ").append(path.getFileName()).append('\n');
             }catch(IOException ex){report.append("Skipped ").append(path.getFileName()).append(": ").append(ex.getMessage()).append('\n');}

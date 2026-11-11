@@ -12,7 +12,7 @@
 - 菜单返回、便携快照、恢复后继续剧情；原Windows剧情槽位互通单独标记。
 - Windows与Android共用核心的构建和代表样本回归。
 
-目前已登记的九个非Unity运行时入口为DCPC、DC2、DC2PC、DC2SC、DC2FL、DC2DM、DC3DD、DC3WY和DC3PP。它们是优先验证对象，登记入口不表示每作全部路线已通过，也不表示目录内其他版本已被支持。SC/FL分别按各自EXE建立宿主、变量与角色/片尾逻辑，不用相似版本强行启动。
+目前已登记的十二个非Unity运行时入口为DCPC、DC2、DC2PC、DC2SC、DC2FL、DC2TY、DCDX、DC2DM、DC3DD、DC3WY、DC3PP和DC4PH。它们是优先验证对象，登记入口不表示每作全部路线已通过，也不表示目录内其他版本已被支持。各版本按各自EXE和实际数据建立绑定；DC4PH仅限已核验的ABB6，见[本作范围](DC4PH.md)。
 
 ## 可延期或跳过
 

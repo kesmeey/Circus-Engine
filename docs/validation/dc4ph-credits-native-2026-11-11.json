@@ -1,0 +1,268 @@
+{
+  "schema": "circus-runtime-dc4ph-credits-static-and-portable-1",
+  "date": "2026-11-11",
+  "source_game_executed": false,
+  "native_evidence": {
+    "rea_parent": "ev_1fe7fa1d56ac3a1579323eefcfad42339845f28304d3fda8117c9c2049cbc7ec",
+    "engine_sha256": "178ee9a5e34356b11942213e2e32a34afe4933c90d563bf5a3d6402250f54ab7",
+    "start": "0x4595f0",
+    "update": "0x459120",
+    "float_rate_store": "0x45970a..0x459714",
+    "x87_distance": "0x45939f..0x4593b3",
+    "alpha_update": "0x4591b7..0x459204"
+  },
+  "pack": {
+    "relative": "Advdata/GRP/ED/ED.PCK",
+    "bytes": 15081472,
+    "sha256": "6c174ddf1654aaa792285e1fad3bd839a1267aeae17968b807dd7b5e90c47cd7",
+    "pages": [
+      {
+        "index": 0,
+        "name": "001.CRX",
+        "offset": 2048,
+        "length": 23683,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 1,
+        "name": "002.CRX",
+        "offset": 26624,
+        "length": 493926,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 2,
+        "name": "003.CRX",
+        "offset": 522240,
+        "length": 524918,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 3,
+        "name": "004.CRX",
+        "offset": 1048576,
+        "length": 819318,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 4,
+        "name": "005.CRX",
+        "offset": 1869824,
+        "length": 1410345,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 5,
+        "name": "006.CRX",
+        "offset": 3280896,
+        "length": 1245298,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 6,
+        "name": "007.CRX",
+        "offset": 4528128,
+        "length": 673941,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 7,
+        "name": "008.CRX",
+        "offset": 5203968,
+        "length": 614706,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 8,
+        "name": "009.CRX",
+        "offset": 5820416,
+        "length": 467522,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 9,
+        "name": "010.CRX",
+        "offset": 6289408,
+        "length": 295607,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 10,
+        "name": "011.CRX",
+        "offset": 6586368,
+        "length": 247526,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 11,
+        "name": "012.CRX",
+        "offset": 6834176,
+        "length": 365471,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 12,
+        "name": "013.CRX",
+        "offset": 7200768,
+        "length": 504838,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 13,
+        "name": "014.CRX",
+        "offset": 7706624,
+        "length": 661136,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 14,
+        "name": "015.CRX",
+        "offset": 8368128,
+        "length": 475880,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 15,
+        "name": "016.CRX",
+        "offset": 8845312,
+        "length": 194979,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 16,
+        "name": "017.CRX",
+        "offset": 9041920,
+        "length": 137508,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 17,
+        "name": "018.CRX",
+        "offset": 9181184,
+        "length": 328097,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 18,
+        "name": "019.CRX",
+        "offset": 9510912,
+        "length": 1088667,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 19,
+        "name": "020.CRX",
+        "offset": 10600448,
+        "length": 1794688,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 20,
+        "name": "021.CRX",
+        "offset": 12396544,
+        "length": 1611847,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      },
+      {
+        "index": 21,
+        "name": "022.CRX",
+        "offset": 14010368,
+        "length": 1070060,
+        "header_sha256": "758b682e194912198f08e616a0421d5b5f94efe64aa954ed60ea0dfd22ea5f26",
+        "width": 1280,
+        "height": 721
+      }
+    ]
+  },
+  "contract": {
+    "output_width": 1280,
+    "page_step_height": 720,
+    "stored_page_height": 721,
+    "speed": "single32((int32(count*720))/int32(ordinary3:0*1000))",
+    "distance": "truncate(integerElapsed*storedSingleSpeed), no intermediate float32 product",
+    "last_page_hold": "strictly >5000ms",
+    "fade": "double0.005 added to previous single32 alpha, then single32 store and >=1 clamp",
+    "fade_updates": 201,
+    "completion_flag": "100:110 for mode1;100:111 for every other mode",
+    "portable_frame_clock": "60Hz substitute for native render update cadence"
+  },
+  "sample": {
+    "count": 22,
+    "seconds": 125,
+    "distance_at_125000": 15839,
+    "first_page_boundary_ms": 5682,
+    "last_page_boundary_ms": 119319,
+    "fade_start_ms": 124320,
+    "portable_completion_ms": 127670
+  },
+  "checks": {
+    "focused_test": "Dc4CreditsTests",
+    "total": 49,
+    "synthetic": 25,
+    "actual_index_order_geometry": 24,
+    "result": "PASS",
+    "stdout": "F:/circus-runtime-work/dc4ph-20261111/credits-check-v1/focused.stdout.txt"
+  },
+  "files": {
+    "runtime/core/src/org/circus/core/Dc4Credits.java": {
+      "sha256": "f41c12dafd2cb4f3a6eae85591e8b0e2d811831169089a579bfbc6140583f294"
+    },
+    "runtime/tests/org/circus/core/Dc4CreditsTests.java": {
+      "sha256": "67af49fd27bbcb6563e1a8be9dd86f1ad4ea8f19dfa2e0ac9046bbe74b4f47f3"
+    }
+  },
+  "service105": {
+    "function": "0x40a070",
+    "offline_behavior": "Native absent name/email/consent branch returns void immediately; online success only updates configured registration marker. Rewritten runtime takes the offline branch and continues without sending or faking success.",
+    "ordinary_story_variables_written": false
+  },
+  "limitations": [
+    "Adjacent staff-roll pages are drawn continuously; exact native page-cache transition frame and Direct3D resource lifetimes are not asserted equivalent.",
+    "The alpha tail uses declared60Hz updates. Native update cadence varies with its platform.",
+    "Companion background slideshow/crossfade, especially service9 mode1 gallery, is deferred; original staff-roll pages still render and mode-specific completion flag is preserved.",
+    "Native user-input skip behavior is deferred in the initial PH credits controller.",
+    "These tests do not establish full story or Android audio/video output; parent publication records those separately."
+  ]
+}

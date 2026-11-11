@@ -34,6 +34,7 @@ new Format("dcpc-2063",8291,4),
 new Format("dc2-3363",13155,4),
 new Format("dc2-3363",6755,4),
 new Format("dc2-3363",12643,4),
+new Format("dc4ph-abb6",43958,6),
 };
 private MesFormats(){}
 }

@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--jdk', type=Path, required=True)
     parser.add_argument('--ffmpeg', type=Path, required=True)
-    parser.add_argument('--version', default='0.14.13-ty-music-display-dev')
+    parser.add_argument('--version', default='0.14.14-dc4ph-dev')
     parser.add_argument('--build-root',type=Path,help='Generated output root; defaults to CIRCUS_BUILD_ROOT or workspace build')
     args = parser.parse_args()
     if any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_' for c in args.version):
@@ -50,7 +50,7 @@ start "DC Runtime" "%~dp0jre\bin\javaw.exe" -Xmx1536m "-Ddc.ffmpeg=%~dp0bin\ffmp
 
 双击 DC Runtime.cmd，选择包含 AdvData 的游戏目录。
 也可以把游戏目录拖到 DC Runtime.cmd 上。无需安装 Python、Java 或 Android SDK。
-非 Unity 入口包括 DCPC、DC2PC、DC2、DC2SC、DC2FL、DC2TY、DCDX、DC2DM、DD、WY、PP。
+非 Unity 入口包括 DCPC、DC2PC、DC2、DC2SC、DC2FL、DC2TY、DCDX、DC2DM、DD、WY、PP、DC4PH。
 读取原版 START/MES，使用原版标题、系统脚本、图片和声音；包内不含游戏数据。
 
 左键 / Enter：推进；右键 / Esc：原版菜单或返回。PC1 空格：隐藏/显示正文；选择画面请用鼠标点选。
@@ -67,6 +67,7 @@ DC2桌面菜单「存档 → 导入原版剧情存档…」可转换普通ADV文
 
 本版本优先覆盖主要功能和大多数常见流程，允许延期少量难处理的版本或边界。
 当前不把约80%的工程目标当作精确完成率，实际范围见 COMMON_WORKFLOWS.md。
+DC4PH仅支持核验过的Plus Harmony ABB6，原数据使用自动/日文编码；改名表单、原Windows存档/进度导入及部分演出仍有限制，见DC4PH.md。
 SC/FL采用各自原生证据和独立宿主；SC本地Coco剧本有一份截断文件，对应分支仍会明确报错。
 TY新增独立5F69宿主、两次确认的原故事选择界面及滚动背景；四主要故事代表流程和原菜单便携存读档通过。
 TY补齐Music Mode原生曲名背景处理，读取所选EXE中的曲名数据；Scene Replay标题按原菜单编码解码，GBK正文保持独立。
@@ -87,7 +88,7 @@ PC_COMPATIBILITY.md 包含旧版兼容层记录，不是本次全引擎忠实度
 '''
     (package/'先读我.txt').write_text(readme, encoding='utf-8-sig')
     shutil.copy2(ROOT/'docs/PC_COMPATIBILITY.md', package/'PC_COMPATIBILITY.md')
-    for name in ['NATIVE_REWRITE_STATUS.md', 'NATIVE_FIDELITY_AUDIT.md', 'NATIVE_DECODER_CONTRACT.md', 'ENGINE_SCOPE.md', 'COMMON_WORKFLOWS.md']:
+    for name in ['NATIVE_REWRITE_STATUS.md', 'NATIVE_FIDELITY_AUDIT.md', 'NATIVE_DECODER_CONTRACT.md', 'ENGINE_SCOPE.md', 'COMMON_WORKFLOWS.md', 'DC4PH.md']:
         shutil.copy2(ROOT/'docs'/name, package/name)
     (package/'validation').mkdir(exist_ok=True)
     for path in sorted((ROOT/'docs/validation').glob('*.json')):

@@ -37,6 +37,7 @@ public final class Dc3Backlog {
         if(history.previewEnabled)for(int s:new int[]{99,1,2}){state(ui,s,884,775,25,24,2);Dc3Ui.Button b=ui.last();b.sprites.get(b.sprites.size()-1).quad.y+=2;}
     }
     public static void build(Dc3Ui ui,Dc2History history,String profile)throws IOException{
+        if(profile.equals("dc4ph-abb6")){Dc4Backlog.build(ui,history);return;}
         build(ui,history);boolean pp=profile.equals("dc3pp-9872"),wy=profile.equals("dc3wy-a09f");if(!pp&&!wy)return;
         // Earlier atlases use different crop rectangles (and P.P. underscored names).
         // Never feed the later D.D. portrait/button rectangles into this texture.

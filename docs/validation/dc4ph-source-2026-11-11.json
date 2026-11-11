@@ -1,0 +1,366 @@
+{
+  "schema": "circus-runtime-dc4ph-source-validation-1",
+  "date": "2026-11-11",
+  "version": "0.14.14-dc4ph-dev",
+  "base_commit": "2c9c73a",
+  "profile": "dc4ph-abb6",
+  "scope": "Independent PH binding using static native evidence and actual original MES/resources; portable interpretation, not execution of the Windows game EXE. Major common workflows, with explicitly deferred presentation details.",
+  "game_directory": "D:/gal/D.C.4 Plus Harmony(已破解)/D.C.4 Plus Harmony",
+  "original_game_executables_executed": false,
+  "original_game_directories_written": false,
+  "game_assets_in_git_or_APK": false,
+  "not_a_percentage_completion_measurement": true,
+  "native_and_platform_receipts": [
+    {
+      "path": "docs/validation/dc4ph-native-contract-2026-11-11.json",
+      "bytes": 24787,
+      "sha256": "1c910e7ad8853f64ed6f60cee1b6b41cd74e8de93c599c4c17168383823d8c03",
+      "git_lf_sha256": "4887573dde6144919bc95f42a3713dc6cff11d895c59a7030a6853a8486df874"
+    },
+    {
+      "path": "docs/validation/dc4ph-final-gaps-native-2026-11-11.json",
+      "bytes": 13951,
+      "sha256": "df066b8d98931d9c285d96ef391ceede52f3b5ed8a00f2b4e72841748789e30d",
+      "git_lf_sha256": "df066b8d98931d9c285d96ef391ceede52f3b5ed8a00f2b4e72841748789e30d"
+    },
+    {
+      "path": "docs/validation/dc4ph-blur-ui-native-2026-11-11.json",
+      "bytes": 7546,
+      "sha256": "668937e2daec7c1d52edd861f7c22f2d93ad31e85c9f2571073318e30ed12f4d",
+      "git_lf_sha256": "668937e2daec7c1d52edd861f7c22f2d93ad31e85c9f2571073318e30ed12f4d"
+    },
+    {
+      "path": "docs/validation/dc4ph-credits-native-2026-11-11.json",
+      "bytes": 8979,
+      "sha256": "a06887136bd3780069c119823a6e1b1ac40646bbbdc6df19de1f58e187f95317",
+      "git_lf_sha256": "aae6269e74ff5b99a6e60280fd769403554cf60cee33303fa0b371936f96188f"
+    },
+    {
+      "path": "docs/validation/dc4ph-resource-workflows-2026-11-11.json",
+      "bytes": 15295,
+      "sha256": "5f6c3a9ce50bcd9ffec30341267420bc2149c185e48185748de66d68d4f5a19b",
+      "git_lf_sha256": "967e5f68863b493876d25537122b666a7d478a667056256844e07133a970ce0f"
+    },
+    {
+      "path": "docs/validation/android-dc4ph-0.14.14.json",
+      "bytes": 5619,
+      "sha256": "000ac7fc0f9d6714dbb31bd4f01eaae54ed35ccb6b2f0c8082355b3f962021a8",
+      "git_lf_sha256": "52fe9db61a605e6528ab90a6d7fac2fdcfecfd85d2ca3cea9069e2a6b68696bd"
+    }
+  ],
+  "frozen_android": {
+    "result": {
+      "path": "F:\\circus-runtime-work\\dc4ph-20261111\\android-final-v1\\result.json",
+      "bytes": 689,
+      "sha256": "80484c1a8ee2dc989466924c0b2a87079bd7f8f6e24bbb6eb3435eac0f9c09ed",
+      "git_lf_sha256": "7329bf4c036fbf5964ff3058adeced13204e2e9e97fc1e34770551bd1bc44bea"
+    },
+    "inputs": {
+      "path": "F:\\circus-runtime-work\\dc4ph-20261111\\android-final-v1\\input-manifest.json",
+      "bytes": 108175,
+      "sha256": "0fbcf925cb054440a1ff97139bbd6eca16015774afea6e47807900c737db0ade",
+      "git_lf_sha256": "120311d8282753ca922010223691e8897c49b2ae5c42022016a1e5d7e8413b45"
+    },
+    "input_files": 837,
+    "build_report": {
+      "path": "F:\\circus-runtime-work\\dc4ph-20261111\\android-final-v1\\workspace\\build\\android\\build-report.json",
+      "bytes": 89564,
+      "sha256": "dd4d007e8d77168973d08e1fd84e8ad3aa9b949f0b6d2bb1251cb713e5597e65",
+      "git_lf_sha256": "78b883de590be0e7fbd1dfb1c94f0ebaa0ce6d2e884a24e25da4ebac38d6715a"
+    },
+    "jvm_core": "PASS 1150159 assertions; self-authored fixtures; DD choices/flow/original UI/animation/macros, WY bindings, DM memory/control and collection detection; archives, CRX/CRXD, audio, save integrity",
+    "source_changes": []
+  },
+  "final_desktop": {
+    "classes": "F:\\circus-runtime-work\\dc4ph-20261111\\resources\\resource-final-classes-03\\desktop-tests\\classes",
+    "inputs": {
+      "path": "F:\\circus-runtime-work\\dc4ph-20261111\\resources\\resource-final-classes-03\\desktop-tests\\inputs-manifest.json",
+      "bytes": 87664,
+      "sha256": "77d37fbdf2195542a9dca5c4f8d56e722b4c810532d3a3a39731d4e499d8aca2",
+      "git_lf_sha256": "a3ae80cf8ac40230beb7dc98e42eed9743c19a465ffa2cc1fe6bb1ad8836039b"
+    },
+    "shared_core_tests_and_DesktopDd_input_differences_from_APK": [],
+    "matching_overlapping_inputs": 518
+  },
+  "python_tests": {
+    "command": "python -B -X utf8 -m unittest discover -s tests",
+    "tests": 91,
+    "result": "PASS"
+  },
+  "actual_routes": {
+    "first": {
+      "evidence": {
+        "path": "F:\\circus-runtime-work\\dc4ph-20261111\\final-route-first-01\\result.json",
+        "bytes": 2977,
+        "sha256": "4cdad791420f0d1af0d6ad9bf09378c21d7a097c6cdbd7a485b1ff7f2d1eda0e",
+        "git_lf_sha256": "4cdad791420f0d1af0d6ad9bf09378c21d7a097c6cdbd7a485b1ff7f2d1eda0e"
+      },
+      "dialogue_waits": 11529,
+      "script_count": 115,
+      "choices": [
+        "DC4_KYO20190208C1_M0@24da=@choice:0",
+        "DC4_KYO20190209B_M0@1c79=@choice:0",
+        "DC4_KYO20190211B_M0@10a3=@choice:0",
+        "DC4_KYO20190212C_M0@24f2=@choice:0",
+        "DC4_MIB20190306C@33f1=@choice:0",
+        "DC4_MIB20190310B@3b2c=@choice:0",
+        "DC4_MIB20190310B@8939=@choice:0",
+        "DC4_MIB20190315C@2d72=@choice:0",
+        "DC4_MIB20190315C@7b9c=@choice:0"
+      ],
+      "choice_overrides": {},
+      "returned_to_title": true,
+      "time_and_media_completion_controlled": true,
+      "scope": "Observed stable text waits; original fast/automatic mode can release additional lines inside a tick."
+    },
+    "last_with_original_password_choice": {
+      "evidence": {
+        "path": "F:\\circus-runtime-work\\dc4ph-20261111\\final-route-last-01\\result.json",
+        "bytes": 3323,
+        "sha256": "7f6726d19e0a12d57c95f5565aaeeda5116981262a8bcea2152e830bc8d7cfa5",
+        "git_lf_sha256": "7f6726d19e0a12d57c95f5565aaeeda5116981262a8bcea2152e830bc8d7cfa5"
+      },
+      "dialogue_waits": 11522,
+      "script_count": 128,
+      "choices": [
+        "DC4_KYO20190208C1_M0@24da=@choice:2",
+        "DC4_KYO20190209B_M0@1c79=@choice:2",
+        "DC4_KYO20190211B_M0@10a3=@choice:2",
+        "DC4_KYO20190212C_M0@24f2=@choice:2",
+        "DC4_MIA20190302B@3303=@choice:1",
+        "DC4_MIA20190305E@ff3=@choice:1",
+        "DC4_MIA20190315C@45db=@choice:1",
+        "DC4_MIA20190315C@8455=@choice:1",
+        "DC4_MIA20190315C@c046=@choice:1",
+        "DC4_SOR20190501A@5064=@choice:0",
+        "DC4_SOR20190504A@707d=@choice:3"
+      ],
+      "choice_overrides": {
+        "dc4_sor20190504a@707d": "@choice:3"
+      },
+      "returned_to_title": true,
+      "time_and_media_completion_controlled": true,
+      "scope": "Observed stable text waits; original fast/automatic mode can release additional lines inside a tick."
+    },
+    "prologue_historical_full_flow": {
+      "evidence": {
+        "path": "F:\\circus-runtime-work\\dc4ph-20261111\\route-prologue-first-03\\result.json",
+        "bytes": 1163,
+        "sha256": "b272699c77b8c74f16cf2b595a6ac92778fb54aa10717e39fca01573c3591007",
+        "git_lf_sha256": "b272699c77b8c74f16cf2b595a6ac92778fb54aa10717e39fca01573c3591007"
+      },
+      "dialogue_waits": 3912,
+      "script_count": 35,
+      "choices": [
+        "DC4_SEN20181224C1_M0@b5a=@choice:0"
+      ],
+      "choice_overrides": {},
+      "returned_to_title": true,
+      "time_and_media_completion_controlled": true,
+      "scope": "Observed stable text waits; original fast/automatic mode can release additional lines inside a tick."
+    }
+  },
+  "prologue_source_scope": "The complete3912-wait prologue flow predates the final camera-latch presentation correction. Final source rechecks prologue20 and cold restore in the resource receipt; this older full route is not represented as a same-source entire-route run.",
+  "apk": {
+    "path": "F:\\circus-runtime-work\\dc4ph-20261111\\distribution\\circus-runtime-0.14.14-dc4ph-dev-android.apk",
+    "bytes": 12805992,
+    "sha256": "32c53efc0116e9ac403b2f1b47e7935d89cd1a6540582166a85f5680ac3ce3d9",
+    "git_lf_sha256": "3bbc6af353101e4bd6e01761b23f9be63bc909129d608de69fd133a616798f60"
+  },
+  "source_files": {
+    "profiles/dc123.json": {
+      "frozen_raw_sha256": "44c4c5309063912402164733ab1189eb4d7ba9e7243420309ec1299d49091fea",
+      "git_lf_sha256": "731658859da7bb93886d6f2e2ec865fc149f83664d121e297c8b935c457b10ca"
+    },
+    "profiles/mes-semantics.json": {
+      "frozen_raw_sha256": "0474c519c847f7b606d6b4d2f15c6006e2cf2052e27758384fcf937b0039640c",
+      "git_lf_sha256": "83e7c08e10ec99ccb198cd5950774c217b34f2f259e18f43be4b173cfe78aec8"
+    },
+    "runtime/android/AndroidManifest.xml": {
+      "frozen_raw_sha256": "5c6c61697f59aab6787469d9687fabd8d20ebaac674f8cd2e6dfe529a16c8dad",
+      "git_lf_sha256": "87b0ac4658193802f68668429a7eed77b81090f002a9e6024b95bcc4dc8e99e2"
+    },
+    "runtime/android/src/org/circus/runtime/Dc4StartupInstrumentation.java": {
+      "frozen_raw_sha256": "c14aad2aa8a7b1806629448aa0da002435020ca097105348aef84d5ed624de5d",
+      "git_lf_sha256": "c14aad2aa8a7b1806629448aa0da002435020ca097105348aef84d5ed624de5d"
+    },
+    "runtime/core/src/org/circus/core/Dc3Camera.java": {
+      "frozen_raw_sha256": "054add6b0e2ba6ad724b0d484981b0476ec3bf84b7b78fdcd9af1c32277ffc36",
+      "git_lf_sha256": "fd0fd7bb78b5856e8b62a4dc461cab24f93d6a3d3d7d410930792f0e942b9b63"
+    },
+    "runtime/core/src/org/circus/core/Dc3Host.java": {
+      "frozen_raw_sha256": "5d9cc2068388369f85bedc50967eb496e2b5a0b996db457d438480e5e4396ac1",
+      "git_lf_sha256": "75a27a9a0dca7b887e40ad81efa88c400b880544cd425717e19b24cfa8ccc1d3"
+    },
+    "runtime/core/src/org/circus/core/Dc3Petals.java": {
+      "frozen_raw_sha256": "53dbd25c199fe6093bcb42bf3ad3a646cc38d4b071dbbce2ef949005e5d77883",
+      "git_lf_sha256": "d985090456f755b1cf9417fd983de2c2d12514f375509efa5d0a59d8d27ce0cd"
+    },
+    "runtime/core/src/org/circus/core/Dc3State.java": {
+      "frozen_raw_sha256": "74233d10c75bc05deda5f15a3c2fa839abc181f5c3f01ec982fe35dce7f3f217",
+      "git_lf_sha256": "c6ebce2e85de032e576ca871366dbb990cfdb9030d8c79b31a9378b519905119"
+    },
+    "runtime/core/src/org/circus/core/Dc4Animation.java": {
+      "frozen_raw_sha256": "26b13fa5a6976d999cbf1a6fc6c55cfbe0543a4d4cae91db2b7f3013f6217c7e",
+      "git_lf_sha256": "26b13fa5a6976d999cbf1a6fc6c55cfbe0543a4d4cae91db2b7f3013f6217c7e"
+    },
+    "runtime/core/src/org/circus/core/Dc4Backlog.java": {
+      "frozen_raw_sha256": "0651e67c51b925640201bcdc572c6ab01254a34485cc2da351d4449b2e14a250",
+      "git_lf_sha256": "0651e67c51b925640201bcdc572c6ab01254a34485cc2da351d4449b2e14a250"
+    },
+    "runtime/core/src/org/circus/core/Dc4Blur.java": {
+      "frozen_raw_sha256": "c2f6b1acb9836b0b221e6f9b70b04f7424924de1446afb938cdada921df8ed17",
+      "git_lf_sha256": "c2f6b1acb9836b0b221e6f9b70b04f7424924de1446afb938cdada921df8ed17"
+    },
+    "runtime/core/src/org/circus/core/Dc4Credits.java": {
+      "frozen_raw_sha256": "f41c12dafd2cb4f3a6eae85591e8b0e2d811831169089a579bfbc6140583f294",
+      "git_lf_sha256": "f41c12dafd2cb4f3a6eae85591e8b0e2d811831169089a579bfbc6140583f294"
+    },
+    "runtime/core/src/org/circus/core/Dc4Geometry.java": {
+      "frozen_raw_sha256": "198c72a5a39da89124fe7eb0dd22c7261bc833e0f9677b0f4f0ddcef5df4977f",
+      "git_lf_sha256": "198c72a5a39da89124fe7eb0dd22c7261bc833e0f9677b0f4f0ddcef5df4977f"
+    },
+    "runtime/core/src/org/circus/core/Dc4Host.java": {
+      "frozen_raw_sha256": "709b46fcd5fed0d4be0d3bde4537362d2dd2bddc936e33c5458b9a7b66a36e1a",
+      "git_lf_sha256": "709b46fcd5fed0d4be0d3bde4537362d2dd2bddc936e33c5458b9a7b66a36e1a"
+    },
+    "runtime/core/src/org/circus/core/Dc4Macros.java": {
+      "frozen_raw_sha256": "523a29df3b8053152551e9639fdec6519675ffa8464034bebd3289370fc25cde",
+      "git_lf_sha256": "523a29df3b8053152551e9639fdec6519675ffa8464034bebd3289370fc25cde"
+    },
+    "runtime/core/src/org/circus/core/Dc4Particles.java": {
+      "frozen_raw_sha256": "8569180fabbc58335026ca3512e792f084ccaf57e249790084a9ca92302848a1",
+      "git_lf_sha256": "8569180fabbc58335026ca3512e792f084ccaf57e249790084a9ca92302848a1"
+    },
+    "runtime/core/src/org/circus/core/Dc4Ruby.java": {
+      "frozen_raw_sha256": "de38ede748b3e2b40476e680b61a2dcc8b6b027920197c47a1158cef3769d99d",
+      "git_lf_sha256": "de38ede748b3e2b40476e680b61a2dcc8b6b027920197c47a1158cef3769d99d"
+    },
+    "runtime/core/src/org/circus/core/Dc4SceneCommands.java": {
+      "frozen_raw_sha256": "c68263ce026aacd346b8e461adcb32f9d38b09f34f69800fd18fbaac1e23849a",
+      "git_lf_sha256": "c68263ce026aacd346b8e461adcb32f9d38b09f34f69800fd18fbaac1e23849a"
+    },
+    "runtime/core/src/org/circus/core/Dc4Speech.java": {
+      "frozen_raw_sha256": "098441f4a0ee9be87c69f851826d70ff6ddf2420256814356ae505289d537a44",
+      "git_lf_sha256": "098441f4a0ee9be87c69f851826d70ff6ddf2420256814356ae505289d537a44"
+    },
+    "runtime/core/src/org/circus/core/Dc4Sway.java": {
+      "frozen_raw_sha256": "4d441fef28356e9f2cf126e280cac264ef1b823c1bf3083b003f62fa1a97dc81",
+      "git_lf_sha256": "4d441fef28356e9f2cf126e280cac264ef1b823c1bf3083b003f62fa1a97dc81"
+    },
+    "runtime/core/src/org/circus/core/Dc4SystemCommands.java": {
+      "frozen_raw_sha256": "872b557ea486f28cbd99aa7f0bf937f6f840ced673f2e7374814bd413d4e776d",
+      "git_lf_sha256": "872b557ea486f28cbd99aa7f0bf937f6f840ced673f2e7374814bd413d4e776d"
+    },
+    "runtime/core/src/org/circus/core/Dc4Transition.java": {
+      "frozen_raw_sha256": "0af68b6f9eb10aeb03137f3ac33db272256fc2e134c15579a6bf5301f009b87d",
+      "git_lf_sha256": "0af68b6f9eb10aeb03137f3ac33db272256fc2e134c15579a6bf5301f009b87d"
+    },
+    "runtime/core/src/org/circus/core/Dc4UiCommands.java": {
+      "frozen_raw_sha256": "a488632ac2114023cf9bbd1121fa8b3295c66691853dc7cbc168cc8a706f35ba",
+      "git_lf_sha256": "a488632ac2114023cf9bbd1121fa8b3295c66691853dc7cbc168cc8a706f35ba"
+    },
+    "runtime/core/src/org/circus/core/MesFormats.java": {
+      "frozen_raw_sha256": "341c93cf9fec640ca2333feeeec07f5325dd5cf0b38082302d7f24a8e7cf04dd",
+      "git_lf_sha256": "4af03bd8381f03ffcca0b6c598ded6dacd3e2a8454894496b213b85da45adbfd"
+    },
+    "runtime/core/src/org/circus/core/MesVm.java": {
+      "frozen_raw_sha256": "8def7dbc11f38f2875487a65ac2d43961f34aa1fb8ca9ec6d11837e1dff9c8b6",
+      "git_lf_sha256": "35a1cd402157b665488a29ab295dba4f93ef3ef6c46ffcf34f7053b65fe4258b"
+    },
+    "runtime/core/src/org/circus/core/Profiles.java": {
+      "frozen_raw_sha256": "a02a9fd4328513bedcfaa1db6a7ae862d75691b9d2e593f70bfecf7489f094fe",
+      "git_lf_sha256": "cff311994919a52be66457437d03cb19ce7681822b1694fa4e431011f068b117"
+    },
+    "runtime/desktop/src/org/circus/core/DesktopDd.java": {
+      "frozen_raw_sha256": "ed80ca5e20f70d3b6fa72a2be1dc4512b56a8a3e15bb48817adc0a6f31659ce7",
+      "git_lf_sha256": "729d5d830045debcf1c635e10dd01bd75ee691222f6997c59b5571ea4c2d8a08"
+    },
+    "runtime/tests/org/circus/core/Dc4AnimationTests.java": {
+      "frozen_raw_sha256": "e0356813fefc4242539e99e88b7ac72cafdd5910d13da9e57e4006c0f9a289c6",
+      "git_lf_sha256": "e0356813fefc4242539e99e88b7ac72cafdd5910d13da9e57e4006c0f9a289c6"
+    },
+    "runtime/tests/org/circus/core/Dc4AudioStatusTests.java": {
+      "frozen_raw_sha256": "93219c7f62e44b973b3d0a7e67418bfd4965f54818e45721293c19bb82f6254b",
+      "git_lf_sha256": "93219c7f62e44b973b3d0a7e67418bfd4965f54818e45721293c19bb82f6254b"
+    },
+    "runtime/tests/org/circus/core/Dc4BacklogTests.java": {
+      "frozen_raw_sha256": "63f90391a8e27e6681deaa699b5ea72ff1a9848d858cbddd80e05c4da4a4a4ab",
+      "git_lf_sha256": "63f90391a8e27e6681deaa699b5ea72ff1a9848d858cbddd80e05c4da4a4a4ab"
+    },
+    "runtime/tests/org/circus/core/Dc4BindingTests.java": {
+      "frozen_raw_sha256": "d8d4e920bf5e92ff84c02d1cf9a02bbfd6791936c218a50f3ec17f6758003612",
+      "git_lf_sha256": "d8d4e920bf5e92ff84c02d1cf9a02bbfd6791936c218a50f3ec17f6758003612"
+    },
+    "runtime/tests/org/circus/core/Dc4BlurTests.java": {
+      "frozen_raw_sha256": "b52ca98d1cd63e934962e90b2614080c1af8ccc144e241d4df9b4412591e3cc1",
+      "git_lf_sha256": "b52ca98d1cd63e934962e90b2614080c1af8ccc144e241d4df9b4412591e3cc1"
+    },
+    "runtime/tests/org/circus/core/Dc4CameraTests.java": {
+      "frozen_raw_sha256": "90eb751d47895d9ac70ec0ba20df9f74fbba98c0f187f54d3704de0cbfdb5dc6",
+      "git_lf_sha256": "90eb751d47895d9ac70ec0ba20df9f74fbba98c0f187f54d3704de0cbfdb5dc6"
+    },
+    "runtime/tests/org/circus/core/Dc4ChoiceTests.java": {
+      "frozen_raw_sha256": "58f0d7b8003b8448d7b6c3c7a454acface75683577aba79be7468676659944f6",
+      "git_lf_sha256": "58f0d7b8003b8448d7b6c3c7a454acface75683577aba79be7468676659944f6"
+    },
+    "runtime/tests/org/circus/core/Dc4ControlsTests.java": {
+      "frozen_raw_sha256": "21f3da35de1ebb3cb290904c257935b90e1bcc38c0200723f5d3b7766d7b2ce5",
+      "git_lf_sha256": "21f3da35de1ebb3cb290904c257935b90e1bcc38c0200723f5d3b7766d7b2ce5"
+    },
+    "runtime/tests/org/circus/core/Dc4CreditsTests.java": {
+      "frozen_raw_sha256": "67af49fd27bbcb6563e1a8be9dd86f1ad4ea8f19dfa2e0ac9046bbe74b4f47f3",
+      "git_lf_sha256": "67af49fd27bbcb6563e1a8be9dd86f1ad4ea8f19dfa2e0ac9046bbe74b4f47f3"
+    },
+    "runtime/tests/org/circus/core/Dc4GeometryTests.java": {
+      "frozen_raw_sha256": "5fb0788931a20074cc5c60d94dc9b42ef2414ecbda09551ec501f0bee7ce866a",
+      "git_lf_sha256": "5fb0788931a20074cc5c60d94dc9b42ef2414ecbda09551ec501f0bee7ce866a"
+    },
+    "runtime/tests/org/circus/core/Dc4NativeStateTests.java": {
+      "frozen_raw_sha256": "23f04426585cbda554e69c687091afc71f58fc878f3a64cbd21e6d311d47cbb1",
+      "git_lf_sha256": "23f04426585cbda554e69c687091afc71f58fc878f3a64cbd21e6d311d47cbb1"
+    },
+    "runtime/tests/org/circus/core/Dc4NoticeTests.java": {
+      "frozen_raw_sha256": "67f309874243e452733afa1f8e412cc0a085bf99631b832f0b577e20375b7ed5",
+      "git_lf_sha256": "67f309874243e452733afa1f8e412cc0a085bf99631b832f0b577e20375b7ed5"
+    },
+    "runtime/tests/org/circus/core/Dc4ParticlesTests.java": {
+      "frozen_raw_sha256": "840f7fe18b0ad2c3e90d6621df54178cbb7b5f5a98acd3ee4bee5c24f26529dd",
+      "git_lf_sha256": "840f7fe18b0ad2c3e90d6621df54178cbb7b5f5a98acd3ee4bee5c24f26529dd"
+    },
+    "runtime/tests/org/circus/core/Dc4RubyTests.java": {
+      "frozen_raw_sha256": "cae59d4b3904d8d1bbad05945cf243d5ece5e98ca231ce5037b152adc46c65d0",
+      "git_lf_sha256": "cae59d4b3904d8d1bbad05945cf243d5ece5e98ca231ce5037b152adc46c65d0"
+    },
+    "runtime/tests/org/circus/core/Dc4SceneTests.java": {
+      "frozen_raw_sha256": "d7ceedc097ee1681a7ee08aae3ed2ac4249099bb5680a680c017c110e7a31077",
+      "git_lf_sha256": "d7ceedc097ee1681a7ee08aae3ed2ac4249099bb5680a680c017c110e7a31077"
+    },
+    "runtime/tests/org/circus/core/Dc4SwayTransitionTests.java": {
+      "frozen_raw_sha256": "47df907977044881a6c85cfb2ba95f46e41b0572f3b88e2e4b498e29b3c41caf",
+      "git_lf_sha256": "47df907977044881a6c85cfb2ba95f46e41b0572f3b88e2e4b498e29b3c41caf"
+    },
+    "runtime/tests/org/circus/core/Dc4SystemCommandsTests.java": {
+      "frozen_raw_sha256": "c5f4a851d263a4e00607f565845896b1639ab917537469b98c46005fb44196ee",
+      "git_lf_sha256": "d8ce487a19d696ee14afe9fc6e93e8da1cdec567b3ded4b38ab1271f67f0ce42"
+    },
+    "runtime/tests/org/circus/core/Dc4UiMoveTests.java": {
+      "frozen_raw_sha256": "ef615cfe28eb1d0ebf3d799069df2ff7308bf1c5b66c291d8787a47d192cde3f",
+      "git_lf_sha256": "ef615cfe28eb1d0ebf3d799069df2ff7308bf1c5b66c291d8787a47d192cde3f"
+    }
+  },
+  "limits": [
+    "Only the inspected Plus Harmony ABB6 data; no admission of other D.C.4 editions or D.C.5.",
+    "Original engine was statically sliced from the supplied original ZIP; identity with the packed cracked launcher engine was not established.",
+    "PH99:250 completion query is inferred from eight real ED loops and driven by real generation-aware audio callbacks. Static extracted getter lacks this branch; possible sample-version difference remains unresolved.",
+    "First/last strategies and one valid original password choice are not all route combinations; no story/clear variables were forced.",
+    "Small ruby glyphs, editable name form, native Windows story/system progress import, some COMU/camera/masked movement/credits effects and exact audio cursor restoration remain deferred or approximate.",
+    "Android ART/Canvas and direct MediaPlayer decoding are bounded checks, not Xiaomi14 full-game playback or actual RuntimeActivity/SAF/touch-lifecycle validation."
+  ],
+  "storage": {
+    "new_large_outputs_root": "F:\\circus-runtime-work\\dc4ph-20261111",
+    "existing_game_and_toolchain_reused_read_only": true,
+    "originals_or_old_packages_deleted": false,
+    "rea_exception": "The existing REA Windows native guard refused F drive attributes. Its required minimal Ghidra temp/engine copy used the existing D build/rea-temp; final exports are on F. Guard rejection was not bypassed."
+  }
+}

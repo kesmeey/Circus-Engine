@@ -53,8 +53,11 @@ public final class Dc3Layout {
         new int[]{1,-1,2,6,-2,3,7,-3,4,8,-4,5,9,-5,23,20});
     public static final Dc3Layout PP=new Dc3Layout(21,18,15,17,16,12,2,4,4,17,10,12,
         new int[]{1,-1,2,6,-2,3,7,-3,4,8,-4,5,9,-5,17,15});
+    public static final Dc3Layout PH=new Dc3Layout(37,31,26,27,28,21,4,5,5,25,19,23,
+        new int[]{1,-1,4,9,-2,5,10,-3,6,11,-4,7,12,8,13,-5,25,26});
 
     public static Dc3Layout of(String profileId){
+        if(profileId.equals("dc4ph-abb6"))return PH;
         if(profileId.equals("dc3wy-a09f"))return WY;
         if(profileId.equals("dc3pp-9872"))return PP;
         return DD;

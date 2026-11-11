@@ -1,0 +1,341 @@
+{
+  "schema": "circus-runtime.dc4ph.resource-workflow-receipt.v1",
+  "date": "2026-11-11",
+  "profile": "dc4ph-abb6",
+  "scope": "Read-only user-owned data, production desktop runtime, independent byte/geometry/text/cold-restore checks. No original EXE execution. No native GPU or audible-output equivalence.",
+  "game_assets_or_body_text_included": false,
+  "original_game_directory_written": false,
+  "original_exe_executed": false,
+  "frozen_backend": {
+    "build": "resource-final-classes-03/desktop-tests",
+    "source_fingerprint": "78d9d5f9edc86a23127d08cd6528a96bf0ba810f20750b696972bfd4112e1b50",
+    "inputs_manifest_sha256": "77d37fbdf2195542a9dca5c4f8d56e722b4c810532d3a3a39731d4e499d8aca2",
+    "frozen_input_count": 680,
+    "same_source_backend_and_audit_for_primary_workflows": true,
+    "changed_since_previous_validation": [
+      "PH99:250 active-BGM query",
+      "PH49 camera retention separated from dialogue template selection, PHS3 snapshot"
+    ],
+    "production_codec_classes_unchanged_from_full_resource_decode": true,
+    "codec_class_sha256": {
+      "Archive$1.class": "c4dc6d96e1523b149cef707b578e6d6243100037645f4bf1c94a0760ffeca6ff",
+      "Archive$2.class": "c3103af3606b5ee7f76af1fc6b3f88523013493b9e491af8a631a5e963b47e18",
+      "Archive$Entry.class": "6c00e65e95e4b74d621776946fcd592a697fc595a2d8d644f55c6e8538edecc4",
+      "Archive$Reader.class": "dd7efb4c96050e0cd88aa4f3bf097dfdcff1e318b82e65a83300544e79c5f642",
+      "Archive$Source$1.class": "a90dea7b02b482245ae514a6fc8949257ee484806cf28aac2733fa970ba5b128",
+      "Archive$Source.class": "a24970554892b618dad0322a23b0a8d2e85cb1b6c1580fba7ee391360f713252",
+      "Archive.class": "416a6dea7e4755033b09b66e7e2480c3fa88e54fad5609621778cd13cac81c8c",
+      "Binary.class": "b140d43f044fd6a092ce3657d23ddb45ef899721b2cca62444672f7f7778c34b",
+      "Crx$Image.class": "ff09ce087b7abcfd8794fdfaba98302c9a36a2036712813223416000c48436e0",
+      "Crx$Resolver.class": "61a15ebad8f8b1196beeabf0e420909ba2e7e3f6cd65a2bf8bbf6495e2746e0a",
+      "Crx.class": "0f04995b7c76ea8225543705cd559a348502b16309b2cb39172091fe2d28e6fd",
+      "GameResources$1.class": "cbd16c06cc47e19a73815c6cc45ef8847cbdc7e0f40db42d9448d909d62a58e1",
+      "GameResources$2.class": "99ad2a82712d7b64613d039976843c32cae3a80842866ade968a907dc9a9c925",
+      "GameResources$Storage.class": "899e64185f2d02e1a58342a95eaf6229cfcfa6c4b4a55640b12f00b31bad979c",
+      "GameResources.class": "c39d8c4f4beb2340219086dbf9c128f6907e6eb7bbc9f3185fd457aa27895011",
+      "NamesCatalog$Entry.class": "7f51b3141bdc960059157a5d93c8eae503cdbc6c994dac2b4459f08e585987ed",
+      "NamesCatalog.class": "11d34848d75520ce18236edeb2fb4121b75bde9d610c6bc6da15fb7187f0412f",
+      "Xpcm.class": "7bc6022f2df73b1b4b1b80e4e6a76855625d56268fdd64d23687852a48ab433d"
+    }
+  },
+  "resource_decode": {
+    "report_sha256": "bfd1788a95f5c18d40da384f5f37b343dbf68533262c0a7e58adc2f49bd3983a",
+    "backend_build": "resource-final-classes-01/desktop-tests",
+    "heap_limit_mb": 256,
+    "decoded_images": 2466,
+    "decoded_pixels": 2937701930,
+    "loose_crx_count": 1339,
+    "all_container_indices_checked": 166,
+    "container_entries_indexed": 13682,
+    "image_sampling": "All loose CRX; every container index; first/middle/last and every20th CRM entry plus at least5 PCK samples. This is not all container image payloads.",
+    "voice_entries_indexed": 20396,
+    "audio_samples_stream_and_full_decode_equal": 242,
+    "audio_sampling": "All200 loose audio files plus every500th voice and last entry (42 sampled voices). No claim that all voices were decoded or heard.",
+    "errors": 0,
+    "loose_crx_kinds": {
+      "c2f1d0m0": 1153,
+      "c2f1d1m0": 132,
+      "c3f17d0m0": 33,
+      "c3f17d1m0": 21
+    }
+  },
+  "primary_workflows": [
+    {
+      "name": "natural START to cast and visible dialogue",
+      "result": "PASS",
+      "report_sha256": "41147c8b63f77a0ccf7eb0b56bd4c961d75c55300c1dbb177524350a5944738d",
+      "checks": 277,
+      "dialogue_waits": 74,
+      "original_menu_actions": [
+        "sce_start"
+      ],
+      "synthetic_music_gate_fixture": false,
+      "missing_images": [],
+      "independent_plain_cp932_body_checks": 74,
+      "ruby_base_spans_checked": 0,
+      "body_cold_restore_pixel_equal": true,
+      "actor_cold_restore_pixel_equal": true,
+      "background_geometry_pixels_compared": 921600,
+      "actor_geometry_pixels_compared": 921600,
+      "owned_native_menu_save_files": [],
+      "actor_geometry": {
+        "slot": 4,
+        "source_origin": [
+          296,
+          140
+        ],
+        "source_size": [
+          451,
+          1140
+        ],
+        "position": [
+          128,
+          -40
+        ],
+        "scale_percent": [
+          78,
+          78
+        ],
+        "explicit_pivot": [
+          504,
+          328
+        ],
+        "compared_pixels": 921600,
+        "visible_nonblack_pixels": 141369,
+        "portable_pixel_sha256": "51f0664a7f5808899b33d10e0a584fb57ee124b5440119aa99426aecd0e605e1",
+        "neutral_camera_for_geometry_oracle": true,
+        "original_GPU_compared": false
+      }
+    },
+    {
+      "name": "original full save-load slot3 round trip",
+      "result": "PASS",
+      "report_sha256": "7226381b308c3238250f3ea3084909d58cd0e2a93169802ae903698f9c1eb770",
+      "checks": 192,
+      "dialogue_waits": 21,
+      "original_menu_actions": [
+        "sce_start",
+        "@slot:0",
+        ":y",
+        "gomenu02",
+        "@slot:0",
+        ":y"
+      ],
+      "synthetic_music_gate_fixture": false,
+      "missing_images": [],
+      "independent_plain_cp932_body_checks": 21,
+      "ruby_base_spans_checked": 0,
+      "body_cold_restore_pixel_equal": true,
+      "actor_cold_restore_pixel_equal": false,
+      "background_geometry_pixels_compared": 921600,
+      "actor_geometry_pixels_compared": 0,
+      "owned_native_menu_save_files": [
+        {
+          "file": "slot-3.sav",
+          "bytes": 345835,
+          "sha256": "e25346b9f67751bd05b80faa63fb8d0db77baf959da337c9573eea5c70198364"
+        },
+        {
+          "file": "slot-1.sav",
+          "bytes": 345835,
+          "sha256": "ab116ae2e4d5735474cbb038ea8798076f795641cca0e2151e8f6dcbdceb02a0"
+        }
+      ],
+      "original_story_actions": [
+        {
+          "action": ":ds",
+          "body_before_sha256": "6fd1a9659d59eaa04118dbc55c6bb3ea995d4831a4c7496679d0891ebdb7dda4",
+          "body_after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "voice_generation_before": 4,
+          "voice_generation_after": 5,
+          "voice_active_after": false,
+          "controls_before": 10,
+          "controls_after": 0,
+          "flag99_227_before": 1,
+          "flag99_227_after": 1
+        }
+      ]
+    },
+    {
+      "name": "natural prologue20 with PCK/ruby/camera cold restore",
+      "result": "PASS",
+      "report_sha256": "041febc0ad82fa44ab59c68db8b064296ffcb593d1ab6897f3fc1f89cc83413a",
+      "checks": 90,
+      "dialogue_waits": 20,
+      "original_menu_actions": [
+        "prologue"
+      ],
+      "synthetic_music_gate_fixture": false,
+      "missing_images": [],
+      "independent_plain_cp932_body_checks": 20,
+      "ruby_base_spans_checked": 1,
+      "body_cold_restore_pixel_equal": true,
+      "actor_cold_restore_pixel_equal": false,
+      "background_geometry_pixels_compared": 921600,
+      "actor_geometry_pixels_compared": 0,
+      "owned_native_menu_save_files": []
+    }
+  ],
+  "earlier_same_ui_contract_workflows": {
+    "backend_build": "resource-final-classes-01/desktop-tests",
+    "scope": "Earlier independent UI tests. Later changes above affect camera retention/BGM query; final primary workflows separately verify latest production source.",
+    "workflows": [
+      {
+        "name": "native control bar collapse-expand",
+        "result": "PASS",
+        "report_sha256": "b831eadac8ecb6a4144a0b6af082342a16537f40dc1225bb8a7e8a786d179c23",
+        "checks": 103,
+        "dialogue_waits": 21,
+        "original_menu_actions": [
+          "sce_start"
+        ],
+        "synthetic_music_gate_fixture": false,
+        "missing_images": [],
+        "independent_plain_cp932_body_checks": 21,
+        "ruby_base_spans_checked": 0,
+        "body_cold_restore_pixel_equal": true,
+        "actor_cold_restore_pixel_equal": false,
+        "background_geometry_pixels_compared": 921600,
+        "actor_geometry_pixels_compared": 0,
+        "owned_native_menu_save_files": [],
+        "original_story_actions": [
+          {
+            "action": ":n",
+            "body_before_sha256": "6fd1a9659d59eaa04118dbc55c6bb3ea995d4831a4c7496679d0891ebdb7dda4",
+            "body_after_sha256": "6fd1a9659d59eaa04118dbc55c6bb3ea995d4831a4c7496679d0891ebdb7dda4",
+            "voice_generation_before": 4,
+            "voice_generation_after": 4,
+            "voice_active_after": false,
+            "controls_before": 10,
+            "controls_after": 1,
+            "flag99_227_before": 1,
+            "flag99_227_after": 0
+          },
+          {
+            "action": ":n",
+            "body_before_sha256": "6fd1a9659d59eaa04118dbc55c6bb3ea995d4831a4c7496679d0891ebdb7dda4",
+            "body_after_sha256": "6fd1a9659d59eaa04118dbc55c6bb3ea995d4831a4c7496679d0891ebdb7dda4",
+            "voice_generation_before": 4,
+            "voice_generation_after": 4,
+            "voice_active_after": false,
+            "controls_before": 1,
+            "controls_after": 10,
+            "flag99_227_before": 0,
+            "flag99_227_after": 1
+          }
+        ]
+      },
+      {
+        "name": "actual first NIN voice replay",
+        "result": "PASS",
+        "report_sha256": "4e25e00d199fd3276b386c102de158c7fbc66e0d85ec25661e962b7c56d7189a",
+        "checks": 131,
+        "dialogue_waits": 32,
+        "original_menu_actions": [
+          "sce_start"
+        ],
+        "synthetic_music_gate_fixture": false,
+        "missing_images": [],
+        "independent_plain_cp932_body_checks": 32,
+        "ruby_base_spans_checked": 0,
+        "body_cold_restore_pixel_equal": true,
+        "actor_cold_restore_pixel_equal": false,
+        "background_geometry_pixels_compared": 921600,
+        "actor_geometry_pixels_compared": 0,
+        "owned_native_menu_save_files": [],
+        "original_story_actions": [
+          {
+            "action": ":voice",
+            "body_before_sha256": "12872f127bf99744c44dfce9a462bd8d37e359b3b04c825b951746d29fb59da3",
+            "body_after_sha256": "12872f127bf99744c44dfce9a462bd8d37e359b3b04c825b951746d29fb59da3",
+            "voice_generation_before": 5,
+            "voice_generation_after": 6,
+            "voice_active_after": true,
+            "controls_before": 10,
+            "controls_after": 10,
+            "flag99_227_before": 1,
+            "flag99_227_after": 1
+          }
+        ]
+      },
+      {
+        "name": "original backlog and return",
+        "result": "PASS",
+        "report_sha256": "e4cf9f47093796f68275ad15a87ce1a6cc1d4c19e86554cc8caaf1671a2c86f1",
+        "checks": 102,
+        "dialogue_waits": 21,
+        "original_menu_actions": [
+          "sce_start",
+          "@log:exit"
+        ],
+        "synthetic_music_gate_fixture": false,
+        "missing_images": [],
+        "independent_plain_cp932_body_checks": 21,
+        "ruby_base_spans_checked": 0,
+        "body_cold_restore_pixel_equal": true,
+        "actor_cold_restore_pixel_equal": false,
+        "background_geometry_pixels_compared": 921600,
+        "actor_geometry_pixels_compared": 0,
+        "owned_native_menu_save_files": [],
+        "original_story_actions": [
+          {
+            "action": ":backlog",
+            "body_before_sha256": "6fd1a9659d59eaa04118dbc55c6bb3ea995d4831a4c7496679d0891ebdb7dda4",
+            "body_after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "voice_generation_before": 4,
+            "voice_generation_after": 5,
+            "voice_active_after": false,
+            "controls_before": 10,
+            "controls_after": 5,
+            "flag99_227_before": 1,
+            "flag99_227_after": 1
+          }
+        ]
+      },
+      {
+        "name": "isolated music first-last-stop-return",
+        "result": "MENU_DISCOVERED",
+        "report_sha256": "4e0090b41af3c2ab009a5c593dbeaae4912593d2a3f70ade564f719a5ee1b91c",
+        "checks": 161,
+        "dialogue_waits": 0,
+        "original_menu_actions": [
+          "extra",
+          "musmode",
+          "@slot:0",
+          "@scroll:999",
+          "@slot:5",
+          "stop",
+          "return"
+        ],
+        "synthetic_music_gate_fixture": true,
+        "missing_images": [],
+        "independent_plain_cp932_body_checks": 0,
+        "ruby_base_spans_checked": 0,
+        "body_cold_restore_pixel_equal": false,
+        "actor_cold_restore_pixel_equal": false,
+        "background_geometry_pixels_compared": 0,
+        "actor_geometry_pixels_compared": 0,
+        "owned_native_menu_save_files": []
+      }
+    ],
+    "music_fixture": "Only bank100:109=1 in isolated audit memory to reach the originally locked music menu; no CG/route flags or persistent user progress were changed."
+  },
+  "source_receipts": {
+    "runtime/core/src/org/circus/core/Dc3Camera.java": "054add6b0e2ba6ad724b0d484981b0476ec3bf84b7b78fdcd9af1c32277ffc36",
+    "runtime/core/src/org/circus/core/Dc3Host.java": "5d9cc2068388369f85bedc50967eb496e2b5a0b996db457d438480e5e4396ac1",
+    "runtime/core/src/org/circus/core/Dc3State.java": "74233d10c75bc05deda5f15a3c2fa839abc181f5c3f01ec982fe35dce7f3f217",
+    "runtime/core/src/org/circus/core/Dc4Host.java": "709b46fcd5fed0d4be0d3bde4537362d2dd2bddc936e33c5458b9a7b66a36e1a",
+    "runtime/core/src/org/circus/core/Dc4Ruby.java": "de38ede748b3e2b40476e680b61a2dcc8b6b027920197c47a1158cef3769d99d",
+    "runtime/core/src/org/circus/core/Dc4SceneCommands.java": "c68263ce026aacd346b8e461adcb32f9d38b09f34f69800fd18fbaac1e23849a",
+    "runtime/desktop/src/org/circus/core/Dc4DesktopAudit.java": "12bcdf1ca7fdac9383331b0954ab775b0f225026462b07f7c7b3cd568368b634",
+    "runtime/desktop/src/org/circus/core/Dc4ResourceAudit.java": "ebc8d3efe0178d98223290c3d6a8e76448e6dedb298ece4ac847fa2d2f34910e",
+    "runtime/desktop/src/org/circus/core/DesktopDd.java": "ed80ca5e20f70d3b6fa72a2be1dc4512b56a8a3e15bb48817adc0a6f31659ce7"
+  },
+  "verification_limits": [
+    "Desktop media time and completion were simulated; source audio streams were hashed, not listened to.",
+    "Background and cast pixels were compared against independent native-derived geometry in the portable renderer, not an original GPU screenshot.",
+    "PH control-bar and message-template fixes are edition scoped; legacy state protection has dedicated tests.",
+    "Native Windows slot import is outside this receipt; UI save/load used owned portable .sav files.",
+    "Native PH scene-preview portraits/thumbnail framing and exact RNG/frame timing remain outside this initial approximation."
+  ]
+}

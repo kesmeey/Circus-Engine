@@ -1,17 +1,17 @@
 # Circus Engine
 
-用**原版脚本和原版素材**驱动 D.C.（ダ・カーポ）系列 1／2／3 的兼容运行时。
+用**原版脚本和原版素材**驱动 D.C.（ダ・カーポ）系列 1／2／3 及已核验 D.C.4 Plus Harmony 的兼容运行时。
 选择游戏目录，按已实现的版本规则执行原版启动、标题、正文和系统脚本；
 不运行原 Windows EXE，不附带任何游戏数据。
 
 仓库：[kesmeey/Circus-Engine](https://github.com/kesmeey/Circus-Engine)。
 项目目录与命令行工具仍沿用 `circus-runtime`／`dc_runtime` 命名。
 
-本批 Windows／Android 更新为 **0.14.13-ty-music-display-dev**：补齐 To You 的 Music Mode 原生曲名处理，修正 Scene Replay 标题与 GBK 正文共用编码造成的乱码；曲名按所选 EXE 的独立数据表读取，回放标题按原菜单 CP932 解码。[本轮验证](docs/validation/ty-music-display-source-2026-11-09.json)记录实际范围。此前 [SC 显示修复](docs/validation/sc-display-source-2026-11-09.json)及 [TY／FL 兼容](docs/validation/ty-sc-fl-source-2026-11-08.json)保留，旧固定包不覆盖。安装包不含游戏素材。
+本批版本为 **0.14.14-dc4ph-dev**：新增 D.C.4 Plus Harmony 的独立 ABB6 绑定、1280×720 画布、原标题与剧情执行、背景适配、粒子、文本宏、PCK 动画、原菜单与便携存读档。具体范围、原生证据与演出近似见 [D.C.4 PH 说明](docs/DC4PH.md)。此前 [TY 音乐与回放文字修复](docs/validation/ty-music-display-source-2026-11-09.json)、[SC 显示修复](docs/validation/sc-display-source-2026-11-09.json)保留，旧固定包不覆盖。安装包不含游戏素材。
 
 当前目标已调整为约80%的主要功能与大多数常见游戏流程，允许延期少量难处理的版本和边缘行为；这是工程范围，尚不是完成率声明。见[当前交付目标](docs/ENGINE_SCOPE.md)。
 
-本批 Android 安装包为 `build/distribution/circus-runtime-0.14.13-ty-music-display-dev-android.apk`，可覆盖安装，保留应用数据。已验证的 TY／SC 汉化副本请选择自动识别或 GBK，字符替换保持自动；原菜单标题由各自字段编码处理。完整手机原数据流程的检查范围以本轮记录为准。
+本批 Android 安装包为 `circus-runtime-0.14.14-dc4ph-dev-android.apk`，沿用开发签名，可覆盖安装。当前本机构建输出移到 F 盘，见 [外置构建目录](docs/BUILD_STORAGE.md)。D.C.4 PH 的这份日文数据使用自动或日文编码；已验证的 TY／SC 汉化副本继续使用自动识别或 GBK，字符替换保持自动。
 
 此前分发的 Android 开发包 **0.13.15** 修复 W.Y. 夏露露剧情中的重复目录分隔符报错，同时覆盖 P.P. 的同类图片引用。旧安装包：`build/distribution/circus-runtime-0.13.15-android-dev.apk`，见 [修复说明](docs/ANDROID_01315.md)。保留 [0.13.14 的 W.Y.／P.P. 原版系统进度导入](docs/ANDROID_01314.md)和 [0.13.13 的手机启动与中文补丁兼容](docs/ANDROID_01313.md)。
 
@@ -23,7 +23,7 @@
 这会暴露此前被跳过的模块；当前重写源码不能沿用旧开发包对该作的可玩承诺。
 以下其他作品的进度保留为此前验证范围，不能据此宣称本轮已忠实复刻整个引擎。
 
-有独立版本绑定、由原版脚本驱动的一共12个入口（包含暂不推进的Unity版）。Windows与Android共用核心；
+有独立版本绑定、由原版脚本驱动的一共13个入口（包含暂不推进的Unity版）。Windows与Android共用核心；
 下表保留历史验证范围，本轮的实际验证与未实现边界以重写状态为准。
 
 | 作品 | 数据格式 | 目前能跑到哪 |
@@ -39,6 +39,7 @@
 | D.C.III DreamDays | `dc3dd-a5a8` | 七条剧情路线到片尾 |
 | D.C.III With You | `dc3wy-a09f` | 代表策略2,737句后经该版本片尾回标题；其他选择组合未穷举 |
 | D.C.III P.P. | `dc3pp-9872` | 首/末选项策略15,006/13,362句后经MED片尾回标题；粒子时钟及部分绘制采用兼容近似 |
+| D.C.4 Plus Harmony | `dc4ph-abb6` | 首选策略11,529等待、末选策略在密码题选原正确项后11,522等待，分别经片尾回标题；原菜单便携存读与立绘/正文冷恢复通过，部分演出近似，见 [本作说明](docs/DC4PH.md) |
 | D.C.III R（Unity 5.5 版） | `dc3r-unity-550` | 标题／章节选择／正文／系统菜单；全路线尚未验证 |
 
 「到片尾」指在本机完整跑通并返回标题；不等于原版所有演出时序和设置副作用都已复刻。
@@ -46,11 +47,11 @@
 
 ### 只能识别，不能运行
 
-解包器和格式表覆盖 26 种 MES 变体（D.C. White Season、Summer Vacation、After Seasons、
+解包器和格式表另覆盖多种 MES 变体（D.C. White Season、Summer Vacation、After Seasons、
 其他少数 FD 等），可以扫描、解包、反汇编、
 导出图片和音频；但运行时没有对应宿主，选中会直接报 `Unsupported profile`。
 
-范围只到 D.C. 1／2／3 及其 FD，不含 D.C.4／5。其他作品的格式支持不等于能运行。
+D.C.4 目前只接入核验过的 Plus Harmony ABB6；其他 D.C.4 版本与 D.C.5 不在运行范围。其他作品的格式支持不等于能运行。
 
 ## 跑起来
 

@@ -29,6 +29,9 @@ public final class Dc3State implements Variables.Special {
     }
     /** 40ED10(0): native default table 4A5100; progression bytes are retained. */
     public void resetPreferences(){
+        if(profileId.equals("dc4ph-abb6")){
+            try{resetPhPreferences(-1);}catch(IOException invalid){throw new IllegalStateException(invalid);}return;
+        }
         int[] keys={5,7,8,9,10,11,12,13,14,15,16,17,18,26,27,28,29,30,184,185,188,190,191,194,200,201,202,203,205,206,207,208,209,210,211,212,213,214,225,227,237},values={1,65,80,100,1,49,6,0,1,1,7,0,1,3,3,1,3,1,3,0,1,0,0,5,1,1,0,1,1,85,80,0,0,0,0,1,1,0,100,1,1};
         for(int n=0;n<keys.length;n++)b99[keys[n]]=values[n];
         b99[199]=0;b99[198]=5;b99[197]=2;b99[196]=4;
@@ -39,6 +42,19 @@ public final class Dc3State implements Variables.Special {
             int[] ppValues={1,1,20,23,27,1,11,2,0,1,1,7,0,1,0,0,8,8,0,17,1};
             for(int n=0;n<ppKeys.length;n++)b99[ppKeys[n]]=ppValues[n];
         }
+    }
+    public void resetPhPreferences(int group)throws IOException{
+        if(!profileId.equals("dc4ph-abb6"))throw new IOException("PH defaults require PH state");
+        for(int[] pair:Dc4SystemCommands.defaultRegisters(group))b99[pair[0]]=pair[1];
+        if(group<0||group==4)java.util.Arrays.fill(b93,0);
+        if(group<0)java.util.Arrays.fill(musicFavorites,0);
+        if(group==1)b100[49]=49;
+    }
+    /** PH4332B0 writes the native button-bar preference directly. MES227's
+     * setter remains absent, as in40D240; ordinary scripts cannot toggle it. */
+    public void togglePhMessageControls()throws IOException{
+        if(!profileId.equals("dc4ph-abb6"))throw new IOException("PH message controls require the PH state");
+        b99[227]=b99[227]==0?1:0;
     }
     public void resetVoicePreferences(){java.util.Arrays.fill(b94,100);java.util.Arrays.fill(b95,1);}
     public void migrateLegacyAudio(){b99[203]=1;b99[225]=100;resetVoicePreferences();}
@@ -87,6 +103,7 @@ public final class Dc3State implements Variables.Special {
         System.arraycopy(raw,0,packedProgress,0,raw.length);
     }
     public int read(int b,int i)throws IOException {
+        if(profileId.equals("dc4ph-abb6")&&b==99&&(i==19||i>=179&&i<=182))return b99[i]; // PH40CC50: additional stored registers.
         if(packedProgress!=null&&(b==100||ppBase(b)>=0))return packedRead(b,i);
         if(packedProgress!=null&&(b==93||b==94||b==95))return 0;
         if(packedProgress!=null&&b==99&&!ppReadableRegister(i))return 0;
@@ -102,11 +119,12 @@ public final class Dc3State implements Variables.Special {
         return Dc3StateRules.READ[i]==0?0:b99[i];
     }
     public void write(int b,int i,int value)throws IOException {
+        if(profileId.equals("dc4ph-abb6")&&b==99&&(i==19||i>=179&&i<=182)){b99[i]=value;return;} // PH40D240.
         if(packedProgress!=null&&(b==100||ppBase(b)>=0)){packedWrite(b,i,value);return;}
         if(packedProgress!=null&&(b==93||b==94||b==95))return;
         if(packedProgress!=null&&b==99&&!ppWritableRegister(i))return;
         if(packedProgress!=null&&b==99&&(i==5||i==7||i==8||i==9)){b99[i]=value;return;}
-        byte[] bytes=bank(b);if(bytes!=null){if(i<0||i>=bytes.length)return;if(b==100&&i==49)write(99,11,value);if(bytes[i]!=(byte)value&&(b==97||b==98||b==100&&i>=100&&i<=110))progressRevision++;bytes[i]=(byte)value;return;}
+        byte[] bytes=bank(b);if(bytes!=null){if(i<0||i>=bytes.length)return;if(b==100&&i==49)write(99,11,value);if(bytes[i]!=(byte)value&&(b==97||b==98||b==100&&i>=100&&(i<=110||profileId.equals("dc4ph-abb6")&&i==111)))progressRevision++;bytes[i]=(byte)value;return;}
         if(b==93){if(i>=0&&i<20)b93[i]=value;return;}
         if(b==94||b==95){if(i==50||(i>=0&&i<voiceCount))(b==94?b94:b95)[i]=b==94?Math.min(value,100):value;return;}
         if(b!=99)return;index(i,256);
@@ -142,9 +160,10 @@ public final class Dc3State implements Variables.Special {
         ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream out=new DataOutputStream(bytes);
         if(packedProgress!=null){out.writeInt(PP_SETTINGS);out.write(packedProgress);}
         for(byte[] b:new byte[][]{b100,b96,b97,b98})out.write(b);
-        for(int v:b93)out.writeInt(v);for(int i:Dc3StateRules.SETTINGS)out.writeInt(b99[i]);for(int f:musicFavorites)out.writeInt(f);for(int[] b:new int[][]{b94,b95})for(int v:b)out.writeInt(v);return bytes.toByteArray();
+        for(int v:b93)out.writeInt(v);for(int i:settingsRegisters())out.writeInt(b99[i]);for(int f:musicFavorites)out.writeInt(f);for(int[] b:new int[][]{b94,b95})for(int v:b)out.writeInt(v);return bytes.toByteArray();
     }
-    private int portableSettingsLength(){return b100.length+b96.length+b97.length+b98.length+4*(b93.length+Dc3StateRules.SETTINGS.length+musicFavorites.length+b94.length+b95.length);}
+    private int[] settingsRegisters(){if(!profileId.equals("dc4ph-abb6"))return Dc3StateRules.SETTINGS;int[] keys=java.util.Arrays.copyOf(Dc3StateRules.SETTINGS,Dc3StateRules.SETTINGS.length+3);keys[keys.length-3]=180;keys[keys.length-2]=181;keys[keys.length-1]=182;return keys;}
+    private int portableSettingsLength(){return b100.length+b96.length+b97.length+b98.length+4*(b93.length+settingsRegisters().length+musicFavorites.length+b94.length+b95.length);}
     public boolean acceptsSettingsLength(int n)throws IOException{int legacy=portableSettingsLength();return n==legacy||n==legacy-408||n==legacy-2008||packedProgress!=null&&n==legacy+4+PP_BYTES;}
     /** Shared by normal play and explicit native-progress import. */
     public byte[] savePersistent()throws IOException{ByteArrayOutputStream bytes=new ByteArrayOutputStream();new DataOutputStream(bytes).writeInt(0x44445032);bytes.write(settingsSnapshot());return bytes.toByteArray();}
@@ -158,7 +177,7 @@ public final class Dc3State implements Variables.Special {
         DataInputStream in=new DataInputStream(new ByteArrayInputStream(bytes));
         byte[] raw=null;if(packedProgress!=null&&bytes.length==portableSettingsLength()+4+PP_BYTES){if(in.readInt()!=PP_SETTINGS)throw new IOException("Unsupported PP settings version");raw=new byte[PP_BYTES];in.readFully(raw);}
         readProgress(in,raw);
-        for(int i=0;i<b93.length;i++)b93[i]=in.readInt();for(int i:Dc3StateRules.SETTINGS)b99[i]=in.readInt();if(in.available()>=1600)for(int n=0;n<musicFavorites.length;n++)musicFavorites[n]=in.readInt();if(in.available()==408)for(int[] b:new int[][]{b94,b95})for(int n=0;n<b.length;n++)b[n]=in.readInt();else resetVoicePreferences();
+        for(int i=0;i<b93.length;i++)b93[i]=in.readInt();for(int i:settingsRegisters())b99[i]=in.readInt();if(in.available()>=1600)for(int n=0;n<musicFavorites.length;n++)musicFavorites[n]=in.readInt();if(in.available()==408)for(int[] b:new int[][]{b94,b95})for(int n=0;n<b.length;n++)b[n]=in.readInt();else resetVoicePreferences();
     }
     public void load(DataInput in)throws IOException {
         int voices=in.readInt();byte[] raw=null;if(voices==PP_STATE){if(packedProgress==null)throw new IOException("PP packed save profile mismatch");raw=new byte[PP_BYTES];in.readFully(raw);voices=in.readInt();}if(voices<0||voices>50)throw new IOException("Invalid voice count");

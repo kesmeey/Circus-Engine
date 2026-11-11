@@ -11,7 +11,7 @@ public final class NativeStartupAudit {
         final CircusResources data;final TextCodec codec;MesVm vm;Dc3Host modern;Dc2Session legacy;
         Engine(CircusResources data,TextCodec codec)throws IOException{
             this.data=data;this.codec=codec;
-            if(Dc3Host.supports(data.profile)){modern=new Dc3Host(data,codec,true);vm=new MesVm(data.scripts(),modern,"START");}
+            if(Dc3Host.supports(data.profile)){modern=Dc3Host.create(data,codec,true);vm=new MesVm(data.scripts(),modern,"START");}
             else{legacy=new Dc2Session(data,codec);vm=legacy.vm;}
         }
         long ticket(){return modern!=null?modern.waitTicket():legacy.host.waitTicket();}

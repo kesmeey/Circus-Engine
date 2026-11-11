@@ -1,0 +1,105 @@
+{
+  "schema": "circus-runtime-dc4ph-final-native-gaps-1",
+  "date": "2026-11-11",
+  "source_game_executed": false,
+  "engine_sha256": "178ee9a5e34356b11942213e2e32a34afe4933c90d563bf5a3d6402250f54ab7",
+  "rea_evidence": "ev_1fe7fa1d56ac3a1579323eefcfad42339845f28304d3fda8117c9c2049cbc7ec",
+  "physical_corpus": {
+    "scripts": 536,
+    "framing_errors": 0,
+    "private_receipt": "F:/circus-runtime-work/dc4ph-20261111/native/final-opcode-parameter-scan.json",
+    "receipt_sha256": "71e325da45e76274471ef2d572819db99c785605e5b60341a0ffb4e4fd8b3f1a",
+    "previously_unmapped": {"5B": 2, "64": 1271, "A7": 2, "A8": 22, "A9": 3}
+  },
+  "face64": {
+    "actual": "1270 '.' strings have no native effect; one '-' clears both pending faces.",
+    "native": "4284B0 case64 copies '-' into local23FC/acStack22F0 and sets their+104 flags. Relative to local4470, these are268-byte pending records31/32, consumed by the common4807ff loop through41E6A0 and422DE0.",
+    "binding": "scene.face; shared layout.face=31 and face+1=32 match native exactly."
+  },
+  "background49_colon": {
+    "actual": "Only two colon strings occur:':n'130 times and':r'1945 times.",
+    "native": "Case49 ':n' sets global40F40 and interpreter5D64 to1;':r' clears both. Global40F40 controls whether a later3C1 background preparation clears camera globals4B3328..4B334C and drains actor animations. The interpreter5D64 value is copied into camera-request fields and passed as423910 parameter6, but that parameter is not consumed in the extracted function body.",
+    "ui_boundary": "These writes have no native path selecting message templates3/4. Applying the inherited DD ':n'->scene.novelMode mapping in PH is incorrect: it selects old NVL fragments instead of the real PH message window. PH must retain its ordinary body/name templates while owning these stage-control flags separately.",
+    "control_bar_n": "This background string is also distinct from UI action ':n'. Native4332B0 toggles global88, exposed as99:227, for that button. 433E50/4226B0 keep body/name templates0/1/2 active and select control template9 or10, rather than hiding the dialogue body."
+  },
+  "animation95": {
+    "actual": "All20 calls use a3=4:14*[0,0,0,4],3*[0,0,2,4],and one each[50,0,1,4],[50,100,0,4],[50,0,0,4]. Each follows resource3C slot33.",
+    "native": "4284B0 mode4 uses PCK handle this+6B8(logical33), fixed render object pointer this+60A8(native66), and447AC0(x=a0,y=a1,counterThreshold=a2,PCK,loop0,-1). a0 is not a target slot. The resource list's entry order determines frame order.",
+    "clock": "447AC0 binds frame0 immediately. 448CE0's5D0 queue manager first initializes; later a frame advances only when its stored counter is strictly greater than the supplied threshold. The last advancement unloads the current texture and retires the job. The portable owner uses60Hz, retaining the strict comparison, initial two-update overhead and nonlooping end.",
+    "barrier": "The actual first95 inDC4_SEN20181213B is followed by15:254. Host waiting must include Dc4Animation.remainingMillis together with ordinary scene animations. KTR340 pages atthreshold2 finishes at17034ms on the portable clock.",
+    "native_scope": "Object66 lies outside B1/B2's first60 blurred objects. Render this effect after the portable blur stage and before UI.",
+    "actual_packs": [
+      {"name": "EFF/EF001.PCK", "frames": 60},
+      {"name": "EFF/EF002.PCK", "frames": 90},
+      {"name": "EFF/EF003.PCK", "frames": 120},
+      {"name": "EFF/EF004.PCK", "frames": 120},
+      {"name": "EFF/EF005.PCK", "frames": 120},
+      {"name": "EFF/EF006.PCK", "frames": 120},
+      {"name": "EFF/EF007.PCK", "frames": 120},
+      {"name": "EFF/EF008.PCK", "frames": 120},
+      {"name": "EFF/EF009.PCK", "frames": 120},
+      {"name": "EFF/EF013.PCK", "frames": 30},
+      {"name": "EFF/KTR.PCK", "frames": 340}
+    ],
+    "header_check": "Every entry of all eleven actual PCK files was read as20-byte CRXG header withorigin0,0 andsize1280x720. This check does not claim GPU-exact raster timing or an original EXE run.",
+    "portable": "Dc4Animation retains only archive reference/index/position/timing in snapshots. Original resources are read through the existing Archive/CRX codecs; entire decoded sequences are not cached by this controller. Other unused95 modes explicitly fail."
+  },
+  "notice5B": {
+    "actual": "START37F9 kind1;CONFIG7F55 kind0.",
+    "native": "4187D0 builds from this+28D4(template21), then412B00 places the popup. Unlike59's template12 at28B0, this command does not first test93:kind for automatic acceptance.",
+    "portable": "ph.ui.notice temporarily uses template21 for common confirmation construction, restores original template12 in finally, and publishes through ui.wait. Existing action bytes, backdrop/caption indexing, hit regions and requested origin are retained."
+  },
+  "choice5C": {
+    "actual": "All74 choice items use a following6C marker; seven additional6C records are87 UI text payloads. These74 captions all passed the actual Java decoding/plain-text pipeline.",
+    "native": "4284B0 case5C reads raw NUL bytes after skipping one following marker via437FB0, unconditionally transforms them with407B10(+32,dollar-to-space), then4149F0 stores the label/caption. The marker's standalone opcode is never executed by this handler. Case5F independently skips another marker+rawNUL string; it is not the caption opcode.",
+    "portable": "Only the PH profile adds5C/5F string payload ownership. MesVm decodes the owned PH5C bytes independently of their marker and leaves the original6C standalone default mapping intact. Other editions retain their reviewed caption-opcode check.",
+    "verification": "F:/circus-runtime-work/dc4ph-20261111/choice-check-v3/Dc4ChoiceTests.stdout.txt:83 PASS (8 fixtures plus74 actual-caption checks plus1 corpus-count assertion). Fixtures include cold full-VM snapshots and both branch selections, arbitrary raw marker consumption,5F skipping and the retained DD strict check."
+  },
+  "recordA7A8": {
+    "actual": "OnlyDC4_SEN20181218B uses A7:one start0 and one stop1, then22 A8 calls(repeat1/2 eleven each). The recording interval contains three8B flags0 position setters only.",
+    "native": "A7 calls445AA0 across150 objects, toggling770 and clearing recorded motion banks on begin. A8 calls445AA0(false,count), then448340 copies recorded motion lists into active queues. The interval's8B flags0 uses401040->444040 immediate position and4440E0 base-coordinate stores, not4472A0 motion recording.",
+    "portable": "Map A7/A8 to the shared scene.record_motion/scene.replay_motion owner. This actual interval produces no non-shake recorded jobs, so the existing recording subset is sufficient. The separate physical A4/A5 commands have no actual corpus callers and are not evidence for A7/A8."
+  },
+  "audioA9": {
+    "actual": "One pause11/resume10 pair inDC4_SEN20181213C;one mode0 inMUSIC;all other arguments are0.",
+    "native_pause": "43AF10(8) reads the voice-buffer play cursor, saves it in4C0A58[8] and calls DirectSound Stop(vtable48). 43AED0(8) calls43AB90 to resume and SetCurrentPosition(vtable34) with that saved cursor.",
+    "portable_pause": "Dc4Speech records source/loop/wasActive, immediately stops the portable channel, persists that suspended state, and restores the original resource on resume. Exact DirectSound byte-cursor restoration is deferred: the current portable bridge restarts the retained resource from its beginning.",
+    "native_seek": "For mode0,99:187!=99 increments and writes back that register first. 43B820 clamps the resulting position, calls DirectSound SetCurrentPosition(vtable34) and Play(vtable30). This is music seeking, not volume control.",
+    "portable_seek": "Store the single native increment and request musicRoom.seek/seekGeneration at the resulting percentage, avoiding the shared DD helper's extra increment."
+  },
+  "audio_completion_250": {
+    "actual": "Eight ED_*.mes scripts each read99:250 at1FF and loop over600ms waits while it equals0. No corresponding direct variable query of249/244 was found in the inspected MES variable operations.",
+    "native_evidence_limit": "The extracted40CC50 getter contains no matching249/250 completion implementation; its unknown99 indices return0. A version mismatch between this extracted engine and the installed scripts is possible but unproven. Original EXE execution was not used to resolve this mismatch.",
+    "portable_inference": "To honor the explicit ED script intent, the PH host alone provides99:250=0 while music channel0 is actually active and1 when inactive. Existing generation-aware audioCompleted callbacks determine completion; no timeout fabricates a successful finish. This is an edition-owned compatibility behavior inferred from the scripts, not a claim that the static getter proves it.",
+    "scope": "No new249/244/247 behavior is introduced; legacy profiles retain their original reads. The existing audio-active/generation snapshot fields already preserve the compatibility query state.",
+    "verification": "Dc4AudioStatusTests8 PASS uses a self-authored reproduction of the actual ED loop, a stale callback, a current callback and a cold full-VM snapshot. Focused frozen evidence is inF:/circus-runtime-work/dc4ph-20261111/audio-status-check-v1/; that same build also passesChoice83 andRuby18 with actual corpora."
+  },
+  "sway8E": {
+    "actual": "Six calls, each[60,0,0,32] followed by[40,0,360,16].",
+    "native": "8E bit20 configures the60-tick interval and horizontal axis. Bit10 calls447400(radius40,angle0,angle360,60,0,-1). 448CE0 advances the angle, calls45DED0/45DF28(fsin path) and writes actorX=baseX+sin(angle)*radius. At completion it restores the exact baseX. This is horizontal sine sway, not an unimplemented two-axis circular arc.",
+    "portable": "Dc4Sway approximates render updates at60Hz, retains one initialization update, restores baseX on completion/reset, and persists time/range/base state. Dc4SceneCommands owns this helper and exposes animationRemaining for15:254. Native floating raster offsets are represented by integer scene coordinates."
+  },
+  "transition0F": {
+    "actual_modes": {"0": 6348, "2": 1034, "3": 70, "4": 73, "5": 55, "6": 87, "8": 1, "9": 9, "16": 1, "21": 4271, "31": 3, "32": 14941, "40": 301, "51": 1252, "52": 1167},
+    "mode40": "All301 callers use[40,2]. No dedicated0x28 branch exists in the native0F handler. It reaches422680(stop cast logical4..13),407C70(bind retained capture6E4), then bypasses the mode2 and mode<2 fade branches. a1=2 is unused; no native fade duration is started.",
+    "mode8": "The sole[8,0] caller reaches the same no-fade fallback.",
+    "portable": "Dc4Transition handles the previously rejected8/40, stops cast motion, commits pending scene data through the shared publish path and retains the true mode/parameter metadata. Early portable publication is explicitly an approximation of the native phase boundary; no unsupported fade/wipe is fabricated. All output state already belongs to shared serialized scene/host owners.",
+    "mode31_32": "Native31/32 also stop cast and bind the retained capture. PH host integration stops cast before delegating to the inherited no-fade path, retaining its normal pending-publication boundary."
+  },
+  "ruby_text": {
+    "native": "41FBE0 searches816F8145(full-width open brace plus emphasis dot),815E(full-width slash) and8170(full-width close brace), normalizing emphasis width to the base byte count. 43E490 handles general annotation/base splitting for small12px ruby glyphs above normal text.",
+    "portable": "Only the PH host applies Dc4Ruby, after the edition macro byte preprocessor and before the shared performance/plain-text pipeline. It removes valid ruby delimiters while preserving every base-text byte, retains annotation/base-byte spans in the PH snapshot, normalizes dot counts and rejects malformed/nested records. Shared NativeText still refuses unsupported ruby in other editions.",
+    "visual_limit": "Small annotation glyphs are retained as metadata but not yet drawn. The current portable dialogue shows correct base prose; ruby emphasis/reading appearance remains deferred. Byte spans precede shared performance-tag removal, so later renderer integration must account for those tags when resolving visual offsets.",
+    "corpus": "All536 actual scripts:60494 body records,478 ruby lines,524 ruby spans,115 distinct annotation strings including emphasis counts,0 speaker ruby,0 malformed records,0 remaining NativeText unsupported controls after the reviewed PH pipeline.",
+    "private_scan": "F:/circus-runtime-work/dc4ph-20261111/native/text-control-corpus-scan.json",
+    "scan_sha256": "a5ceac9498c304a6a360afcfedb4610f1f8d554af6c25d4ad048136e82113b58",
+    "java_verification": "F:/circus-runtime-work/dc4ph-20261111/ruby-check-v1/focused.stdout.txt:18 PASS (16 fixtures plus2 actual-corpus assertions),60494 records passed MesScript.nativeText -> Dc4Macros -> Dc4Ruby -> Dc3Performance -> NativeText.plain.",
+    "fixtures": "Actual two blocking lines; emphasis/readings; odd ASCII base length; multiple spans; cold span snapshot; missing/duplicate/nested delimiters; CP932 trail81+ASCII6F false marker; other-edition rejection and nested-control validation retained."
+  },
+  "verification": {
+    "frozen_build": "F:/circus-runtime-work/dc4ph-20261111/animation-notice-audio-check-v3/desktop-tests/inputs-manifest.json",
+    "clean_summary": "F:/circus-runtime-work/dc4ph-20261111/animation-notice-audio-check-v3/focused-summary.json",
+    "tests": {"Dc4AnimationTests": "27 PASS (16 controller fixtures plus11 real packs)", "Dc4NoticeTests": "5 PASS", "Dc4NativeStateTests": "29 PASS", "Dc4UiMoveTests": "7 PASS", "Dc4SwayTransitionTests": "11 PASS"},
+    "scope": "These are targeted static/data/controller checks. They do not claim a complete game walkthrough, native GPU equivalence or an Android device test."
+  }
+}

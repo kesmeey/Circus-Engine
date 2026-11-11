@@ -1,0 +1,127 @@
+{
+  "recorded_utc": "2026-11-11T12:32:36.240220+00:00",
+  "scope": "Frozen0.14.14 PH development APK: JVM synthetic core, emulator ART/Canvas and exact-original-range PH main/startup/save/media smoke. Not full-engine/full-route certification.",
+  "apk": {
+    "path": "F:\\circus-runtime-work\\dc4ph-20261111\\distribution\\circus-runtime-0.14.14-dc4ph-dev-android.apk",
+    "bytes": 12805992,
+    "sha256": "32c53efc0116e9ac403b2f1b47e7935d89cd1a6540582166a85f5680ac3ce3d9",
+    "package": "org.circus.runtime",
+    "version_code": 44,
+    "version_name": "0.14.14-dc4ph-dev",
+    "min_sdk": 26,
+    "target_sdk": 35,
+    "native_abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86_64"
+    ],
+    "signature_verified": true,
+    "certificate_sha256": "eac9f2b2ac9d83250e1427a580a02d8d3d4f270d51b96ecf3865f86656c7097f",
+    "same_development_certificate_as_previous_apks": true,
+    "original_game_range_fixture_bundled": false
+  },
+  "frozen_build": {
+    "root": "F:\\circus-runtime-work\\dc4ph-20261111\\android-final-v1",
+    "inputs": 837,
+    "mirror_source_differences": [],
+    "live_source_differences_at_build_completion": [],
+    "live_source_differences_at_delivery": [],
+    "generated_outputs_drive": "F",
+    "original_workspace_written_by_build": false
+  },
+  "jvm": {
+    "pass": true,
+    "assertions": 1150159
+  },
+  "android_art_core": {
+    "pass": true,
+    "device": "emulator-5586",
+    "abi": "x86_64",
+    "assertions": 1150159,
+    "android_canvas_pixel_contracts": 8,
+    "transition_mask_pixel_comparisons": 484,
+    "character_map_and_tunnel_rejection": true,
+    "save_atomic_rollback_and_invalid_envelope_rejection": true,
+    "library_persistence_and_rollback": true
+  },
+  "ph_original_startup": {
+    "pass": true,
+    "profile": "dc4ph-abb6",
+    "checks": 126,
+    "canvas": [
+      1280,
+      720
+    ],
+    "encoding": "CP932, auto, no external substitution",
+    "body_waits": 20,
+    "script_pc_body_hashes_match_pre_final_jvm_expectation": true,
+    "first": {
+      "script": "DC4_KYO20190204A1",
+      "pc": 2654,
+      "body_sha256": "07e6b4ca64f3922c5be56b9b62c363b783b7e57bac503a1b2a96bb1a2b8aa25f"
+    },
+    "last": {
+      "script": "DC4_KYO20190204A1",
+      "pc": 4088,
+      "body_sha256": "6fd1a9659d59eaa04118dbc55c6bb3ea995d4831a4c7496679d0891ebdb7dda4"
+    },
+    "original_menu_pointer_path": "400ms settle then visible control center through shared pointerDown/pointerUp",
+    "missing_requested_images": false,
+    "original_backgrounds_decoded": [
+      "BG\\BG010A",
+      "SYSTEM\\TITLEBACK02"
+    ],
+    "portable_file_save_restore_same_platform_pixels": true,
+    "restored35ms_future_state_and_pixels": true,
+    "natural_macro_events_in_early20": 0
+  },
+  "android_direct_media": {
+    "pass": true,
+    "resource": "music\\001",
+    "playing": true,
+    "position_ms": 349,
+    "duration_ms": 128593,
+    "scope": "Direct Android MediaPlayer decoder/output probe; not RuntimeActivity media dispatch",
+    "audible_output_heard_verified": false
+  },
+  "visual_review": {
+    "title_png": "Title logo, original menu/buttons and1280x720 framing checked",
+    "body01_png": "Background, Japanese text and bottom controls checked",
+    "body20_png": "Background, Japanese text wrapping and bottom controls checked",
+    "screenshots": {
+      "title.png": {
+        "path": "F:\\circus-runtime-work\\dc4ph-20261111\\android-final-v1\\platform-validation\\captures\\title.png",
+        "sha256": "5cd66dce8454be747efaa9fe8a5fd2db8c81f46d891d41eaab7ff9c4817fe55c"
+      },
+      "body-01.png": {
+        "path": "F:\\circus-runtime-work\\dc4ph-20261111\\android-final-v1\\platform-validation\\captures\\body-01.png",
+        "sha256": "b544af9f5c8ebc2750372ff83a7db1a27d91e29a5a95e9e579d0d02d402d2de4"
+      },
+      "body-20.png": {
+        "path": "F:\\circus-runtime-work\\dc4ph-20261111\\android-final-v1\\platform-validation\\captures\\body-20.png",
+        "sha256": "cfa920389325893be35b542ab9de0ca11418ec49258b318e5593fa1cc7032d92"
+      }
+    }
+  },
+  "private_evidence": {
+    "build_result": "F:\\circus-runtime-work\\dc4ph-20261111\\android-final-v1\\result.json",
+    "platform_result": "F:\\circus-runtime-work\\dc4ph-20261111\\android-final-v1\\platform-validation\\result.json",
+    "startup_report": "F:\\circus-runtime-work\\dc4ph-20261111\\android-final-v1\\platform-validation\\captures\\report.json",
+    "range_pack_sha256": "cd1a3cdf146d400cc10d3beadb94636a197b68b9fcf99582f3973bfa80def3f0",
+    "range_pack_bytes": 19860810,
+    "pre_final_recording_and_empty_directory_replay_checks_each": 99
+  },
+  "boundaries": {
+    "phone_operated": false,
+    "original_game_executable_executed": false,
+    "original_game_directory_written": false,
+    "installed_sdk_written": false,
+    "private_game_fixture_committed_or_packaged": false,
+    "saf_document_tree_and_launcher_configuration_tested": false,
+    "runtime_activity_stage_real_touch_vsync_lifecycle_tested": false,
+    "runtime_activity_async_media_dispatch_tested": false,
+    "original_windows_story_or_system_save_import_tested": false,
+    "all_routes_and_extras_certified": false
+  },
+  "validation_harness_note": "Android35 am emitted only completed finish-stream text. Private wrapper required an absent legacy INSTRUMENTATION_CODE marker, then its continuation lacked a pack binding. Preserved both tool-error receipts and resumed verification/extraction without rerunning either passed product test or rebuilding/changing the APK."
+}

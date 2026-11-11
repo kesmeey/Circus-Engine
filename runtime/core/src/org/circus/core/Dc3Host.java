@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 /** D.C.III host with profile-owned state and reviewed PP-specific audio contracts. */
-public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.TitleHost,MesVm.MenuHost {
+public class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.TitleHost,MesVm.MenuHost {
     public final Set<Integer> availableSaves=new HashSet<>();
     public final Dc2History history=new Dc2History();private int scriptOffset;private String historyVoice="";
     public boolean returnRequested;public int saveRequest=-1,loadRequest=-1;
@@ -68,7 +68,8 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
     public Dc3Host(CircusResources resources,TextCodec codec){this(resources,codec,false);}
     /** Shared presentation owner; native memory, audio and services still vary by build.
      * A common Java host does not establish cross-version semantic equivalence. */
-    public static boolean supports(String id){return id.equals("dc3dd-a5a8")||id.equals("dc3wy-a09f")||id.equals("dc3pp-9872");}
+    public static boolean supports(String id){return id.equals("dc3dd-a5a8")||id.equals("dc3wy-a09f")||id.equals("dc3pp-9872")||id.equals("dc4ph-abb6");}
+    public static Dc3Host create(CircusResources resources,TextCodec codec,boolean originalSystem){return resources.profile.id.equals("dc4ph-abb6")?new Dc4Host(resources,codec,originalSystem):new Dc3Host(resources,codec,originalSystem);}
     public static boolean supports(Profile p){return p!=null&&supports(p.id);}
     /** wait.message - the opcode that closes a line of dialogue. */
     public static int waitMessageOpcode(String id){return id.equals("dc3pp-9872")?0x07:0x06;}
@@ -91,7 +92,7 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
     }
     private void syncDialogue()throws IOException {boolean current=dialogue.waiting();if(current&&!wasDialogue){nextTicket();if(originalSystem&&!dialogue.shownText.isEmpty())history.append(dialogue.shownSpeaker,dialogue.shownText,historyVoice,scriptName,scriptOffset);historyVoice="";}wasDialogue=current;}
     private void nextTicket()throws IOException {if(ticket==Long.MAX_VALUE)throw new IOException("Host event counter exhausted");ticket++;}
-    private void delay(long millis,boolean canInterrupt)throws IOException {publish();remaining=millis;interruptible=canInterrupt;if(millis!=0)nextTicket();}
+    protected void delay(long millis,boolean canInterrupt)throws IOException {publish();remaining=millis;interruptible=canInterrupt;if(millis!=0)nextTicket();}
     public void elapse(long milliseconds){if(isDd()){ddInputIdle=Math.min(60001,ddInputIdle+Math.max(0,Math.min(60001,milliseconds)));if(ddInputIdle>5000&&ddAutoCursor())ddCursorShown=false;}if(isPp()&&ppMusic!=null)applyPpMusicAudio(ppMusic.elapse(milliseconds,ppMusicVolume()));musicPollElapsed=Math.min(1000,musicPollElapsed+Math.max(0,milliseconds));if(ppScrollCredits.elapse(milliseconds)==PpScrollCredits.Step.COMPLETE){try{finishPpScrollCredits();}catch(IOException failure){ui.nativeFailure(failure);}}boolean roll=credits.active();credits.elapse(milliseconds);if(roll&&!credits.active())finishCredits();if(remaining>0)remaining=Math.max(0,remaining-Math.max(0,milliseconds));scene.elapse(milliseconds);if(musicFadeRemaining>0){musicFadeRemaining=Math.max(0,musicFadeRemaining-Math.max(0,milliseconds));musicGain=musicFadeRemaining/(float)musicFadeDuration;if(musicFadeRemaining==0){audio[0]="";audioActive[0]=false;audioGeneration[0]++;musicId=-1;}}performance.elapse(milliseconds,scene,this::perform);pollAudioWait();if(isDd()){try{if(ui.waiting&&ui.activeConfirmation>=0)ui.confirmChecked=state.read(93,ui.activeConfirmation)!=0;}catch(IOException failure){ui.nativeFailure(failure);}ui.updateBoundSprites();}}
     private void finishCredits(){for(Dc3Scene.Layer l:scene.slots)l.resource="";scene.slots[1].resource="BG/BLACK";scene.quads.clear();scene.published=scene.capture();}
     private void finishPpScrollCredits()throws IOException {variables.write(100,29,1);}
@@ -111,9 +112,14 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
         if(signal==MesVm.HostSignal.ADVANCE){performance.elapse(86400000,scene,this::perform);scene.published=scene.capture();}
         boolean accepted=dialogue.signal(dialogue.waitTicket(),signal);syncDialogue();return accepted;
     }
+    protected void beforeScenePublish()throws IOException{}
     private void publish()throws IOException{
+        beforeScenePublish();
         scene.publish();gallery.image(state,scene.slots[1].resource);publishAudio();
     }
+    protected void replaceAudioNow(int channel,String resource,boolean loop,boolean active){pendingAudio[channel]=null;audio[channel]=resource;audioLoop[channel]=loop;audioActive[channel]=active&&!resource.isEmpty();audioGeneration[channel]++;}
+    /** Replay input keeps dialogue/history ownership unchanged. */
+    public void replayVoice(String resource){replaceAudioNow(5,resource,false,!resource.isEmpty());}
     private int voiceIndex(String resource){String suffix=resource.substring(resource.lastIndexOf('_')+1);for(int n=0;n<ui.voiceNames.size();n++)if(suffix.regionMatches(true,0,ui.voiceNames.get(n),0,ui.voiceNames.get(n).length()))return n;return 50;}
     private boolean systemVoice(String resource){return resource.replace('/', '\\').toLowerCase(Locale.ROOT).startsWith("voice\\system");}
     private boolean voiceEnabled(String resource){try{return systemVoice(resource)||state.read(95,voiceIndex(resource))!=0;}catch(IOException e){throw new IllegalStateException(e);}}
@@ -298,10 +304,11 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
         if(name.startsWith("*")){try{return resources.named("images",Integer.parseInt(name.substring(1)));}catch(NumberFormatException e){throw new IOException("Invalid image index",e);}}
         return name;
     }
+    protected boolean dispatchDuringDialogue(){return false;}
     public boolean command(String op,int[] a,byte[] bytes)throws IOException {
         if(originalSystem&&uiCommand(op,a,bytes))return true;
         if(op.equals("text.body")){bytes=performance.parse(bytes,state.read(99,26));for(Dc3Performance.Event e:performance.events)if(e.kind==3||e.kind==4||e.kind==8)e.resource=resources.named(e.kind==4?"music":"sound",e.value);}
-        if(dialogue.command(op,a,bytes)){syncDialogue();if(dialogue.waiting())publish();return true;}
+        if(!dispatchDuringDialogue()&&dialogue.command(op,a,bytes)){syncDialogue();if(dialogue.waiting())publish();return true;}
         switch(op){
         case "system.exit":require(originalSystem,"platform game exit");exitRequested=true;return true;
         case "state.reset_scenario":if(a[0]==0)variables.clearOrdinary();variables.clearHistory();checkpoint=0;checkpointLabel="";checkpointMetadata=0;return true;
@@ -463,7 +470,7 @@ public final class Dc3Host implements MesVm.ContextHost,MesVm.ChoiceHost,MesVm.T
         for(int i=0;i<audio.length;i++){out.writeUTF(audio[i]);out.writeInt(audioGeneration[i]);out.writeBoolean(audioActive[i]);out.writeBoolean(audioLoop[i]);out.writeBoolean(pendingAudio[i]!=null);if(pendingAudio[i]!=null)out.writeUTF(pendingAudio[i]);}if(originalSystem){list.save(out);out.writeUTF(musicEndAction);musicRoom.save(out,state);out.writeLong(musicPollElapsed);history.saveVisuals(out);out.writeBoolean(false);out.writeInt(musicVolumeBackup);UiCapture.save(out,uiCapture);}if(isPp()){out.writeFloat(ppPlaybackGain);out.writeBoolean(ppPendingVoice);out.writeBoolean(ppMusic!=null);if(ppMusic!=null)ppMusic.save(out);ppScrollCredits.save(out);}if(originalSystem&&isDd()){ui.saveDdModal(out);out.writeBoolean(ddActionWindowMode);out.writeBoolean(ddIdleEnabled);out.writeBoolean(ddCursorShown);out.writeLong(ddInputIdle);out.writeBoolean(pendingFrameAction!=null);if(pendingFrameAction!=null){out.writeInt(pendingFrameAction.length);out.write(pendingFrameAction);}}
     }
     public void load(DataInput in)throws IOException {
-        uiCapture=null;int format=in.readInt();if(originalSystem?(format!=0x4444333a&&format!=0x4444333b&&format!=0x4444333c&&format!=0x4444333d&&format!=0x4444333e&&!(isPp()&&(format==0x4444333f||format==0x44443340||format==0x44443342))&&!(isDd()&&format==0x44443341)):format!=0x44443337&&!(isPp()&&(format==0x44443338||format==0x44443339||format==0x44443343)))throw new IOException("Native host save version");if(originalSystem){returnRequested=in.readBoolean();saveRequest=in.readInt();loadRequest=in.readInt();if(saveRequest< -1||saveRequest>255||loadRequest< -1||loadRequest>255)throw new IOException("Invalid pending slot");systemScene=null;if(in.readBoolean()){systemScene=new Dc3Scene.Frame();systemScene.load(in);}ui.load(in);if(format>=0x4444333b){history.load(in);historyVoice=in.readUTF();}else{history.clear();historyVoice="";}exitRequested=in.readBoolean();settingsEditing=in.readBoolean();settingsBackup=null;if(in.readBoolean()){int n=in.readInt();if(!state.acceptsSettingsLength(n))throw new IOException("Invalid saved settings backup");settingsBackup=new byte[n];in.readFully(settingsBackup);}if(settingsEditing&&settingsBackup==null)throw new IOException("Missing settings backup");}dialogue.load(in);scene.load(in);state.load(in);performance.load(in);credits.load(in);titleRequested=in.readBoolean();imageTone=in.readInt();if(imageTone<0||imageTone>2)throw new IOException("Invalid image tone");randomSeed=in.readInt();musicFadeRemaining=in.readLong();musicFadeDuration=in.readLong();musicGain=in.readFloat();if(musicFadeRemaining<0||musicFadeRemaining>musicFadeDuration||musicFadeDuration>86400000||!Float.isFinite(musicGain)||musicGain<0||musicGain>1)throw new IOException("Invalid music fade");
+        uiCapture=null;int format=in.readInt();if(originalSystem?(format!=0x4444333a&&format!=0x4444333b&&format!=0x4444333c&&format!=0x4444333d&&format!=0x4444333e&&!(isPp()&&(format==0x4444333f||format==0x44443340||format==0x44443342))&&!(isDd()&&format==0x44443341)):format!=0x44443337&&!(isPp()&&(format==0x44443338||format==0x44443339||format==0x44443343)))throw new IOException("Native host save version");if(originalSystem){returnRequested=in.readBoolean();saveRequest=in.readInt();loadRequest=in.readInt();if(saveRequest< -1||saveRequest>255||loadRequest< -1||loadRequest>255)throw new IOException("Invalid pending slot");systemScene=null;if(in.readBoolean()){systemScene=new Dc3Scene.Frame();systemScene.load(in);}ui.load(in);if(format>=0x4444333b){history.load(in);historyVoice=in.readUTF();}else{history.clear();historyVoice="";}exitRequested=in.readBoolean();settingsEditing=in.readBoolean();settingsBackup=null;if(in.readBoolean()){int n=in.readInt();if(!state.acceptsSettingsLength(n))throw new IOException("Invalid saved settings backup");settingsBackup=new byte[n];in.readFully(settingsBackup);}if(settingsEditing&&settingsBackup==null)throw new IOException("Missing settings backup");}dialogue.load(in);scene.load(in);if(scene.camera.isPh()!=state.profileId.equals("dc4ph-abb6"))throw new IOException("Camera snapshot profile mismatch");state.load(in);performance.load(in);credits.load(in);titleRequested=in.readBoolean();imageTone=in.readInt();if(imageTone<0||imageTone>2)throw new IOException("Invalid image tone");randomSeed=in.readInt();musicFadeRemaining=in.readLong();musicFadeDuration=in.readLong();musicGain=in.readFloat();if(musicFadeRemaining<0||musicFadeRemaining>musicFadeDuration||musicFadeDuration>86400000||!Float.isFinite(musicGain)||musicGain<0||musicGain>1)throw new IOException("Invalid music fade");
         choiceVisible=in.readBoolean();int count=in.readInt();if(count<0||count>50||choiceVisible&&count==0)throw new IOException("Invalid saved choices");choices.clear();for(int i=0;i<count;i++){int n=in.readInt();if(n<1||n>255)throw new IOException("Invalid choice label");byte[] b=new byte[n];in.readFully(b);choices.add(new Choice(b,in.readUTF()));}
         scriptName=in.readUTF();checkpointLabel=in.readUTF();checkpoint=in.readInt();checkpointMetadata=in.readInt();musicId=in.readInt();
         ticket=in.readLong();remaining=in.readLong();wasDialogue=in.readBoolean();interruptible=in.readBoolean();autosaveGeneration=in.readInt();
